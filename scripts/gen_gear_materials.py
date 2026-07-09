@@ -37,6 +37,37 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "pack" / "kubejs" / "data" / "silentgear" / "silentgear_materials"
+TAG_OUT = ROOT / "pack" / "kubejs" / "data" / "vanillaplusplus" / "tags" / "block"
+
+# Utility overhaul Part 1: harvest_tier.incorrect_blocks_for_tool was always
+# pointing at these tag ids, but the tags themselves were never created -
+# they resolved to empty, meaning every one of our materials' tools could
+# mine every block in the game regardless of tier (a real bug, found by
+# decompiling Silent Gear's own iron/diamond materials and noticing they
+# point to SILENT GEAR'S OWN tags, which just reference vanilla's real
+# hierarchy - e.g. `silentgear:incorrect_for_iron_tools` is literally
+# `["#minecraft:incorrect_for_iron_tool"]`, not a Silent-Gear-invented block
+# list). NeoForge itself patches `minecraft:incorrect_for_diamond_tool` to
+# include `#neoforge:needs_netherite_tool`, and Allthemodium patches
+# `minecraft:incorrect_for_netherite_tool` with `#c:needs_allthemodium_tool`
+# (etc.) while also shipping ready-made `c:incorrect_for_allthemodium_tool`/
+# `..._vibranium_tool`/`..._unobtainium_tool` tags that are each exactly
+# "everything from the next tier up" - so our own tags just need to plug
+# into this existing chain, not enumerate any blocks ourselves.
+TIER_INCORRECT_TAGS = {
+    1: ["minecraft:incorrect_for_iron_tool", "minecraft:incorrect_for_diamond_tool",
+        "minecraft:incorrect_for_netherite_tool"],
+    2: ["minecraft:incorrect_for_diamond_tool", "minecraft:incorrect_for_netherite_tool"],
+    # Nothing in vanilla distinguishes diamond-tier from netherite-tier block
+    # hardness (both have an empty native "incorrect" list), so tier 3
+    # (refined_radiance, our "netherite-equivalent") needs the exact same
+    # exclusion set as tier 2 to still keep Allthemodium's ores out of reach.
+    3: ["minecraft:incorrect_for_diamond_tool", "minecraft:incorrect_for_netherite_tool"],
+    4: ["c:incorrect_for_allthemodium_tool"],
+    5: ["c:incorrect_for_vibranium_tool"],
+    6: ["c:incorrect_for_unobtainium_tool"],
+    7: [],  # top tier, nothing above it to exclude
+}
 
 # (key, ingredient tag-or-item, display name, harvest_tier name, tier_index)
 # tier_index 1 = andesite_age (~iron), 2 = brass_age (~diamond), continuing
@@ -161,14 +192,27 @@ def material_json(key, ingredient, display_name, harvest_name, tier_index):
     }
 
 
+def incorrect_blocks_tag_json(tier_index):
+    values = [f"#{v}" for v in TIER_INCORRECT_TAGS[tier_index]]
+    return {"values": values}
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    TAG_OUT.mkdir(parents=True, exist_ok=True)
     keep = set()
+    tag_keep = set()
     for key, ingredient, display_name, harvest_name, tier_index in MATERIALS:
         data = material_json(key, ingredient, display_name, harvest_name, tier_index)
         (OUT / f"{key}.json").write_text(json.dumps(data, indent=2) + "\n")
         keep.add(f"{key}.json")
         print(f"wrote {key}.json (tier {tier_index})")
+
+        tag_name = f"incorrect_for_{harvest_name}_tools.json"
+        tag_data = incorrect_blocks_tag_json(tier_index)
+        (TAG_OUT / tag_name).write_text(json.dumps(tag_data, indent=2) + "\n")
+        tag_keep.add(tag_name)
+        print(f"wrote tags/block/{tag_name} ({len(tag_data['values'])} entries)")
 
     # Remove stale files from renamed/removed materials (same "keep set"
     # cleanup pattern as build_server.py) - a prior version of this script
@@ -178,6 +222,10 @@ def main():
         if existing.name not in keep:
             existing.unlink()
             print(f"removed stale {existing.name}")
+    for existing in TAG_OUT.glob("incorrect_for_*_tools.json"):
+        if existing.name not in tag_keep:
+            existing.unlink()
+            print(f"removed stale tags/block/{existing.name}")
 
 
 if __name__ == "__main__":
