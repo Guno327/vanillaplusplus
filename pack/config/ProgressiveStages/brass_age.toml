@@ -107,6 +107,22 @@ locked = [
     # lock added anyway for consistency with this file's own convention.
     "id:wands:diamond_wand",
     "id:wands:magic_bag_2",
+
+    # Utility overhaul Part 6: Sophisticated Backpacks. Gold/diamond
+    # backpacks and the mid Stack Upgrade tiers; the "Miner's Pouch" line
+    # (Void Upgrade + Advanced Filter Upgrade) also starts here - obsidian/
+    # ender pearl ties naturally to Nether-adjacent progression, already
+    # gated at this tier (see this file's own header comment on the Nether
+    # gate). Diamond backpack and Stack Upgrade Tier 3 are already
+    # naturally gated by diamond (locked above); gold_backpack/
+    # stack_upgrade_tier_2 need an explicit lock since gold is never locked
+    # anywhere in this pack.
+    "id:sophisticatedbackpacks:gold_backpack",
+    "id:sophisticatedbackpacks:diamond_backpack",
+    "id:sophisticatedbackpacks:stack_upgrade_tier_2",
+    "id:sophisticatedbackpacks:stack_upgrade_tier_3",
+    "id:sophisticatedbackpacks:void_upgrade",
+    "id:sophisticatedbackpacks:advanced_filter_upgrade",
 ]
 always_unlocked = []
 

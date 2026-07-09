@@ -20,6 +20,13 @@ dependency = "inner_system"
 # Allthemodium's own "Alloy" combining Unobtainium + Vibranium.
 locked = [
     "id:allthemodium:unobtainium_vibranium_alloy_ingot",
+
+    # Utility overhaul Part 6: Stack Upgrade Omega Tier (multiplies stacks
+    # per slot by 33,554,431) is Sophisticated Backpacks' own top-tier
+    # item, crafted from 9x Stack Upgrade Tier 4 with no raw-material
+    # ingredient to naturally gate it - reserved as the final tier's
+    # capstone reward for the "Miner's Pouch" bulk-storage line.
+    "id:sophisticatedbackpacks:stack_upgrade_omega_tier",
 ]
 always_unlocked = []
 

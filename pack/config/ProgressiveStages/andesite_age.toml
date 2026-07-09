@@ -99,6 +99,19 @@ locked = [
     "id:wands:copper_wand",
     "id:wands:iron_wand",
     "id:wands:magic_bag_1",
+
+    # Utility overhaul Part 6: Sophisticated Backpacks. Base leather
+    # backpack stays available from rootborn (matching stone_wand's own
+    # Tier 0 baseline); copper/iron backpacks and the early Stack/Filter
+    # Upgrade tiers start here. Iron backpack and Stack Upgrade Tier 1 are
+    # already naturally gated by their iron_ingot ingredient (locked
+    # above); copper_backpack/stack_upgrade_starter_tier need an explicit
+    # lock since copper is never locked anywhere in this pack.
+    "id:sophisticatedbackpacks:copper_backpack",
+    "id:sophisticatedbackpacks:iron_backpack",
+    "id:sophisticatedbackpacks:stack_upgrade_starter_tier",
+    "id:sophisticatedbackpacks:stack_upgrade_tier_1",
+    "id:sophisticatedbackpacks:filter_upgrade",
 ]
 always_unlocked = []
 

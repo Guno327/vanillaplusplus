@@ -77,6 +77,16 @@ locked = [
     # utility item).
     "id:wands:netherite_wand",
     "id:wands:magic_bag_3",
+
+    # Utility overhaul Part 6: Sophisticated Backpacks. Netherite backpack
+    # and Stack Upgrade Tier 4 are the mod's own native ceiling (same
+    # closed-tier-ladder situation as Building Wands - both already
+    # naturally gated by their netherite_ingot ingredient, locked above,
+    # explicit lock added for consistency). Advanced Void Upgrade
+    # (diamond+gold+redstone) completes the "Miner's Pouch" line here too.
+    "id:sophisticatedbackpacks:netherite_backpack",
+    "id:sophisticatedbackpacks:stack_upgrade_tier_4",
+    "id:sophisticatedbackpacks:advanced_void_upgrade",
 ]
 always_unlocked = []
 
