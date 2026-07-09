@@ -1,0 +1,53 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "apotheosis:random_gem",
+          "quality": 1,
+          "weight": 45
+        },
+        {
+          "type": "placebo:stack_entry",
+          "min": 1,
+          "max": 1,
+          "quality": 1,
+          "stack": {
+            "count": 1,
+            "id": "apotheosis:sigil_of_malice"
+          },
+          "weight": 30
+        },
+        {
+          "type": "minecraft:tag",
+          "expand": true,
+          "name": "apotheosis:boss_music_discs",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "vanillaplusplus:duskfang",
+          "weight": 15,
+          "functions": [
+            {
+              "function": "minecraft:set_enchantments",
+              "enchantments": {
+                "minecraft:sharpness": 3,
+                "minecraft:looting": 2
+              },
+              "add": false
+            }
+          ]
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "apotheosis:entity/rare_boss_drops"
+}
