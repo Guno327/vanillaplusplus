@@ -86,6 +86,19 @@ locked = [
     # enforces "as difficult as similarly-strengthed armour". Paired with the
     # lowest tier here to match its lowest-defense role.
     "id:ars_nouveau:sorcerer_robes",
+
+    # Utility overhaul Part 5: Building Wands. Copper/iron wands and Magic
+    # Bag Tier 1 - stone_wand stays available from rootborn (trivial
+    # cobblestone recipe, matching the tier ladder's own Tier 0 baseline).
+    # Iron wand is already naturally gated by its iron_ingot ingredient
+    # (locked above); copper_wand isn't naturally gated (copper is never
+    # locked in this pack), so it needs an explicit lock here - both are
+    # listed explicitly anyway, matching this file's existing convention of
+    # locking finished items alongside their raw materials, not relying on
+    # ingredient-locking alone.
+    "id:wands:copper_wand",
+    "id:wands:iron_wand",
+    "id:wands:magic_bag_1",
 ]
 always_unlocked = []
 

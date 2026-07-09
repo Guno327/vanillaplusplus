@@ -65,6 +65,18 @@ locked = [
     # see andesite_age.toml's sorcerer_robes comment for why the robe item
     # itself is what's tier-locked (its reagent is any Silent Gear chestplate).
     "id:ars_nouveau:arcanist_robes",
+
+    # Utility overhaul Part 5: Building Wands. Netherite wand is already
+    # naturally gated by its netherite_ingot ingredient (locked above);
+    # explicit lock added anyway for consistency with this file's own
+    # convention. This is also Building Wands' native ceiling - WandTier
+    # is a closed Java enum with no material registry, so no further tiers
+    # exist past netherite (same disclosed situation as Epic Fight's
+    # original ceiling before the combat overhaul's Part 3 bespoke
+    # extension - not worth replicating that effort for a secondary
+    # utility item).
+    "id:wands:netherite_wand",
+    "id:wands:magic_bag_3",
 ]
 always_unlocked = []
 

@@ -101,6 +101,12 @@ locked = [
     "id:toms_storage:polymorphic_item_filter",
     "id:toms_storage:tag_item_filter",
     "id:toms_storage:wireless_terminal",
+
+    # Utility overhaul Part 5: Building Wands. Diamond wand is already
+    # naturally gated by its diamond ingredient (locked above); explicit
+    # lock added anyway for consistency with this file's own convention.
+    "id:wands:diamond_wand",
+    "id:wands:magic_bag_2",
 ]
 always_unlocked = []
 
