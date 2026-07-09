@@ -26,24 +26,49 @@ the original requirements this design satisfies, and `pack/manifest.json` /
 Every other system in this pack (storage caps, RPG skill unlocks, currency,
 combat/magic tiers, dimension access, mob difficulty zones) gates against one
 of these six tiers. Tiers 0-3 stay entirely inside Create's own material
-chain (no addon needed); Tiers 4-5 are placeholders until Phase 2 and Phase 8
-pick the mods that anchor them — see the TODOs in
-`pack/config/ProgressiveStages/induction_age.toml` and `starforged_age.toml`.
+chain (no addon needed). Tier 5 is a placeholder until Phase 8 picks the
+endgame/dimension content that anchors it — see the TODO in
+`pack/config/ProgressiveStages/starforged_age.toml`. **Tier 4 is not a
+placeholder for "storage begins here"** — see the storage/autocrafting column
+below and the corrected note after the table.
 
-| # | Stage id | Name | Unlocked by | Create milestone | Vanilla tier also gated here |
-|---|---|---|---|---|---|
-| 0 | `rootborn` | Rootborn | starting stage | — | wood/stone |
-| 1 | `andesite_age` | Andesite Age | craft/pick up `create:andesite_alloy` | water wheels, mixing/pressing, crushing wheels | iron tools/armor, rails |
-| 2 | `brass_age` | Brass Age | craft/pick up `create:brass_ingot` | Mechanical Arm, Deployer, Sequenced Gearshift, Elevator Pulley, train control | diamond tools/armor, enchanting table, beacon, **Nether** |
-| 3 | `precision_age` | Precision Age | obtain `create:refined_radiance` or `create:shadow_steel` | Sturdy Sheet (Create's own top alloy) | netherite tier, elytra, totem, **The End** |
-| 4 | `induction_age` | Induction Age *(placeholder)* | temp: netherite ingot | — *(Phase 2 picks the real automation-tier mod, e.g. AE2/Mekanism-class)* | TBD |
-| 5 | `starforged_age` | Starforged Age *(placeholder)* | temp: kill Ender Dragon | — *(Phase 8 picks the real endgame/dimension content)* | TBD |
+| # | Stage id | Name | Unlocked by | Create milestone | Storage / autocrafting rung | Vanilla tier & dimension also gated here |
+|---|---|---|---|---|---|---|
+| 0 | `rootborn` | Rootborn | starting stage | — | vanilla inventory/chests only | wood/stone |
+| 1 | `andesite_age` | Andesite Age | craft/pick up `create:andesite_alloy` | water wheels, mixing/pressing, crushing wheels | **first browsable storage interface unlocked** — tiny capacity, manual only, no autocrafting | iron tools/armor, rails |
+| 2 | `brass_age` | Brass Age | craft/pick up `create:brass_ingot` | Mechanical Arm, Deployer, Sequenced Gearshift, Elevator Pulley, train control | storage capacity scales up; **first crafting automation** via Create's own Mechanical Arm + Deployer feeding the network | diamond tools/armor, enchanting table, beacon, **Nether** |
+| 3 | `precision_age` | Precision Age | obtain `create:refined_radiance` or `create:shadow_steel` | Sturdy Sheet (Create's own top alloy) | bigger storage tier; automation scales to multi-step Create contraptions (sequenced gearshifts, larger Deployer arrays) | netherite tier, elytra, totem, **The End** |
+| 4 | `induction_age` | Induction Age | temp trigger: netherite ingot *(real trigger TBD in Phase 2)* | — | **ceiling of the same storage system**: full network capacity + native pattern-based autocrafting (e.g. Refined Storage's Crafter Manager or AE2's molecular assembler network — exact mod picked in Phase 2) | TBD |
+| 5 | `starforged_age` | Starforged Age *(placeholder)* | temp: kill Ender Dragon | — *(Phase 8 picks the real endgame/dimension content)* | — | TBD |
 
 Dependency chain is strictly linear (`rootborn -> andesite_age -> brass_age ->
 precision_age -> induction_age -> starforged_age`); `linear_progression = true`
 in `progressivestages.toml` so granting any tier auto-grants everything below
 it. This directly satisfies "previous Create stuff should be necessary for
 the next tier of stuff."
+
+### Correction: storage starts at Tier 1, not Tier 4
+
+An earlier draft of this doc gated "storage" as a whole to Tier 4
+(Induction Age), treating it as a wholesale placeholder pending a new
+AE2/Mekanism-class mod. That's wrong against `instructions.md`, which asks
+for storage to be browsable "from traditional iron tier and onward" and to
+"start out limited, but still browsable," with capacity *and* autocrafting
+both continuing to scale after their first unlock rather than appearing
+whole-cloth at some late tier.
+
+Corrected model: **one continuous storage system spanning Tiers 1-4**, picked
+in Phase 2 (Refined Storage/AE2/Sophisticated Storage are the candidates —
+see Phase 2 task). It's introduced at Andesite Age (Tier 1) as a tiny,
+browsable, manual-only interface; capacity scales at every tier after that;
+autocrafting itself first becomes possible at Brass Age (Tier 2) specifically
+*through Create's own Mechanical Arm/Deployer machinery* rather than a bolt-on
+pattern autocrafter, keeping "engaging with Create should be the sole process
+by which you automate things" true even for storage automation; and Tier 4
+(Induction Age) is simply that same system's top rung (full network storage +
+native pattern-based autocrafting), not a separate mod bolted on at the end.
+Tier 4's trigger is still a temporary vanilla stand-in until Phase 2 finalizes
+the mod and its real top-tier item/milestone.
 
 ### Why gate Nether at Brass Age and The End at Precision Age
 
@@ -78,7 +103,10 @@ ported past 1.20.x and is ruled out.
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.
 1. ✅ This tier ladder, implemented via ProgressiveStages config
    (`pack/config/ProgressiveStages/*.toml`).
-2. Tiered storage progression (capacity + autocrafting scaling by tier).
+2. Tiered storage progression: browsable storage introduced at Tier 1
+   (tiny, manual-only), capacity scaling every tier after, autocrafting
+   unlocked at Tier 2 via Create's own Mechanical Arm/Deployer, scaling to
+   full network autocrafting by Tier 4.
 3. RPG skill/leveling system (Running/Swimming/Mining/Building/Swords/Bows/etc).
 4. Quest system: preset track (team-shared) + long-running exponential
    quests + randomized daily quests (both per-player).
