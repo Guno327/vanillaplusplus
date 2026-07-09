@@ -1161,6 +1161,108 @@ table JSON is well-formed and additive over vanilla's own pools, and the
 structure_set overrides use vanilla's own real placement values as a
 baseline (not invented numbers).
 
+### Ore veins via Create Ore Excavation (TODO.md item 1)
+
+First item off the post-launch TODO backlog (`TODO.md`, brainstormed and
+scoped with the user in a planning-only session before this autonomous
+work resumed). Ask: a simpler, Create-native way to generate ore-type
+resources than manually-placed vanilla scatter + a player-built drill
+Contraption (the only mechanism Phase 8's "resource infinity" section
+ever established).
+
+**Mod choice, verified not guessed.** The user's leading guess was
+"Create: Ore Excavation." Modrinth search turned up two candidates:
+`create-ore-excavation` ("Extract resources using machines powered by
+Rotational Force") and a different mod, plain `ore-excavation` ("mine
+whole veins... in one go" - a vein-miner-style *tool* mod, not a worldgen
+mod). Decompiling the first jar's `data/createoreexcavation/` confirmed it
+matches the ask precisely: a self-contained, fully data-driven ore-vein
+placement system (`createoreexcavation:vein` recipes with their own
+`placement.spacing/separation`, `biomeWhitelist`, and richness range,
+independent of vanilla ore generation) paired with Create-rotational-
+power-driven `createoreexcavation:drilling` recipes that extract from a
+vein. Only hard dependency is Create itself (already installed); JEI and
+CC:Tweaked integrations are optional and were left uninstalled.
+
+**The mod's own native tool ladder already matches this pack's
+convention exactly - reused, not reinvented.** `createoreexcavation:drill`
+(Iron Drill) -> `diamond_drill` -> `netherite_drill` is a fixed 3-rung
+Iron/Diamond/Netherite ladder, mirroring the exact tier-to-vanilla-
+material mapping already used pack-wide (iron tools at Andesite Age,
+diamond tools at Brass Age, netherite tier at Precision Age). Explicit
+ProgressiveStages locks were added following each tier file's own
+established convention (add an explicit lock even where a natural
+ingredient-based gate already exists, for consistency - see the Wands/
+Sophisticated Backpacks precedent in `precision_age.toml`):
+- `andesite_age.toml`: `createoreexcavation:drill` + `vein_finder` (the
+  entry-level vein-hunting kit) - neither is naturally gated by its own
+  ingredients (plain iron; amethyst/ender_eye/redstone ore/a wooden rod),
+  so both needed an explicit lock, not just a consistency one.
+- `brass_age.toml`: `diamond_drill` + `vein_atlas` (diamond isn't
+  independently tier-locked in this pack, so this needed an explicit lock
+  too, not just consistency).
+- `precision_age.toml`: `netherite_drill` (naturally gated already via
+  its smithing recipe's `netherite_ingot` addition, already locked at
+  this tier) plus the three industrial-scale machines - `drilling_machine`,
+  `sample_drill`, `extractor` - which all share `create:sturdy_sheet` in
+  their `create:mechanical_crafting` recipe (this tier's own Create
+  milestone material), also already naturally gated. All five got the
+  same "explicit lock anyway" treatment.
+
+**Three new vein types added for the late-game meta-material tier**
+(`pack/kubejs/data/createoreexcavation/recipe/ore_vein_type/` +
+`.../recipe/drilling/`, following the same raw-datapack-injection pattern
+established for structure loot/loot tables): `allthemodium`, `vibranium`,
+`unobtainium`, outputting `allthemodium:raw_allthemodium`/`raw_vibranium`/
+`raw_unobtainium` (item ids and translation keys confirmed from the
+installed Allthemodium jar's own lang file, not guessed). Placement
+rarity increases across the three (spacing 600/800/1000, separation
+32/48/64, richness multiplier tapering 1.5-0.6 / 1.0-0.4 / 0.8-0.3),
+loosely bracketing vanilla's own iron (spacing 128) vs. netherite
+(spacing 512) as reference points. Each vein's `drilling` recipe requires
+`createoreexcavation:netherite_drill` specifically (an explicit `item`
+match, not the mod's own generic `createoreexcavation:drills` tag that
+iron/zinc/etc. use) with rising Stress/tick cost (1024/1200 ->
+2048/1800 -> 4096/2400) - so extracting these veins is impossible until
+Precision Age, when the Netherite Drill itself unlocks, on top of the
+pre-existing ingot-level lock on `allthemodium:allthemodium_ingot`
+(Induction Age) already preventing early smelting even if a raw ore were
+somehow obtained first.
+
+**How this answers the "richer veins farther out / player-tier scaling"
+part of the ask, honestly.** The TODO item asked for vein rarity to tie
+into the same dimension/distance/player-tier scaling `mob_scaling.js` and
+the structure loot tiers use. Checked and disclosed: `createoreexcavation`
+exposes no player-position-aware runtime hook (its `placement` block is a
+static, world-gen-time `spacing`/`separation` pair, evaluated once per
+region like vanilla's own `random_spread` structure placement - there's
+no equivalent of `EntityEvents.spawned`'s live distance-to-spawn check
+available for a vein). The substitute actually implemented is tool-
+gating, not runtime scaling: since drilling a vein requires the matching-
+tier drill item, and that item is ProgressiveStages-locked, a player
+mechanically cannot exploit a rarer vein before reaching the matching
+tier, regardless of where in the world it generated. This achieves the
+same practical outcome (rarer materials require more progression to
+reach) through the mechanism the mod actually offers, rather than forcing
+a scaling formula the mod has no hook for.
+
+**Boot-tested clean**: mod loads (`Create Ore Excavation 1.6.8`), 0 KubeJS
+script errors (10/10 server scripts, 2/2 startup scripts), no parse
+errors for any of the 6 new recipe JSON files, and `ProgressiveStages`
+still resolves cleanly (`StageFileLoader`: 10 stage definitions,
+`StageTagRegistry`: 213 total tier-tagged items, up from the pre-change
+count by exactly the 8 new locked ids added this pass). One incidental
+finding, not acted on this pass: the mod ships its own KubeJS plugin
+(`Found plugin source createoreexcavation` in the boot log) - unexplored,
+flagged as a candidate for a future pass if a runtime scaling hook turns
+out to exist there after all.
+
+**Disclosed limitation**: as with every other overhaul, this sandbox has
+no live client - whether the new veins actually generate findable/minable
+deposits in a real explored world, and whether the rarity curve feels
+right, can't be verified here, only that the recipe schema is well-formed
+and the tier-gating chain is correctly wired.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.

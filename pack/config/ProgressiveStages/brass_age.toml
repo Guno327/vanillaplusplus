@@ -151,6 +151,16 @@ locked = [
     # flight paths open together at Brass Age purely through resource
     # availability, per the user's explicit request to gate air travel
     # through recipe ingredients rather than direct item locks.
+
+    # TODO.md item 1: Create Ore Excavation's diamond-tier upgrades.
+    # diamond_drill.json requires createoreexcavation:drill (already locked
+    # at andesite_age) plus a raw diamond gem/block, neither of which is
+    # independently tier-locked in this pack - needs an explicit lock here
+    # to match the "diamond tools/armor" convention already used for this
+    # tier. vein_atlas.json (amethyst/writable_book/chest/map) has no
+    # natural gate at all, locked here as the matching scouting upgrade.
+    "id:createoreexcavation:diamond_drill",
+    "id:createoreexcavation:vein_atlas",
 ]
 always_unlocked = []
 

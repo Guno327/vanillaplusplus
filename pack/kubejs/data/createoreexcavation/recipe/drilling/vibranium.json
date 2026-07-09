@@ -1,0 +1,15 @@
+{
+  "type": "createoreexcavation:drilling",
+  "drill": {
+    "item": "createoreexcavation:netherite_drill"
+  },
+  "output": [
+    {
+      "id": "allthemodium:raw_vibranium"
+    }
+  ],
+  "priority": 0,
+  "stress": 2048,
+  "ticks": 1800,
+  "veinId": "createoreexcavation:ore_vein_type/vibranium"
+}

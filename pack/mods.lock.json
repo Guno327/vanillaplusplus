@@ -10,8 +10,8 @@
       "filename": "create-1.21.1-6.0.10.jar",
       "url": "https://cdn.modrinth.com/data/LNytGWDc/versions/UjX6dr61/create-1.21.1-6.0.10.jar",
       "hashes": {
-        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b",
-        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353"
+        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353",
+        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b"
       },
       "filesize": 19123767,
       "side": "both",
@@ -58,8 +58,8 @@
       "filename": "createaddition-1.6.0.jar",
       "url": "https://cdn.modrinth.com/data/kU1G12Nn/versions/qPr8V4G2/createaddition-1.6.0.jar",
       "hashes": {
-        "sha512": "e3a31eefb15d37bd1a2ba9012d0c00ec92f7c9e57b7a35c993676ea0cc85ba4f35a055a9f98d57636f24a0562d6da18b4e90713f4f46d47959666a097a6a5cea",
-        "sha1": "87b539d41ed238e98b26c607c0c81a973323147e"
+        "sha1": "87b539d41ed238e98b26c607c0c81a973323147e",
+        "sha512": "e3a31eefb15d37bd1a2ba9012d0c00ec92f7c9e57b7a35c993676ea0cc85ba4f35a055a9f98d57636f24a0562d6da18b4e90713f4f46d47959666a097a6a5cea"
       },
       "filesize": 1661802,
       "side": "both",
@@ -74,8 +74,8 @@
       "filename": "refinedstorage-neoforge-2.0.9.jar",
       "url": "https://cdn.modrinth.com/data/KDvYkUg3/versions/lHHiI26k/refinedstorage-neoforge-2.0.9.jar",
       "hashes": {
-        "sha1": "59d8e734ccb6eaab4cdf04093c55872af7a3e23a",
-        "sha512": "b98a938b8af859f1952bfb35fb6db712835a7dead88fa15258ac0f4f06b26b08ebfa49fd9a35b2c81f7a745b3cd4370ced98c242d0fe7473ba019d92da8f6c57"
+        "sha512": "b98a938b8af859f1952bfb35fb6db712835a7dead88fa15258ac0f4f06b26b08ebfa49fd9a35b2c81f7a745b3cd4370ced98c242d0fe7473ba019d92da8f6c57",
+        "sha1": "59d8e734ccb6eaab4cdf04093c55872af7a3e23a"
       },
       "filesize": 4360871,
       "side": "both",
@@ -90,8 +90,8 @@
       "filename": "rhino-2101.2.7-build.85.jar",
       "url": "https://cdn.modrinth.com/data/sk9knFPE/versions/cQ4POTah/rhino-2101.2.7-build.85.jar",
       "hashes": {
-        "sha1": "3c8d34c7efe9e42fc90506acbf9fc842d36f9a42",
-        "sha512": "0a6c7f4410281aeb03b815ec03487a8e80a4d3dae013d81282e447bf9c08144ef57318af614ea6d40b7d9a8c25031c557890ec792a5895a82467c1643116f693"
+        "sha512": "0a6c7f4410281aeb03b815ec03487a8e80a4d3dae013d81282e447bf9c08144ef57318af614ea6d40b7d9a8c25031c557890ec792a5895a82467c1643116f693",
+        "sha1": "3c8d34c7efe9e42fc90506acbf9fc842d36f9a42"
       },
       "filesize": 882075,
       "side": "both",
@@ -106,8 +106,8 @@
       "filename": "kubejs-neoforge-2101.7.2-build.368.jar",
       "url": "https://cdn.modrinth.com/data/umyGl7zF/versions/F2nzeC19/kubejs-neoforge-2101.7.2-build.368.jar",
       "hashes": {
-        "sha1": "edf131afd474151afe076ea975ce5fec5a206ad8",
-        "sha512": "5e2f1bd1460d8f443ce4bd44ed367d27f9170e50dff2ce9430954206e89651f8969dfbe842c3100b0244f8d58f843fc5fb9c46b5c576430a07f1e5b6dd4b9f7b"
+        "sha512": "5e2f1bd1460d8f443ce4bd44ed367d27f9170e50dff2ce9430954206e89651f8969dfbe842c3100b0244f8d58f843fc5fb9c46b5c576430a07f1e5b6dd4b9f7b",
+        "sha1": "edf131afd474151afe076ea975ce5fec5a206ad8"
       },
       "filesize": 2281720,
       "side": "both",
@@ -154,8 +154,8 @@
       "filename": "architectury-13.0.8-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/lhGA9TYQ/versions/ZxYGwlk0/architectury-13.0.8-neoforge.jar",
       "hashes": {
-        "sha512": "65e3664953385d880320dd6bb818bcb96d361c07c53e2a7f65e64c6a47720ee26b233224ae9cad465ef0b2bbaefdaf30fb0175a983cecd91de058817d6fcf57e",
-        "sha1": "6ca11d3cc136bf69bb8f4d56982481eb85b5100b"
+        "sha1": "6ca11d3cc136bf69bb8f4d56982481eb85b5100b",
+        "sha512": "65e3664953385d880320dd6bb818bcb96d361c07c53e2a7f65e64c6a47720ee26b233224ae9cad465ef0b2bbaefdaf30fb0175a983cecd91de058817d6fcf57e"
       },
       "filesize": 584004,
       "side": "both",
@@ -298,8 +298,8 @@
       "filename": "epic-fight-21.17.3.1-mc1.21.1-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/vu3NZ5Ma/versions/8HHhJt6i/epic-fight-21.17.3.1-mc1.21.1-neoforge.jar",
       "hashes": {
-        "sha512": "d39c1d4a2198e7f2080cdc98de890d26d658a02b44c8399a301c7c0005d9991ff97cc94881823a9daa8952f3b89eb3d9197c2f83cf0fbba9c7992c77921b2122",
-        "sha1": "fb199b7bbea2fc402da28ab586e73f47e32f8fc0"
+        "sha1": "fb199b7bbea2fc402da28ab586e73f47e32f8fc0",
+        "sha512": "d39c1d4a2198e7f2080cdc98de890d26d658a02b44c8399a301c7c0005d9991ff97cc94881823a9daa8952f3b89eb3d9197c2f83cf0fbba9c7992c77921b2122"
       },
       "filesize": 8578288,
       "side": "both",
@@ -330,8 +330,8 @@
       "filename": "curios-neoforge-9.5.1+1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/vvuO3ImH/versions/yohfFbgD/curios-neoforge-9.5.1%2B1.21.1.jar",
       "hashes": {
-        "sha1": "418fcd42e3a7844c9bdc71c9b6401fdb3894e0c4",
-        "sha512": "5981a267686b744e7e3c227f78cbcd5267c14ac6979a28e814695f4589273998563147207fef4a5cdb7cdbdc39797cd95d9e4abadb55869f18e02a38d0654ae5"
+        "sha512": "5981a267686b744e7e3c227f78cbcd5267c14ac6979a28e814695f4589273998563147207fef4a5cdb7cdbdc39797cd95d9e4abadb55869f18e02a38d0654ae5",
+        "sha1": "418fcd42e3a7844c9bdc71c9b6401fdb3894e0c4"
       },
       "filesize": 410690,
       "side": "both",
@@ -410,8 +410,8 @@
       "filename": "ApothicSpawners-1.21.1-1.3.4.jar",
       "url": "https://cdn.modrinth.com/data/DfxVkOAO/versions/vTCJYc3D/ApothicSpawners-1.21.1-1.3.4.jar",
       "hashes": {
-        "sha1": "9835a68463c0363d3cff35253356eeb83663724b",
-        "sha512": "23a44d12f6b96e626d5b7582b41f562e75df6d7812c9f5ec6d2ab3eeb3eb8250214aab364ab6dd5359d258443277b0922e7446e5e1156e7f2fd9b1c97ca631d8"
+        "sha512": "23a44d12f6b96e626d5b7582b41f562e75df6d7812c9f5ec6d2ab3eeb3eb8250214aab364ab6dd5359d258443277b0922e7446e5e1156e7f2fd9b1c97ca631d8",
+        "sha1": "9835a68463c0363d3cff35253356eeb83663724b"
       },
       "filesize": 125008,
       "side": "both",
@@ -426,8 +426,8 @@
       "filename": "ApothicEnchanting-1.21.1-1.5.3.jar",
       "url": "https://cdn.modrinth.com/data/pL8MtgqY/versions/CZ1OdBnA/ApothicEnchanting-1.21.1-1.5.3.jar",
       "hashes": {
-        "sha1": "1b392526a446780d1770a10f6ff7d3d53bed52fc",
-        "sha512": "e7d4f17d816657319b7c27d511e2cad5ed80b0588dd9ed57b204f41aeca6399030e42fde38640a7d285d2b18dc4f602009caa9ac3aad803c8515d0bd8fd29d29"
+        "sha512": "e7d4f17d816657319b7c27d511e2cad5ed80b0588dd9ed57b204f41aeca6399030e42fde38640a7d285d2b18dc4f602009caa9ac3aad803c8515d0bd8fd29d29",
+        "sha1": "1b392526a446780d1770a10f6ff7d3d53bed52fc"
       },
       "filesize": 5355573,
       "side": "both",
@@ -442,8 +442,8 @@
       "filename": "Apotheosis-1.21.1-8.5.4.jar",
       "url": "https://cdn.modrinth.com/data/rqFWfVlz/versions/Vp2TR6ib/Apotheosis-1.21.1-8.5.4.jar",
       "hashes": {
-        "sha512": "338933d96a451205fdce94eb1443c6f88c55cd5c8bcd45bfd23948a7c39bd11f1fb103ceec75e344d8f1fed92bf26df13e7ba04cffee7ba805cbfe5f081f2245",
-        "sha1": "cf8a23f6946ae58a49743ac51e8d2ad008b7da63"
+        "sha1": "cf8a23f6946ae58a49743ac51e8d2ad008b7da63",
+        "sha512": "338933d96a451205fdce94eb1443c6f88c55cd5c8bcd45bfd23948a7c39bd11f1fb103ceec75e344d8f1fed92bf26df13e7ba04cffee7ba805cbfe5f081f2245"
       },
       "filesize": 6949384,
       "side": "both",
@@ -474,8 +474,8 @@
       "filename": "YungsBetterDungeons-1.21.1-NeoForge-5.1.4.jar",
       "url": "https://cdn.modrinth.com/data/o1C1Dkj5/versions/D6aZn0Em/YungsBetterDungeons-1.21.1-NeoForge-5.1.4.jar",
       "hashes": {
-        "sha1": "73a660c13063450e555e5e2c015ae24d606b32b4",
-        "sha512": "40513bacd13fa9860abcab507b1fc09dc51649af4b615ce466e0ec361557f02d35e6e44bea1cc17cb4120805f862aad01394eb185f46611e7be63dfd97f272df"
+        "sha512": "40513bacd13fa9860abcab507b1fc09dc51649af4b615ce466e0ec361557f02d35e6e44bea1cc17cb4120805f862aad01394eb185f46611e7be63dfd97f272df",
+        "sha1": "73a660c13063450e555e5e2c015ae24d606b32b4"
       },
       "filesize": 782160,
       "side": "both",
@@ -506,8 +506,8 @@
       "filename": "tfmg-1.1.1-1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/USgVjXsk/versions/DnTu7afj/tfmg-1.1.1-1.21.1.jar",
       "hashes": {
-        "sha1": "aae93944121cd8d67ef32cf47beba35f570f6baa",
-        "sha512": "080340574b13b918cfec3c1b9ac65034a79769fe510edd3b8a95306147006fe82aad6745c417d84236458316446458fbdaf18358aa2736daebd0b8cb4e879d90"
+        "sha512": "080340574b13b918cfec3c1b9ac65034a79769fe510edd3b8a95306147006fe82aad6745c417d84236458316446458fbdaf18358aa2736daebd0b8cb4e879d90",
+        "sha1": "aae93944121cd8d67ef32cf47beba35f570f6baa"
       },
       "filesize": 4864148,
       "side": "both",
@@ -554,8 +554,8 @@
       "filename": "tfmg_stellaris_compat-1.1.1.jar",
       "url": "https://cdn.modrinth.com/data/x6WYN4Ks/versions/MLHm74pl/tfmg_stellaris_compat-1.1.1.jar",
       "hashes": {
-        "sha512": "913f21fc70e8a8739900b0097305e2b42bf5e9dba95b0b3d926ea58b71c803c98d74c875e8ab7b417ba62302ab8df314e252a3b89040615c8c5ac9eed074f269",
-        "sha1": "7b7a225127bcab9efb8f66b34535c92717f04a41"
+        "sha1": "7b7a225127bcab9efb8f66b34535c92717f04a41",
+        "sha512": "913f21fc70e8a8739900b0097305e2b42bf5e9dba95b0b3d926ea58b71c803c98d74c875e8ab7b417ba62302ab8df314e252a3b89040615c8c5ac9eed074f269"
       },
       "filesize": 81672,
       "side": "both",
@@ -618,8 +618,8 @@
       "filename": "krypton_fnp-neoforge-1.21.1-0.2.28.1-1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/JkxWVYwU/versions/SUeOFygw/krypton_fnp-neoforge-1.21.1-0.2.28.1-1.21.1.jar",
       "hashes": {
-        "sha512": "72892ac3bee596d30ee5e5d64d78c3da237c3e30c913c58cfadc3fad555c0140e4d04db5ce537805d991e111deeb03c23eea0d10e385ad1b7502b674102cac74",
-        "sha1": "3b9253fcfaa11586ce528fbc0a26175991c9408f"
+        "sha1": "3b9253fcfaa11586ce528fbc0a26175991c9408f",
+        "sha512": "72892ac3bee596d30ee5e5d64d78c3da237c3e30c913c58cfadc3fad555c0140e4d04db5ce537805d991e111deeb03c23eea0d10e385ad1b7502b674102cac74"
       },
       "filesize": 1015871,
       "side": "server",
@@ -634,8 +634,8 @@
       "filename": "noisiumed-3.0.5-fabric-1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/M8MasaZG/versions/F4iw6WYi/noisiumed-3.0.5-fabric-1.21.1.jar",
       "hashes": {
-        "sha1": "2e8ad098f4cbd13da8e41e57ddbdc8bd82dcbdea",
-        "sha512": "d62c7d82203385c4909ce1026f41ff51c513c17303474fb89176fe2122c5966abdeffdeeeab08140b1ec5bb5173d3ccf8804f6f48d7fcc78f100768c09ea03cb"
+        "sha512": "d62c7d82203385c4909ce1026f41ff51c513c17303474fb89176fe2122c5966abdeffdeeeab08140b1ec5bb5173d3ccf8804f6f48d7fcc78f100768c09ea03cb",
+        "sha1": "2e8ad098f4cbd13da8e41e57ddbdc8bd82dcbdea"
       },
       "filesize": 216332,
       "side": "both",
@@ -682,8 +682,8 @@
       "filename": "cloth-config-15.0.140-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/izKINKFg/cloth-config-15.0.140-neoforge.jar",
       "hashes": {
-        "sha512": "aaf9b010955b8cd294e5a92f069985b18729fd5e2cf22d351f1dff9680f15488688803ec41e77e941cbde130ceb535014ca4c868047d80ab69c2d508e216654d",
-        "sha1": "c3e5733ba4503b102589a026000fd5ce0212f6f2"
+        "sha1": "c3e5733ba4503b102589a026000fd5ce0212f6f2",
+        "sha512": "aaf9b010955b8cd294e5a92f069985b18729fd5e2cf22d351f1dff9680f15488688803ec41e77e941cbde130ceb535014ca4c868047d80ab69c2d508e216654d"
       },
       "filesize": 1163890,
       "side": "both",
@@ -714,8 +714,8 @@
       "filename": "sophisticatedcore-1.21.1-1.4.70.2131.jar",
       "url": "https://cdn.modrinth.com/data/nmoqTijg/versions/QSOgsVqQ/sophisticatedcore-1.21.1-1.4.70.2131.jar",
       "hashes": {
-        "sha1": "2a19037214c3bcdaf6d41d2cdf00295e2c0d66f4",
-        "sha512": "3e63399c88a0f6ac4d95f93dbb8fef6ec762bff88ac3ecb06486d4e4d80e01534c71704a288f7d79c1728d08c8fd501c668ee0d0b0f21920bcf2b18605572598"
+        "sha512": "3e63399c88a0f6ac4d95f93dbb8fef6ec762bff88ac3ecb06486d4e4d80e01534c71704a288f7d79c1728d08c8fd501c668ee0d0b0f21920bcf2b18605572598",
+        "sha1": "2a19037214c3bcdaf6d41d2cdf00295e2c0d66f4"
       },
       "filesize": 1654111,
       "side": "both",
@@ -778,8 +778,8 @@
       "filename": "balm-neoforge-1.21.1-21.0.60.jar",
       "url": "https://cdn.modrinth.com/data/MBAkmtvl/versions/GW3cqbdN/balm-neoforge-1.21.1-21.0.60.jar",
       "hashes": {
-        "sha512": "285e8c5c97262287dfe74d727d3abf9378476f922d11dc24a11dddf92266abf6c7eafc2d6e9bd383fe659b6dd37954a24ca9da29aa9f5154c496aabcb85c285e",
-        "sha1": "8eb94a0d803a5b980bfe2d08a2ddd6e73a4c32d7"
+        "sha1": "8eb94a0d803a5b980bfe2d08a2ddd6e73a4c32d7",
+        "sha512": "285e8c5c97262287dfe74d727d3abf9378476f922d11dc24a11dddf92266abf6c7eafc2d6e9bd383fe659b6dd37954a24ca9da29aa9f5154c496aabcb85c285e"
       },
       "filesize": 744121,
       "side": "both",
@@ -810,8 +810,8 @@
       "filename": "TerraBlender-neoforge-1.21.1-4.1.0.8.jar",
       "url": "https://cdn.modrinth.com/data/kkmrDlKT/versions/6e8GCrLb/TerraBlender-neoforge-1.21.1-4.1.0.8.jar",
       "hashes": {
-        "sha512": "9d4b2a1be5139c0fb2fad92ed21805b17d9e83b6ea48e637e018bb14063c1823a206390755dbfe8d025c20fd62ac11cdd84db53ddb956dabaeda01bff57bac50",
-        "sha1": "744394d979b422be560babf9df7a6800ede9ac5b"
+        "sha1": "744394d979b422be560babf9df7a6800ede9ac5b",
+        "sha512": "9d4b2a1be5139c0fb2fad92ed21805b17d9e83b6ea48e637e018bb14063c1823a206390755dbfe8d025c20fd62ac11cdd84db53ddb956dabaeda01bff57bac50"
       },
       "filesize": 120365,
       "side": "both",
@@ -826,8 +826,8 @@
       "filename": "lithostitched-1.7.13-neoforge-21.1.jar",
       "url": "https://cdn.modrinth.com/data/XaDC71GB/versions/qPASucBM/lithostitched-1.7.13-neoforge-21.1.jar",
       "hashes": {
-        "sha1": "771a104dde071e16e67c7cd3149f7c3015375483",
-        "sha512": "04409013edce65678d02489a7b830ba7d5e18e7c705243c8208f52661da62e7e337a09fe2797c85d7a00bc66cb50949b157b267afd216e7b900ddde9849dff32"
+        "sha512": "04409013edce65678d02489a7b830ba7d5e18e7c705243c8208f52661da62e7e337a09fe2797c85d7a00bc66cb50949b157b267afd216e7b900ddde9849dff32",
+        "sha1": "771a104dde071e16e67c7cd3149f7c3015375483"
       },
       "filesize": 852541,
       "side": "both",
@@ -874,8 +874,8 @@
       "filename": "Structory_26.2_v1.3.7.jar",
       "url": "https://cdn.modrinth.com/data/aKCwCJlY/versions/TUbwu7eG/Structory_26.2_v1.3.7.jar",
       "hashes": {
-        "sha512": "4178a15f32f6ed3d59a7eb2222a8e3f539efd7b54d8ffb790cbf1dfe5c54c6ce6ec33220e148424109c6360c4c6f081b9fbebfe74745fe3c8f05619a06ccb9ec",
-        "sha1": "8a9a1a1b3f74398310420b6fbe2c26ef142bed42"
+        "sha1": "8a9a1a1b3f74398310420b6fbe2c26ef142bed42",
+        "sha512": "4178a15f32f6ed3d59a7eb2222a8e3f539efd7b54d8ffb790cbf1dfe5c54c6ce6ec33220e148424109c6360c4c6f081b9fbebfe74745fe3c8f05619a06ccb9ec"
       },
       "filesize": 1261346,
       "side": "both",
@@ -922,8 +922,8 @@
       "filename": "YungsBetterDesertTemples-1.21.1-NeoForge-4.1.5.jar",
       "url": "https://cdn.modrinth.com/data/XNlO7sBv/versions/GQ9iNWkI/YungsBetterDesertTemples-1.21.1-NeoForge-4.1.5.jar",
       "hashes": {
-        "sha512": "6454c955f75f66104810e967a59ae032ddf1ccc5a854346af6bfba6e44cd456e755cd8feb1e0968be4e9132ea6c5d1cb2126fe5e85d3eb18c8d3ea3c81ffdf9a",
-        "sha1": "90529257dbd92558998c65178294bc7b2fd16a64"
+        "sha1": "90529257dbd92558998c65178294bc7b2fd16a64",
+        "sha512": "6454c955f75f66104810e967a59ae032ddf1ccc5a854346af6bfba6e44cd456e755cd8feb1e0968be4e9132ea6c5d1cb2126fe5e85d3eb18c8d3ea3c81ffdf9a"
       },
       "filesize": 905839,
       "side": "both",
@@ -970,8 +970,8 @@
       "filename": "YungsBetterWitchHuts-1.21.1-NeoForge-4.1.1.jar",
       "url": "https://cdn.modrinth.com/data/t5FRdP87/versions/AvedwcIe/YungsBetterWitchHuts-1.21.1-NeoForge-4.1.1.jar",
       "hashes": {
-        "sha512": "9baa8a1f36a2a36efc3df58ab9347fd9f326b551ad78e3f600ed9d68862c619752ac0770804807efb15a46fcb4d9f6e2baf6a11f622d3ebb6c865662f6c7bcfd",
-        "sha1": "bbf6c91f4a2829c58bc024eaaab821986bc93de6"
+        "sha1": "bbf6c91f4a2829c58bc024eaaab821986bc93de6",
+        "sha512": "9baa8a1f36a2a36efc3df58ab9347fd9f326b551ad78e3f600ed9d68862c619752ac0770804807efb15a46fcb4d9f6e2baf6a11f622d3ebb6c865662f6c7bcfd"
       },
       "filesize": 174789,
       "side": "both",
@@ -986,8 +986,8 @@
       "filename": "YungsBetterOceanMonuments-1.21.1-NeoForge-4.1.2.jar",
       "url": "https://cdn.modrinth.com/data/3dT9sgt4/versions/yFjEcj2g/YungsBetterOceanMonuments-1.21.1-NeoForge-4.1.2.jar",
       "hashes": {
-        "sha1": "fba629defdb92ad99ec4f411895afb6e19555a18",
-        "sha512": "77c864da36f1d2173e6460dc335996893a804954b8a5c274173fc95dfdbf437e80d9dce32f6060306a662fc35322566eecf5dfe24e2d3fab79bf7e0ff9fa4db6"
+        "sha512": "77c864da36f1d2173e6460dc335996893a804954b8a5c274173fc95dfdbf437e80d9dce32f6060306a662fc35322566eecf5dfe24e2d3fab79bf7e0ff9fa4db6",
+        "sha1": "fba629defdb92ad99ec4f411895afb6e19555a18"
       },
       "filesize": 1025571,
       "side": "both",
@@ -1002,13 +1002,29 @@
       "filename": "YungsBetterEndIsland-1.21.1-NeoForge-3.1.2.jar",
       "url": "https://cdn.modrinth.com/data/2BwBOmBQ/versions/I52NZ1qK/YungsBetterEndIsland-1.21.1-NeoForge-3.1.2.jar",
       "hashes": {
-        "sha512": "02923a1a97eb81ec13d69bdc6b7e8b36dfb9e6f1a98adfcf103707ec3afde35831ccd4b210e9b3a9c7662541c38ea593a3d94c12171b4072ea7feafa75c95f96",
-        "sha1": "832f2c17425debe74a9f267f4136f1a0f0221d19"
+        "sha1": "832f2c17425debe74a9f267f4136f1a0f0221d19",
+        "sha512": "02923a1a97eb81ec13d69bdc6b7e8b36dfb9e6f1a98adfcf103707ec3afde35831ccd4b210e9b3a9c7662541c38ea593a3d94c12171b4072ea7feafa75c95f96"
       },
       "filesize": 398130,
       "side": "both",
       "phase": 13,
       "note": "world exploration overhaul: overhauls the central End island approach/exit structures. Requires yungs-api"
+    },
+    {
+      "slug": "create-ore-excavation",
+      "project_id": "ResbpANg",
+      "version_id": "tivxiPTo",
+      "version_number": "1.21.1-1.6.8",
+      "filename": "createoreexcavation-1.21-1.6.8.jar",
+      "url": "https://cdn.modrinth.com/data/ResbpANg/versions/tivxiPTo/createoreexcavation-1.21-1.6.8.jar",
+      "hashes": {
+        "sha512": "844ae32ff0d22f4d3c83db3bae2f6edc0f74cd1a530f900bf18829838d5a354b1e439e52688416130d9fd9a52c3310458bbdbc7458f4c1c1d8ffb088ae802d32",
+        "sha1": "9a76b86ec7470d4bd7332f22d6e50a3693098c10"
+      },
+      "filesize": 476990,
+      "side": "both",
+      "phase": 14,
+      "note": "TODO.md item 1: Create-native (rotational-force-powered machines) large excavatable ore vein deposits - a simpler/richer alternative to manually-placed vanilla ore scatter. Only hard dependency is Create itself (already installed); JEI/CC:Tweaked integrations are optional and not installed"
     }
   ]
 }

@@ -1,9 +1,16 @@
 # Handoff
 
-**Status as of this note: clean.** Working tree has no uncommitted changes,
-no open tasks, nothing mid-flight. This is a context-reset checkpoint, not
-a snapshot of interrupted work — read this, then just wait for the user's
-next request.
+**Status as of this note: autonomous work in progress, mid-TODO-list.**
+The user asked for a planning-only session (brainstormed and scoped 8
+TODO items into `TODO.md`, no implementation) followed by unattended
+overnight-style work: implement `TODO.md` items in order, self-scheduling
+wakeups across usage-refresh boundaries (CronCreate one-shot jobs, ~4
+hours apart — see the memory note below for the pattern), until either
+the list is exhausted or told to stop. **Read `TODO.md` before doing
+anything else** — it's the authoritative backlog, each item pre-scoped
+with the user so implementation shouldn't need to re-ask questions already
+answered there. Item 1 (ore veins) is done; resume at whichever item is
+next un-checked.
 
 ## What's done
 
@@ -41,6 +48,32 @@ boot-tested, committed, and documented in `DESIGN.md`:
    mansion/end city (the three structures tied to explicit tier-gate
    items: End access, totems, elytra). See DESIGN.md's world exploration
    overhaul section for the full mod list and design rationale.
+6. **TODO.md item 1 (ore veins)** — Create Ore Excavation added; its
+   native Iron/Diamond/Netherite drill ladder mapped onto Andesite/Brass/
+   Precision Age; 3 new vein types (allthemodium/vibranium/unobtainium)
+   added for the late-game meta-material tier, gated behind the Netherite
+   Drill. See DESIGN.md's "Ore veins via Create Ore Excavation" section.
+
+## TODO backlog (in progress)
+
+`TODO.md` at the repo root has 8 user-scoped items from a planning session
+— read it fully before picking up work. Item 1 is done (see above). Items
+2-8 (endgame automation deepening w/ TFMG, duplicate-resource
+consolidation, jetpack→creative flight mobility, discoverable Curios
+abilities, hostile/passive mob variety, Create-native chunk loading,
+wealth/tier/level leaderboards) are fully scoped with recorded decisions
+but not yet started — implement in order unless told otherwise, don't
+re-litigate decisions already recorded in the file, but do still verify
+any named mod against the actually-installed jar before building on it.
+
+This is an unattended, self-resuming work session: each wakeup should
+schedule the *next* wakeup (~4 hours out, via `CronCreate` with
+`recurring: false` since `ScheduleWakeup` caps at 1 hour) *before*
+starting any work, then read this file + `TODO.md`, then continue. Keep
+working through items without stopping at each one's completion — only
+stop if the list is exhausted or capacity runs out mid-task (in which
+case, update this section with exactly what's mid-flight before you can't
+anymore).
 
 Full narrative and rationale for every decision lives in `DESIGN.md` —
 that file, not this one, is the source of truth. `instructions.md` has the

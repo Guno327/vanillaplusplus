@@ -135,6 +135,15 @@ locked = [
     "id:minecraft:mangrove_chest_boat",
     "id:minecraft:cherry_chest_boat",
     "id:minecraft:bamboo_chest_raft",
+
+    # TODO.md item 1: Create Ore Excavation's entry-level vein-hunting kit
+    # (Iron Drill + Ore Vein Finder). Neither is naturally gated by its own
+    # ingredients (drill.json needs only iron; vein_finder.json needs
+    # amethyst/ender_eye/redstone ore/a wooden rod, all Tier-0-obtainable),
+    # so both need an explicit lock here to match this pack's iron-tools
+    # convention for this tier.
+    "id:createoreexcavation:drill",
+    "id:createoreexcavation:vein_finder",
 ]
 always_unlocked = []
 

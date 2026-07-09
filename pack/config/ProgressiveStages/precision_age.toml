@@ -97,6 +97,15 @@ locked = [
     # which this pack already locks until this tier. Together: steerable
     # gyroscopic flight plus levitite lift both open at Precision Age
     # purely through resource availability.
+
+    # TODO.md item 1: Create Ore Excavation's netherite-tier drill.
+    # netherite_drill_smithing.json already needs minecraft:netherite_ingot
+    # (locked above) as its smithing addition; explicit lock added anyway
+    # for consistency with this file's own convention (see Wands/
+    # Sophisticated Backpacks comments above). This is also the mod's own
+    # native tool ceiling (Iron -> Diamond -> Netherite, a fixed 3-rung
+    # ladder) - no further hand-tool tier exists past this.
+    "id:createoreexcavation:netherite_drill",
 ]
 always_unlocked = []
 
@@ -111,6 +120,20 @@ locked = [
     "id:refinedstorage:security_manager",
     "id:refinedstorage:16k_storage_block",
     "id:refinedstorage:1024b_fluid_storage_block",
+
+    # TODO.md item 1: Create Ore Excavation's industrial-scale vein
+    # machines (Drilling Machine, Sample Drill, Fluid Well Extractor).
+    # All three share create:sturdy_sheet in their create:mechanical_crafting
+    # recipe (this tier's own Create milestone material) - already naturally
+    # gated, explicit lock added anyway for this file's usual consistency.
+    # This is also where the allthemodium/vibranium/unobtainium vein types
+    # added this pass become actually extractable, since their drilling
+    # recipes require createoreexcavation:netherite_drill (locked above,
+    # itself gated to this same tier) - the vein-hunting kit unlocked
+    # across andesite_age/brass_age/precision_age reaches its ceiling here.
+    "id:createoreexcavation:drilling_machine",
+    "id:createoreexcavation:sample_drill",
+    "id:createoreexcavation:extractor",
 ]
 always_unlocked = []
 

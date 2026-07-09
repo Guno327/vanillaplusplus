@@ -64,6 +64,7 @@
     { "slug": "yungs-better-nether-fortresses", "side": "both", "phase": 13, "note": "world exploration overhaul: overhauls Nether fortresses into larger, more varied layouts. Requires yungs-api" },
     { "slug": "yungs-better-witch-huts", "side": "both", "phase": 13, "note": "world exploration overhaul: overhauls swamp huts with expanded interiors and loot. Requires yungs-api" },
     { "slug": "yungs-better-ocean-monuments", "side": "both", "phase": 13, "note": "world exploration overhaul: overhauls ocean monuments with more varied rooms and loot. Requires yungs-api" },
-    { "slug": "yungs-better-end-island", "side": "both", "phase": 13, "note": "world exploration overhaul: overhauls the central End island approach/exit structures. Requires yungs-api" }
+    { "slug": "yungs-better-end-island", "side": "both", "phase": 13, "note": "world exploration overhaul: overhauls the central End island approach/exit structures. Requires yungs-api" },
+    { "slug": "create-ore-excavation", "side": "both", "phase": 14, "note": "TODO.md item 1: Create-native (rotational-force-powered machines) large excavatable ore vein deposits - a simpler/richer alternative to manually-placed vanilla ore scatter. Only hard dependency is Create itself (already installed); JEI/CC:Tweaked integrations are optional and not installed" }
   ]
 }
