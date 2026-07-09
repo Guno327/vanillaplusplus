@@ -1,6 +1,9 @@
 # Portable tooling downloaded by scripts, not source
 .tools/
 
+# Built pack output (regenerated via scripts/build_mrpack.py)
+*.mrpack
+
 # Server runtime (rebuilt from pack/mods.lock.json via scripts/build_server.py)
 server/mods/
 server/libraries/
@@ -24,3 +27,5 @@ server/config/
 server/kubejs/
 server/defaultconfigs/
 server/local/
+server/cache/
+server/patchouli_books/

@@ -55,6 +55,15 @@ def main():
             shutil.copytree(src, dst)
             print(f"synced   {sub}/")
 
+    # Performance-tuned JVM args / server.properties (Phase 9) - tracked
+    # source files, not the gitignored server/ copies, so the tuning survives
+    # a fresh build_server.py run on another machine.
+    for filename in ("user_jvm_args.txt", "server.properties"):
+        src = ROOT / "pack" / filename
+        if src.exists():
+            shutil.copyfile(src, SERVER / filename)
+            print(f"synced   {filename}")
+
     print("server/ is up to date")
 
 

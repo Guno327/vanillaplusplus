@@ -36,6 +36,11 @@
     { "slug": "create-tfmg", "side": "both", "phase": 8, "pin_version": "1.1.1", "note": "Create: The Factory Must Grow - Create-native industrial addon, bridges to Stellaris below via its own compat mod. Pinned to 1.1.1 (not latest 1.2.0) because tfmg-stellaris-compat 1.1.1 requires tfmg in range [1.1.0, 1.2.0) and hasn't been updated for 1.2.0 yet - found via the actual boot error, not Modrinth's dependency metadata" },
     { "slug": "potentials", "side": "both", "phase": 8, "note": "required by Stellaris - not listed in Modrinth's own dependency metadata for our version, found only via the actual boot error (ModLoadingException naming it directly)" },
     { "slug": "stellaris", "side": "both", "phase": 8, "note": "space travel: rocket crafting across planets/moons, the Starforged Age gateway per instructions.md's resolved space-travel decision (Ad Astra ruled out, stalled pre-1.21.1 NeoForge)" },
-    { "slug": "tfmg-stellaris-compat", "side": "both", "phase": 8, "note": "bridges Create: TFMG's industrial machines to Stellaris' rocket/planet progression - the reason Stellaris was chosen over other space mods" }
+    { "slug": "tfmg-stellaris-compat", "side": "both", "phase": 8, "note": "bridges Create: TFMG's industrial machines to Stellaris' rocket/planet progression - the reason Stellaris was chosen over other space mods" },
+    { "slug": "modernfix", "side": "both", "phase": 9, "note": "general startup/memory/loading-time optimization, both sides but especially server boot time" },
+    { "slug": "ferrite-core", "side": "both", "phase": 9, "note": "reduces heap memory usage - server performance is a major concern per instructions.md" },
+    { "slug": "c2me-neoforge", "side": "server", "phase": 9, "note": "concurrent chunk management (parallel gen/loading) - server-only, a heavily-modded worldgen stack is exactly where chunk loading is the biggest server bottleneck" },
+    { "slug": "krypton-fnp", "side": "server", "phase": 9, "note": "network stack optimization (packet encoding/compression) - server-only, matters most under multiple simultaneous connections" },
+    { "slug": "noisiumed", "side": "both", "phase": 9, "note": "worldgen performance (noise generation), complements c2me's parallelism rather than duplicating it" }
   ]
 }

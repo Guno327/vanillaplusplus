@@ -1,0 +1,33 @@
+# Synced from pack/user_jvm_args.txt by scripts/build_server.py - edit the
+# source file, not server/user_jvm_args.txt directly (that copy is
+# regenerated and gitignored).
+#
+# Heap size: 6G is a reasonable default for this pack's size (30+ mods
+# including Create, several large content mods, and space travel content).
+# Raise -Xmx (and -Xms to match, so the JVM doesn't resize at runtime) if
+# the server has more RAM to spare and you see GC pressure in logs.
+-Xms6G
+-Xmx6G
+
+# Aikar's flags (https://docs.papermc.io/paper/aikars-flags) - the standard,
+# widely-used G1GC tuning preset for Minecraft servers. "Server performance
+# is a major concern" per instructions.md; this is a safe, well-established
+# starting point rather than untested custom tuning.
+-XX:+UseG1GC
+-XX:+ParallelRefProcEnabled
+-XX:MaxGCPauseMillis=200
+-XX:+UnlockExperimentalVMOptions
+-XX:+DisableExplicitGC
+-XX:+AlwaysPreTouch
+-XX:G1NewSizePercent=30
+-XX:G1MaxNewSizePercent=40
+-XX:G1HeapRegionSize=8M
+-XX:G1ReservePercent=20
+-XX:G1HeapWastePercent=5
+-XX:G1MixedGCCountTarget=4
+-XX:InitiatingHeapOccupancyPercent=15
+-XX:G1MixedGCLiveThresholdPercent=90
+-XX:G1RSetUpdatingPauseTimePercent=5
+-XX:SurvivorRatio=32
+-XX:+PerfDisableSharedMem
+-XX:MaxTenuringThreshold=1
