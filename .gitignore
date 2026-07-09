@@ -1,0 +1,25 @@
+# Portable tooling downloaded by scripts, not source
+.tools/
+
+# Server runtime (rebuilt from pack/mods.lock.json via scripts/build_server.py)
+server/mods/
+server/libraries/
+server/versioned_datapacks/
+server/world/
+server/logs/
+server/crash-reports/
+server/*.jar
+server/*.jar.log
+server/eula.txt
+server/run.sh
+server/run.bat
+server/user_jvm_args.txt
+server/server.properties
+server/banned-ips.json
+server/banned-players.json
+server/ops.json
+server/usercache.json
+server/whitelist.json
+server/config/
+server/kubejs/
+server/defaultconfigs/

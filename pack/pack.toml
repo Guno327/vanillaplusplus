@@ -1,0 +1,12 @@
+name = "Vanilla++"
+author = "gunnarhovik327"
+version = "0.1.0"
+pack-format = "packwiz:1.1.0"
+
+[versions]
+minecraft = "1.21.1"
+neoforge = "21.1.235"
+
+[index]
+file = "index.toml"
+hash-format = "sha256"

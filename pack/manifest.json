@@ -1,0 +1,7 @@
+{
+  "minecraft": "1.21.1",
+  "loader": "neoforge",
+  "mods": [
+    { "slug": "create", "side": "both", "phase": 0, "note": "core progression backbone" }
+  ]
+}
