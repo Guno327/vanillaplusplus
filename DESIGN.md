@@ -20,25 +20,30 @@ the original requirements this design satisfies, and `pack/manifest.json` /
   manager) — `scripts/resolve_mods.py` + `scripts/mods.lock.json` do the same
   job against the Modrinth API, git-friendly and reproducible. See
   `scripts/build_server.py` for turning the lockfile into a runnable server.
+- **Refined Storage 2.0.9** for the browsable storage network — named
+  explicitly in `instructions.md` ("think mods like refined storage"), 1.4M+
+  downloads, self-contained (no extra required mods). Energy requirement
+  disabled (see storage section). **KubeJS 2101.7.2 + Rhino** power the
+  storage recipe patch here and the full recipe-gating pass in Phase 9.
 
 ## The tier ladder
 
 Every other system in this pack (storage caps, RPG skill unlocks, currency,
 combat/magic tiers, dimension access, mob difficulty zones) gates against one
 of these six tiers. Tiers 0-3 stay entirely inside Create's own material
-chain (no addon needed). Tier 5 is a placeholder until Phase 8 picks the
-endgame/dimension content that anchors it — see the TODO in
-`pack/config/ProgressiveStages/starforged_age.toml`. **Tier 4 is not a
-placeholder for "storage begins here"** — see the storage/autocrafting column
-below and the corrected note after the table.
+chain (no addon needed). Tier 5 is still a placeholder until Phase 8 picks
+the endgame/dimension content that anchors it — see the TODO in
+`pack/config/ProgressiveStages/starforged_age.toml`. Tier 4's storage
+content is fully resolved as of Phase 2; only its narrative trigger is still
+a Phase 8 TODO.
 
 | # | Stage id | Name | Unlocked by | Create milestone | Storage / autocrafting rung | Vanilla tier & dimension also gated here |
 |---|---|---|---|---|---|---|
 | 0 | `rootborn` | Rootborn | starting stage | — | vanilla inventory/chests only | wood/stone |
-| 1 | `andesite_age` | Andesite Age | craft/pick up `create:andesite_alloy` | water wheels, mixing/pressing, crushing wheels | **first browsable storage interface unlocked** — tiny capacity, manual only, no autocrafting | iron tools/armor, rails |
-| 2 | `brass_age` | Brass Age | craft/pick up `create:brass_ingot` | Mechanical Arm, Deployer, Sequenced Gearshift, Elevator Pulley, train control | storage capacity scales up; **first crafting automation** via Create's own Mechanical Arm + Deployer feeding the network | diamond tools/armor, enchanting table, beacon, **Nether** |
-| 3 | `precision_age` | Precision Age | obtain `create:refined_radiance` or `create:shadow_steel` | Sturdy Sheet (Create's own top alloy) | bigger storage tier; automation scales to multi-step Create contraptions (sequenced gearshifts, larger Deployer arrays) | netherite tier, elytra, totem, **The End** |
-| 4 | `induction_age` | Induction Age | temp trigger: netherite ingot *(real trigger TBD in Phase 2)* | — | **ceiling of the same storage system**: full network capacity + native pattern-based autocrafting (e.g. Refined Storage's Crafter Manager or AE2's molecular assembler network — exact mod picked in Phase 2) | TBD |
+| 1 | `andesite_age` | Andesite Age | craft/pick up `create:andesite_alloy` | water wheels, mixing/pressing, crushing wheels | **first browsable storage interface** — Grid + Cable + Disk Drive + 1k Disk/Block, manual only, no autocrafting | iron tools/armor, rails, **Nether** |
+| 2 | `brass_age` | Brass Age | craft/pick up `create:brass_ingot` | Mechanical Arm, Deployer, Sequenced Gearshift, Elevator Pulley, train control | 4k capacity; **first crafting automation** — Create's Mechanical Arm/Deployer feed the network via Importer/Exporter/External Storage/Constructor/Destructor | diamond tools/armor, enchanting table, beacon |
+| 3 | `precision_age` | Precision Age | obtain `create:refined_radiance` or `create:shadow_steel` | Sturdy Sheet (Create's own top alloy) | 16k capacity; wireless/network devices (Wireless Grid, Network Receiver/Transmitter, Relay, Portable Grid, Security Manager) | netherite tier, elytra, totem, **The End** |
+| 4 | `induction_age` | Induction Age | temp trigger: netherite ingot *(real narrative trigger TBD in Phase 8)* | — | **ceiling of the same system**: 64k capacity + Advanced Processor + native pattern-based autocrafting (Autocrafter/Autocrafter Manager/Pattern/Pattern Grid) | TBD |
 | 5 | `starforged_age` | Starforged Age *(placeholder)* | temp: kill Ender Dragon | — *(Phase 8 picks the real endgame/dimension content)* | — | TBD |
 
 Dependency chain is strictly linear (`rootborn -> andesite_age -> brass_age ->
@@ -47,36 +52,50 @@ in `progressivestages.toml` so granting any tier auto-grants everything below
 it. This directly satisfies "previous Create stuff should be necessary for
 the next tier of stuff."
 
-### Correction: storage starts at Tier 1, not Tier 4
+### Storage: Refined Storage, one continuous system spanning Tiers 1-4
 
-An earlier draft of this doc gated "storage" as a whole to Tier 4
-(Induction Age), treating it as a wholesale placeholder pending a new
-AE2/Mekanism-class mod. That's wrong against `instructions.md`, which asks
-for storage to be browsable "from traditional iron tier and onward" and to
-"start out limited, but still browsable," with capacity *and* autocrafting
-both continuing to scale after their first unlock rather than appearing
-whole-cloth at some late tier.
+Picked over AE2 and Sophisticated Storage because `instructions.md` names it
+directly ("think mods like refined storage where you have a central
+interface"). It's introduced at Andesite Age (Tier 1) as a tiny, browsable,
+manual-only interface; capacity scales every tier after that (1k -> 4k -> 16k
+-> 64k, RS's own native disk tiers, fluid tiers mirror in lockstep); crafting
+automation first becomes possible at Brass Age (Tier 2) specifically *through
+Create's own Mechanical Arm/Deployer* feeding the network via RS's
+Importer/Exporter/External Storage/Constructor/Destructor, rather than RS's
+own pattern autocrafter — keeping "engaging with Create should be the sole
+process by which you automate things" true even for storage automation. RS's
+own native autocrafting (Autocrafter/Pattern) is reserved for Induction Age
+(Tier 4), which is that same system's top rung rather than a separate mod
+bolted on late. Full per-tier item/block lists are in
+`pack/config/ProgressiveStages/{andesite,brass,precision,induction}_age.toml`.
 
-Corrected model: **one continuous storage system spanning Tiers 1-4**, picked
-in Phase 2 (Refined Storage/AE2/Sophisticated Storage are the candidates —
-see Phase 2 task). It's introduced at Andesite Age (Tier 1) as a tiny,
-browsable, manual-only interface; capacity scales at every tier after that;
-autocrafting itself first becomes possible at Brass Age (Tier 2) specifically
-*through Create's own Mechanical Arm/Deployer machinery* rather than a bolt-on
-pattern autocrafter, keeping "engaging with Create should be the sole process
-by which you automate things" true even for storage automation; and Tier 4
-(Induction Age) is simply that same system's top rung (full network storage +
-native pattern-based autocrafting), not a separate mod bolted on at the end.
-Tier 4's trigger is still a temporary vanilla stand-in until Phase 2 finalizes
-the mod and its real top-tier item/milestone.
+Two real snags surfaced while implementing this, both resolved:
 
-### Why gate Nether at Brass Age and The End at Precision Age
+- **Every RS component needs Nether Quartz** (`quartz_enriched_iron/copper`,
+  `silicon`, and everything built from them all require `c:gems/quartz`,
+  which is Nether-exclusive in vanilla). The original design gated the Nether
+  behind Brass Age; that made Tier-1 storage impossible outright, so **the
+  Nether now unlocks at Andesite Age instead** — verified by extracting the
+  actual RS jar's recipe JSONs rather than assuming.
+- **RS's stock Disk Drive recipe needs an Advanced Processor**, which needs a
+  diamond — locked until Brass Age, which would make the Tier-1 network
+  impossible even with the Nether open. Patched via KubeJS
+  (`pack/kubejs/server_scripts/storage.js`) down to an Improved Processor
+  (gold-tier, never locked by any stage). The Controller didn't need a
+  similar patch: RS ships a `requireEnergy` config option, and with it
+  disabled (`pack/config/refinedstorage-common.toml`) the Controller becomes
+  entirely optional — Create has no native FE generation, and building a
+  whole power subsystem just to browse a storage disk isn't something
+  `instructions.md` asked for.
 
-Vanilla lets you rush the Nether/End with almost no preamble. Locking the
-Nether behind Brass Age (Create's superheating/blaze-adjacent tier) and The
-End behind Precision Age gives both dimensions a reason to exist in the
-progression rather than being a speedrun detour — see `instructions.md`'s
-"multiple dimensions that lock away better progression" requirement.
+### Why gate Nether at Andesite Age and The End at Precision Age
+
+Vanilla lets you rush the Nether/End with almost no preamble. Locking the End
+behind Precision Age gives it a reason to exist in the progression rather
+than being a speedrun detour, per `instructions.md`'s "multiple dimensions
+that lock away better progression" requirement. The Nether unlocks a tier
+earlier than originally planned (Andesite Age, not Brass Age) purely because
+Refined Storage's material chain requires it — see the storage section above.
 
 ### Team mode
 

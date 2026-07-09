@@ -1,29 +1,56 @@
 # ============================================================================
-# Vanilla++ Tier 4 — Induction Age  [PLACEHOLDER — finalize in Phase 2]
-# Create has no native material beyond Precision Age; this tier represents
-# "real" digital automation (AE2/Mekanism-class mod, chosen in Phase 2 when
-# tiered storage/autocrafting is designed). Locked item/block lists are
-# intentionally empty until that mod is picked — filling them in now would be
-# guessing. The trigger below is a temporary vanilla stand-in so the stage
-# chain is testable end-to-end; replace it with a real item/boss trigger tied
-# to whatever Phase 2 chooses.
+# Vanilla++ Tier 4 — Induction Age
+# Create has no native material beyond Precision Age, so this tier isn't
+# anchored by a Create alloy the way Tiers 1-3 are. What it DOES represent is
+# now concrete: the ceiling of the Refined Storage system introduced back at
+# Andesite Age — 64k capacity, Advanced Processors, and native pattern-based
+# autocrafting (Autocrafter/Autocrafter Manager/Pattern/Pattern Grid). That
+# part is no longer a placeholder.
+#
+# What IS still a placeholder: the narrative trigger/dimension for this tier.
+# There's no Phase-2-relevant mod decision left to make here — this is a
+# Phase 8 concern (what the "real" Induction Age milestone should be once
+# exploration/dimensions are designed). Trigger below stays a temporary
+# vanilla stand-in (netherite ingot pickup, see triggers.toml) until then.
 # ============================================================================
 
 [stage]
 id = "induction_age"
 display_name = "Induction Age"
-description = "Digital automation and mass storage. (placeholder tier — see Phase 2)"
-icon = "minecraft:netherite_ingot"
-unlock_message = "&b&lInduction Age Unlocked! &r&7Placeholder tier — refine in Phase 2."
+description = "Full storage-network automation: 64k capacity, native pattern-based autocrafting."
+icon = "refinedstorage:advanced_processor"
+unlock_message = "&b&lInduction Age Unlocked! &r&7Full autocrafting and 64k storage online."
 dependency = "precision_age"
 
 [items]
-locked = []
+locked = [
+    "id:refinedstorage:advanced_processor",
+    "id:refinedstorage:raw_advanced_processor",
+    "id:refinedstorage:64k_storage_part",
+    "id:refinedstorage:64k_storage_disk",
+    "id:refinedstorage:4096b_fluid_storage_part",
+    "id:refinedstorage:4096b_fluid_storage_disk",
+    "id:refinedstorage:pattern",
+    "id:refinedstorage:autocrafting_upgrade",
+    "id:refinedstorage:wireless_autocrafting_monitor",
+]
 always_unlocked = []
 
 [blocks]
-locked = []
+locked = [
+    "id:refinedstorage:autocrafter",
+    "id:refinedstorage:autocrafter_manager",
+    "id:refinedstorage:autocrafting_monitor",
+    "id:refinedstorage:pattern_grid",
+    "id:refinedstorage:64k_storage_block",
+    "id:refinedstorage:4096b_fluid_storage_block",
+]
 always_unlocked = []
 
 [dimensions]
 locked = []
+
+[enforcement]
+block_crafting_with_locked_ingredients = true
+block_automated_crafting = true
+crafter_check_radius = 32

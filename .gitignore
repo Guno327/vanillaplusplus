@@ -23,3 +23,4 @@ server/whitelist.json
 server/config/
 server/kubejs/
 server/defaultconfigs/
+server/local/

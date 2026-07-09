@@ -3,6 +3,9 @@
   "loader": "neoforge",
   "mods": [
     { "slug": "create", "side": "both", "phase": 0, "note": "core progression backbone" },
-    { "slug": "progressivestages", "side": "both", "phase": 1, "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases" }
+    { "slug": "progressivestages", "side": "both", "phase": 1, "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases" },
+    { "slug": "refined-storage", "side": "both", "phase": 2, "note": "browsable storage network, explicitly named in instructions.md; energy requirement disabled, Disk Drive recipe patched down to gold-tier via KubeJS" },
+    { "slug": "rhino", "side": "both", "phase": 2, "note": "JS engine required by KubeJS" },
+    { "slug": "kubejs", "side": "both", "phase": 2, "note": "recipe/loot scripting used for the storage tier patch here, and for the full recipe-gating pass in Phase 9" }
   ]
 }

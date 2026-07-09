@@ -10,8 +10,8 @@
       "filename": "create-1.21.1-6.0.10.jar",
       "url": "https://cdn.modrinth.com/data/LNytGWDc/versions/UjX6dr61/create-1.21.1-6.0.10.jar",
       "hashes": {
-        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b",
-        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353"
+        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353",
+        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b"
       },
       "filesize": 19123767,
       "side": "both",
@@ -26,13 +26,61 @@
       "filename": "progressivestages-2.1.jar",
       "url": "https://cdn.modrinth.com/data/rY4mdP4Q/versions/J1BsRBDq/progressivestages-2.1.jar",
       "hashes": {
-        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909",
-        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619"
+        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619",
+        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909"
       },
       "filesize": 478877,
       "side": "both",
       "phase": 1,
       "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases"
+    },
+    {
+      "slug": "refined-storage",
+      "project_id": "KDvYkUg3",
+      "version_id": "lHHiI26k",
+      "version_number": "2.0.9",
+      "filename": "refinedstorage-neoforge-2.0.9.jar",
+      "url": "https://cdn.modrinth.com/data/KDvYkUg3/versions/lHHiI26k/refinedstorage-neoforge-2.0.9.jar",
+      "hashes": {
+        "sha1": "59d8e734ccb6eaab4cdf04093c55872af7a3e23a",
+        "sha512": "b98a938b8af859f1952bfb35fb6db712835a7dead88fa15258ac0f4f06b26b08ebfa49fd9a35b2c81f7a745b3cd4370ced98c242d0fe7473ba019d92da8f6c57"
+      },
+      "filesize": 4360871,
+      "side": "both",
+      "phase": 2,
+      "note": "browsable storage network, explicitly named in instructions.md; energy requirement disabled, Disk Drive recipe patched down to gold-tier via KubeJS"
+    },
+    {
+      "slug": "rhino",
+      "project_id": "sk9knFPE",
+      "version_id": "cQ4POTah",
+      "version_number": "2101.2.7-build.85+Rhino-1.21",
+      "filename": "rhino-2101.2.7-build.85.jar",
+      "url": "https://cdn.modrinth.com/data/sk9knFPE/versions/cQ4POTah/rhino-2101.2.7-build.85.jar",
+      "hashes": {
+        "sha1": "3c8d34c7efe9e42fc90506acbf9fc842d36f9a42",
+        "sha512": "0a6c7f4410281aeb03b815ec03487a8e80a4d3dae013d81282e447bf9c08144ef57318af614ea6d40b7d9a8c25031c557890ec792a5895a82467c1643116f693"
+      },
+      "filesize": 882075,
+      "side": "both",
+      "phase": 2,
+      "note": "JS engine required by KubeJS"
+    },
+    {
+      "slug": "kubejs",
+      "project_id": "umyGl7zF",
+      "version_id": "F2nzeC19",
+      "version_number": "2101.7.2-build.368",
+      "filename": "kubejs-neoforge-2101.7.2-build.368.jar",
+      "url": "https://cdn.modrinth.com/data/umyGl7zF/versions/F2nzeC19/kubejs-neoforge-2101.7.2-build.368.jar",
+      "hashes": {
+        "sha512": "5e2f1bd1460d8f443ce4bd44ed367d27f9170e50dff2ce9430954206e89651f8969dfbe842c3100b0244f8d58f843fc5fb9c46b5c576430a07f1e5b6dd4b9f7b",
+        "sha1": "edf131afd474151afe076ea975ce5fec5a206ad8"
+      },
+      "filesize": 2281720,
+      "side": "both",
+      "phase": 2,
+      "note": "recipe/loot scripting used for the storage tier patch here, and for the full recipe-gating pass in Phase 9"
     }
   ]
 }

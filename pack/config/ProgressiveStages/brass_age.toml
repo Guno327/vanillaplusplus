@@ -4,8 +4,14 @@
 # Elevator Pulleys, portable interfaces, train control. This is where real
 # automation starts, so it doubles as our "diamond-equivalent" gate — vanilla
 # diamond tools/armor and the enchanting table/beacon are held back until here
-# too, alongside the Nether (Create's superheating/blaze work is the natural
-# reason to go get Nether resources once you've outgrown Andesite tier).
+# too. (The Nether itself unlocks a tier earlier, at Andesite Age — every
+# Refined Storage component needs Nether Quartz, so it can't wait this long.)
+#
+# Storage: this is the first CRAFTING automation tier. Create's own Mechanical
+# Arm/Deployer (unlocked this same tier) feed the Refined Storage network via
+# Importer/Exporter/External Storage — RS's own pattern-based Autocrafter is
+# still locked away until Induction Age (Tier 4). Storage capacity also scales
+# up to 4k here.
 # ============================================================================
 
 [stage]
@@ -13,7 +19,7 @@ id = "brass_age"
 display_name = "Brass Age"
 description = "Deployers, Mechanical Arms, Sequenced Gearshifts. Automation begins in earnest."
 icon = "create:brass_ingot"
-unlock_message = "&6&lBrass Age Unlocked! &r&7Automation, diamond gear, and the Nether await."
+unlock_message = "&6&lBrass Age Unlocked! &r&7Automation and diamond gear await."
 dependency = "andesite_age"
 
 [items]
@@ -46,6 +52,11 @@ locked = [
     "id:minecraft:diamond_chestplate",
     "id:minecraft:diamond_leggings",
     "id:minecraft:diamond_boots",
+
+    "id:refinedstorage:4k_storage_part",
+    "id:refinedstorage:4k_storage_disk",
+    "id:refinedstorage:256b_fluid_storage_part",
+    "id:refinedstorage:256b_fluid_storage_disk",
 ]
 always_unlocked = []
 
@@ -61,13 +72,23 @@ locked = [
     "id:minecraft:diamond_block",
     "id:minecraft:enchanting_table",
     "id:minecraft:beacon",
+
+    "id:refinedstorage:importer",
+    "id:refinedstorage:exporter",
+    "id:refinedstorage:external_storage",
+    "id:refinedstorage:interface",
+    "id:refinedstorage:constructor",
+    "id:refinedstorage:destructor",
+    "id:refinedstorage:detector",
+    "id:refinedstorage:disk_interface",
+    "id:refinedstorage:crafting_grid",
+    "id:refinedstorage:4k_storage_block",
+    "id:refinedstorage:256b_fluid_storage_block",
 ]
 always_unlocked = []
 
 [dimensions]
-locked = [
-    "id:minecraft:the_nether",
-]
+locked = []
 
 [recipes]
 locked_ids = []

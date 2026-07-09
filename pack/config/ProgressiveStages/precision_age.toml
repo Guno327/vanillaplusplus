@@ -5,6 +5,10 @@
 # entirely Create's native material chain, which is the point ("engaging with
 # Create should be the sole process by which you automate things").
 # Vanilla netherite tier and the End are held back until here.
+#
+# Storage: capacity scales to 16k, plus wireless/network-management devices
+# (Wireless Grid, Network Receiver/Transmitter, Relay, Portable Grid,
+# Security Manager). Still no native autocrafting — that's Induction Age.
 # ============================================================================
 
 [stage]
@@ -36,12 +40,30 @@ locked = [
     "id:minecraft:netherite_boots",
     "id:minecraft:elytra",
     "id:minecraft:totem_of_undying",
+
+    "id:refinedstorage:16k_storage_part",
+    "id:refinedstorage:16k_storage_disk",
+    "id:refinedstorage:1024b_fluid_storage_part",
+    "id:refinedstorage:1024b_fluid_storage_disk",
+    "id:refinedstorage:wireless_grid",
+    "id:refinedstorage:portable_grid",
+    "id:refinedstorage:network_card",
+    "id:refinedstorage:security_card",
+    "id:refinedstorage:fallback_security_card",
 ]
 always_unlocked = []
 
 [blocks]
 locked = [
     "id:minecraft:netherite_block",
+
+    "id:refinedstorage:network_receiver",
+    "id:refinedstorage:network_transmitter",
+    "id:refinedstorage:wireless_transmitter",
+    "id:refinedstorage:relay",
+    "id:refinedstorage:security_manager",
+    "id:refinedstorage:16k_storage_block",
+    "id:refinedstorage:1024b_fluid_storage_block",
 ]
 always_unlocked = []
 
