@@ -10,8 +10,8 @@
       "filename": "create-1.21.1-6.0.10.jar",
       "url": "https://cdn.modrinth.com/data/LNytGWDc/versions/UjX6dr61/create-1.21.1-6.0.10.jar",
       "hashes": {
-        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353",
-        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b"
+        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b",
+        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353"
       },
       "filesize": 19123767,
       "side": "both",
@@ -42,8 +42,8 @@
       "filename": "toms_storage-1.21-2.3.2.jar",
       "url": "https://cdn.modrinth.com/data/XZNI4Cpy/versions/x8jcBWWG/toms_storage-1.21-2.3.2.jar",
       "hashes": {
-        "sha1": "f850f0718ed1c97d8050c790a4b4592f6bb99b21",
-        "sha512": "2760e5a25416b949a3396cfe61f4d18a323e692118c7a5e9117388f5b050841962fe5b9a09071d2ffdb0e0baa3014c1082f2ae843020b95f3a02ac47e495c6bd"
+        "sha512": "2760e5a25416b949a3396cfe61f4d18a323e692118c7a5e9117388f5b050841962fe5b9a09071d2ffdb0e0baa3014c1082f2ae843020b95f3a02ac47e495c6bd",
+        "sha1": "f850f0718ed1c97d8050c790a4b4592f6bb99b21"
       },
       "filesize": 848335,
       "side": "both",
@@ -90,8 +90,8 @@
       "filename": "rhino-2101.2.7-build.85.jar",
       "url": "https://cdn.modrinth.com/data/sk9knFPE/versions/cQ4POTah/rhino-2101.2.7-build.85.jar",
       "hashes": {
-        "sha512": "0a6c7f4410281aeb03b815ec03487a8e80a4d3dae013d81282e447bf9c08144ef57318af614ea6d40b7d9a8c25031c557890ec792a5895a82467c1643116f693",
-        "sha1": "3c8d34c7efe9e42fc90506acbf9fc842d36f9a42"
+        "sha1": "3c8d34c7efe9e42fc90506acbf9fc842d36f9a42",
+        "sha512": "0a6c7f4410281aeb03b815ec03487a8e80a4d3dae013d81282e447bf9c08144ef57318af614ea6d40b7d9a8c25031c557890ec792a5895a82467c1643116f693"
       },
       "filesize": 882075,
       "side": "both",
@@ -122,8 +122,8 @@
       "filename": "puffish_skills-0.18.0-1.21-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/hqQqvaa4/versions/jOHmw5g6/puffish_skills-0.18.0-1.21-neoforge.jar",
       "hashes": {
-        "sha512": "4269ca8c2cd340449c8cf7a6ea93ffbb68fe506d68d7d6684c301890a7d09d35edeea766d64fde6fa9bd5afd020f02720d73913f2338ca51c3caf39b314785b2",
-        "sha1": "9d26761b90627a56f274db4114ec03c5da524058"
+        "sha1": "9d26761b90627a56f274db4114ec03c5da524058",
+        "sha512": "4269ca8c2cd340449c8cf7a6ea93ffbb68fe506d68d7d6684c301890a7d09d35edeea766d64fde6fa9bd5afd020f02720d73913f2338ca51c3caf39b314785b2"
       },
       "filesize": 614216,
       "side": "both",
@@ -145,6 +145,70 @@
       "side": "both",
       "phase": 3,
       "note": "Pufferfish's Attributes - mining/pickaxe/sprinting speed, sword/ranged damage, bow/crossbow projectile speed etc used by our skill categories"
+    },
+    {
+      "slug": "architectury-api",
+      "project_id": "lhGA9TYQ",
+      "version_id": "ZxYGwlk0",
+      "version_number": "13.0.8+neoforge",
+      "filename": "architectury-13.0.8-neoforge.jar",
+      "url": "https://cdn.modrinth.com/data/lhGA9TYQ/versions/ZxYGwlk0/architectury-13.0.8-neoforge.jar",
+      "hashes": {
+        "sha1": "6ca11d3cc136bf69bb8f4d56982481eb85b5100b",
+        "sha512": "65e3664953385d880320dd6bb818bcb96d361c07c53e2a7f65e64c6a47720ee26b233224ae9cad465ef0b2bbaefdaf30fb0175a983cecd91de058817d6fcf57e"
+      },
+      "filesize": 584004,
+      "side": "both",
+      "phase": 4,
+      "note": "required by the FTB Library/Teams/Quests chain below"
+    },
+    {
+      "slug": "ftb-library",
+      "project_id": "ftb-library-forge",
+      "version_id": "8226923",
+      "version_number": "2101.1.32",
+      "filename": "ftb-library-neoforge-2101.1.32.jar",
+      "url": "https://mediafilez.forgecdn.net/files/8226/923/ftb-library-neoforge-2101.1.32.jar",
+      "hashes": {
+        "sha1": "836411988409e166020db2914cab5d4f93466fc4",
+        "sha512": "43c162847edaa0e9b4963ad41f058fe4496a7d2a4286339406fff1f8b00794dbc2727e9f99a712da7951abf9c1b155ffaa235b44fa07bb40eefbc92fdf77e525"
+      },
+      "filesize": 1416263,
+      "side": "both",
+      "phase": 4,
+      "note": "FTB mod-common utility library, required by FTB Teams and FTB Quests. Not on Modrinth (FTB suite is CurseForge-exclusive) - resolved via direct CDN, see resolve_mods.py docstring"
+    },
+    {
+      "slug": "ftb-teams",
+      "project_id": "ftb-teams-forge",
+      "version_id": "7878281",
+      "version_number": "2101.1.10",
+      "filename": "ftb-teams-neoforge-2101.1.10.jar",
+      "url": "https://mediafilez.forgecdn.net/files/7878/281/ftb-teams-neoforge-2101.1.10.jar",
+      "hashes": {
+        "sha1": "363376ae0fb22cb0527170fdf6a066d1da9b0225",
+        "sha512": "203269a3ef53b47f497ab621527c78e7ff1912c488cab9247d68df5fb01f6212530f9929599befca302889257bf3cd6dba9b9ee9070f1ef51785f1e44774639f"
+      },
+      "filesize": 302712,
+      "side": "both",
+      "phase": 4,
+      "note": "hard dependency of FTB Quests (not optional) - installed now so FTB Quests loads, but progressivestages.toml's team_mode stays 'solo' until Phase 6; installing the mod and turning on its team-progression semantics are separate steps"
+    },
+    {
+      "slug": "ftb-quests",
+      "project_id": "ftb-quests-forge",
+      "version_id": "8253474",
+      "version_number": "2101.1.27",
+      "filename": "ftb-quests-neoforge-2101.1.27.jar",
+      "url": "https://mediafilez.forgecdn.net/files/8253/474/ftb-quests-neoforge-2101.1.27.jar",
+      "hashes": {
+        "sha1": "baf3a7f173d09c2b9800626109cf6ca5a52a6c19",
+        "sha512": "d71fb8f566cd588aa5d082c3773554b8e4da1fddd65261d3942a2ba4bf6e8e716b2cad0530d979421066045b9c633ca1ddbdda1a85a3c7fd08f293dee1923022"
+      },
+      "filesize": 1470929,
+      "side": "both",
+      "phase": 4,
+      "note": "preset quest track + long-running/daily quest chapters, authored under pack/kubejs/data/ftbquests/ (raw datapack injection, same pattern as Phase 3's puffish_skills) or config/ftbquests/ SNBT depending on what the format turns out to require"
     }
   ]
 }

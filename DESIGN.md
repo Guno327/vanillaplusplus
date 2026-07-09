@@ -186,6 +186,117 @@ decompiled bytecode alone led to two wrong guesses in a row on the second one:
    `"minecraft.custom:minecraft.sprint_one_cm"`) was confirmed correct from
    the start via `BuiltinJson#parseStat`.
 
+### Quest system (Phase 4)
+
+`instructions.md` asks for three quest layers: a preset progression track
+(team-shared), long-running quests that need exponentially more
+interactions per reward, and randomized daily quests (both per-player, not
+team-shared). Built on **FTB Quests** (2101.1.27), which brought in three
+hard dependencies: **FTB Library**, **FTB Teams**, and **Architectury API**.
+Architectury API is on Modrinth as usual; **the whole FTB suite (Library/
+Teams/Quests) is CurseForge-exclusive** — confirmed by searching Modrinth,
+which returns only third-party *addons* for FTB Quests, never the mod
+itself. `scripts/resolve_mods.py` gained a second resolution path for this:
+manifest entries with `"source": "curseforge"` plus a manually-pinned
+`cf_file_id`/`cf_filename` (there's no CurseForge API key in this sandbox,
+so these are looked up by hand off the CurseForge files page) are fetched
+directly from CurseForge's public CDN
+(`mediafilez.forgecdn.net/files/<id-without-last-3-digits>/<last 3 digits>/
+<filename>`, no auth required — confirmed working, it's the same URL a
+browser's download button hits) and hashed locally to populate the same
+lockfile schema `build_server.py` already reads. No changes needed to
+`build_server.py` itself; it never cared which registry a jar came from.
+
+**FTB Teams is a hard dependency of FTB Quests itself**, not something we
+chose to add early — FTB Quests won't even load without it. It's installed
+now, but `progressivestages.toml` stays `team_mode = "solo"` until Phase 6;
+installing the mod and turning on its team-progression semantics are
+separate steps. One immediate upside: `ProgressiveStages` ships its own
+optional FTB Teams/FTB Quests integration (visible in the boot log even
+back in Phase 0's mixin warnings) that's now fully active —
+`ProgressiveStagesStageProvider` replaces FTB Library's default stage
+backend, so FTB Quests' `gamestage` task type now reads our *actual*
+`ProgressiveStages` tiers (`rootborn`/`andesite_age`/`brass_age`/
+`precision_age`/`induction_age`/`starforged_age`) directly, with no glue
+code needed.
+
+`scripts/gen_quests.py` generates the whole quest book into
+`pack/config/ftbquests/quests/`, the same "generate, don't hand-type"
+approach as Phase 3's skill trees, and for the same reason — the format has
+too many interlocking required fields to author by hand across three
+chapters. **Format gotcha worth flagging for future phases**: FTB Quests'
+GitHub default branch is mid-rewrite onto a JSON5-based format for a much
+newer Minecraft version, and its CHANGELOG documents that migration — but
+our installed jar (2101.1.27, MC 1.21.1) predates it and uses the *old*
+SNBT/`CompoundTag`-based format (`.snbt` files, real NBT-ish text syntax).
+The generator's first draft was written against the default branch, produced
+JSON that FTB Quests silently ignored (0 chapters loaded, zero errors —
+the `.snbt` file-extension filter just never matched anything), and had to
+be rewritten from scratch after cloning `FTBTeam/FTB-Quests` and
+`FTBTeam/FTB-Library` at their **`1.21.1/main`** branches specifically and
+re-deriving every field from *that* branch's `writeData`/`readData`
+methods. Lesson (same one Phase 3 already taught, reinforced harder this
+time): ground truth is whatever branch matches the shipped jar's own
+version number, never a repo's default branch.
+
+Three chapters:
+
+- **Tier Progression** (the preset track): one quest per `ProgressiveStages`
+  tier, chained by `dependencies`, each gated by a `gamestage` task on that
+  tier's real stage id. Deliberately doesn't *grant* tiers through quest
+  completion — `ProgressiveStages`' own triggers still do that — this
+  chapter is a quest-book view of tier progress with RPG skill XP (see
+  below) and a themed item as a bonus layered on top, avoiding any
+  assumption about whether writing back through the just-replaced stage
+  provider is even supported.
+- **Lifetime Achievements** (long-running, exponential): four
+  `minecraft:custom`-stat chains (mob kills, play time, animals bred, fish
+  caught), four steps each, thresholds growing ~4x per step, not repeatable.
+  `instructions.md`'s own example list for this category — "blocks broken,
+  mobs killed, xp levels gained, time played" — doesn't map cleanly onto
+  FTB Quests' native tracking: its `stat` task type only reads Minecraft's
+  generic *custom*-stat registry (mob kills and play time fit; there's no
+  vanilla custom stat for "total blocks broken across all types," since
+  per-block mining counts live under a separate stat type `stat` can't
+  read), and its `xp` task type actually *spends*/consumes XP as a
+  turn-in cost rather than tracking cumulative gain — the opposite of what's
+  needed here. Substituted two more custom stats that fit the pack's own
+  themes (animals bred, fish caught) instead of forcing the literal
+  examples, per the user's explicit call when presented with this tradeoff
+  (2026-07-09) — the "e.g. ... etc" phrasing in `instructions.md` treats
+  those four as illustrative, not a mandated exact list.
+- **Daily Bounties**: ~18 quests (turn-in and kill-count tasks), each with
+  `repeat_cooldown: 86400` (24h, real-world time, tracked per-player
+  already since we're in solo team mode). Deliberately **not** randomized
+  per player/day — FTB Quests has no native random-subset-selection
+  mechanic; quests are static/authored, the only relevant primitive is
+  the per-quest repeat cooldown. This is a static pool that's always fully
+  visible and independently refreshes 24h after each completion, again per
+  the user's explicit call (2026-07-09) after this gap was found — chosen
+  over building bespoke KubeJS-driven randomization against an unverified
+  scripting surface.
+
+RPG skill XP rewards (all three chapters) go through a `command` reward
+type calling `puffish_skills`' own `/skills experience add {p} <category>
+<amount>` command (`net.puffish.skillsmod.commands.ExperienceCommand`,
+confirmed via the same `pufmat/skillsmod` clone from Phase 3) — needs
+`permission_level: 2` since that command requires gamemaster permission and
+a reward otherwise runs as the claiming player. Currency rewards (the
+"and/or" half of the long-running-quest reward requirement) are deferred to
+Phase 5, once the marketplace currency actually exists to grant.
+
+**Open issue found for Phase 6, not blocking now**: FTB Quests tracks *all*
+progress at the FTB Teams level (`TeamData` — literally named for it), with
+no built-in per-quest-type granularity. In solo mode (current), each
+player's own 1-person team makes every quest type per-player already,
+satisfying `instructions.md`'s split trivially. But once Phase 6 flips
+`team_mode` to real multi-member teams, daily/long-running quest progress
+would become team-shared too unless something changes — this is a
+widely-requested-but-unimplemented FTB Quests limitation (confirmed via
+the FTB-Mods-Issues tracker), not a config option we're missing. Revisit
+then: either accept the deviation, or split daily/long-running quests into
+a separately-tracked system that's inherently per-player.
+
 ### Why gate the Nether at Brass Age and The End at Precision Age
 
 Vanilla lets you rush the Nether/End with almost no preamble. Both dimensions
@@ -197,11 +308,16 @@ but nothing needs it yet. The End stays gated behind Precision Age as before.
 
 ### Team mode
 
-`progressivestages.toml` currently sets `team_mode = "solo"` because FTB Teams
-isn't installed yet. **Flip this to `"ftb_teams"` in Phase 6** once FTB Teams
-is added — that's what makes the preset tier progression shared across a team
-while daily/long-running quest progress (added on top in Phase 4, tracked
-separately) stays per-player, per the team requirement in `instructions.md`.
+`progressivestages.toml` currently sets `team_mode = "solo"` even though FTB
+Teams is now installed as of Phase 4 (it's a hard dependency of FTB Quests -
+see the Quest system section above). **Flip `team_mode` to `"ftb_teams"` in
+Phase 6** once real multi-member teams are actually wanted — that's meant to
+make the preset tier progression shared across a team while daily/
+long-running quest progress stays per-player, per the team requirement in
+`instructions.md`. See the Quest system section's "Open issue" for a real
+wrinkle discovered here: FTB Quests has no native way to keep some quest
+chapters team-shared and others per-player once real teams are on, so this
+flip needs its own decision in Phase 6, not just a config toggle.
 
 ### Blacksmithing (Tier 1+)
 
@@ -227,8 +343,9 @@ ported past 1.20.x and is ruled out.
    autocrafting by Induction Age.
 3. ✅ RPG skill/leveling system (Running/Swimming/Mining/Building/Swords/Bows)
    via Pufferfish's Skills + Attributes, six generated skill-tree categories.
-4. Quest system: preset track (team-shared) + long-running exponential
-   quests + randomized daily quests (both per-player).
+4. ✅ Quest system via FTB Quests: preset tier-progression track + four
+   long-running exponential stat chains + a static daily bounty pool
+   (per-player already, since team_mode is still solo).
 5. Economy (tiered vendor pricing) + async player marketplace.
 6. Teams (flip `team_mode` to `ftb_teams`) + chunk claims.
 7. Combat variety (balanced weapon classes tied to RPG skills) + blacksmithing
