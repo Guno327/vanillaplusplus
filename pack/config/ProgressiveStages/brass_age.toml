@@ -123,6 +123,25 @@ locked = [
     "id:sophisticatedbackpacks:stack_upgrade_tier_3",
     "id:sophisticatedbackpacks:void_upgrade",
     "id:sophisticatedbackpacks:advanced_filter_upgrade",
+
+    # Travel overhaul Part 1: Create's own Trains, realizing this file's own
+    # "train control" milestone description above (previously just flavor
+    # text with nothing enforcing it). Track Station/Signal/the Railway
+    # Casing they're built from are already naturally gated by
+    # create:brass_casing (this tier's own material, locked above); Track,
+    # the Cart Assembler, Gantry Carriage, and Minecart Coupling are all
+    # craftable from Tier 1 materials (andesite_alloy/andesite_casing) on
+    # their own, but are locked here explicitly anyway so the *entire*
+    # train experience - not just station control - is a single Brass Age
+    # package, matching the tier table's intent.
+    "id:create:track",
+    "id:create:cart_assembler",
+    "id:create:gantry_carriage",
+    "id:create:minecart_coupling",
+    "id:create:track_station",
+    "id:create:track_signal",
+    "id:create:track_observer",
+    "id:create:railway_casing",
 ]
 always_unlocked = []
 

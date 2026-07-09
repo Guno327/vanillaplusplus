@@ -112,6 +112,29 @@ locked = [
     "id:sophisticatedbackpacks:stack_upgrade_starter_tier",
     "id:sophisticatedbackpacks:stack_upgrade_tier_1",
     "id:sophisticatedbackpacks:filter_upgrade",
+
+    # Travel overhaul Part 1: boats - the first vehicle upgrade past
+    # walking. Nothing in vanilla naturally gates boats (planks are always
+    # available from Tier 0), so this is a pure explicit lock, not
+    # ingredient-transitive like most of this file's other entries.
+    "id:minecraft:oak_boat",
+    "id:minecraft:spruce_boat",
+    "id:minecraft:birch_boat",
+    "id:minecraft:jungle_boat",
+    "id:minecraft:acacia_boat",
+    "id:minecraft:dark_oak_boat",
+    "id:minecraft:mangrove_boat",
+    "id:minecraft:cherry_boat",
+    "id:minecraft:bamboo_raft",
+    "id:minecraft:oak_chest_boat",
+    "id:minecraft:spruce_chest_boat",
+    "id:minecraft:birch_chest_boat",
+    "id:minecraft:jungle_chest_boat",
+    "id:minecraft:acacia_chest_boat",
+    "id:minecraft:dark_oak_chest_boat",
+    "id:minecraft:mangrove_chest_boat",
+    "id:minecraft:cherry_chest_boat",
+    "id:minecraft:bamboo_chest_raft",
 ]
 always_unlocked = []
 
