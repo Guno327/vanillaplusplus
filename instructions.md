@@ -11,6 +11,9 @@ Your goal is to design a prism compatible modpack.
 - Should replace vanilla processes with more engaging alternatives
     - Instead of making metal tools normally have some kinds of blacksmithing
     - Ore processing through create is encouraged (introduce additional gains if necessary)
+- All resources should eventually be automatable to the point of becoming infinite, in some format
+    - This applies broadly, not just to already-renewable stuff like wood/food - the intent is that nothing should stay a hard, permanent bottleneck once a player is far enough into progression
+    - Exact mechanism and which tier this kicks in at is open - see clarifying questions
 - Should introduce a consequential RPG leveling system
     - should have a colleciton of skills that match to things you will be doing
         - Running
@@ -58,6 +61,9 @@ Your goal is to design a prism compatible modpack.
     - Multiple dimensions that lock away better progression through the tier system should be implemnted
     - Structures should have rewards that scale with their probability of being discovered
     - Important structure for progression should spawn at a minimum rate to ensure there is one over X blocks when chunks are generated
+- Space travel should be the ultimate end goal of the modpack
+    - Once all overworld tiers and existing dimensions (Nether/End) are fully progressed through, space travel should open up to new, harder planets with further progression and resources available
+    - This is expected to require leaning on Create addons and similarly-themed mods beyond Create's own ecosystem, since Create itself has no native space content
 - The world should be as interactable as possible
     - Dynamic lights
     - More interesting animations 
