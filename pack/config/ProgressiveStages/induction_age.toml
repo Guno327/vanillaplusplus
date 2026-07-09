@@ -1,0 +1,29 @@
+# ============================================================================
+# Vanilla++ Tier 4 — Induction Age  [PLACEHOLDER — finalize in Phase 2]
+# Create has no native material beyond Precision Age; this tier represents
+# "real" digital automation (AE2/Mekanism-class mod, chosen in Phase 2 when
+# tiered storage/autocrafting is designed). Locked item/block lists are
+# intentionally empty until that mod is picked — filling them in now would be
+# guessing. The trigger below is a temporary vanilla stand-in so the stage
+# chain is testable end-to-end; replace it with a real item/boss trigger tied
+# to whatever Phase 2 chooses.
+# ============================================================================
+
+[stage]
+id = "induction_age"
+display_name = "Induction Age"
+description = "Digital automation and mass storage. (placeholder tier — see Phase 2)"
+icon = "minecraft:netherite_ingot"
+unlock_message = "&b&lInduction Age Unlocked! &r&7Placeholder tier — refine in Phase 2."
+dependency = "precision_age"
+
+[items]
+locked = []
+always_unlocked = []
+
+[blocks]
+locked = []
+always_unlocked = []
+
+[dimensions]
+locked = []

@@ -1,0 +1,79 @@
+# ============================================================================
+# Vanilla++ Tier 2 — Brass Age
+# Create's mid-game alloy: Mechanical Arms, Deployers, Sequenced Gearshifts,
+# Elevator Pulleys, portable interfaces, train control. This is where real
+# automation starts, so it doubles as our "diamond-equivalent" gate — vanilla
+# diamond tools/armor and the enchanting table/beacon are held back until here
+# too, alongside the Nether (Create's superheating/blaze work is the natural
+# reason to go get Nether resources once you've outgrown Andesite tier).
+# ============================================================================
+
+[stage]
+id = "brass_age"
+display_name = "Brass Age"
+description = "Deployers, Mechanical Arms, Sequenced Gearshifts. Automation begins in earnest."
+icon = "create:brass_ingot"
+unlock_message = "&6&lBrass Age Unlocked! &r&7Automation, diamond gear, and the Nether await."
+dependency = "andesite_age"
+
+[items]
+locked = [
+    "id:create:brass_ingot",
+    "id:create:brass_block",
+    "id:create:brass_sheet",
+    "id:create:brass_nugget",
+    "id:create:mechanical_arm",
+    "id:create:deployer",
+    "id:create:sequenced_gearshift",
+    "id:create:elevator_pulley",
+    "id:create:portable_storage_interface",
+    "id:create:portable_fluid_interface",
+    "id:create:redstone_link",
+    "id:create:display_link",
+    "id:create:display_board",
+    "id:create:controller_rail",
+
+    "id:minecraft:diamond",
+    "id:minecraft:diamond_ore",
+    "id:minecraft:deepslate_diamond_ore",
+    "id:minecraft:diamond_block",
+    "id:minecraft:diamond_pickaxe",
+    "id:minecraft:diamond_sword",
+    "id:minecraft:diamond_axe",
+    "id:minecraft:diamond_shovel",
+    "id:minecraft:diamond_hoe",
+    "id:minecraft:diamond_helmet",
+    "id:minecraft:diamond_chestplate",
+    "id:minecraft:diamond_leggings",
+    "id:minecraft:diamond_boots",
+]
+always_unlocked = []
+
+[blocks]
+locked = [
+    "id:create:brass_block",
+    "id:create:brass_casing",
+    "id:create:mechanical_arm",
+    "id:create:deployer",
+    "id:create:sequenced_gearshift",
+    "id:create:elevator_pulley",
+
+    "id:minecraft:diamond_block",
+    "id:minecraft:enchanting_table",
+    "id:minecraft:beacon",
+]
+always_unlocked = []
+
+[dimensions]
+locked = [
+    "id:minecraft:the_nether",
+]
+
+[recipes]
+locked_ids = []
+locked_items = []
+
+[enforcement]
+block_crafting_with_locked_ingredients = true
+block_automated_crafting = true
+crafter_check_radius = 32

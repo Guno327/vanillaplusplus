@@ -2,6 +2,7 @@
   "minecraft": "1.21.1",
   "loader": "neoforge",
   "mods": [
-    { "slug": "create", "side": "both", "phase": 0, "note": "core progression backbone" }
+    { "slug": "create", "side": "both", "phase": 0, "note": "core progression backbone" },
+    { "slug": "progressivestages", "side": "both", "phase": 1, "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases" }
   ]
 }

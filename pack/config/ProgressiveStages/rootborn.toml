@@ -1,0 +1,25 @@
+# ============================================================================
+# Vanilla++ Tier 0 — Rootborn
+# Starting stage, granted to every new player. No locks: wood/stone survival,
+# vanilla crafting table, first furnace. Everything metal-and-up belongs to
+# later tiers below.
+# See DESIGN.md for the full tier table this file is one rung of.
+# ============================================================================
+
+[stage]
+id = "rootborn"
+display_name = "Rootborn"
+description = "Wood, stone, and a furnace. The world is still just the world."
+icon = "minecraft:stone_pickaxe"
+unlock_message = "&7&lWelcome to Vanilla++. &r&8Punch some trees."
+
+[items]
+locked = []
+always_unlocked = []
+
+[blocks]
+locked = []
+always_unlocked = []
+
+[dimensions]
+locked = []

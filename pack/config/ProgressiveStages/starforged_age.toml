@@ -1,0 +1,27 @@
+# ============================================================================
+# Vanilla++ Tier 5 — Starforged Age  [PLACEHOLDER — finalize in Phase 8]
+# The endgame tier: final combat/magic content, top-tier storage/autocrafting,
+# final boss dungeons. Which dimension/content mod anchors this is a Phase 8
+# decision (exploration + dungeons + mob scaling). Trigger below is a
+# temporary vanilla stand-in (Ender Dragon kill) so the chain is testable;
+# replace once Phase 8 picks the real endgame content.
+# ============================================================================
+
+[stage]
+id = "starforged_age"
+display_name = "Starforged Age"
+description = "The far end of the journey. (placeholder tier — see Phase 8)"
+icon = "minecraft:nether_star"
+unlock_message = "&5&lStarforged Age Unlocked! &r&7Placeholder tier — refine in Phase 8."
+dependency = "induction_age"
+
+[items]
+locked = []
+always_unlocked = []
+
+[blocks]
+locked = []
+always_unlocked = []
+
+[dimensions]
+locked = []

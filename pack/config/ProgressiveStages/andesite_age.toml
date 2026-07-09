@@ -1,0 +1,75 @@
+# ============================================================================
+# Vanilla++ Tier 1 — Andesite Age
+# Entry point into Create: water wheels, mechanical mixing/pressing, crushing
+# wheels (Create's own ore-doubling). Vanilla iron tools/armor are locked here
+# on purpose — Phase 7 replaces their recipes with a blacksmithing process
+# instead of just unlocking them outright; for now reaching this tier unlocks
+# access to them so the world isn't fully frozen while that mod is picked.
+#
+# A resource listed in THIS file's locked lists becomes available the moment
+# the player is granted THIS stage — Brass-tier gear belongs in brass_age.toml
+# instead, not here (see that file for why).
+# ============================================================================
+
+[stage]
+id = "andesite_age"
+display_name = "Andesite Age"
+description = "Water wheels, mechanical mixing, crushing wheels. Iron enters the world."
+icon = "create:andesite_alloy"
+unlock_message = "&6&lAndesite Age Unlocked! &r&7Create begins. Iron tools and machinery await."
+dependency = "rootborn"
+
+[items]
+locked = [
+    "id:minecraft:iron_ingot",
+    "id:minecraft:iron_block",
+    "id:minecraft:iron_ore",
+    "id:minecraft:deepslate_iron_ore",
+    "id:minecraft:raw_iron",
+    "id:minecraft:raw_iron_block",
+    "id:minecraft:iron_pickaxe",
+    "id:minecraft:iron_sword",
+    "id:minecraft:iron_axe",
+    "id:minecraft:iron_shovel",
+    "id:minecraft:iron_hoe",
+    "id:minecraft:iron_helmet",
+    "id:minecraft:iron_chestplate",
+    "id:minecraft:iron_leggings",
+    "id:minecraft:iron_boots",
+    "id:minecraft:shield",
+    "id:minecraft:bucket",
+    "id:minecraft:shears",
+    "id:minecraft:flint_and_steel",
+    "id:minecraft:compass",
+    "id:minecraft:clock",
+    "id:minecraft:minecart",
+    "id:minecraft:rail",
+    "id:minecraft:powered_rail",
+    "id:minecraft:detector_rail",
+    "id:minecraft:activator_rail",
+]
+always_unlocked = []
+
+[blocks]
+locked = [
+    "id:minecraft:iron_block",
+    "id:minecraft:iron_door",
+    "id:minecraft:iron_trapdoor",
+    "id:minecraft:iron_bars",
+    "id:minecraft:hopper",
+    "id:minecraft:blast_furnace",
+    "id:minecraft:smithing_table",
+]
+always_unlocked = []
+
+[dimensions]
+locked = []
+
+[recipes]
+locked_ids = []
+locked_items = []
+
+[enforcement]
+block_crafting_with_locked_ingredients = true
+block_automated_crafting = true
+crafter_check_radius = 32

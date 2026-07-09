@@ -1,0 +1,28 @@
+# ============================================================================
+# Vanilla++ — Trigger Configuration
+# Automatic stage grants based on player actions. See DESIGN.md for the tier
+# table these map to. Tiers 4-5 use temporary vanilla-milestone triggers until
+# Phase 2 / Phase 8 pick the mods that actually anchor those tiers.
+# ============================================================================
+
+[advancements]
+# rootborn is a starting_stage (see progressivestages.toml), no trigger needed.
+
+[items]
+"create:andesite_alloy" = "andesite_age"
+"create:brass_ingot" = "brass_age"
+"minecraft:netherite_ingot" = "induction_age"   # TODO Phase 2: replace with real automation-tier item
+
+[dimensions]
+
+[bosses]
+"minecraft:ender_dragon" = "starforged_age"   # TODO Phase 8: replace/extend with real endgame trigger
+
+[[multi]]
+id = "precision_age_materials"
+stage = "precision_age"
+description = "Obtain Refined Radiance or Shadow Steel"
+any_of = [
+    "item:create:refined_radiance",
+    "item:create:shadow_steel",
+]

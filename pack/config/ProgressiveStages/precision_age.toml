@@ -1,0 +1,60 @@
+# ============================================================================
+# Vanilla++ Tier 3 — Precision Age
+# Create's own top-tier materials: Refined Radiance, Shadow Steel, and the
+# Sturdy Sheet built from them. No external addon needed for this rung — it's
+# entirely Create's native material chain, which is the point ("engaging with
+# Create should be the sole process by which you automate things").
+# Vanilla netherite tier and the End are held back until here.
+# ============================================================================
+
+[stage]
+id = "precision_age"
+display_name = "Precision Age"
+description = "Refined Radiance, Shadow Steel, Sturdy Sheets. Create's own endgame alloys."
+icon = "create:sturdy_sheet"
+unlock_message = "&d&lPrecision Age Unlocked! &r&7Netherite gear and the End await."
+dependency = "brass_age"
+
+[items]
+locked = [
+    "id:create:refined_radiance",
+    "id:create:shadow_steel",
+    "id:create:sturdy_sheet",
+
+    "id:minecraft:ancient_debris",
+    "id:minecraft:netherite_scrap",
+    "id:minecraft:netherite_ingot",
+    "id:minecraft:netherite_block",
+    "id:minecraft:netherite_pickaxe",
+    "id:minecraft:netherite_sword",
+    "id:minecraft:netherite_axe",
+    "id:minecraft:netherite_shovel",
+    "id:minecraft:netherite_hoe",
+    "id:minecraft:netherite_helmet",
+    "id:minecraft:netherite_chestplate",
+    "id:minecraft:netherite_leggings",
+    "id:minecraft:netherite_boots",
+    "id:minecraft:elytra",
+    "id:minecraft:totem_of_undying",
+]
+always_unlocked = []
+
+[blocks]
+locked = [
+    "id:minecraft:netherite_block",
+]
+always_unlocked = []
+
+[dimensions]
+locked = [
+    "id:minecraft:the_end",
+]
+
+[recipes]
+locked_ids = []
+locked_items = []
+
+[enforcement]
+block_crafting_with_locked_ingredients = true
+block_automated_crafting = true
+crafter_check_radius = 32

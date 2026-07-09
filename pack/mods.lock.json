@@ -10,13 +10,29 @@
       "filename": "create-1.21.1-6.0.10.jar",
       "url": "https://cdn.modrinth.com/data/LNytGWDc/versions/UjX6dr61/create-1.21.1-6.0.10.jar",
       "hashes": {
-        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353",
-        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b"
+        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b",
+        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353"
       },
       "filesize": 19123767,
       "side": "both",
       "phase": 0,
       "note": "core progression backbone"
+    },
+    {
+      "slug": "progressivestages",
+      "project_id": "rY4mdP4Q",
+      "version_id": "J1BsRBDq",
+      "version_number": "2.1",
+      "filename": "progressivestages-2.1.jar",
+      "url": "https://cdn.modrinth.com/data/rY4mdP4Q/versions/J1BsRBDq/progressivestages-2.1.jar",
+      "hashes": {
+        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909",
+        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619"
+      },
+      "filesize": 478877,
+      "side": "both",
+      "phase": 1,
+      "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases"
     }
   ]
 }
