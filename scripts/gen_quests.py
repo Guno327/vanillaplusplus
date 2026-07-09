@@ -146,12 +146,21 @@ def item_reward(item_id, count=1):
 
 
 def skill_xp_reward(category, amount):
-    """Grants puffish_skills category XP via its /skills experience add command
-    (net.puffish.skillsmod.commands.ExperienceCommand) - requires
-    Commands.LEVEL_GAMEMASTERS (permission level 2), so permission_level must
-    be bumped since the reward otherwise runs as the claiming player."""
+    """Grants puffish_skills category XP via its /puffish_skills experience add
+    command (net.puffish.skillsmod.commands.ExperienceCommand, registered as a
+    direct child of the "puffish_skills" root alongside "skills"/"category"/
+    "points"/"open" - NOT nested under the "skills" subcommand, despite the
+    similar name; confirmed by reading SkillsMod#onCommandsRegister. Matches
+    the command already used and working in
+    pack/kubejs/server_scripts/skills.js's Building-category XP grant - an
+    earlier draft of this function used "skills experience add ..." (missing
+    the mod-id root and wrongly nesting under "skills"), which would have
+    silently failed as an unknown command the first time a reward claimed).
+    Requires Commands.LEVEL_GAMEMASTERS (permission level 2), so
+    permission_level must be bumped since the reward otherwise runs as the
+    claiming player."""
     return "command", {
-        "command": f"skills experience add {{p}} {category} {amount}",
+        "command": f"puffish_skills experience add {{p}} {category} {amount}",
         "permission_level": 2,
         "silent": True,
     }
