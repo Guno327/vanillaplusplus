@@ -50,6 +50,8 @@ locked = [
     "id:refinedstorage:network_card",
     "id:refinedstorage:security_card",
     "id:refinedstorage:fallback_security_card",
+
+    "id:toms_storage:adv_wireless_terminal",
 ]
 always_unlocked = []
 

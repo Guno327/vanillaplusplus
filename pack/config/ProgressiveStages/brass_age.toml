@@ -4,14 +4,21 @@
 # Elevator Pulleys, portable interfaces, train control. This is where real
 # automation starts, so it doubles as our "diamond-equivalent" gate — vanilla
 # diamond tools/armor and the enchanting table/beacon are held back until here
-# too. (The Nether itself unlocks a tier earlier, at Andesite Age — every
-# Refined Storage component needs Nether Quartz, so it can't wait this long.)
+# too, alongside the Nether (every Refined Storage component needs Nether
+# Quartz, and RS itself is a Brass Age unlock — see below).
 #
-# Storage: this is the first CRAFTING automation tier. Create's own Mechanical
-# Arm/Deployer (unlocked this same tier) feed the Refined Storage network via
-# Importer/Exporter/External Storage — RS's own pattern-based Autocrafter is
-# still locked away until Induction Age (Tier 4). Storage capacity also scales
-# up to 4k here.
+# Storage: this is where players graduate from Tier 1's "dumb storage" (Tom's
+# Storage) to a real powered network. Refined Storage unlocks here in full —
+# Grid/Disk Drive/Controller/1k storage plus the Brass Age additions
+# (Importer/Exporter/etc, 4k storage) — using its STOCK recipes: Disk Drive
+# needs a diamond-tier Advanced Processor, which is fine now since diamond
+# unlocks this same tier, so no KubeJS patch is needed here (unlike Tom's
+# Storage at Andesite Age). RS's Controller requires energy (requireEnergy
+# stays on in refinedstorage-common.toml), supplied by Create Crafts &
+# Additions' Alternator — a Create-native kinetic-to-FE generator, also
+# unlocked this tier. This keeps "engaging with Create should be the sole
+# process by which you automate things" true even for storage power: no
+# separate FE-only power mod, just Create rotation feeding an Alternator.
 # ============================================================================
 
 [stage]
@@ -19,7 +26,7 @@ id = "brass_age"
 display_name = "Brass Age"
 description = "Deployers, Mechanical Arms, Sequenced Gearshifts. Automation begins in earnest."
 icon = "create:brass_ingot"
-unlock_message = "&6&lBrass Age Unlocked! &r&7Automation and diamond gear await."
+unlock_message = "&6&lBrass Age Unlocked! &r&7Automation, diamond gear, and real storage power await."
 dependency = "andesite_age"
 
 [items]
@@ -53,10 +60,39 @@ locked = [
     "id:minecraft:diamond_leggings",
     "id:minecraft:diamond_boots",
 
+    "id:refinedstorage:quartz_enriched_iron",
+    "id:refinedstorage:quartz_enriched_copper",
+    "id:refinedstorage:silicon",
+    "id:refinedstorage:machine_casing",
+    "id:refinedstorage:construction_core",
+    "id:refinedstorage:destruction_core",
+    "id:refinedstorage:storage_housing",
+    "id:refinedstorage:processor_binding",
+    "id:refinedstorage:basic_processor",
+    "id:refinedstorage:raw_basic_processor",
+    "id:refinedstorage:improved_processor",
+    "id:refinedstorage:raw_improved_processor",
+    "id:refinedstorage:cable",
+    "id:refinedstorage:1k_storage_part",
+    "id:refinedstorage:1k_storage_disk",
     "id:refinedstorage:4k_storage_part",
     "id:refinedstorage:4k_storage_disk",
+    "id:refinedstorage:64b_fluid_storage_part",
+    "id:refinedstorage:64b_fluid_storage_disk",
     "id:refinedstorage:256b_fluid_storage_part",
     "id:refinedstorage:256b_fluid_storage_disk",
+
+    "id:createaddition:capacitor",
+    "id:createaddition:copper_spool",
+    "id:createaddition:copper_wire",
+    "id:createaddition:copper_rod",
+    "id:createaddition:iron_rod",
+    "id:createaddition:iron_wire",
+    "id:createaddition:spool",
+
+    "id:toms_storage:polymorphic_item_filter",
+    "id:toms_storage:tag_item_filter",
+    "id:toms_storage:wireless_terminal",
 ]
 always_unlocked = []
 
@@ -73,6 +109,13 @@ locked = [
     "id:minecraft:enchanting_table",
     "id:minecraft:beacon",
 
+    "id:refinedstorage:grid",
+    "id:refinedstorage:disk_drive",
+    "id:refinedstorage:controller",
+    "id:refinedstorage:1k_storage_block",
+    "id:refinedstorage:4k_storage_block",
+    "id:refinedstorage:64b_fluid_storage_block",
+    "id:refinedstorage:256b_fluid_storage_block",
     "id:refinedstorage:importer",
     "id:refinedstorage:exporter",
     "id:refinedstorage:external_storage",
@@ -82,13 +125,29 @@ locked = [
     "id:refinedstorage:detector",
     "id:refinedstorage:disk_interface",
     "id:refinedstorage:crafting_grid",
-    "id:refinedstorage:4k_storage_block",
-    "id:refinedstorage:256b_fluid_storage_block",
+
+    "id:createaddition:alternator",
+    "id:createaddition:electric_motor",
+    "id:createaddition:rolling_mill",
+    "id:createaddition:connector",
+    "id:createaddition:large_connector",
+    "id:createaddition:small_light_connector",
+    "id:createaddition:modular_accumulator",
+    "id:createaddition:redstone_relay",
+    "id:createaddition:portable_energy_interface",
+
+    "id:toms_storage:inventory_cable_connector",
+    "id:toms_storage:inventory_cable_connector_framed",
+    "id:toms_storage:inventory_cable_framed",
+    "id:toms_storage:crafting_terminal",
+    "id:toms_storage:inventory_interface",
 ]
 always_unlocked = []
 
 [dimensions]
-locked = []
+locked = [
+    "id:minecraft:the_nether",
+]
 
 [recipes]
 locked_ids = []

@@ -20,11 +20,14 @@ the original requirements this design satisfies, and `pack/manifest.json` /
   manager) — `scripts/resolve_mods.py` + `scripts/mods.lock.json` do the same
   job against the Modrinth API, git-friendly and reproducible. See
   `scripts/build_server.py` for turning the lockfile into a runnable server.
-- **Refined Storage 2.0.9** for the browsable storage network — named
-  explicitly in `instructions.md` ("think mods like refined storage"), 1.4M+
-  downloads, self-contained (no extra required mods). Energy requirement
-  disabled (see storage section). **KubeJS 2101.7.2 + Rhino** power the
-  storage recipe patch here and the full recipe-gating pass in Phase 9.
+- **Tom's Storage 2.3.2** for Tier 1's "dumb storage" (16M+ downloads, no hard
+  dependencies) and **Refined Storage 2.0.9** for the real powered network
+  from Tier 2 on — named explicitly in `instructions.md` ("think mods like
+  refined storage"), 1.4M+ downloads, self-contained. **Create Crafts &
+  Additions 1.6.0** (8.6M downloads) bridges the two: its Alternator turns
+  Create's own rotational power into Forge Energy to run RS. See the storage
+  section for how these three fit together. **KubeJS 2101.7.2 + Rhino** power
+  the storage recipe patches here and the full recipe-gating pass in Phase 9.
 
 ## The tier ladder
 
@@ -40,8 +43,8 @@ a Phase 8 TODO.
 | # | Stage id | Name | Unlocked by | Create milestone | Storage / autocrafting rung | Vanilla tier & dimension also gated here |
 |---|---|---|---|---|---|---|
 | 0 | `rootborn` | Rootborn | starting stage | — | vanilla inventory/chests only | wood/stone |
-| 1 | `andesite_age` | Andesite Age | craft/pick up `create:andesite_alloy` | water wheels, mixing/pressing, crushing wheels | **first browsable storage interface** — Grid + Cable + Disk Drive + 1k Disk/Block, manual only, no autocrafting | iron tools/armor, rails, **Nether** |
-| 2 | `brass_age` | Brass Age | craft/pick up `create:brass_ingot` | Mechanical Arm, Deployer, Sequenced Gearshift, Elevator Pulley, train control | 4k capacity; **first crafting automation** — Create's Mechanical Arm/Deployer feed the network via Importer/Exporter/External Storage/Constructor/Destructor | diamond tools/armor, enchanting table, beacon |
+| 1 | `andesite_age` | Andesite Age | craft/pick up `create:andesite_alloy` | water wheels, mixing/pressing, crushing wheels | **"dumb storage"** — Tom's Storage: Inventory Connector + Storage Terminal + Open Crate + Cable + Filing Cabinet, iron-tier only, no power, no autocrafting | iron tools/armor, rails |
+| 2 | `brass_age` | Brass Age | craft/pick up `create:brass_ingot` | Mechanical Arm, Deployer, Sequenced Gearshift, Elevator Pulley, train control | **real powered network** — Refined Storage in full (Grid/Disk Drive/Controller, 1k+4k capacity), powered by Create Crafts & Additions' Alternator (kinetic→FE); first crafting automation via Create's Mechanical Arm/Deployer feeding RS's Importer/Exporter/External Storage | diamond tools/armor, enchanting table, beacon, **Nether** |
 | 3 | `precision_age` | Precision Age | obtain `create:refined_radiance` or `create:shadow_steel` | Sturdy Sheet (Create's own top alloy) | 16k capacity; wireless/network devices (Wireless Grid, Network Receiver/Transmitter, Relay, Portable Grid, Security Manager) | netherite tier, elytra, totem, **The End** |
 | 4 | `induction_age` | Induction Age | temp trigger: netherite ingot *(real narrative trigger TBD in Phase 8)* | — | **ceiling of the same system**: 64k capacity + Advanced Processor + native pattern-based autocrafting (Autocrafter/Autocrafter Manager/Pattern/Pattern Grid) | TBD |
 | 5 | `starforged_age` | Starforged Age *(placeholder)* | temp: kill Ender Dragon | — *(Phase 8 picks the real endgame/dimension content)* | — | TBD |
@@ -52,50 +55,62 @@ in `progressivestages.toml` so granting any tier auto-grants everything below
 it. This directly satisfies "previous Create stuff should be necessary for
 the next tier of stuff."
 
-### Storage: Refined Storage, one continuous system spanning Tiers 1-4
+### Storage: two mods, not one — "dumb storage" then a real powered network
 
-Picked over AE2 and Sophisticated Storage because `instructions.md` names it
-directly ("think mods like refined storage where you have a central
-interface"). It's introduced at Andesite Age (Tier 1) as a tiny, browsable,
-manual-only interface; capacity scales every tier after that (1k -> 4k -> 16k
--> 64k, RS's own native disk tiers, fluid tiers mirror in lockstep); crafting
-automation first becomes possible at Brass Age (Tier 2) specifically *through
-Create's own Mechanical Arm/Deployer* feeding the network via RS's
-Importer/Exporter/External Storage/Constructor/Destructor, rather than RS's
-own pattern autocrafter — keeping "engaging with Create should be the sole
-process by which you automate things" true even for storage automation. RS's
-own native autocrafting (Autocrafter/Pattern) is reserved for Induction Age
-(Tier 4), which is that same system's top rung rather than a separate mod
-bolted on late. Full per-tier item/block lists are in
-`pack/config/ProgressiveStages/{andesite,brass,precision,induction}_age.toml`.
+`instructions.md` draws a real distinction between the earliest tier
+("really small limits," no autocrafting) and everything after it, and asks
+specifically for something as low-tech as *linking chests together* at the
+start. One continuous Refined Storage system stretched across all four tiers
+(an earlier draft of this doc) can't express that distinction — RS's own
+core devices are diamond/Nether-gated no matter how you slice it, so making
+Tier 1 truly "dumb" meant either patching RS down twice or using a second,
+genuinely simpler mod for Tier 1 alone. Went with the latter:
 
-Two real snags surfaced while implementing this, both resolved:
+- **Tier 1 (Andesite Age) — Tom's Storage** (16M+ downloads, no hard
+  dependencies): Inventory Connector links chests into one network, Storage
+  Terminal browses it, Open Crate/Filing Cabinet add capacity. This is
+  literally "link chests together," matching the ask directly. Its stock
+  Inventory Connector recipe needs a diamond + ender pearl and its Storage
+  Terminal needs Nether glowstone — both patched down to iron-tier
+  substitutes via KubeJS (`pack/kubejs/server_scripts/storage.js`) so this
+  tier doesn't secretly require Brass Age or the Nether. No power, no
+  autocrafting — genuinely dumb, on purpose.
+- **Tier 2 (Brass Age) on — Refined Storage**, the real network (named
+  directly in `instructions.md`: "think mods like refined storage where you
+  have a central interface"). Unlocked whole at Brass Age using its **stock**
+  recipes — no patch needed this time, because Brass Age unlocks diamond (for
+  RS's Advanced Processor) and the Nether (for RS's Quartz chain,
+  `quartz_enriched_iron/copper`/`silicon`/everything built from them) in the
+  same stage that RS itself unlocks. Capacity scales 1k → 4k (Brass) → 16k
+  (Precision) → 64k (Induction); crafting automation first becomes possible
+  at Brass Age through **Create's own Mechanical Arm/Deployer** feeding RS's
+  Importer/Exporter/External Storage/Constructor/Destructor, not RS's own
+  autocrafter — that stays locked until Induction Age, so Create remains the
+  sole automation process even for storage. Full per-tier item/block lists
+  are in `pack/config/ProgressiveStages/{andesite,brass,precision,
+  induction}_age.toml`.
+- **Powering RS — Create Crafts & Additions** (8.6M downloads), not a
+  disabled energy requirement. RS ships a `requireEnergy` config toggle, and
+  disabling it was this doc's original call — but Create has no *native* FE
+  generation, and the intent behind the tier system is for every later
+  system to be reachable "through Create," so a Create-native power bridge is
+  the better fit than turning power off. Create Crafts & Additions' Alternator
+  (kinetic → FE, recipe cost is pure Andesite-tier ingredients — andesite
+  alloy, iron plates/rods, a copper spool from its own Rolling Mill) is
+  unlocked at Brass Age alongside RS itself, so the whole "first real network"
+  moment is one coherent unlock: automation (Mechanical Arm/Deployer), storage
+  (RS), and power (Alternator) all arrive together.
+  `refinedstorage-common.toml`'s `requireEnergy` is back to its default
+  (`true`).
 
-- **Every RS component needs Nether Quartz** (`quartz_enriched_iron/copper`,
-  `silicon`, and everything built from them all require `c:gems/quartz`,
-  which is Nether-exclusive in vanilla). The original design gated the Nether
-  behind Brass Age; that made Tier-1 storage impossible outright, so **the
-  Nether now unlocks at Andesite Age instead** — verified by extracting the
-  actual RS jar's recipe JSONs rather than assuming.
-- **RS's stock Disk Drive recipe needs an Advanced Processor**, which needs a
-  diamond — locked until Brass Age, which would make the Tier-1 network
-  impossible even with the Nether open. Patched via KubeJS
-  (`pack/kubejs/server_scripts/storage.js`) down to an Improved Processor
-  (gold-tier, never locked by any stage). The Controller didn't need a
-  similar patch: RS ships a `requireEnergy` config option, and with it
-  disabled (`pack/config/refinedstorage-common.toml`) the Controller becomes
-  entirely optional — Create has no native FE generation, and building a
-  whole power subsystem just to browse a storage disk isn't something
-  `instructions.md` asked for.
+### Why gate the Nether at Brass Age and The End at Precision Age
 
-### Why gate Nether at Andesite Age and The End at Precision Age
-
-Vanilla lets you rush the Nether/End with almost no preamble. Locking the End
-behind Precision Age gives it a reason to exist in the progression rather
-than being a speedrun detour, per `instructions.md`'s "multiple dimensions
-that lock away better progression" requirement. The Nether unlocks a tier
-earlier than originally planned (Andesite Age, not Brass Age) purely because
-Refined Storage's material chain requires it — see the storage section above.
+Vanilla lets you rush the Nether/End with almost no preamble. Both dimensions
+now get a real reason to exist in the progression, per `instructions.md`'s
+"multiple dimensions that lock away better progression" requirement: the
+Nether is where RS's Quartz chain comes from, and it unlocks at Brass Age —
+where RS itself unlocks, so there's no dead tier where the dimension is open
+but nothing needs it yet. The End stays gated behind Precision Age as before.
 
 ### Team mode
 

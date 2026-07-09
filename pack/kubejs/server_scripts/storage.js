@@ -1,19 +1,36 @@
-// Refined Storage's stock Disk Drive recipe requires an Advanced Processor,
-// which needs a diamond — locked until Brass Age (Tier 2). That makes a
-// working network impossible at Andesite Age (Tier 1), where the design
-// calls for a tiny-but-browsable storage interface. Patch it down to an
-// Improved Processor (gold-tier, never locked) instead. See DESIGN.md's
-// storage section for the full reasoning and the rest of the tier mapping.
+// Tom's Storage is our Tier 1 "dumb storage" (see DESIGN.md): link chests into
+// a browsable terminal using iron-tier resources only. Its stock recipes need
+// a diamond + ender pearl (Inventory Connector) and Nether glowstone (Storage
+// Terminal) - both unavailable at Andesite Age. Patch them down to iron-tier
+// substitutes, keeping the same shape/slot layout.
+//
+// Refined Storage needs no equivalent patch: it's unlocked at Brass Age now,
+// where diamond (for its Advanced Processor) and the Nether (for its Quartz
+// chain) are already open.
 ServerEvents.recipes(event => {
-    event.remove({ id: 'refinedstorage:disk_drive' })
-    event.shaped('refinedstorage:disk_drive', [
-        'ECE',
-        'EME',
-        'EPE'
+    event.remove({ id: 'toms_storage:inventory_connector' })
+    event.shaped('toms_storage:inventory_connector', [
+        'PCP',
+        'cIc',
+        'PRP'
     ], {
-        E: 'refinedstorage:quartz_enriched_iron',
-        C: '#c:chests',
-        M: 'refinedstorage:machine_casing',
-        P: 'refinedstorage:improved_processor'
-    }).id('vanillaplusplus:disk_drive_early_tier')
+        P: '#minecraft:planks',
+        c: '#c:chests',
+        C: 'minecraft:comparator',
+        I: '#c:ingots/iron',
+        R: '#c:dusts/redstone'
+    }).id('vanillaplusplus:inventory_connector_early_tier')
+
+    event.remove({ id: 'toms_storage:storage_terminal' })
+    event.shaped('toms_storage:storage_terminal', [
+        'PCP',
+        'cRg',
+        'PCP'
+    ], {
+        P: '#minecraft:planks',
+        c: '#c:chests',
+        C: 'minecraft:comparator',
+        R: '#c:dusts/redstone',
+        g: '#c:glass_blocks/colorless'
+    }).id('vanillaplusplus:storage_terminal_early_tier')
 })

@@ -4,8 +4,10 @@
   "mods": [
     { "slug": "create", "side": "both", "phase": 0, "note": "core progression backbone" },
     { "slug": "progressivestages", "side": "both", "phase": 1, "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases" },
-    { "slug": "refined-storage", "side": "both", "phase": 2, "note": "browsable storage network, explicitly named in instructions.md; energy requirement disabled, Disk Drive recipe patched down to gold-tier via KubeJS" },
+    { "slug": "toms-storage", "side": "both", "phase": 2, "note": "Tier 1 'dumb storage': link chests into a browsable terminal, patched to iron-tier via KubeJS (stock recipes need diamond+ender_pearl+glowstone)" },
+    { "slug": "createaddition", "side": "both", "phase": 2, "note": "Create Crafts & Additions - Alternator (kinetic->FE) and Electric Motor (FE->kinetic), unlocked at Brass Age to power Refined Storage" },
+    { "slug": "refined-storage", "side": "both", "phase": 2, "note": "browsable storage network, explicitly named in instructions.md; moved to Brass Age unlock (needs Nether Quartz + diamond-tier processor, both available there), energy requirement kept on and powered by Create's own Alternator" },
     { "slug": "rhino", "side": "both", "phase": 2, "note": "JS engine required by KubeJS" },
-    { "slug": "kubejs", "side": "both", "phase": 2, "note": "recipe/loot scripting used for the storage tier patch here, and for the full recipe-gating pass in Phase 9" }
+    { "slug": "kubejs", "side": "both", "phase": 2, "note": "recipe/loot scripting used for the storage tier patches here, and for the full recipe-gating pass in Phase 9" }
   ]
 }

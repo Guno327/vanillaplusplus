@@ -10,14 +10,15 @@
 # the player is granted THIS stage — Brass-tier gear belongs in brass_age.toml
 # instead, not here (see that file for why).
 #
-# Storage: this is where the first tiny, browsable Refined Storage network
-# unlocks (Grid + Cable + Disk Drive + 1k Disk/Block, manual only — no
-# Importer/Exporter/autocrafting yet). Every RS component needs Nether Quartz,
-# which is why the Nether is unlocked HERE rather than at Brass Age — there
-# would be no way to get quartz at all otherwise. See DESIGN.md's storage
-# section for the full reasoning, including the KubeJS Disk Drive recipe
-# patch (its stock recipe needs a diamond, which stays locked until Brass
-# Age) in pack/kubejs/server_scripts/storage.js.
+# Storage: this is the "dumb storage" tier — Tom's Storage (Inventory
+# Connector + Storage Terminal + Open Crate + Inventory Cable + Basic
+# Inventory Hopper + Filing Cabinet), just linking chests into one browsable
+# interface with iron-tier resources. Its stock Inventory Connector/Storage
+# Terminal recipes need a diamond+ender_pearl and Nether glowstone
+# respectively — patched down via KubeJS (pack/kubejs/server_scripts/
+# storage.js) so this tier doesn't secretly require Brass Age or the Nether.
+# The "real" powered network (Refined Storage) is a Brass Age unlock — see
+# that file and DESIGN.md's storage section.
 # ============================================================================
 
 [stage]
@@ -57,23 +58,8 @@ locked = [
     "id:minecraft:detector_rail",
     "id:minecraft:activator_rail",
 
-    "id:refinedstorage:quartz_enriched_iron",
-    "id:refinedstorage:quartz_enriched_copper",
-    "id:refinedstorage:silicon",
-    "id:refinedstorage:machine_casing",
-    "id:refinedstorage:construction_core",
-    "id:refinedstorage:destruction_core",
-    "id:refinedstorage:storage_housing",
-    "id:refinedstorage:processor_binding",
-    "id:refinedstorage:basic_processor",
-    "id:refinedstorage:raw_basic_processor",
-    "id:refinedstorage:improved_processor",
-    "id:refinedstorage:raw_improved_processor",
-    "id:refinedstorage:cable",
-    "id:refinedstorage:1k_storage_part",
-    "id:refinedstorage:1k_storage_disk",
-    "id:refinedstorage:64b_fluid_storage_part",
-    "id:refinedstorage:64b_fluid_storage_disk",
+    "id:toms_storage:inventory_configurator",
+    "id:toms_storage:item_filter",
 ]
 always_unlocked = []
 
@@ -87,18 +73,19 @@ locked = [
     "id:minecraft:blast_furnace",
     "id:minecraft:smithing_table",
 
-    "id:refinedstorage:grid",
-    "id:refinedstorage:disk_drive",
-    "id:refinedstorage:machine_casing",
-    "id:refinedstorage:1k_storage_block",
-    "id:refinedstorage:64b_fluid_storage_block",
+    "id:toms_storage:inventory_connector",
+    "id:toms_storage:storage_terminal",
+    "id:toms_storage:open_crate",
+    "id:toms_storage:inventory_cable",
+    "id:toms_storage:basic_inventory_hopper",
+    "id:toms_storage:filing_cabinet",
+    "id:toms_storage:level_emitter",
+    "id:toms_storage:inventory_proxy",
 ]
 always_unlocked = []
 
 [dimensions]
-locked = [
-    "id:minecraft:the_nether",
-]
+locked = []
 
 [recipes]
 locked_ids = []
