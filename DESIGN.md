@@ -929,11 +929,12 @@ The pack had no travel progression at all - just walking, never-gated
 vanilla boats, and Stellaris' rockets (already the Tier 5+ interplanetary
 gateway, unrelated to intra-world travel). The user asked for an arc: foot
 -> increasingly capable vehicles as tiers advance -> teleportation,
-explicitly gated late. Three boot-tested parts, no KubeJS needed anywhere
-- every part is a plain ProgressiveStages item lock, either explicit
-(nothing in vanilla/the new mods naturally gates these items) or added
-alongside an existing transitive ingredient lock for consistency with this
-pack's established double-locking convention.
+explicitly gated late. Three boot-tested parts. Parts 1 and 3 need no
+KubeJS at all - every lock in them is a plain ProgressiveStages item lock,
+either explicit (nothing in vanilla/the new mods naturally gates these
+items) or added alongside an existing transitive ingredient lock for
+consistency with this pack's established double-locking convention. Part 2
+was later revised (see below) to use KubeJS recipe patches instead.
 
 **Part 1 - boats + Create Trains.** Boats (9 wood variants + bamboo raft,
 plus chest variants) locked until `andesite_age` (Tier 1) - the first
@@ -948,20 +949,56 @@ Coupling are all craftable from Tier 1 materials on their own, but are
 locked here too so the entire train experience is a single Brass Age
 package rather than something partially assemblable a tier early.
 
-**Part 2 - Immersive Aircraft (planes/airships).** Considered **Create
-Aeronautics** first (a real Create addon, 4.6M downloads, thematically
-consistent with this pack's Create-centric design) but it ships **zero
-recipe files** - confirmed by reading the jar directly - it's a build-your-
-own-ship-from-special-blocks system like Create's own contraptions, which
-would be harder to cleanly tier-gate/verify than a plain crafted item, and
-needs two more dependencies (Sable + itself) for a redundant capability.
-**Immersive Aircraft** alone covers both "planes" and "airships" with
-clean, vanilla-material recipes in a natural internal tier order: biplane/
-gyrodyne/quadrocopter (basic props/helicopters) -> `brass_age`; airship/
-cargo_airship (balloon-based, cargo capacity, each literally upgrades the
-previous item) -> `precision_age`; warship (the mod's own top tier,
-upgrades a cargo_airship) -> `induction_age`. None of the 6 are naturally
-gated by any tier-locked ingredient, so all are explicit locks like boats.
+**Part 2 - Immersive Aircraft (planes/airships), later replaced by Create
+Aeronautics.** Originally shipped with **Immersive Aircraft**: 6 vehicles
+(biplane/gyrodyne/quadrocopter -> `brass_age`; airship/cargo_airship ->
+`precision_age`; warship -> `induction_age`), all explicit locks since none
+of the 6 are naturally gated by any tier-locked ingredient. **Create
+Aeronautics** was considered and rejected at the time because reading that
+release's jar showed **zero recipe files** - it looked like a build-your-
+own-ship-from-special-blocks system, harder to tier-gate than a plain
+crafted item, and needed two more dependencies (Sable + itself) for a
+redundant capability.
+
+**Revision (user request, post-launch):** the user asked to swap air travel
+to Create Aeronautics specifically, and to gate its components through
+recipe ingredients rather than direct ProgressiveStages locks. Re-reading
+the *current* 1.3.0 jar (ground truth over the stale earlier finding, per
+this project's own standing rule) showed the "zero recipe files" note was
+true of an older release only - 1.3.0's bundled jar (jarjar-embeds Offroad
+and Simulated, both irrelevant here beyond satisfying Aeronautics' own
+dependency) ships a full `data/aeronautics/recipe/` tree. Immersive
+Aircraft removed entirely (mod, lockfile entry, all 3 explicit locks); Sable
+added as a real separate dependency (confirmed required via the jar's own
+`neoforge.mods.toml`, version range `[2.0.0,3.0.0)`, satisfied by Sable
+2.0.3).
+
+Gating is now implicit, reusing materials this pack already tier-locks
+elsewhere, instead of new explicit item locks - implemented in
+`pack/kubejs/server_scripts/travel.js`:
+- **Brass Age**: `aeronautics:propeller_bearing` already requires
+  `create:brass_casing` in its native recipe - already naturally gated, no
+  patch needed. `aeronautics:adjustable_burner` patched to add
+  `create:brass_sheet` into its one open recipe slot, so burner/balloon
+  flight opens on the same tier as propeller-driven flight.
+- **Precision Age**: `aeronautics:gyroscopic_propeller_bearing` and
+  `aeronautics:smart_propeller` both need `simulated:gyroscopic_mechanism`
+  (a sequenced-assembly item from Brass-tier materials only) - patched to
+  swap in `create:sturdy_sheet` so the self-leveling/steerable upgrade
+  needs Precision Age. `aeronautics:levitite_blend` (the mod's antigravity
+  fluid, `create:mixing`) needs crushed `minecraft:end_stone` in its native
+  recipe - untouched, since the only practical source is the End itself,
+  already locked until this tier.
+- **Induction Age**: `aeronautics:steam_vent` (the passive/industrial heat
+  source, vs. the Brass Age burner's manual redstone-toggled one) patched
+  to add `allthemodium:allthemodium_ingot` - this pack's existing top
+  material, reused rather than inventing a new one - as the ceiling right
+  before the Tier 5 space gateway.
+
+Boot-tested clean after the swap: `travel.js` loads with 0 errors/0
+warnings, Sable's physics pipelines initialize for every dimension
+(including Allthemodium's), and no recipe-id conflicts or load errors
+appear anywhere in the log.
 
 **Part 3 - Waystones (teleportation).** The standard, most mature choice
 (20.6M downloads, requires the **Balm** library) for the explicit
@@ -978,10 +1015,11 @@ alone already blocks crafting a waystone transitively - both are still
 locked explicitly anyway.
 
 **Disclosed limitation**: as with every other overhaul, actual in-game
-feel (does a biplane fly well, does a waystone teleport correctly, does a
-train run smoothly) can't be verified in this sandbox - only that the mods
-load cleanly and the intended items are tier-locked, confirmed via
-boot-test stage-tag counts matching exactly what was added each part.
+feel (does an Aeronautics contraption actually fly well, does a waystone
+teleport correctly, does a train run smoothly) can't be verified in this
+sandbox - only that the mods load cleanly and the intended
+items/ingredients are tier-gated, confirmed via boot-test stage-tag counts
+(Parts 1/3) or clean KubeJS/recipe reload logs (Part 2's revision).
 
 ## Phase plan
 

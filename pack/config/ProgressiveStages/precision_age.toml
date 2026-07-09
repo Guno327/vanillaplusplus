@@ -88,11 +88,15 @@ locked = [
     "id:sophisticatedbackpacks:stack_upgrade_tier_4",
     "id:sophisticatedbackpacks:advanced_void_upgrade",
 
-    # Travel overhaul Part 2: Immersive Aircraft's mid tier - airship
-    # (balloon-based, hull+sail+engine) and cargo_airship (upgrades an
-    # airship + chest + hull for cargo capacity).
-    "id:immersive_aircraft:airship",
-    "id:immersive_aircraft:cargo_airship",
+    # Travel overhaul Part 2 (revised): Create Aeronautics' mid tier - again
+    # no explicit lock needed. aeronautics:gyroscopic_propeller_bearing and
+    # aeronautics:smart_propeller are patched via KubeJS (travel.js) to
+    # require create:sturdy_sheet (locked above), and
+    # aeronautics:levitite_blend already needs crushed minecraft:end_stone
+    # in its native recipe - the only practical source is the End itself,
+    # which this pack already locks until this tier. Together: steerable
+    # gyroscopic flight plus levitite lift both open at Precision Age
+    # purely through resource availability.
 ]
 always_unlocked = []
 

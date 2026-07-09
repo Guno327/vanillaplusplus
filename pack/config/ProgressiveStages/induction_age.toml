@@ -41,9 +41,14 @@ locked = [
     # crafted from it - no need to separately lock each derived item.
     "id:allthemodium:allthemodium_ingot",
 
-    # Travel overhaul Part 2: Immersive Aircraft's top tier - warship
-    # (upgrades a cargo_airship + industrial_gears), the mod's own ceiling.
-    "id:immersive_aircraft:warship",
+    # Travel overhaul Part 2 (revised): Create Aeronautics' top tier - once
+    # more no explicit lock, since aeronautics:steam_vent is patched via
+    # KubeJS (travel.js) to require allthemodium:allthemodium_ingot (locked
+    # above), reusing this tier's own established material rather than a
+    # new explicit item lock. Steam Vent is the mod's passive/industrial
+    # heat source (vs. the Brass Age Adjustable Burner's manual redstone-
+    # toggled one), sized for the big sustained-lift envelope clusters that
+    # make sense as the ceiling right before the Tier 5 space gateway.
 
     # Travel overhaul Part 3: Waystones - teleportation, explicitly gated
     # late per the user's request, placed at this tier's automation ceiling

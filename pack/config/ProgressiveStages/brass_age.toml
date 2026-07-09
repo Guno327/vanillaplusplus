@@ -143,14 +143,14 @@ locked = [
     "id:create:track_observer",
     "id:create:railway_casing",
 
-    # Travel overhaul Part 2: Immersive Aircraft's basic tier - biplane
-    # (fixed-wing prop plane), gyrodyne (helicopter), quadrocopter (drone-
-    # style copter). All 3 use only Tier 0/1-level materials (iron/logs/
-    # cobblestone/bamboo) on their own, so this is a pure explicit lock,
-    # like boats - nothing naturally gates them.
-    "id:immersive_aircraft:biplane",
-    "id:immersive_aircraft:gyrodyne",
-    "id:immersive_aircraft:quadrocopter",
+    # Travel overhaul Part 2 (revised): Create Aeronautics' basic tier - no
+    # explicit lock needed. aeronautics:propeller_bearing already requires
+    # create:brass_casing (locked above) in its native recipe, and
+    # aeronautics:adjustable_burner is patched via KubeJS (travel.js) to add
+    # create:brass_sheet - so both the propeller-driven and burner/balloon
+    # flight paths open together at Brass Age purely through resource
+    # availability, per the user's explicit request to gate air travel
+    # through recipe ingredients rather than direct item locks.
 ]
 always_unlocked = []
 

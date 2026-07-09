@@ -23,9 +23,14 @@ boot-tested, committed, and documented in `DESIGN.md`:
    discarded once the native one was discovered — see the memory note
    below); gear utility traits (auto-smelt/AoE/reach/magnet); Building
    Wands; Sophisticated Backpacks + a separate "Miner's Pouch" line.
-4. **Travel overhaul** (3 parts) — boats/Create Trains/Immersive Aircraft/
-   Waystones teleportation, all gated by tier, pure ProgressiveStages
-   locks throughout (no KubeJS needed).
+4. **Travel overhaul** (3 parts) — boats/Create Trains/Waystones
+   teleportation, gated by tier via ProgressiveStages locks. Part 2 (air
+   travel) originally shipped as Immersive Aircraft, then revised per user
+   request to **Create Aeronautics** instead, gated via KubeJS recipe
+   patches (`pack/kubejs/server_scripts/travel.js`) that reuse materials
+   already tier-locked elsewhere in the pack, rather than explicit item
+   locks — see DESIGN.md's travel overhaul section for the full ingredient
+   mapping.
 
 Full narrative and rationale for every decision lives in `DESIGN.md` —
 that file, not this one, is the source of truth. `instructions.md` has the
