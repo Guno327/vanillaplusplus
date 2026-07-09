@@ -923,6 +923,66 @@ scripts execute and objects construct without error, and stat curves are
 disclosed as simple monotonic formulas, but real gameplay feel needs a
 live client to confirm.
 
+### Travel overhaul: boats -> trains -> aircraft -> teleportation (post-utility-overhaul)
+
+The pack had no travel progression at all - just walking, never-gated
+vanilla boats, and Stellaris' rockets (already the Tier 5+ interplanetary
+gateway, unrelated to intra-world travel). The user asked for an arc: foot
+-> increasingly capable vehicles as tiers advance -> teleportation,
+explicitly gated late. Three boot-tested parts, no KubeJS needed anywhere
+- every part is a plain ProgressiveStages item lock, either explicit
+(nothing in vanilla/the new mods naturally gates these items) or added
+alongside an existing transitive ingredient lock for consistency with this
+pack's established double-locking convention.
+
+**Part 1 - boats + Create Trains.** Boats (9 wood variants + bamboo raft,
+plus chest variants) locked until `andesite_age` (Tier 1) - the first
+vehicle upgrade past walking. Create's own Trains - confirmed already
+installed via Create 6.0.10's own `com/simibubi/create/content/trains/...`
+classes, no new mod needed - locked until `brass_age` (Tier 2), realizing
+that tier's own "train control" milestone description which was previously
+just flavor text with nothing enforcing it. Track Station/Signal/Railway
+Casing are already naturally gated by `create:brass_casing` (Brass Age's
+own material); Track, Cart Assembler, Gantry Carriage, and Minecart
+Coupling are all craftable from Tier 1 materials on their own, but are
+locked here too so the entire train experience is a single Brass Age
+package rather than something partially assemblable a tier early.
+
+**Part 2 - Immersive Aircraft (planes/airships).** Considered **Create
+Aeronautics** first (a real Create addon, 4.6M downloads, thematically
+consistent with this pack's Create-centric design) but it ships **zero
+recipe files** - confirmed by reading the jar directly - it's a build-your-
+own-ship-from-special-blocks system like Create's own contraptions, which
+would be harder to cleanly tier-gate/verify than a plain crafted item, and
+needs two more dependencies (Sable + itself) for a redundant capability.
+**Immersive Aircraft** alone covers both "planes" and "airships" with
+clean, vanilla-material recipes in a natural internal tier order: biplane/
+gyrodyne/quadrocopter (basic props/helicopters) -> `brass_age`; airship/
+cargo_airship (balloon-based, cargo capacity, each literally upgrades the
+previous item) -> `precision_age`; warship (the mod's own top tier,
+upgrades a cargo_airship) -> `induction_age`. None of the 6 are naturally
+gated by any tier-locked ingredient, so all are explicit locks like boats.
+
+**Part 3 - Waystones (teleportation).** The standard, most mature choice
+(20.6M downloads, requires the **Balm** library) for the explicit
+"teleportation, gated later" ask. Locked at `induction_age` (Tier 4) - the
+automation ceiling immediately before the Tier 5 space gateway, so
+intra-world teleportation is the last travel upgrade before interplanetary
+rockets take over. Every recipe uses only vanilla materials (ender pearl,
+amethyst shard, emerald, obsidian, stone bricks) with nothing naturally
+tier-locked in this pack, so gating is entirely explicit: `warp_stone`,
+all 6 waystone variants (default/mossy/sandy/blackstone/deepslate/
+end_stone), and the 3 scroll items (warp/return/portal). `warp_stone` is
+itself an ingredient in the waystone block's own recipe, so locking it
+alone already blocks crafting a waystone transitively - both are still
+locked explicitly anyway.
+
+**Disclosed limitation**: as with every other overhaul, actual in-game
+feel (does a biplane fly well, does a waystone teleport correctly, does a
+train run smoothly) can't be verified in this sandbox - only that the mods
+load cleanly and the intended items are tier-locked, confirmed via
+boot-test stage-tag counts matching exactly what was added each part.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.
