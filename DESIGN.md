@@ -814,6 +814,115 @@ strictly above the craftable ceiling) is verifiable statically via boot
 tests and decompiled source, but "equally effective in real combat"
 fundamentally needs a live client to confirm.
 
+### Utility overhaul: tool tier-gating fix, Paxel, gear traits, building wand, backpacks (post-gear-overhaul)
+
+A follow-up to the combat/gearing overhaul above, applying the same rigor
+to utility equipment: pickaxes/axes/shovels/hoes following the tier
+ladder, a combined Paxel, additional gear utility (auto-smelting, AoE
+mining), a gating audit, and three new tiered utility items (a building
+wand, a general backpack, and a separate voidable "Miner's Pouch"). Six
+boot-tested parts:
+
+**Part 1 — fix tool tier-gating (a real, previously undiscovered bug).**
+Every one of our 7 Silent Gear materials' `harvest_tier.
+incorrect_blocks_for_tool` pointed at a `vanillaplusplus:incorrect_for_
+<name>_tools` tag that was never created - it resolved to empty, meaning
+tools of ANY of our tiers could mine every block in the game regardless of
+tier, silently, since Silent Gear's material schema doesn't error on a
+missing tag reference. Found by decompiling Silent Gear's own iron/diamond
+materials and noticing they point to Silent Gear's own tags, which are
+themselves thin wrappers around vanilla's real hierarchy (e.g.
+`silentgear:incorrect_for_iron_tools` is literally `["#minecraft:
+incorrect_for_iron_tool"]`). Fixed by plugging our 7 tags into the
+existing vanilla/NeoForge/Allthemodium tag chain rather than enumerating
+any blocks ourselves: NeoForge itself patches `minecraft:
+incorrect_for_diamond_tool` to include `#neoforge:needs_netherite_tool`,
+and Allthemodium patches `minecraft:incorrect_for_netherite_tool` with its
+own vibranium/unobtainium/alloy exclusions while separately shipping
+ready-made `c:incorrect_for_allthemodium_tool` / `..._vibranium_tool` /
+`..._unobtainium_tool` tags that are each exactly "everything from the
+next tier up." `scripts/gen_gear_materials.py` now generates these tags
+alongside the materials themselves.
+
+**Part 2 — Paxel, discovered to already exist natively.** Initial research
+(checking KubeJS's own item-builder API and third-party "paxel" mods) found
+no way to build a genuine combined pickaxe+axe+shovel without either an
+unsupported feature (KubeJS GitHub issue #474, still open) or risky raw
+Java interop. A hand-rolled version was built and boot-verified working
+(via `Java.loadClass` + vanilla's `Tier.createToolProperties(TagKey)`,
+fixing two real Rhino bugs along the way - bare `{ }` blocks don't give
+real `const`/`let` scoping, and consecutive `(() => {...})()` IIFEs need
+explicit trailing semicolons or ASI silently chains them into one broken
+call). But further inspection of the *actually installed* Silent Gear
+version (4.2.1.1) revealed it already ships a native Paxel gear type
+(`GearPaxelItem`, its own blueprint/template/parts pipeline) - missed by
+the original gear overhaul's research since that phase was combat-focused
+and had no reason to check for a mining-tool gear type. It works with all
+7 of our materials automatically (their `gear_type_blacklist` is empty)
+and inherits tier-gating for free from Part 1's fix and the existing raw-
+material ProgressiveStages locks. The hand-rolled version was discarded
+entirely in favor of the native one. Its recipe (blueprint + 5 material
+parts, like every other gear type) doesn't literally "combine 3 existing
+tools" as first asked, but goes through the exact same smithing route as
+everything else and costs noticeably more material than a single tool (5
+parts vs. 3 for a plain pickaxe) - a disclosed adjustment instructions.md
+explicitly allows.
+
+**Part 3 — gear utility traits.** Silent Gear ships a rich, data-driven
+trait system already used for material flavor (e.g. iron's "malleable").
+Added a `"traits"` list to each material, scaling by tier: `reach` (+block/
+entity interaction range, T1-2 and T7), `magnetic` (auto-pickup, T2+),
+`widen` (mining AoE, T3+), `fortunate` (built-in Fortune, T4+), `magmatic`
+(auto-smelts mined ore, T5+) - all confirmed real, working traits by
+reading their JSON + doc comments in the jar. `multi_break` (vein-miner
+style) is a documented no-op stub in the jar itself ("This trait has never
+been coded") and was deliberately not used. No new mod or item needed -
+applies automatically to every tool/weapon/armor piece made from that
+material.
+
+**Part 4 — gating audit.** Spot-checked (disclosed non-exhaustive, same
+convention as Phase 9) for utility bypasses outside our system: Create's
+Extendo Grip is already transitively gated by its own `create:brass_ingot`
+requirement (Brass Age); Allthemodium has no remaining loose utility items
+(magnets, jetpacks, etc.) beyond what gear overhaul Part 2 already
+stripped. No changes needed.
+
+**Part 5 — Building Wand.** Adds **Building Wands** (+ required Cloth
+Config; Architectury API already installed since Phase 4) for directional/
+row-column/fill/box/circle/grid block placement plus a Palette pattern
+system. Ships 5 tiers (stone/copper/iron/diamond/netherite) as a hardcoded
+Java enum with no material registry to extend past netherite - same
+disclosed ceiling Epic Fight had before the combat overhaul's Part 3
+bespoke extension, not worth replicating for a secondary utility item -
+plus a 3-tier Magic Bag block-source item. All 8 items locked via
+ProgressiveStages (stone_wand free from rootborn; copper/iron/magic_bag_1
+→ andesite_age; diamond/magic_bag_2 → brass_age; netherite/magic_bag_3 →
+precision_age).
+
+**Part 6 — backpacks + Miner's Pouch.** Adds **Sophisticated Backpacks** (+
+required Sophisticated Core) for the general expandable-inventory ask.
+Same native-ceiling situation as the wand (6 tiers: leather/copper/iron/
+gold/diamond/netherite), gated the same way (leather free from rootborn
+through netherite → precision_age). The separate "Miner's Pouch" - a
+voidable bulk per-item-type storage, since Dank Null doesn't exist for
+1.21.1 (confirmed directly: not present in any 1.21.1 build of Cyclic, the
+mod that contains it) - isn't a new item but any backpack fitted with
+Sophisticated Backpacks' own Void + Filter + Stack Upgrade items, gated as
+an independent progression line: Stack Upgrade (starter/1/2/3/4/omega,
+×1.5 up to ×33,554,431 stacks per slot) follows the same copper→iron→gold→
+diamond→netherite chain as the backpacks, with Omega Tier (crafted from 9x
+Tier 4, no raw ingredient of its own) reserved as `jovian_frontier`'s
+capstone reward - the final tier's payoff for the whole line. Filter/Void
+Upgrades (plus their Advanced variants) are gated similarly across
+andesite_age through precision_age.
+
+**Disclosed limitation**: as with the combat overhaul, actual in-game feel
+(mining speed/correctness for the Paxel and traits, wand/backpack utility)
+can't be playtested in this sandbox (no live client). Boot tests confirm
+scripts execute and objects construct without error, and stat curves are
+disclosed as simple monotonic formulas, but real gameplay feel needs a
+live client to confirm.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.
