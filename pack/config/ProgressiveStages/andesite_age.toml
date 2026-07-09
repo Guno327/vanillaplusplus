@@ -60,6 +60,23 @@ locked = [
 
     "id:toms_storage:inventory_configurator",
     "id:toms_storage:item_filter",
+
+    # Phase 7: Epic Fight's iron-tier weapons, locked alongside vanilla iron
+    # gear above. Wooden/stone/golden tier stay unlocked from rootborn (their
+    # source materials already are); diamond/netherite tier are locked in
+    # brass_age.toml/precision_age.toml, matching those materials' own locks.
+    "id:epicfight:iron_dagger",
+    "id:epicfight:iron_greatsword",
+    "id:epicfight:iron_longsword",
+    "id:epicfight:iron_spear",
+    "id:epicfight:iron_tachi",
+
+    # Phase 7: Ars Nouveau's mage-archetype entry point. Its own recipe
+    # already needs gold + Source Gems + an Enchanting Apparatus (which
+    # itself needs naturally-generated archwood/sourcestone to find), so
+    # this is a light touch on top of gating that largely exists already -
+    # just keeping the wand off the table at the very first moment of play.
+    "id:ars_nouveau:wand",
 ]
 always_unlocked = []
 
@@ -81,6 +98,9 @@ locked = [
     "id:toms_storage:filing_cabinet",
     "id:toms_storage:level_emitter",
     "id:toms_storage:inventory_proxy",
+
+    "id:ars_nouveau:enchanting_apparatus",
+    "id:ars_nouveau:arcane_pedestal",
 ]
 always_unlocked = []
 

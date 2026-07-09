@@ -1,0 +1,43 @@
+{
+	"experience_per_level": {
+		"type": "expression",
+		"data": {
+			"expression": "100 + level * 40"
+		}
+	},
+	"sources": [
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "ars_nouveau:wand"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		}
+	]
+}

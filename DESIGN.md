@@ -450,17 +450,82 @@ kill-detection and stat-threshold-crossing end to end, since that needs a
 live client actually killing a mob or racking up stats, which this sandbox
 has no way to do — flagging honestly rather than claiming full coverage.
 
-### Blacksmithing (Tier 1+)
+### Combat variety + blacksmithing + magic (Phase 7)
 
-`instructions.md` asks that metal tools go through "some kind of
-blacksmithing" instead of a flat crafting-table recipe. Tier 1 currently just
-unlocks vanilla iron tools outright as a placeholder — the recipe swap itself
-is deferred to Phase 7 (combat variety), since the tool-crafting mechanic and
-weapon-class balance are tightly coupled. Candidates found so far: **Silent
-Gear** (modular tool assembly, confirmed on NeoForge 1.21.1) and **Fire and
-Flames** ("a Blacksmith's Dream" — crucible processing + custom tool
-crafting, also confirmed on NeoForge 1.21.1). Tetra, the classic pick, is not
-ported past 1.20.x and is ruled out.
+`instructions.md` asks for three related systems here: blacksmithing instead
+of flat tool recipes, a variety of roughly-equal weapon classes that hook
+into the RPG leveling system, and a magic system covering mage/summoner as
+combat archetypes. Three mods, chosen after Silent Gear/Fire and Flames were
+short-listed for blacksmithing back in Phase 0 (Fire and Flames was
+ultimately passed over — tiny download count, Silent Gear is the
+overwhelmingly more mature/battle-tested pick and Tetra, the classic
+choice, isn't ported past 1.20.x):
+
+- **Silent Gear** (401k downloads) for blacksmithing: a genuinely multi-step
+  process (Stone Anvil → craft parts from a blueprint/template + material →
+  assemble at a Gear Workbench), not a single recipe — confirmed via its
+  own wiki, not assumed. The flat vanilla iron tool recipes (pickaxe/sword/
+  axe/shovel/hoe) are removed via `pack/kubejs/server_scripts/
+  blacksmithing.js`, forcing players through Silent Gear instead. Scoped to
+  iron only, not diamond/netherite or armor — converting every metal tier
+  would mean verifying Silent Gear's higher-tier materials are equivalently
+  balanced, which is more scope than this phase needs; those stay on
+  vanilla recipes (still tier-gated as before).
+- **Epic Fight** (3.3M downloads) for weapon variety: adds five new weapon
+  types (dagger/greatsword/longsword/spear/tachi, each at wood/stone/iron/
+  gold/diamond/netherite material tiers, confirmed via the mod's own
+  bundled recipes) with distinct movesets/skills, plus a stamina system —
+  a single well-established mod rather than stacking a separate
+  weapon-variety mod (e.g. Spartan Weaponry) with a separate skill/animation
+  mod. **The RPG-leveling hook needed zero extra work**: Epic Fight's own
+  `data/minecraft/tags/item/swords.json` puts every one of its weapons
+  (all 32, including a bonus uchigatana) directly in the vanilla
+  `#minecraft:swords` tag, which Phase 3's Swords skill category already
+  keys its `kill_entity` trigger on — confirmed by extracting the jar, not
+  assumed. New weapons are tier-gated to match their material: iron-tier
+  locked in `andesite_age.toml` (alongside vanilla iron gear),
+  diamond-tier in `brass_age.toml`, netherite-tier in `precision_age.toml`
+  — matching wherever this pack's own tier ladder already locks that
+  vanilla material (diamond in `brass_age.toml`, netherite in
+  `precision_age.toml` — see "The tier ladder" section above for the full
+  mapping). On balance ("make sure options are equally
+  effective, as close as possible"): no manual per-weapon stat tuning was
+  done — Epic Fight's whole premise is balanced weapon classes with
+  different playstyles, so its own defaults are trusted rather than
+  second-guessed without combat-testing infrastructure this sandbox
+  doesn't have (no in-game client — see Verification).
+- **Ars Nouveau** (3.17M downloads) for the magic system: spell-crafting
+  covers the mage archetype directly; summon rituals (Summon Guardians,
+  Summon Wilden) and combat-capable familiars cover summoner. Both
+  archetypes share **one** new RPG skill category (`magic`, added to
+  `scripts/gen_skill_tree.py` alongside Phase 3's six) rather than two
+  separate categories — `instructions.md` only asks that mage/summoner
+  exist as *a* combat archetype, not that they track separately. Its XP
+  source is a `kill_entity` check for holding `ars_nouveau:wand`, the same
+  mechanism Swords/Bows already use, though it's an approximation (a spell
+  can land its killing blow after the wand's left the player's hand, e.g.
+  a delayed AOE) rather than an exact "killed via magic" signal — no
+  cleaner native hook was found without deeper Ars Nouveau internals than
+  this phase's budget covered. Reward attributes are Ars Nouveau's *own*
+  perk attributes (`ars_nouveau:ars_nouveau.perk.{spell_damage,max_mana,
+  mana_regen,warding}` — confirmed by decompiling
+  `com.hollingsworth.arsnouveau.api.perk.PerkAttributes`, since
+  `puffish_attributes` predates Ars Nouveau being in the pack and has
+  nothing magic-specific). Ars Nouveau brought two undeclared dependencies
+  neither Modrinth's own metadata nor the mod page mentioned as required —
+  **GeckoLib** and **Curios** — only surfaced by reading the actual
+  `ModLoadingException` from a real boot attempt; both resolve fine on
+  Modrinth. The wand + its Enchanting Apparatus/Arcane Pedestal are
+  tier-locked to Andesite Age as a light touch on top of gating that
+  already exists in practice (the recipe needs gold + Source Gems, and
+  finding archwood/sourcestone to build the apparatus is itself a real
+  exploration gate).
+
+**Structural note on "encourage the player to stick with one weapon
+class"**: this falls out of the existing design rather than needing new
+work — each weapon type's kills feed a *specific* skill category (Swords,
+Bows, or now Magic), so a player who commits to one weapon class
+accumulates that category's buffs, naturally reinforcing specialization.
 
 ## Phase plan
 
@@ -483,8 +548,10 @@ ported past 1.20.x and is ruled out.
    Chunks. Lifetime Achievements/Daily Bounties rebuilt outside FTB Quests
    as plain KubeJS (per-player by construction) once real parties made
    Phase 4's open FTB Quests team-sharing issue unavoidable.
-7. Combat variety (balanced weapon classes tied to RPG skills) + blacksmithing
-   recipe swap + mage/summoner archetype.
+7. ✅ Combat variety via Epic Fight (weapon classes auto-hook into the
+   existing Swords skill category via its own `#minecraft:swords` tag) +
+   blacksmithing via Silent Gear (vanilla iron tool recipes removed) +
+   mage/summoner via Ars Nouveau (new Magic skill category).
 8. Mob scaling by zone + visual power indicator + dungeons/bosses with unique
    drops + structure density/reward scaling + Starforged Age as the space
    gateway (Stellaris, Create-addon compat via TFMG) with per-planet tiers

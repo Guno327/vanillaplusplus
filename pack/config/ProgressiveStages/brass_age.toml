@@ -60,6 +60,14 @@ locked = [
     "id:minecraft:diamond_leggings",
     "id:minecraft:diamond_boots",
 
+    # Phase 7: Epic Fight's diamond-tier weapons, locked alongside vanilla
+    # diamond gear above.
+    "id:epicfight:diamond_dagger",
+    "id:epicfight:diamond_greatsword",
+    "id:epicfight:diamond_longsword",
+    "id:epicfight:diamond_spear",
+    "id:epicfight:diamond_tachi",
+
     "id:refinedstorage:quartz_enriched_iron",
     "id:refinedstorage:quartz_enriched_copper",
     "id:refinedstorage:silicon",

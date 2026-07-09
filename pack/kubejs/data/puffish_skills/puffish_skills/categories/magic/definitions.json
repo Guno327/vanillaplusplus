@@ -1,0 +1,78 @@
+{
+	"spell_damage+3%": {
+		"title": "+3% Spell Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "ars_nouveau:wand"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "ars_nouveau:ars_nouveau.perk.spell_damage",
+					"value": 0.03,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"max_mana+10": {
+		"title": "+10 Max Mana",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "ars_nouveau:source_gem"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "ars_nouveau:ars_nouveau.perk.max_mana",
+					"value": 10,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"mana_regen+10%": {
+		"title": "+10% Mana Regen",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "ars_nouveau:amulet_of_mana_regen"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "ars_nouveau:ars_nouveau.perk.mana_regen",
+					"value": 0.1,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"warding+5%": {
+		"title": "+5% Warding",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "ars_nouveau:sorcerer_hood"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "ars_nouveau:ars_nouveau.perk.warding",
+					"value": 0.05,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	}
+}

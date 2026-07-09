@@ -41,6 +41,14 @@ locked = [
     "id:minecraft:elytra",
     "id:minecraft:totem_of_undying",
 
+    # Phase 7: Epic Fight's netherite-tier weapons, locked alongside vanilla
+    # netherite gear above.
+    "id:epicfight:netherite_dagger",
+    "id:epicfight:netherite_greatsword",
+    "id:epicfight:netherite_longsword",
+    "id:epicfight:netherite_spear",
+    "id:epicfight:netherite_tachi",
+
     "id:refinedstorage:16k_storage_part",
     "id:refinedstorage:16k_storage_disk",
     "id:refinedstorage:1024b_fluid_storage_part",

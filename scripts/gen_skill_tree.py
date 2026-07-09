@@ -250,5 +250,32 @@ CATEGORIES.append(gen_category(
      "reach+0.5", "step_height+0.25", "break_speed+3%", "reach+0.5", "step_height+0.25"],
 ))
 
+# ---------------------------------------------------------------------------
+# Magic (Phase 7 - mage/summoner combat archetype, instructions.md). Reward
+# attributes are Ars Nouveau's own perk attributes (ars_nouveau:ars_nouveau.
+# perk.{mana_regen,max_mana,spell_damage,warding} - confirmed by decompiling
+# com.hollingsworth.arsnouveau.api.perk.PerkAttributes; the registered id is
+# literally the dotted string passed to DeferredRegister.register(), not a
+# shortened form), not puffish_attributes (which predates Ars Nouveau being
+# in the pack and has nothing magic-specific). XP source is a kill_entity
+# check for holding an ars_nouveau:wand at the kill - an approximation, not
+# exact (a spell can kill well after the wand leaves hand, e.g. a
+# slow-falling AOE), but it mirrors the same kill_entity_source pattern
+# Swords/Bows already use with no new mechanism needed.
+# ---------------------------------------------------------------------------
+CATEGORIES.append(gen_category(
+    "magic", "Magic", "ars_nouveau:wand", "story",
+    "100 + level * 40",
+    [kill_entity_source("weapon_check", "ars_nouveau:wand", 2)],
+    {
+        "spell_damage+3%": attr_reward("+3% Spell Damage", "ars_nouveau:wand", "ars_nouveau:ars_nouveau.perk.spell_damage", 0.03, "multiply_base", "item"),
+        "max_mana+10": attr_reward("+10 Max Mana", "ars_nouveau:source_gem", "ars_nouveau:ars_nouveau.perk.max_mana", 10, "addition", "item"),
+        "mana_regen+10%": attr_reward("+10% Mana Regen", "ars_nouveau:amulet_of_mana_regen", "ars_nouveau:ars_nouveau.perk.mana_regen", 0.1, "multiply_base", "item"),
+        "warding+5%": attr_reward("+5% Warding", "ars_nouveau:sorcerer_hood", "ars_nouveau:ars_nouveau.perk.warding", 0.05, "multiply_base", "item"),
+    },
+    ["spell_damage+3%", "max_mana+10", "spell_damage+3%", "mana_regen+10%", "max_mana+10",
+     "spell_damage+3%", "warding+5%", "mana_regen+10%", "spell_damage+3%", "max_mana+10"],
+))
+
 write_json(OUT / "config.json", {"version": 3, "categories": CATEGORIES})
 print(f"generated {len(CATEGORIES)} categories under {OUT}")

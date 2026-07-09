@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Magic",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "ars_nouveau:wand"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/story.png"
+}
