@@ -87,6 +87,12 @@ locked = [
     "id:sophisticatedbackpacks:netherite_backpack",
     "id:sophisticatedbackpacks:stack_upgrade_tier_4",
     "id:sophisticatedbackpacks:advanced_void_upgrade",
+
+    # Travel overhaul Part 2: Immersive Aircraft's mid tier - airship
+    # (balloon-based, hull+sail+engine) and cargo_airship (upgrades an
+    # airship + chest + hull for cargo capacity).
+    "id:immersive_aircraft:airship",
+    "id:immersive_aircraft:cargo_airship",
 ]
 always_unlocked = []
 

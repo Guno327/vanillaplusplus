@@ -40,6 +40,10 @@ locked = [
     # ingot is enough to gate every Silent Gear part/tool/weapon/armor piece
     # crafted from it - no need to separately lock each derived item.
     "id:allthemodium:allthemodium_ingot",
+
+    # Travel overhaul Part 2: Immersive Aircraft's top tier - warship
+    # (upgrades a cargo_airship + industrial_gears), the mod's own ceiling.
+    "id:immersive_aircraft:warship",
 ]
 always_unlocked = []
 
