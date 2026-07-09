@@ -7,7 +7,7 @@ next request.
 
 ## What's done
 
-Everything through three post-launch overhauls, each fully implemented,
+Everything through four post-launch overhauls, each fully implemented,
 boot-tested, committed, and documented in `DESIGN.md`:
 
 1. **Original 9-phase build** (tier ladder, storage, RPG skills, quests,
@@ -31,6 +31,16 @@ boot-tested, committed, and documented in `DESIGN.md`:
    already tier-locked elsewhere in the pack, rather than explicit item
    locks — see DESIGN.md's travel overhaul section for the full ingredient
    mapping.
+5. **World exploration overhaul** (3 parts) — Terralith (+TerraBlender
+   +Lithostitched) for ~100 new vanilla-block biomes, When Dungeons
+   Arise + Structory + 8 more YUNG's "Better X" mods for structure
+   variety, `scripts/gen_structure_loot.py`-generated reward scaling
+   (currency + tier-trigger materials + Apotheosis gems, scaled by a
+   4-tier structure rarity bucket) across 55 chest loot tables, and
+   tightened `structure_set` spawn spacing for stronghold/woodland
+   mansion/end city (the three structures tied to explicit tier-gate
+   items: End access, totems, elytra). See DESIGN.md's world exploration
+   overhaul section for the full mod list and design rationale.
 
 Full narrative and rationale for every decision lives in `DESIGN.md` —
 that file, not this one, is the source of truth. `instructions.md` has the

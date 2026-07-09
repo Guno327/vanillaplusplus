@@ -1021,6 +1021,146 @@ sandbox - only that the mods load cleanly and the intended
 items/ingredients are tier-gated, confirmed via boot-test stage-tag counts
 (Parts 1/3) or clean KubeJS/recipe reload logs (Part 2's revision).
 
+### World exploration overhaul: biome variety + structure variety + reward scaling (post-travel-overhaul)
+
+Phase 8 covered dungeons (YUNG's Better Dungeons) and generic structure
+loot variety (Dungeons and Taverns) but explicitly punted on two of
+`instructions.md`'s specific asks: "the world must be varied in content
+and biomes" (no biome mod had ever been added - Dungeons and Taverns only
+touches loot/layout, not terrain) and "structures should have rewards that
+scale with their probability of being discovered" / "important structures
+should spawn at a minimum rate" (both flagged in Phase 8's own DESIGN.md
+notes as real gaps, deferred for lack of a concrete design at the time).
+This overhaul closes both, plus adds a second wave of structure-variety
+mods on top of Phase 8's. Three parts, all boot-tested together.
+
+**Part 1 - biome and structure variety mods.** 12 new mods:
+- **Terralith** (+ **TerraBlender**, its cross-mod biome-region API, +
+  **Lithostitched**, a hard dependency not listed in Modrinth's own
+  metadata for our version - found only via the actual boot error, `Mod
+  terralith requires lithostitched 1.7.7 or above`, same "ground truth
+  over assumption" pattern this project keeps running into). ~100 new
+  overworld biomes plus several of its own structures, built entirely from
+  **vanilla blocks** - deliberately chosen over Biomes O'Plenty (which
+  ships hundreds of new blocks/items) specifically so `gen_economy.py`
+  needs zero new pricing work: anything not in a tier file already falls
+  back to the tier-0 price, which is exactly correct for plain vanilla
+  blocks. Boot log confirms Terralith registers as the base `minecraft:
+  overworld`/`minecraft:nether` TerraBlender regions (replacing vanilla's
+  own default terrain, not layering beside it), with Ars Nouveau's
+  existing region still composing fine alongside it at index 1.
+- **When Dungeons Arise** and **Structory**: new jigsaw structures spread
+  across many biomes (desert/ice/jungle/mushroom/sky/swamp/savanna
+  dungeons, small atmospheric lore sites), pure structure-count variety,
+  no hard dependencies.
+- **8 more YUNG's "Better X" mods** (Mineshafts, Strongholds, Desert
+  Temples, Jungle Temples, Nether Fortresses, Witch Huts, Ocean Monuments,
+  End Island) alongside Phase 8's existing Better Dungeons - same author,
+  same `yungs-api` dependency (already installed), overhauling nearly
+  every remaining vanilla structure type into larger, more varied,
+  biome-themed layouts. `yungs-better-ocean-monuments` (not "-temples") and
+  `yungs-better-abandoned-villages` (doesn't exist as a mod - villages
+  aren't in this family) were the two real 404s hit while resolving the
+  slug list against Modrinth's search API rather than guessing at names.
+
+**Part 2 - reward scaling by structure rarity.** `scripts/
+gen_structure_loot.py` (generated, not hand-typed - same philosophy as
+`gen_skill_tree.py`/`gen_economy.py`) buckets 55 vanilla chest-type loot
+tables into four tiers by real danger/vanilla spacing (Common: mineshafts,
+desert/jungle temples, igloos, ruined portals, pillager outposts, simple
+dungeons, all 14 village-house tables; Uncommon: Nether fortress/bastion
+chests, shipwrecks, underwater ruins, buried treasure, most trial-chamber
+rooms; Rare: bastion treasure rooms, all 3 stronghold tables, ancient city
++ its ice box, trial-chamber reward vaults; Epic: End City treasure, the
+woodland mansion, and the trial chamber's unique-reward tables) and
+appends one extra guaranteed-roll loot pool per table, scaled per tier,
+on top of the full vanilla pools (copied byte-for-byte from the actual
+installed vanilla data jar at generation time - NeoForge/KubeJS datapack
+loading has no merge semantics, a `pack/kubejs/data/...` override fully
+replaces the target loot table id, so preserving the original loot means
+copying it, not just adding a pool onto a stub).
+
+Bonus-pool contents are drawn from this pack's own progression signals
+rather than invented flavor items, so exploration rewards double as a real
+progression accelerant: Numismatics currency scaled tier-for-tier with
+`gen_economy.py`'s own coin denominations, and the tier ladder's own
+unlock-trigger materials (`create:brass_ingot` in Uncommon,
+`create:refined_radiance`/`shadow_steel` in Rare, `allthemodium:
+allthemodium_ingot` in Epic) - picking one of these up from a chest
+legitimately advances a player's stage, the same "craft/pick up" trigger
+the tier ladder table already documents elsewhere, so a lucky find in a
+dangerous structure can genuinely fast-track progression. Rare and Epic
+tiers also add `apotheosis:random_gem` entries restricted to a rising
+`purities` floor (`["normal","flawless"]` Rare, `["flawless","perfect"]`
+Epic) - the loot-entry type, its `purities` field, and Purity's six
+serialized names (`cracked`/`chipped`/`flawed`/`normal`/`flawless`/
+`perfect`) were confirmed by decompiling `GemLootPoolEntry.class` and
+`Purity.class` in the installed Apotheosis jar rather than guessed; the
+`quality` field already used in this pack's existing `apotheosis/
+loot_table/entity/*.json` overrides (Phase 7's boss uniques) turned out to
+be a different, vanilla-standard field entirely (a weight-vs-luck-
+attribute interaction), not a rarity floor - worth flagging since it would
+have been an easy mix-up. Silent Gear separately runtime-injects a few
+items into 5 of these same tables (`ruined_portal`, `bastion_bridge`,
+`bastion_treasure`, `nether_bridge`, `bastion_other`) via its own
+`GlobalLootModifier` mechanism, confirmed composing cleanly with the
+full-replace datapack override underneath it (both visible in the same
+clean boot log, no conflict - two different injection mechanisms, not a
+collision).
+
+**Part 3 - minimum spawn-rate guarantees for progression-critical
+structures.** `instructions.md`: "important structure for progression
+should spawn at a minimum rate to ensure there is one over X blocks."
+Scoped to the three structures directly named as tier-gate items in the
+tier ladder table rather than re-tuning all 19 vanilla `structure_set`
+files speculatively: **stronghold** (the only route to the End - the
+single most important progression bottleneck in the game), **woodland
+mansion** (source of totems of undying, the Precision Age gate item), and
+**end city** (source of elytra, also a Precision Age gate item). Overrides
+in `pack/kubejs/data/minecraft/worldgen/structure_set/`:
+- `strongholds.json`: concentric-rings `distance` 32->20, `spread` 3->2
+  (vanilla's own values extracted from the installed data jar, not
+  guessed) - shrinks the first-ring search radius roughly in half.
+- `woodland_mansions.json`: random-spread `spacing` 80->40, `separation`
+  20->12 - vanilla's spacing (~1280 chunks average) was the rarest
+  structure in the game by a wide margin; still special at half that, but
+  actually findable in a normal exploration session on a small private
+  server.
+- `end_cities.json`: `spacing` 20->16, `separation` 8->8 (kept - the
+  original 11 exceeded the new spacing and vanilla requires
+  `separation < spacing`) - a modest tighten since the End's outer islands
+  were already reasonably dense.
+
+All three only affect chunks generated *after* this change - the existing
+boot-test `server/world/` (gitignored, disposable) keeps whatever it
+already generated near spawn under the old values, which is expected and
+not a concern for a dev-only test world.
+
+**Boot-tested clean** after fixing the Lithostitched dependency gap: all
+12 new mods load, 0 KubeJS script errors, and none of the 55 generated
+loot tables or 3 structure_set overrides produced a parse/load error.
+Two pre-existing, disclosed-elsewhere issues appeared in the same log and
+are **not** from this phase: the `c:tools/bow` family of missing tag
+references (same underlying gap Phase 3's Bows skill-tree fix already
+worked around) and `tfmg_stellaris_compat`'s known `stellaris:heavy_ingot`
+loot-modifier warning (Phase 8). **Two new, non-fatal issues surfaced and
+are disclosed rather than silently accepted**: When Dungeons Arise ships 2
+broken advancement JSONs (`dungeons_arise:find_thornborn_towers`,
+`find_fishing_hut` - fail to load with a "couldn't load advancements"
+error but don't block server start, an upstream mod bug outside this
+pack's control) and YUNG's Better End Island logs an `ERROR`-level `key
+missing: bei_ExtraDragonFight` on a fresh world's dragon-fight NBT (also
+non-fatal - the server continues past it to `Done`).
+
+**Disclosed limitation**: as with every other overhaul, this sandbox has
+no live client, so the actual in-game feel of ~100 new biomes, the new
+structures' jigsaw layouts, and whether the tightened stronghold/mansion/
+end-city spacing "feels right" for a 2-10 player server can't be
+playtested here - only that every mod loads cleanly, the generated loot
+table JSON is well-formed and additive over vanilla's own pools, and the
+structure_set overrides use vanilla's own real placement values as a
+baseline (not invented numbers).
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.
