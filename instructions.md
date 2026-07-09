@@ -103,3 +103,60 @@ Your goal is to design a prism compatible modpack.
 - You may use git to track your progress and revisions
 - You may run the linux server version to make sure it runs correctly in this environment
 - You may install any system packages that enhance your workflow and testing
+
+# Clarifications & Resolved Decisions
+
+Added during implementation (through Phase 2) to record ambiguities in the
+above that had to be resolved with a judgment call or a user check-in, so
+later phases (or a fresh session) don't have to rediscover the reasoning.
+Full detail and rationale lives in `DESIGN.md`; this section is the short
+index of *what was decided and why it matters going forward*.
+
+## Scope decisions (confirmed with the user before implementation began)
+- Build the mod list from scratch rather than forking an existing curated
+  Create modpack (e.g. Create: Astral, Create: Above and Beyond).
+- Server scale is a small private group (roughly 2-10 trusted players), not
+  a large public server. This should keep economy/claims/anti-grief/mob-scaling
+  tuning in later phases modest — don't over-build moderation or anti-cheat
+  infrastructure the requirements never asked for.
+- Delivery is a vertical slice, phase by phase (see `DESIGN.md`'s Phase
+  plan), committing and verifying each phase end-to-end before starting the
+  next, rather than stubbing every system shallowly up front.
+
+## Technical foundation (not specified above; established in Phase 0)
+- Minecraft 1.21.1 + NeoForge 21.1.235 — the newest MC version with a mature
+  Create ecosystem (Create 6.0.10). Mojang's post-1.21 calver releases (26.x)
+  have no Create port as of this build.
+- No `packwiz` binary is available in this build environment (no Go
+  toolchain or package manager to run it). `scripts/resolve_mods.py` +
+  `pack/mods.lock.json` substitute — git-friendly, reproducible, resolved
+  against the Modrinth API directly.
+
+## Resolved ambiguities in the requirements above
+- **"Storage should be browsable from traditional iron tier onward... start
+  out limited"**: split across two mods rather than one system stretched
+  thin. Tier 1 (Andesite Age, roughly vanilla iron tier) gets genuinely
+  "dumb storage" — Tom's Storage, linking chests into one browsable
+  interface, no power, no autocrafting. Tier 2 (Brass Age) onward gets the
+  real network — Refined Storage (the mod named directly above), unlocked
+  once Create's own automation and diamond/Nether access are also available.
+- **"No ability to automate crafting until a certain point... continue to
+  scale after you first unlock it"**: two-stage automation. Brass Age:
+  Create's own Mechanical Arm/Deployer feed the storage network directly
+  (not a bolt-on autocrafter), so "engaging with Create should be the sole
+  process by which you automate things" holds even for storage. Induction
+  Age (the top tier): Refined Storage's own native pattern-based autocrafting
+  becomes available as the final scaling step.
+- **Storage network power**: not addressed above at all. Refined Storage
+  needs Forge Energy for its Controller, and Create doesn't natively produce
+  FE. Resolved to generating it through Create itself — Create Crafts &
+  Additions' Alternator (kinetic → FE) — rather than disabling the power
+  requirement, which was tried first and was the wrong call against the
+  "sole process by which you automate things" requirement.
+- **Blacksmithing** ("instead of making metal tools normally have some kind
+  of blacksmithing"): not yet implemented — deferred to Phase 7 (combat
+  variety), since tool-crafting mechanics and weapon-class balance are
+  tightly coupled. Two candidates identified so far, Silent Gear and Fire
+  and Flames; Tetra, the usual pick for this, isn't ported to 1.21.1.
+  Tier 1 currently unlocks vanilla iron tools as a placeholder in the
+  meantime.
