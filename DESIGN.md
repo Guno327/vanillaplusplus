@@ -297,6 +297,97 @@ the FTB-Mods-Issues tracker), not a config option we're missing. Revisit
 then: either accept the deviation, or split daily/long-running quests into
 a separately-tracked system that's inherently per-player.
 
+### Economy (Phase 5)
+
+`instructions.md` asks for two related but distinct systems: (1) a tracked
+currency with a "sell anything to a vendor" outlet, priced intelligently by
+tier/difficulty, and (2) an async marketplace where players list items for
+other players to buy without both being online at once.
+
+**Currency + vendor: Create: Numismatics** (1M+ downloads, confirmed
+NeoForge 1.21.1). Adds six coin *items* (Spur/Bevel/Sprocket/Cog/Crown/Sun,
+1/8/16/64/512/4096 spurs respectively) plus Vendor and Creative Vendor
+blocks. Chosen for the same reason as prior Create-addon picks — it's
+Create-native (its Alternator-style power/kinetic integration fits the
+pack's "everything through Create" spine) and its coins being plain items
+means granting currency is just `/give`, no separate account API needed.
+
+**Marketplace: Create: Marketplace** (built specifically to bridge
+Numismatics — confirmed via its own dependency list: Numismatics and Create
+are its only two *required* deps for our version; Xaero's Minimap/World Map
+and Create: Tradeworks are optional and were left out). Adds a global board/
+hotkey UI to browse and price-compare every player-run Vendor shop from
+anywhere, with waypoint navigation to the shop once Xaero's Minimap is
+present. **Scope note on "asynchronous remote":** purchase itself still
+happens by walking to the seller's persistent Vendor block, not an instant
+GUI checkout — the seller doesn't need to be online (the block just holds
+its own inventory/price), but the buyer does need to travel there. A true
+instant-anywhere alternative (Auction House Plus) exists but was rejected:
+its NeoForge support for our version is unconfirmed (flagged as a to-do on
+the mod's own page) and it needs a *different* economy-API mod (Impactor or
+RealEconomy) as a bridge, which would fragment currency into two
+non-interoperating systems unless custom glue code kept them in sync. The
+user confirmed the travel-based, Numismatics-native option over that
+larger-scope, less-verified alternative (2026-07-09).
+
+**Pricing — reused, not re-derived:** rather than a second difficulty
+metric (e.g. recursive crafting-cost analysis across the whole recipe
+graph, which would be a much bigger undertaking and would likely just
+reconstruct the same tier ordering anyway), `scripts/gen_economy.py` prices
+items directly off `pack/config/ProgressiveStages/*.toml`'s own
+`[items].locked` lists — the same tier-unlock data Phase 1 already
+authored as this pack's difficulty signal. Each tier maps to a spur price
+(`rootborn`→1, `andesite_age`→4, `brass_age`→16, `precision_age`→64,
+`induction_age`→256, `starforged_age`→1024 — modest fractions of what
+reaching that tier actually costs, so selling can't out-earn playing
+normally, per `instructions.md`'s "avoid unbalanced exploits" ask); any
+item not listed at any tier (the overwhelming majority of registered items —
+dirt, food, mob drops, plain vanilla blocks) falls back to the tier-0 price
+of 1 spur. This is a deliberate scope call, not an oversight: hand-tuning a
+price for every single registered item isn't tractable and isn't what a
+small 2-10 player private server needs (per the scope already recorded in
+`instructions.md`'s Clarifications); "no limits on the ability to sell
+arbitrary items" only requires everything sell for *something*.
+
+**Selling itself is a `/sell` command**, generated into
+`pack/kubejs/server_scripts/economy.js` alongside the embedded price table
+(one file, so there's no cross-script load-order dependency between a data
+file and logic file). Registered via KubeJS's `ServerEvents.commandRegistry`
+rather than hooking the Vendor block's own right-click interaction — a
+block-hook would've needed a way to distinguish "our admin-configured
+universal sell point" from any ordinary player-placed Vendor (which should
+keep its normal buy/sell-slot behavior), and solving that cleanly looked
+more fragile than a plain command. Sells the player's whole main-hand stack
+at its tier price, paying out the largest coin denominations that fit
+(minimizing item clutter) via plain `/give`-equivalent `player.give(...)`
+calls. Verified via the server console (no in-game client available in this
+sandbox — see DESIGN.md's Verification section): `/puffish_skills
+experience add @a mining 10` and `/sell` both resolved past command-lookup
+(the first hit Brigadier's own "No player was found" for the `@a` selector
+with nobody online, the second hit a plain "unexpected error" from
+`ctx.source.playerOrException` failing because console isn't a player) —
+neither produced "Unknown command," confirming both are registered and
+reach their execution logic; a real player would need to actually claim a
+quest reward or run `/sell` to exercise the full path end-to-end.
+
+**Bug found and fixed while building this** (in already-committed Phase 4
+code, not new work): `gen_quests.py`'s `skill_xp_reward()` had the wrong
+command path for granting `puffish_skills` XP — `"skills experience add
+..."` — discovered only because writing `economy.js` required re-reading
+`pack/kubejs/server_scripts/skills.js`'s already-working
+`puffish_skills experience add ...` call for reference and noticing the
+mismatch. Root cause: `net.puffish.skillsmod.SkillsMod#onCommandsRegister`
+registers `ExperienceCommand` as a *direct sibling* of `SkillsCommand`
+under the `puffish_skills` root (`puffish_skills experience add ...`), not
+nested under the "skills" subcommand as the name suggests. This would have
+silently failed as an unknown command the first time any Phase 4 quest
+reward was actually claimed in-game — data-load validation had passed
+(FTB Quests doesn't check that a `command` reward's string resolves to a
+real command until it's actually run), so this had shipped undetected.
+Fixed and regenerated; DESIGN.md/this note exists so a future phase
+re-checks any other `command`-reward strings against their mod's *actual*
+registered command tree rather than trusting a plausible-looking guess.
+
 ### Why gate the Nether at Brass Age and The End at Precision Age
 
 Vanilla lets you rush the Nether/End with almost no preamble. Both dimensions
@@ -346,7 +437,8 @@ ported past 1.20.x and is ruled out.
 4. ✅ Quest system via FTB Quests: preset tier-progression track + four
    long-running exponential stat chains + a static daily bounty pool
    (per-player already, since team_mode is still solo).
-5. Economy (tiered vendor pricing) + async player marketplace.
+5. ✅ Economy via Create: Numismatics (tiered `/sell` pricing generated from
+   ProgressiveStages tiers) + Create: Marketplace (global shop board).
 6. Teams (flip `team_mode` to `ftb_teams`) + chunk claims.
 7. Combat variety (balanced weapon classes tied to RPG skills) + blacksmithing
    recipe swap + mage/summoner archetype.
