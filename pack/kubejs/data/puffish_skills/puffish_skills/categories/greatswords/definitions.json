@@ -1,0 +1,78 @@
+{
+	"attack_damage+4%": {
+		"title": "+4% Attack Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "iron_sword"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.attack_damage",
+					"value": 0.04,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"knockback+6%": {
+		"title": "+6% Knockback",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "feather"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:knockback",
+					"value": 0.06,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"max_health+5%": {
+		"title": "+5% Max Health",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "totem_of_undying"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.max_health",
+					"value": 0.05,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	},
+	"melee_damage+2%": {
+		"title": "+2% Melee Damage",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "strength"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.melee_damage",
+					"value": 0.02,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	}
+}

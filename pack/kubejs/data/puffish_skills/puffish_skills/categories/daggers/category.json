@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Daggers",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "epicfight:iron_dagger"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/husbandry.png"
+}

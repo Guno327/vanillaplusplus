@@ -18,40 +18,7 @@
 							{
 								"type": "puffish_skills:test",
 								"data": {
-									"item": "silentgear:bow"
-								}
-							}
-						]
-					},
-					"dropped_xp": {
-						"operations": [
-							{
-								"type": "get_dropped_experience"
-							}
-						]
-					}
-				},
-				"experience": [
-					{
-						"condition": "used_right_weapon",
-						"expression": "2 + dropped_xp"
-					}
-				]
-			}
-		},
-		{
-			"type": "puffish_skills:kill_entity",
-			"data": {
-				"variables": {
-					"used_right_weapon": {
-						"operations": [
-							{
-								"type": "get_weapon_item_stack"
-							},
-							{
-								"type": "puffish_skills:test",
-								"data": {
-									"item": "silentgear:crossbow"
+									"item": "#vanillaplusplus:spears"
 								}
 							}
 						]

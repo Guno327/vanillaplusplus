@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Longswords",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "epicfight:iron_longsword"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/adventure.png"
+}

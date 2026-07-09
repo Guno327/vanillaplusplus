@@ -18,7 +18,7 @@
 							{
 								"type": "puffish_skills:test",
 								"data": {
-									"item": "#minecraft:swords"
+									"item": "silentgear:sword"
 								}
 							}
 						]

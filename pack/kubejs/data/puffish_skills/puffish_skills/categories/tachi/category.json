@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Tachi",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "epicfight:iron_tachi"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/nether.png"
+}

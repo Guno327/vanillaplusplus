@@ -1,0 +1,78 @@
+{
+	"attack_damage+2%": {
+		"title": "+2% Attack Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "iron_sword"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.attack_damage",
+					"value": 0.02,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"attack_speed+2%": {
+		"title": "+2% Attack Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "sugar"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.attack_speed",
+					"value": 0.02,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"move_speed+1%": {
+		"title": "+1% Movement Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "feather"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.movement_speed",
+					"value": 0.01,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"melee_damage+3%": {
+		"title": "+3% Melee Damage",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "strength"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.melee_damage",
+					"value": 0.03,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	}
+}

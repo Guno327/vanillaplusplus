@@ -1,0 +1,78 @@
+{
+	"reach+0.5": {
+		"title": "+0.5 Attack Reach",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "epicfight:iron_spear"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "minecraft:player.entity_interaction_range",
+					"value": 0.5,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"attack_damage+3%": {
+		"title": "+3% Attack Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "iron_sword"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.attack_damage",
+					"value": 0.03,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"knockback+4%": {
+		"title": "+4% Knockback",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "feather"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:knockback",
+					"value": 0.04,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"melee_damage+2%": {
+		"title": "+2% Melee Damage",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "strength"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.melee_damage",
+					"value": 0.02,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	}
+}
