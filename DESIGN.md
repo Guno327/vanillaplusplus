@@ -125,6 +125,67 @@ genuinely simpler mod for Tier 1 alone. Went with the latter:
   `refinedstorage-common.toml`'s `requireEnergy` is back to its default
   (`true`).
 
+### RPG skills (Phase 3)
+
+`instructions.md` asks for an RPG leveling system with skill categories
+covering movement, gathering, and combat. Built on **Pufferfish's Skills**
+(3.29M downloads, the standard skill-tree framework for NeoForge 1.21.1) +
+**Pufferfish's Attributes** (2.46M downloads, adds attribute types the base
+game lacks — `mining_speed`, `sword_damage`, `sprinting_speed`,
+`bow_projectile_speed`, etc). The mod's own official "Default Skill Trees"
+content pack was **not** shipped — it only covers two generic categories
+(combat, mining), not the six specific ones asked for — so all six are
+authored here instead, using the official pack's jar as a schema reference
+(its `data/puffish_skills/puffish_skills/categories/<name>/*.json` layout).
+
+- **Generated, not hand-typed.** `scripts/gen_skill_tree.py` emits the whole
+  datapack into `pack/kubejs/data/puffish_skills/puffish_skills/`, KubeJS's
+  raw-datapack injection folder. Six hand-typed JSON trees (categories,
+  experience sources, node definitions, connections) would be tedious and
+  error-prone; a generator with small per-category data tables is not. Each
+  category is a simple linear ~10-node chain rather than the sprawling
+  hex-snowflake layout the official pack uses (that shape is clearly built
+  with their web-based visual editor, not something worth hand-authoring
+  here).
+- **Six categories**: Mining, Swords, Bows, Running, Swimming, Building.
+  Mining/Swords/Bows grant XP via `mine_block`/`kill_entity` experience
+  sources (ore-tier and weapon-tier XP tables in `gen_skill_tree.py`).
+  Running/Swimming grant XP via `increase_stat`, keyed to vanilla's
+  `minecraft:custom` stat type (`sprint_one_cm`/`swim_one_cm`). Building has
+  **no native experience source** — confirmed by inspecting the mod's
+  registered source types, there's no block-placement hook — so it's granted
+  from `pack/kubejs/server_scripts/skills.js` on `BlockEvents.placed`,
+  throttled per-player.
+- **Rewards** are `puffish_attributes`-backed attribute modifiers (e.g. +3%
+  Mining Speed, +5% Sprinting Speed, +0.1 Fortune per node), following the
+  same per-node-buff pattern as the official pack.
+
+Two real bugs surfaced only through the mod's own datapack validator
+(`[puffish_skills] Data pack could not be loaded:` on boot) and both needed
+the mod's actual source (`github.com/pufmat/skillsmod`, version-matched
+against the shipped `puffish_skills-0.18.0` jar) to resolve correctly —
+decompiled bytecode alone led to two wrong guesses in a row on the second one:
+
+1. **Bows**: `kill_entity`'s weapon-match condition used `#c:tools/bows` /
+   `#c:tools/crossbows` tags, which don't exist. Fixed to bare item ids
+   (`"bow"`, `"crossbow"`), matching the convention already established by
+   the mining category's ore matching.
+2. **Running/Swimming**: `increase_stat` isn't the special case it looks
+   like — it goes through the exact same `LegacyCalculation.parse` +
+   `variables`/`experience` pipeline as `mine_block`/`kill_entity`
+   (confirmed by reading `IncreaseStatExperienceSource.java` and
+   `MineBlockExperienceSource.java` side by side). `amount` must be
+   explicitly bound via a `get_increase_amount` operation (it is *not*
+   implicitly available, despite what the legacy-compat code paths in the
+   decompiled class suggested), and matching the specific stat requires
+   chaining `get_stat` into a `puffish_skills:test` operation (registered on
+   the STAT type by `StatCondition`, taking a `"stat"` field) — since the
+   mod's `awardStat` mixin hook fires for *every* stat increase, not just
+   the one each category cares about. The stat identifier format itself
+   (`"<statType_ns>.<statType_path>:<stat_ns>.<stat_path>"`, e.g.
+   `"minecraft.custom:minecraft.sprint_one_cm"`) was confirmed correct from
+   the start via `BuiltinJson#parseStat`.
+
 ### Why gate the Nether at Brass Age and The End at Precision Age
 
 Vanilla lets you rush the Nether/End with almost no preamble. Both dimensions
@@ -164,7 +225,8 @@ ported past 1.20.x and is ruled out.
    Tier 2 on, capacity scaling every tier after, autocrafting unlocked at
    Brass Age via Create's own Mechanical Arm/Deployer, full native network
    autocrafting by Induction Age.
-3. RPG skill/leveling system (Running/Swimming/Mining/Building/Swords/Bows/etc).
+3. ✅ RPG skill/leveling system (Running/Swimming/Mining/Building/Swords/Bows)
+   via Pufferfish's Skills + Attributes, six generated skill-tree categories.
 4. Quest system: preset track (team-shared) + long-running exponential
    quests + randomized daily quests (both per-player).
 5. Economy (tiered vendor pricing) + async player marketplace.

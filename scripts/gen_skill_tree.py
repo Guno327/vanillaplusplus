@@ -105,18 +105,33 @@ def kill_entity_source(weapon_test_block, weapon_items_or_tag, base_xp):
 
 def stat_source(stat_id, xp_per_unit):
     """stat_id: e.g. "minecraft.custom:minecraft.sprint_one_cm" - the mod's
-    "stat" field packs StatType(namespace.path) : Stat(namespace.path) into a
-    single string with '.' splitting each half's namespace/path and ':'
-    separating the two halves (verified by decompiling
-    net.puffish.skillsmod.api.json.BuiltinJson#parseStat's bytecode - the
-    Data record only has "stat"/"experience" fields, no "variables"/
-    "stat_type" wrapper as originally guessed; "amount" is an implicitly
-    bound variable in the experience expression, not something we declare)."""
+    BuiltinJson#parseStat packs StatType(namespace.path) : Stat(namespace.path)
+    into a single string with '.' splitting each half's namespace/path and
+    ':' separating the two halves (confirmed by reading the real source,
+    github.com/pufmat/skillsmod, not just decompiled bytecode - two prior
+    guesses from bytecode alone were wrong).
+
+    IncreaseStatExperienceSource follows the exact same
+    variables+test-operation pattern as mine_block/kill_entity (all three
+    go through LegacyCalculation.parse): "amount" is NOT implicitly bound -
+    it must be declared via the get_increase_amount operation, and matching
+    the specific stat requires chaining get_stat -> puffish_skills:test
+    (registered on the STAT prototype by StatCondition, taking a "stat"
+    field) since awardStat's mixin hook fires for every stat increase, not
+    just the one we care about."""
     return {
         "type": "puffish_skills:increase_stat",
         "data": {
-            "stat": stat_id,
-            "experience": f"amount * {xp_per_unit}",
+            "variables": {
+                "is_target_stat": {
+                    "operations": [
+                        {"type": "get_stat"},
+                        {"type": "puffish_skills:test", "data": {"stat": stat_id}},
+                    ]
+                },
+                "amount": {"operations": [{"type": "get_increase_amount"}]},
+            },
+            "experience": [{"condition": "is_target_stat", "expression": f"amount * {xp_per_unit}"}],
         },
     }
 

@@ -9,8 +9,34 @@
 		{
 			"type": "puffish_skills:increase_stat",
 			"data": {
-				"stat": "minecraft.custom:minecraft.sprint_one_cm",
-				"experience": "amount * 0.02"
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.sprint_one_cm"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 0.02"
+					}
+				]
 			}
 		}
 	]
