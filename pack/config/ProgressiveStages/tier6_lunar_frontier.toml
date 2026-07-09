@@ -17,7 +17,13 @@ unlock_message = "&b&lLunar Frontier Unlocked! &r&7The Moon awaits."
 dependency = "starforged_age"
 
 [items]
-locked = []
+# Gear overhaul (post-Phase-9): Lunar/Martian/Inner System (Tiers 6-8) share
+# one Silent Gear material tier (Unobtainium) - locked here at the first of
+# the three since block_crafting_with_locked_ingredients then gates it
+# transitively for the whole shared span.
+locked = [
+    "id:allthemodium:unobtainium_ingot",
+]
 always_unlocked = []
 
 [blocks]

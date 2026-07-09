@@ -1,0 +1,79 @@
+{
+  "type": "silentgear:simple",
+  "parent": "silentgear:empty",
+  "crafting": {
+    "can_salvage": true,
+    "categories": [
+      "metal",
+      "vanillaplusplus_tier"
+    ],
+    "gear_type_blacklist": [],
+    "ingredient": {
+      "item": "create:brass_ingot"
+    },
+    "part_substitutes": {}
+  },
+  "display": {
+    "color": "#FFFFFFFF",
+    "main_texture_type": "HIGH_CONTRAST",
+    "name": {
+      "translate": "material.vanillaplusplus.vpp_brass",
+      "fallback": "Brass"
+    },
+    "name_prefix": ""
+  },
+  "properties": {
+    "silentgear:main": {
+      "attack_damage": 3.0,
+      "attack_speed": 0.0,
+      "durability": 1561.0,
+      "harvest_speed": 8.0,
+      "enchantment_value": 10.0,
+      "rarity": 70.0,
+      "armor": 20.0,
+      "armor/helmet": 3.0,
+      "armor/chestplate": 8.0,
+      "armor/leggings": 6.0,
+      "armor/boots": 3.0,
+      "armor_durability": 33.0,
+      "magic_armor": 4.0,
+      "magic_damage": 1.0,
+      "ranged_damage": 2.0,
+      "projectile_accuracy": 1.1,
+      "projectile_speed": 0.9,
+      "charging_value": 0.8,
+      "draw_speed": -0.2,
+      "armor_toughness": 8.0,
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_brass_tools",
+        "level_hint": "3",
+        "name": "brass"
+      }
+    },
+    "silentgear:rod": {
+      "harvest_speed": {
+        "operation": "MULTIPLY_TOTAL",
+        "value": 0.1
+      }
+    },
+    "silentgear:tip": {
+      "attack_damage": {
+        "operation": "ADD",
+        "value": 1.15
+      },
+      "durability": {
+        "operation": "ADD",
+        "value": 147.2
+      },
+      "harvest_speed": {
+        "operation": "ADD",
+        "value": 1.15
+      },
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_brass_tools",
+        "level_hint": "3",
+        "name": "brass"
+      }
+    }
+  }
+}

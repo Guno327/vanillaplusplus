@@ -1,0 +1,79 @@
+{
+  "type": "silentgear:simple",
+  "parent": "silentgear:empty",
+  "crafting": {
+    "can_salvage": true,
+    "categories": [
+      "metal",
+      "vanillaplusplus_tier"
+    ],
+    "gear_type_blacklist": [],
+    "ingredient": {
+      "item": "create:refined_radiance"
+    },
+    "part_substitutes": {}
+  },
+  "display": {
+    "color": "#FFFFFFFF",
+    "main_texture_type": "HIGH_CONTRAST",
+    "name": {
+      "translate": "material.vanillaplusplus.vpp_refined_radiance",
+      "fallback": "Refined Radiance"
+    },
+    "name_prefix": ""
+  },
+  "properties": {
+    "silentgear:main": {
+      "attack_damage": 3.6,
+      "attack_speed": 0.0,
+      "durability": 2809.8,
+      "harvest_speed": 9.2,
+      "enchantment_value": 11.0,
+      "rarity": 94.5,
+      "armor": 22.4,
+      "armor/helmet": 3.36,
+      "armor/chestplate": 8.96,
+      "armor/leggings": 6.72,
+      "armor/boots": 3.36,
+      "armor_durability": 59.4,
+      "magic_armor": 4.6,
+      "magic_damage": 1.15,
+      "ranged_damage": 2.3,
+      "projectile_accuracy": 1.1,
+      "projectile_speed": 0.9,
+      "charging_value": 0.8,
+      "draw_speed": -0.2,
+      "armor_toughness": 9.6,
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_refined_radiance_tools",
+        "level_hint": "4",
+        "name": "refined_radiance"
+      }
+    },
+    "silentgear:rod": {
+      "harvest_speed": {
+        "operation": "MULTIPLY_TOTAL",
+        "value": 0.1
+      }
+    },
+    "silentgear:tip": {
+      "attack_damage": {
+        "operation": "ADD",
+        "value": 1.3
+      },
+      "durability": {
+        "operation": "ADD",
+        "value": 166.4
+      },
+      "harvest_speed": {
+        "operation": "ADD",
+        "value": 1.3
+      },
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_refined_radiance_tools",
+        "level_hint": "4",
+        "name": "refined_radiance"
+      }
+    }
+  }
+}

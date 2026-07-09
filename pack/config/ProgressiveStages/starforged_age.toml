@@ -25,6 +25,11 @@ locked = [
     "id:stellaris:rocket_engine",
     "id:stellaris:rocket_fin",
     "id:stellaris:rocket_nose_cone",
+
+    # Gear overhaul (post-Phase-9): Starforged Age's own Silent Gear material
+    # tier - see induction_age.toml's comment for why locking just the raw
+    # ingot is sufficient (block_crafting_with_locked_ingredients).
+    "id:allthemodium:vibranium_ingot",
 ]
 always_unlocked = []
 

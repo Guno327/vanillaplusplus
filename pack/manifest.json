@@ -41,6 +41,8 @@
     { "slug": "ferrite-core", "side": "both", "phase": 9, "note": "reduces heap memory usage - server performance is a major concern per instructions.md" },
     { "slug": "c2me-neoforge", "side": "server", "phase": 9, "note": "concurrent chunk management (parallel gen/loading) - server-only, a heavily-modded worldgen stack is exactly where chunk loading is the biggest server bottleneck" },
     { "slug": "krypton-fnp", "side": "server", "phase": 9, "note": "network stack optimization (packet encoding/compression) - server-only, matters most under multiple simultaneous connections" },
-    { "slug": "noisiumed", "side": "both", "phase": 9, "note": "worldgen performance (noise generation), complements c2me's parallelism rather than duplicating it" }
+    { "slug": "noisiumed", "side": "both", "phase": 9, "note": "worldgen performance (noise generation), complements c2me's parallelism rather than duplicating it" },
+    { "slug": "ato", "side": "both", "phase": 10, "source": "curseforge", "cf_project_slug": "ato", "cf_file_id": 7825464, "cf_filename": "alltheores-3.2.0_neoforge_1.21.1.jar", "cf_version_number": "3.2.0", "note": "required by Allthemodium below (its own ore-gen companion mod)" },
+    { "slug": "allthemodium", "side": "both", "phase": 10, "source": "curseforge", "cf_project_slug": "allthemodium", "cf_file_id": 7974403, "cf_filename": "allthemodium-3.0.1_mc_1.21.1.jar", "cf_version_number": "3.0.1", "note": "gear overhaul (Phase 10): supplies Allthemodium/Vibranium/Unobtainium/Alloy as the Induction Age-and-beyond Silent Gear material tiers, per the user's explicit call to lean on a late-game meta-material mod rather than inventing bespoke space-tier materials. Its own native tools/armor/weapons are removed via KubeJS - only the raw materials are used, everything crafts through Silent Gear instead. Requires GeckoLib (already installed, Phase 7)" }
   ]
 }

@@ -1,0 +1,79 @@
+{
+  "type": "silentgear:simple",
+  "parent": "silentgear:empty",
+  "crafting": {
+    "can_salvage": true,
+    "categories": [
+      "metal",
+      "vanillaplusplus_tier"
+    ],
+    "gear_type_blacklist": [],
+    "ingredient": {
+      "item": "allthemodium:unobtainium_vibranium_alloy_ingot"
+    },
+    "part_substitutes": {}
+  },
+  "display": {
+    "color": "#FFFFFFFF",
+    "main_texture_type": "HIGH_CONTRAST",
+    "name": {
+      "translate": "material.vanillaplusplus.vpp_star_alloy",
+      "fallback": "Star Alloy"
+    },
+    "name_prefix": ""
+  },
+  "properties": {
+    "silentgear:main": {
+      "attack_damage": 7.46,
+      "attack_speed": 0.0,
+      "durability": 29496.16,
+      "harvest_speed": 16.09,
+      "enchantment_value": 16.11,
+      "rarity": 313.88,
+      "armor": 35.25,
+      "armor/helmet": 5.29,
+      "armor/chestplate": 14.1,
+      "armor/leggings": 10.57,
+      "armor/boots": 5.29,
+      "armor_durability": 623.56,
+      "magic_armor": 8.05,
+      "magic_damage": 2.01,
+      "ranged_damage": 4.02,
+      "projectile_accuracy": 1.1,
+      "projectile_speed": 0.9,
+      "charging_value": 0.8,
+      "draw_speed": -0.2,
+      "armor_toughness": 19.91,
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_star_alloy_tools",
+        "level_hint": "8",
+        "name": "star_alloy"
+      }
+    },
+    "silentgear:rod": {
+      "harvest_speed": {
+        "operation": "MULTIPLY_TOTAL",
+        "value": 0.1
+      }
+    },
+    "silentgear:tip": {
+      "attack_damage": {
+        "operation": "ADD",
+        "value": 1.9
+      },
+      "durability": {
+        "operation": "ADD",
+        "value": 243.2
+      },
+      "harvest_speed": {
+        "operation": "ADD",
+        "value": 1.9
+      },
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_star_alloy_tools",
+        "level_hint": "8",
+        "name": "star_alloy"
+      }
+    }
+  }
+}

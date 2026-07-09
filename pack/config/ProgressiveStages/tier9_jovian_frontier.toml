@@ -16,7 +16,11 @@ unlock_message = "&d&lJovian Frontier Unlocked! &r&7Jupiter, the giant, awaits."
 dependency = "inner_system"
 
 [items]
-locked = []
+# Gear overhaul (post-Phase-9): the ultimate Silent Gear material tier -
+# Allthemodium's own "Alloy" combining Unobtainium + Vibranium.
+locked = [
+    "id:allthemodium:unobtainium_vibranium_alloy_ingot",
+]
 always_unlocked = []
 
 [blocks]

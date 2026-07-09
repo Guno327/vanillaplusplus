@@ -33,6 +33,13 @@ locked = [
     "id:refinedstorage:pattern",
     "id:refinedstorage:autocrafting_upgrade",
     "id:refinedstorage:wireless_autocrafting_monitor",
+
+    # Gear overhaul (post-Phase-9): Induction Age's own Silent Gear material
+    # tier (see scripts/gen_gear_materials.py). Since `enforcement.
+    # block_crafting_with_locked_ingredients` is on, locking just the raw
+    # ingot is enough to gate every Silent Gear part/tool/weapon/armor piece
+    # crafted from it - no need to separately lock each derived item.
+    "id:allthemodium:allthemodium_ingot",
 ]
 always_unlocked = []
 

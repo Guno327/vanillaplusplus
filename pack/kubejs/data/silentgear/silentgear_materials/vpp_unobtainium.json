@@ -1,0 +1,79 @@
+{
+  "type": "silentgear:simple",
+  "parent": "silentgear:empty",
+  "crafting": {
+    "can_salvage": true,
+    "categories": [
+      "metal",
+      "vanillaplusplus_tier"
+    ],
+    "gear_type_blacklist": [],
+    "ingredient": {
+      "item": "allthemodium:unobtainium_ingot"
+    },
+    "part_substitutes": {}
+  },
+  "display": {
+    "color": "#FFFFFFFF",
+    "main_texture_type": "HIGH_CONTRAST",
+    "name": {
+      "translate": "material.vanillaplusplus.vpp_unobtainium",
+      "fallback": "Unobtainium"
+    },
+    "name_prefix": ""
+  },
+  "properties": {
+    "silentgear:main": {
+      "attack_damage": 6.22,
+      "attack_speed": 0.0,
+      "durability": 16386.75,
+      "harvest_speed": 13.99,
+      "enchantment_value": 14.64,
+      "rarity": 232.51,
+      "armor": 31.47,
+      "armor/helmet": 4.72,
+      "armor/chestplate": 12.59,
+      "armor/leggings": 9.44,
+      "armor/boots": 4.72,
+      "armor_durability": 346.42,
+      "magic_armor": 7.0,
+      "magic_damage": 1.75,
+      "ranged_damage": 3.5,
+      "projectile_accuracy": 1.1,
+      "projectile_speed": 0.9,
+      "charging_value": 0.8,
+      "draw_speed": -0.2,
+      "armor_toughness": 16.59,
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_unobtainium_tools",
+        "level_hint": "7",
+        "name": "unobtainium"
+      }
+    },
+    "silentgear:rod": {
+      "harvest_speed": {
+        "operation": "MULTIPLY_TOTAL",
+        "value": 0.1
+      }
+    },
+    "silentgear:tip": {
+      "attack_damage": {
+        "operation": "ADD",
+        "value": 1.75
+      },
+      "durability": {
+        "operation": "ADD",
+        "value": 224.0
+      },
+      "harvest_speed": {
+        "operation": "ADD",
+        "value": 1.75
+      },
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_unobtainium_tools",
+        "level_hint": "7",
+        "name": "unobtainium"
+      }
+    }
+  }
+}

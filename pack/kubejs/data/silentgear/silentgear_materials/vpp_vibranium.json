@@ -1,0 +1,79 @@
+{
+  "type": "silentgear:simple",
+  "parent": "silentgear:empty",
+  "crafting": {
+    "can_salvage": true,
+    "categories": [
+      "metal",
+      "vanillaplusplus_tier"
+    ],
+    "gear_type_blacklist": [],
+    "ingredient": {
+      "item": "allthemodium:vibranium_ingot"
+    },
+    "part_substitutes": {}
+  },
+  "display": {
+    "color": "#FFFFFFFF",
+    "main_texture_type": "HIGH_CONTRAST",
+    "name": {
+      "translate": "material.vanillaplusplus.vpp_vibranium",
+      "fallback": "Vibranium"
+    },
+    "name_prefix": ""
+  },
+  "properties": {
+    "silentgear:main": {
+      "attack_damage": 5.18,
+      "attack_speed": 0.0,
+      "durability": 9103.75,
+      "harvest_speed": 12.17,
+      "enchantment_value": 13.31,
+      "rarity": 172.23,
+      "armor": 28.1,
+      "armor/helmet": 4.21,
+      "armor/chestplate": 11.24,
+      "armor/leggings": 8.43,
+      "armor/boots": 4.21,
+      "armor_durability": 192.46,
+      "magic_armor": 6.08,
+      "magic_damage": 1.52,
+      "ranged_damage": 3.04,
+      "projectile_accuracy": 1.1,
+      "projectile_speed": 0.9,
+      "charging_value": 0.8,
+      "draw_speed": -0.2,
+      "armor_toughness": 13.82,
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_vibranium_tools",
+        "level_hint": "6",
+        "name": "vibranium"
+      }
+    },
+    "silentgear:rod": {
+      "harvest_speed": {
+        "operation": "MULTIPLY_TOTAL",
+        "value": 0.1
+      }
+    },
+    "silentgear:tip": {
+      "attack_damage": {
+        "operation": "ADD",
+        "value": 1.6
+      },
+      "durability": {
+        "operation": "ADD",
+        "value": 204.8
+      },
+      "harvest_speed": {
+        "operation": "ADD",
+        "value": 1.6
+      },
+      "harvest_tier": {
+        "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_vibranium_tools",
+        "level_hint": "6",
+        "name": "vibranium"
+      }
+    }
+  }
+}
