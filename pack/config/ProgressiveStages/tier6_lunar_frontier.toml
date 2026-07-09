@@ -1,0 +1,30 @@
+# ============================================================================
+# Vanilla++ Tier 6 — Lunar Frontier
+# First space tier (Phase 8). Per instructions.md's resolved decision, each
+# planet beyond Starforged Age is its own tier layered on top, gated behind
+# the previous one the same way Tiers 0-5 gate each other. Triggered by
+# reaching Earth orbit (stellaris:earth_orbit, unlocked already at
+# Starforged Age - see that file) - i.e. you've successfully launched a
+# rocket. Unlocks the Moon itself.
+# ============================================================================
+
+[stage]
+id = "lunar_frontier"
+display_name = "Lunar Frontier"
+description = "You've reached orbit. The Moon is next."
+icon = "stellaris:rocket"
+unlock_message = "&b&lLunar Frontier Unlocked! &r&7The Moon awaits."
+dependency = "starforged_age"
+
+[items]
+locked = []
+always_unlocked = []
+
+[blocks]
+locked = []
+always_unlocked = []
+
+[dimensions]
+locked = [
+    "id:stellaris:moon",
+]

@@ -37,32 +37,52 @@ of these six tiers. Tiers 0-3 stay entirely inside Create's own material
 chain (no addon needed). Tier 4's storage content is fully resolved as of
 Phase 2; only its narrative trigger is still a Phase 8 TODO.
 
-**Tier 5 (Starforged Age) is no longer "endgame content, TBD" — it's the
-explicit gateway to space.** Per a scope addition after Phase 2 (see
-`instructions.md`'s "Resource infinity & space travel" section), space
-travel is the modpack's ultimate end goal: once the overworld/Nether/End are
-fully progressed, Starforged Age is where you build a rocket, and each
-planet beyond it is its own additional tier layered on top (Tier 6, 7, ...),
-gated behind the previous planet the same way every earlier tier gates the
-next. The ladder isn't fixed at 6 tiers — it extends per planet, designed in
-Phase 8. **Stellaris** is the chosen space-travel mod (Ad Astra, the more
-famous pick, stalled at MC 1.20.4 and never reached NeoForge 1.21.1); it has
-an existing Create-addon compat path via TFMG.
+**Tier 5 (Starforged Age) is the explicit gateway to space, and Tiers 6-9
+now extend the ladder through the solar system (finalized in Phase 8).**
+Per a scope addition after Phase 2 (see `instructions.md`'s "Resource
+infinity & space travel" section), space travel is the modpack's ultimate
+end goal: once the overworld/Nether/End are fully progressed (triggered by
+the Ender Dragon kill), Starforged Age is where you build a rocket, and
+each planet beyond it is its own additional tier layered on top, gated
+behind the previous planet the same way every earlier tier gates the next.
+**Stellaris** is the chosen space-travel mod (Ad Astra, the more famous
+pick, stalled at MC 1.20.4 and never reached NeoForge 1.21.1); it has a
+confirmed Create-addon compat path via **TFMG** (Create: The Factory Must
+Grow), via a third `tfmg-stellaris-compat` mod. That compat mod pins
+`create-tfmg` to version 1.1.1, not the latest 1.2.0 — its own dependency
+range is `[1.1.0, 1.2.0)` and it hasn't been updated for TFMG's newest
+release yet (found via the actual boot error, not Modrinth's dependency
+metadata — `scripts/resolve_mods.py` gained a `pin_version` manifest field
+for exactly this situation). **Known non-fatal issue**: the compat mod's
+own loot-table modifier references `stellaris:heavy_ingot`, which doesn't
+exist in our resolved Stellaris version — logs a `WARN` on boot
+("Could not decode GlobalLootModifier... Unknown registry key") but
+doesn't block loading; a version-mismatch between the two mods' own
+release cadences, not something in our control.
 
 | # | Stage id | Name | Unlocked by | Create milestone | Storage / autocrafting rung | Vanilla tier & dimension also gated here |
 |---|---|---|---|---|---|---|
 | 0 | `rootborn` | Rootborn | starting stage | — | vanilla inventory/chests only | wood/stone |
-| 1 | `andesite_age` | Andesite Age | craft/pick up `create:andesite_alloy` | water wheels, mixing/pressing, crushing wheels | **"dumb storage"** — Tom's Storage: Inventory Connector + Storage Terminal + Open Crate + Cable + Filing Cabinet, iron-tier only, no power, no autocrafting | iron tools/armor, rails |
-| 2 | `brass_age` | Brass Age | craft/pick up `create:brass_ingot` | Mechanical Arm, Deployer, Sequenced Gearshift, Elevator Pulley, train control | **real powered network** — Refined Storage in full (Grid/Disk Drive/Controller, 1k+4k capacity), powered by Create Crafts & Additions' Alternator (kinetic→FE); first crafting automation via Create's Mechanical Arm/Deployer feeding RS's Importer/Exporter/External Storage | diamond tools/armor, enchanting table, beacon, **Nether** |
-| 3 | `precision_age` | Precision Age | obtain `create:refined_radiance` or `create:shadow_steel` | Sturdy Sheet (Create's own top alloy) | 16k capacity; wireless/network devices (Wireless Grid, Network Receiver/Transmitter, Relay, Portable Grid, Security Manager) | netherite tier, elytra, totem, **The End** |
-| 4 | `induction_age` | Induction Age | temp trigger: netherite ingot *(real narrative trigger TBD in Phase 8)* | — | **ceiling of the same system**: 64k capacity + Advanced Processor + native pattern-based autocrafting (Autocrafter/Autocrafter Manager/Pattern/Pattern Grid) | TBD |
-| 5 | `starforged_age` | Starforged Age | temp: kill Ender Dragon *(real trigger likely "launch first rocket," TBD in Phase 8)* | — | — | gateway to space (Stellaris); Tier 6+ per-planet tiers extend beyond this, designed in Phase 8 |
+| 1 | `andesite_age` | Andesite Age | craft/pick up `create:andesite_alloy` | water wheels, mixing/pressing, crushing wheels | **"dumb storage"** — Tom's Storage: Inventory Connector + Storage Terminal + Open Crate + Cable + Filing Cabinet, iron-tier only, no power, no autocrafting | iron tools/armor, rails, Epic Fight's iron-tier weapons, Ars Nouveau's wand |
+| 2 | `brass_age` | Brass Age | craft/pick up `create:brass_ingot` | Mechanical Arm, Deployer, Sequenced Gearshift, Elevator Pulley, train control | **real powered network** — Refined Storage in full (Grid/Disk Drive/Controller, 1k+4k capacity), powered by Create Crafts & Additions' Alternator (kinetic→FE); first crafting automation via Create's Mechanical Arm/Deployer feeding RS's Importer/Exporter/External Storage | diamond tools/armor, enchanting table, beacon, **Nether**, Epic Fight's diamond-tier weapons |
+| 3 | `precision_age` | Precision Age | obtain `create:refined_radiance` or `create:shadow_steel` | Sturdy Sheet (Create's own top alloy) | 16k capacity; wireless/network devices (Wireless Grid, Network Receiver/Transmitter, Relay, Portable Grid, Security Manager) | netherite tier, elytra, totem, **The End**, Epic Fight's netherite-tier weapons |
+| 4 | `induction_age` | Induction Age | temp trigger: netherite ingot *(real narrative trigger still TBD — not resolved in Phase 8, out of that phase's actual scope; revisit in Phase 9's recipe-gating pass)* | — | **ceiling of the same system**: 64k capacity + Advanced Processor + native pattern-based autocrafting (Autocrafter/Autocrafter Manager/Pattern/Pattern Grid) | TBD |
+| 5 | `starforged_age` | Starforged Age | kill the Ender Dragon | — | — | gateway to space: locks Stellaris' rocket items/blocks until reached |
+| 6 | `lunar_frontier` | Lunar Frontier | reach `stellaris:earth_orbit` (i.e. launch a rocket) | — | — | locks the Moon (`stellaris:moon`) |
+| 7 | `martian_frontier` | Martian Frontier | reach the Moon | — | — | locks Mars + its orbit station |
+| 8 | `inner_system` | Inner System | reach Mars | — | — | locks Venus + Mercury + their orbit stations (grouped — no clear natural ordering between two comparably-hostile planets) |
+| 9 | `jovian_frontier` | Jovian Frontier | reach Venus *or* Mercury | — | — | locks Jupiter, the current end of Stellaris' explorable system |
 
 Dependency chain is strictly linear (`rootborn -> andesite_age -> brass_age ->
-precision_age -> induction_age -> starforged_age -> ...per-planet tiers`);
-`linear_progression = true` in `progressivestages.toml` so granting any tier
-auto-grants everything below it. This directly satisfies "previous Create
-stuff should be necessary for the next tier of stuff."
+precision_age -> induction_age -> starforged_age -> lunar_frontier ->
+martian_frontier -> inner_system -> jovian_frontier`); `linear_progression =
+true` in `progressivestages.toml` so granting any tier auto-grants
+everything below it. This directly satisfies "previous Create stuff should
+be necessary for the next tier of stuff." **Not independently verifiable in
+this sandbox**: actually flying a rocket to each planet and confirming the
+dimension-entry triggers fire as designed needs a live client — boot-tested
+only that the tier files parse cleanly (stage count went 6 → 10, tier-tagged
+item count 139 → 143, exactly matching the new locked items added).
 
 ### Resource infinity (added after Phase 2)
 
@@ -527,6 +547,88 @@ work — each weapon type's kills feed a *specific* skill category (Swords,
 Bows, or now Magic), so a player who commits to one weapon class
 accumulates that category's buffs, naturally reinforcing specialization.
 
+### Mob scaling + dungeons/bosses + structures + space travel + resource-infinity (Phase 8)
+
+The largest remaining phase, bundling five requirements from
+`instructions.md`. Mods added: **Apotheosis** (+ its required chain —
+Placebo, Patchouli, Apothic Attributes/Spawners/Enchanting) for mob
+scaling and boss loot; **YUNG's Better Dungeons** (+ YUNG's API) for
+dungeons; **Dungeons and Taverns** for structure variety; **Create: TFMG +
+Stellaris + their compat mod** for space travel (see "The tier ladder"
+section above for the full space-travel writeup — kept there since it's
+fundamentally a tier-ladder extension).
+
+- **Mob scaling — two independent layers, not one.** Apotheosis' Apothic
+  Invaders (dramatic spawn: light beam + sound) and Elites (spawn silently
+  in place of normal mobs) give a real, visually-distinct "this mob is
+  tougher" signal with scaled loot (gems, affix items) — but its own
+  in-game documentation says these spawn "randomly in place of their
+  normal counterparts," i.e. flat chance, not zone-scaled. That leaves
+  `instructions.md`'s actual zone/dimension/player-progression scaling
+  requirement unaddressed by the mod alone, so
+  `pack/kubejs/server_scripts/mob_scaling.js` adds a second, independent
+  layer on top of vanilla mob attributes (deliberately *not* hooking into
+  Apotheosis' own internal spawn-chance system, which would be far more
+  fragile to integrate with reliably): on `EntityEvents.spawned`, a
+  difficulty multiplier is computed from dimension (Nether 1.5x, End 2x),
+  distance from world spawn (+15% per 500 blocks, capped at 2.5x), and the
+  nearest player's own `ProgressiveStages` tier count (+10% per tier
+  reached, via `player.stages.has(id)` — KubeJS's own generic game-stages
+  binding, which `ProgressiveStages` plugs into; confirmed by decompiling
+  `KubeJSStagesCompat$ProgressiveStagesBridge`, not guessed) — directly
+  satisfying "the player causing these mobs to spawn should also influence
+  their base difficulty based on their level/progression." Above a small
+  threshold, the mob's `generic.max_health`/`generic.attack_damage` are
+  scaled via `modifyAttribute(..., 'multiply_base')` and it gets a
+  star-rating custom name (color-coded gray→dark_red) as the "look at it
+  and tell" indicator — a nametag rather than a fancier visual (glow
+  outline/particles) since that's what's reliably implementable via
+  KubeJS scripting without client-side rendering work. `EntityEvents.death`
+  grants bonus Numismatics currency proportional to how far above baseline
+  the killed mob's difficulty was, covering "rewards scale with difficulty."
+  **Verification gap, disclosed**: this only exercises at actual mob-spawn
+  time, which the headless boot-test sandbox can't trigger (no player
+  present) — confirmed only that the script loads without syntax errors
+  (7/7 KubeJS scripts, 0 errors), not that the runtime logic behaves as
+  designed. Several API calls here were corrected mid-implementation after
+  decompiling KubeJS's actual class files rather than trusting a first
+  guess (e.g. `entity.getAttribute(id).setBaseValue(...)` doesn't exist —
+  the real API is `entity.modifyAttribute(attributeId, modifierId, amount,
+  operation)`) — same "verify against the installed jar" discipline this
+  whole project has needed repeatedly.
+- **Dungeons + bosses with unique drops**: YUNG's Better Dungeons overhauls
+  vanilla's dungeon structure into larger multi-room layouts (the "some
+  sort of dungeons" ask). Apotheosis separately ships its own
+  `boss_dungeon`/`boss_dungeon_2` generated structures with dedicated boss
+  loot tables (gems + `apotheosis:sigil_of_malice`, confirmed by reading
+  the bundled loot table JSON) — Apotheosis' affix/gem system is itself
+  how "unique weapons" manifest here (randomized name/rarity/stat
+  combinations on socketed gear), rather than a bespoke per-boss unique
+  weapon list built from scratch. No custom loot-table work was added on
+  top of what these two mods already ship.
+- **Structures**: Dungeons and Taverns overhauls loot/variety across most
+  vanilla structures (villages, mansions, strongholds, etc.) — no
+  dependencies, zero-risk addition. `instructions.md`'s specific asks
+  ("rewards scale with discovery probability," "important structures
+  spawn at a minimum rate") are the kind of fine-grained per-structure
+  tuning that would need real playtesting to get right and weren't
+  custom-tuned this phase — relying on Dungeons and Taverns' own defaults
+  rather than guessing at numbers with no way to verify structure spawn
+  rates in this sandbox.
+- **Resource infinity**: no new mod added here — per the scope already
+  resolved after Phase 2 ("automated harvesting at scale... not true
+  something-from-nothing duplication"), this is satisfied by Create's own
+  existing toolkit: movable Contraptions carrying multiple Mechanical
+  Drills (the standard community "Create quarry" pattern) for
+  chunk-spanning ore/stone automation, Mechanical Saws for automated tree
+  farms, and animal breeding pens for food/leather at scale — all already
+  available at the tiers established in Phases 0-2. Deliberately *not*
+  adding a dedicated quarry mod (e.g. one of the many "Quarry+"-style
+  mods): `instructions.md` separately requires "engaging with Create
+  should be the sole process by which you automate things," and a
+  bolted-on quarry mod would cut against that more directly than it would
+  help.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.
@@ -552,11 +654,12 @@ accumulates that category's buffs, naturally reinforcing specialization.
    existing Swords skill category via its own `#minecraft:swords` tag) +
    blacksmithing via Silent Gear (vanilla iron tool recipes removed) +
    mage/summoner via Ars Nouveau (new Magic skill category).
-8. Mob scaling by zone + visual power indicator + dungeons/bosses with unique
-   drops + structure density/reward scaling + Starforged Age as the space
-   gateway (Stellaris, Create-addon compat via TFMG) with per-planet tiers
-   extending the ladder beyond Tier 5 + resource-infinity automation
-   (harvesting at scale, not duplication; unique boss/structure drops exempt).
+8. ✅ Mob scaling (Apotheosis Elites/Invaders + custom zone/progression-based
+   KubeJS scaling) + dungeons (YUNG's Better Dungeons) + boss drops
+   (Apotheosis affix/gem loot) + structures (Dungeons and Taverns) +
+   Starforged Age as the space gateway (Stellaris + Create: TFMG) with
+   Tiers 6-9 extending the ladder per-planet + resource-infinity via
+   Create's own contraption-based automation (no new mod needed).
 9. Full KubeJS recipe-gating pass (E2E-style) across the whole mod list +
    server performance tuning + final Prism/.mrpack + Linux server packaging.
 

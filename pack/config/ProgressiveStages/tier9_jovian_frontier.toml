@@ -1,0 +1,29 @@
+# ============================================================================
+# Vanilla++ Tier 9 — Jovian Frontier
+# Fourth and final space tier (Phase 8, for now - Stellaris' own future
+# updates could extend this further). Triggered by reaching either Venus or
+# Mercury (unlocked by Tier 8 - see triggers.toml, both grant this stage
+# since either inner planet counts as "cleared the inner system"). Unlocks
+# Jupiter, the current end of Stellaris' explorable solar system.
+# ============================================================================
+
+[stage]
+id = "jovian_frontier"
+display_name = "Jovian Frontier"
+description = "The inner system is conquered. Jupiter is the final frontier."
+icon = "minecraft:end_crystal"
+unlock_message = "&d&lJovian Frontier Unlocked! &r&7Jupiter, the giant, awaits."
+dependency = "inner_system"
+
+[items]
+locked = []
+always_unlocked = []
+
+[blocks]
+locked = []
+always_unlocked = []
+
+[dimensions]
+locked = [
+    "id:stellaris:jupiter",
+]

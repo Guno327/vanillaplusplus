@@ -1,0 +1,27 @@
+# ============================================================================
+# Vanilla++ Tier 7 — Martian Frontier
+# Second space tier (Phase 8). Triggered by reaching the Moon (unlocked by
+# Tier 6). Unlocks Mars and its orbit station.
+# ============================================================================
+
+[stage]
+id = "martian_frontier"
+display_name = "Martian Frontier"
+description = "The Moon is conquered. Mars is next."
+icon = "minecraft:redstone"
+unlock_message = "&c&lMartian Frontier Unlocked! &r&7Mars awaits."
+dependency = "lunar_frontier"
+
+[items]
+locked = []
+always_unlocked = []
+
+[blocks]
+locked = []
+always_unlocked = []
+
+[dimensions]
+locked = [
+    "id:stellaris:mars",
+    "id:stellaris:mars_orbit",
+]

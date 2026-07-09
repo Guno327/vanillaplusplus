@@ -14,9 +14,20 @@
 "minecraft:netherite_ingot" = "induction_age"   # TODO Phase 2: replace with real automation-tier item
 
 [dimensions]
+# Entering a dimension grants the mapped stage (DimensionStageGrants,
+# confirmed via decompiling the mod). Each mapping below is deliberately NOT
+# circular: the triggering dimension is always one unlocked by an EARLIER
+# tier (or, for earth_orbit, not locked at all), and the stage it grants is
+# what unlocks the NEXT dimension in the chain - see starforged_age.toml/
+# tier6-9 files' [dimensions] locked lists.
+"stellaris:earth_orbit" = "lunar_frontier"
+"stellaris:moon" = "martian_frontier"
+"stellaris:mars" = "inner_system"
+"stellaris:venus" = "jovian_frontier"
+"stellaris:mercury" = "jovian_frontier"
 
 [bosses]
-"minecraft:ender_dragon" = "starforged_age"   # TODO Phase 8: replace/extend with real endgame trigger
+"minecraft:ender_dragon" = "starforged_age"   # finalized in Phase 8: beating the End is the space-travel gateway
 
 [[multi]]
 id = "precision_age_materials"

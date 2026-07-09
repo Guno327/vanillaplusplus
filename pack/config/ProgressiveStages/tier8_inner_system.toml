@@ -1,0 +1,32 @@
+# ============================================================================
+# Vanilla++ Tier 8 — Inner System
+# Third space tier (Phase 8). Triggered by reaching Mars (unlocked by
+# Tier 7). Unlocks Venus and Mercury together - both are extreme,
+# hostile-environment planets of comparable difficulty (unlike Moon/Mars/
+# Jupiter, there's no clear natural ordering between them), so they're
+# grouped as one tier rather than an arbitrary pick of which comes "first."
+# ============================================================================
+
+[stage]
+id = "inner_system"
+display_name = "Inner System"
+description = "Mars is conquered. Venus and Mercury are next."
+icon = "minecraft:magma_block"
+unlock_message = "&6&lInner System Unlocked! &r&7Venus and Mercury await."
+dependency = "martian_frontier"
+
+[items]
+locked = []
+always_unlocked = []
+
+[blocks]
+locked = []
+always_unlocked = []
+
+[dimensions]
+locked = [
+    "id:stellaris:venus",
+    "id:stellaris:venus_orbit",
+    "id:stellaris:mercury",
+    "id:stellaris:mercury_orbit",
+]

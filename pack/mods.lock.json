@@ -10,8 +10,8 @@
       "filename": "create-1.21.1-6.0.10.jar",
       "url": "https://cdn.modrinth.com/data/LNytGWDc/versions/UjX6dr61/create-1.21.1-6.0.10.jar",
       "hashes": {
-        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b",
-        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353"
+        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353",
+        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b"
       },
       "filesize": 19123767,
       "side": "both",
@@ -26,8 +26,8 @@
       "filename": "progressivestages-2.1.jar",
       "url": "https://cdn.modrinth.com/data/rY4mdP4Q/versions/J1BsRBDq/progressivestages-2.1.jar",
       "hashes": {
-        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619",
-        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909"
+        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909",
+        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619"
       },
       "filesize": 478877,
       "side": "both",
@@ -42,8 +42,8 @@
       "filename": "toms_storage-1.21-2.3.2.jar",
       "url": "https://cdn.modrinth.com/data/XZNI4Cpy/versions/x8jcBWWG/toms_storage-1.21-2.3.2.jar",
       "hashes": {
-        "sha512": "2760e5a25416b949a3396cfe61f4d18a323e692118c7a5e9117388f5b050841962fe5b9a09071d2ffdb0e0baa3014c1082f2ae843020b95f3a02ac47e495c6bd",
-        "sha1": "f850f0718ed1c97d8050c790a4b4592f6bb99b21"
+        "sha1": "f850f0718ed1c97d8050c790a4b4592f6bb99b21",
+        "sha512": "2760e5a25416b949a3396cfe61f4d18a323e692118c7a5e9117388f5b050841962fe5b9a09071d2ffdb0e0baa3014c1082f2ae843020b95f3a02ac47e495c6bd"
       },
       "filesize": 848335,
       "side": "both",
@@ -122,8 +122,8 @@
       "filename": "puffish_skills-0.18.0-1.21-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/hqQqvaa4/versions/jOHmw5g6/puffish_skills-0.18.0-1.21-neoforge.jar",
       "hashes": {
-        "sha1": "9d26761b90627a56f274db4114ec03c5da524058",
-        "sha512": "4269ca8c2cd340449c8cf7a6ea93ffbb68fe506d68d7d6684c301890a7d09d35edeea766d64fde6fa9bd5afd020f02720d73913f2338ca51c3caf39b314785b2"
+        "sha512": "4269ca8c2cd340449c8cf7a6ea93ffbb68fe506d68d7d6684c301890a7d09d35edeea766d64fde6fa9bd5afd020f02720d73913f2338ca51c3caf39b314785b2",
+        "sha1": "9d26761b90627a56f274db4114ec03c5da524058"
       },
       "filesize": 614216,
       "side": "both",
@@ -138,8 +138,8 @@
       "filename": "puffish_attributes-0.8.2-1.21-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/FCFcFw09/versions/Fl3WeKhH/puffish_attributes-0.8.2-1.21-neoforge.jar",
       "hashes": {
-        "sha512": "0e4f1617025f41cff598b0cac6b53bff10d0a72ecc7831e009894157edf5a6b31149bd1fd6fe0d3d60feafe0176e467409a2af3550b3003d60098d2ad56e38b9",
-        "sha1": "f4b67aa8da294203203bc8e6cd4b0cbf0a99d9dc"
+        "sha1": "f4b67aa8da294203203bc8e6cd4b0cbf0a99d9dc",
+        "sha512": "0e4f1617025f41cff598b0cac6b53bff10d0a72ecc7831e009894157edf5a6b31149bd1fd6fe0d3d60feafe0176e467409a2af3550b3003d60098d2ad56e38b9"
       },
       "filesize": 235521,
       "side": "both",
@@ -218,8 +218,8 @@
       "filename": "CreateNumismatics-1.0.20+neoforge-mc1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/Jdbbtt0i/versions/guON3qvQ/CreateNumismatics-1.0.20%2Bneoforge-mc1.21.1.jar",
       "hashes": {
-        "sha512": "2b4ccd516865997735e1a3ec323615bd32d9388e15cc04097ac455f2b453423fccd21969782ecfd031b3de6ed85506ba5349da24c32f5e3eaaf558c5163cf203",
-        "sha1": "9883bfd6fef5bd5068f9174ddccba5047849c922"
+        "sha1": "9883bfd6fef5bd5068f9174ddccba5047849c922",
+        "sha512": "2b4ccd516865997735e1a3ec323615bd32d9388e15cc04097ac455f2b453423fccd21969782ecfd031b3de6ed85506ba5349da24c32f5e3eaaf558c5163cf203"
       },
       "filesize": 693446,
       "side": "both",
@@ -282,8 +282,8 @@
       "filename": "silent-gear-1.21.1-neoforge-4.2.1.1.jar",
       "url": "https://cdn.modrinth.com/data/73mSSnCf/versions/VRVOMdub/silent-gear-1.21.1-neoforge-4.2.1.1.jar",
       "hashes": {
-        "sha1": "928064b09748d6e963077c114d65f5ce79aff581",
-        "sha512": "a9760a18eb1564c546376deb475cd84f668aa76f4b947420902949f5014b675292f7fd808fe51dcfcb915ccebbf4e55f77c9865a013b74034b827dafa7564a98"
+        "sha512": "a9760a18eb1564c546376deb475cd84f668aa76f4b947420902949f5014b675292f7fd808fe51dcfcb915ccebbf4e55f77c9865a013b74034b827dafa7564a98",
+        "sha1": "928064b09748d6e963077c114d65f5ce79aff581"
       },
       "filesize": 3147675,
       "side": "both",
@@ -314,8 +314,8 @@
       "filename": "geckolib-neoforge-1.21.1-4.9.2.jar",
       "url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/tPkJmim6/geckolib-neoforge-1.21.1-4.9.2.jar",
       "hashes": {
-        "sha1": "14c64013cadee7d28f3685f94350f9a4d2ec6d86",
-        "sha512": "c91012b16cc40c8f48f69b78cb8e2e5c006486ae2431fbd289dfc01be7a4217294becea22d83a155d6b32b3969450df871352a3695e1452168b84f41355f7b9e"
+        "sha512": "c91012b16cc40c8f48f69b78cb8e2e5c006486ae2431fbd289dfc01be7a4217294becea22d83a155d6b32b3969450df871352a3695e1452168b84f41355f7b9e",
+        "sha1": "14c64013cadee7d28f3685f94350f9a4d2ec6d86"
       },
       "filesize": 630584,
       "side": "both",
@@ -353,6 +353,214 @@
       "side": "both",
       "phase": 7,
       "note": "magic system: mage archetype via spell crafting, summoner archetype via summon rituals (Summon Guardians/Wilden) + combat familiars"
+    },
+    {
+      "slug": "placebo",
+      "project_id": "tCkE8p2N",
+      "version_id": "nU7CXkMr",
+      "version_number": "1.21.1-9.9.1",
+      "filename": "Placebo-1.21.1-9.9.1.jar",
+      "url": "https://cdn.modrinth.com/data/tCkE8p2N/versions/nU7CXkMr/Placebo-1.21.1-9.9.1.jar",
+      "hashes": {
+        "sha512": "ba98da321bff664da3ada53ff573a29a55aa11dc5eb50f0ccfe829a076b3ff1771bf27f3a1408646ffd3af7a5f493295ac200860f65736ab357b0f1e5200912b",
+        "sha1": "40d33020762f4e03e5375acb6c6067aa76add7bb"
+      },
+      "filesize": 324054,
+      "side": "both",
+      "phase": 8,
+      "note": "required by Apotheosis chain below"
+    },
+    {
+      "slug": "patchouli",
+      "project_id": "nU0bVIaL",
+      "version_id": "BIogJv2D",
+      "version_number": "1.21.1-93-neoforge",
+      "filename": "Patchouli-1.21.1-93-NEOFORGE.jar",
+      "url": "https://cdn.modrinth.com/data/nU0bVIaL/versions/BIogJv2D/Patchouli-1.21.1-93-NEOFORGE.jar",
+      "hashes": {
+        "sha1": "5413bb9b8fc35ebe46b06b48bf9afafbd8471140",
+        "sha512": "0b5c172db9a6eeecb5ca44b359a83548c3a60be7ff313959acdfc1e5b8039736c18e57e947d435b52d06da31159d2d02ea36e5742668dbc826308a4c99e4039f"
+      },
+      "filesize": 646777,
+      "side": "both",
+      "phase": 8,
+      "note": "required by Apotheosis chain below (its in-game guidebook, technically optional per the mod but required by the jar's own dependency metadata)"
+    },
+    {
+      "slug": "apothic-attributes",
+      "project_id": "DGaH8Rh0",
+      "version_id": "Z0nG7STl",
+      "version_number": "1.21.1-2.9.1",
+      "filename": "ApothicAttributes-1.21.1-2.9.1.jar",
+      "url": "https://cdn.modrinth.com/data/DGaH8Rh0/versions/Z0nG7STl/ApothicAttributes-1.21.1-2.9.1.jar",
+      "hashes": {
+        "sha1": "55f1201784b250d4304c67ccf6274928bc894f29",
+        "sha512": "e8e40e2f5c7f400b31050e08cae444b9133808208d1455fa9cf864677953232922688d2587d9c7b4cd538197d50457d50711890634900ebf3310b94076ef7993"
+      },
+      "filesize": 316034,
+      "side": "both",
+      "phase": 8,
+      "note": "required by Apotheosis"
+    },
+    {
+      "slug": "apothic-spawners",
+      "project_id": "DfxVkOAO",
+      "version_id": "vTCJYc3D",
+      "version_number": "1.21.1-1.3.4",
+      "filename": "ApothicSpawners-1.21.1-1.3.4.jar",
+      "url": "https://cdn.modrinth.com/data/DfxVkOAO/versions/vTCJYc3D/ApothicSpawners-1.21.1-1.3.4.jar",
+      "hashes": {
+        "sha1": "9835a68463c0363d3cff35253356eeb83663724b",
+        "sha512": "23a44d12f6b96e626d5b7582b41f562e75df6d7812c9f5ec6d2ab3eeb3eb8250214aab364ab6dd5359d258443277b0922e7446e5e1156e7f2fd9b1c97ca631d8"
+      },
+      "filesize": 125008,
+      "side": "both",
+      "phase": 8,
+      "note": "required by Apotheosis"
+    },
+    {
+      "slug": "apothic-enchanting",
+      "project_id": "pL8MtgqY",
+      "version_id": "CZ1OdBnA",
+      "version_number": "1.21.1-1.5.3",
+      "filename": "ApothicEnchanting-1.21.1-1.5.3.jar",
+      "url": "https://cdn.modrinth.com/data/pL8MtgqY/versions/CZ1OdBnA/ApothicEnchanting-1.21.1-1.5.3.jar",
+      "hashes": {
+        "sha512": "e7d4f17d816657319b7c27d511e2cad5ed80b0588dd9ed57b204f41aeca6399030e42fde38640a7d285d2b18dc4f602009caa9ac3aad803c8515d0bd8fd29d29",
+        "sha1": "1b392526a446780d1770a10f6ff7d3d53bed52fc"
+      },
+      "filesize": 5355573,
+      "side": "both",
+      "phase": 8,
+      "note": "required by Apotheosis"
+    },
+    {
+      "slug": "apotheosis",
+      "project_id": "rqFWfVlz",
+      "version_id": "Vp2TR6ib",
+      "version_number": "1.21.1-8.5.4",
+      "filename": "Apotheosis-1.21.1-8.5.4.jar",
+      "url": "https://cdn.modrinth.com/data/rqFWfVlz/versions/Vp2TR6ib/Apotheosis-1.21.1-8.5.4.jar",
+      "hashes": {
+        "sha512": "338933d96a451205fdce94eb1443c6f88c55cd5c8bcd45bfd23948a7c39bd11f1fb103ceec75e344d8f1fed92bf26df13e7ba04cffee7ba805cbfe5f081f2245",
+        "sha1": "cf8a23f6946ae58a49743ac51e8d2ad008b7da63"
+      },
+      "filesize": 6949384,
+      "side": "both",
+      "phase": 8,
+      "note": "mob scaling: Apothic Invaders (visual light-beam+sound spawn indicator, scaled loot) and Apothic Elites cover the 'tell a stronger mob by looking at it' + 'rewards scale with difficulty' asks; affix/gem loot system covers unique boss-tier drops"
+    },
+    {
+      "slug": "yungs-api",
+      "project_id": "Ua7DFN59",
+      "version_id": "ZB22DE9q",
+      "version_number": "1.21.1-NeoForge-5.1.6",
+      "filename": "YungsApi-1.21.1-NeoForge-5.1.6.jar",
+      "url": "https://cdn.modrinth.com/data/Ua7DFN59/versions/ZB22DE9q/YungsApi-1.21.1-NeoForge-5.1.6.jar",
+      "hashes": {
+        "sha512": "5f36d5166a67a156df52699071f20219bc2320b3c4fbcd9dac38631f66136f034e3219ac89ff4bfb6e26e4c68513a94c833797f2e5ed5bf58cfa1531eeed162d",
+        "sha1": "e1c394779fb9e038e4f7a1b4558d0432607d263b"
+      },
+      "filesize": 388678,
+      "side": "both",
+      "phase": 8,
+      "note": "required by YUNG's Better Dungeons below"
+    },
+    {
+      "slug": "yungs-better-dungeons",
+      "project_id": "o1C1Dkj5",
+      "version_id": "D6aZn0Em",
+      "version_number": "1.21.1-NeoForge-5.1.4",
+      "filename": "YungsBetterDungeons-1.21.1-NeoForge-5.1.4.jar",
+      "url": "https://cdn.modrinth.com/data/o1C1Dkj5/versions/D6aZn0Em/YungsBetterDungeons-1.21.1-NeoForge-5.1.4.jar",
+      "hashes": {
+        "sha512": "40513bacd13fa9860abcab507b1fc09dc51649af4b615ce466e0ec361557f02d35e6e44bea1cc17cb4120805f862aad01394eb185f46611e7be63dfd97f272df",
+        "sha1": "73a660c13063450e555e5e2c015ae24d606b32b4"
+      },
+      "filesize": 782160,
+      "side": "both",
+      "phase": 8,
+      "note": "overhauls vanilla's dungeon structure into larger multi-room dungeons - the 'some sort of dungeons' ask"
+    },
+    {
+      "slug": "dungeons-and-taverns",
+      "project_id": "tpehi7ww",
+      "version_id": "BYUUUeZA",
+      "version_number": "v4.4.4+mod",
+      "filename": "dungeons-and-taverns-v4.4.4.jar",
+      "url": "https://cdn.modrinth.com/data/tpehi7ww/versions/BYUUUeZA/dungeons-and-taverns-v4.4.4.jar",
+      "hashes": {
+        "sha1": "249a5bdd0e8622b8a11f88758e6f5fd5fda036a3",
+        "sha512": "83069dc336bcc212059f753923373d9522aa5953bf4b4fe2a8cfa666b4e28d2d017daa66c4b35e315c3be8d1ad60c2872879dd47cc1f47665ebbfd102da76976"
+      },
+      "filesize": 24859622,
+      "side": "both",
+      "phase": 8,
+      "note": "structure variety/loot overhaul across most vanilla structures - world exploration emphasis + reward scaling for structures"
+    },
+    {
+      "slug": "create-tfmg",
+      "project_id": "USgVjXsk",
+      "version_id": "DnTu7afj",
+      "version_number": "1.1.1",
+      "filename": "tfmg-1.1.1-1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/USgVjXsk/versions/DnTu7afj/tfmg-1.1.1-1.21.1.jar",
+      "hashes": {
+        "sha512": "080340574b13b918cfec3c1b9ac65034a79769fe510edd3b8a95306147006fe82aad6745c417d84236458316446458fbdaf18358aa2736daebd0b8cb4e879d90",
+        "sha1": "aae93944121cd8d67ef32cf47beba35f570f6baa"
+      },
+      "filesize": 4864148,
+      "side": "both",
+      "phase": 8,
+      "note": "Create: The Factory Must Grow - Create-native industrial addon, bridges to Stellaris below via its own compat mod. Pinned to 1.1.1 (not latest 1.2.0) because tfmg-stellaris-compat 1.1.1 requires tfmg in range [1.1.0, 1.2.0) and hasn't been updated for 1.2.0 yet - found via the actual boot error, not Modrinth's dependency metadata"
+    },
+    {
+      "slug": "potentials",
+      "project_id": "J9pKOkxP",
+      "version_id": "EEjnSxLK",
+      "version_number": "0.7.1",
+      "filename": "potentials-neoforge-1.21-0.7.1.jar",
+      "url": "https://cdn.modrinth.com/data/J9pKOkxP/versions/EEjnSxLK/potentials-neoforge-1.21-0.7.1.jar",
+      "hashes": {
+        "sha1": "c2525c00049e1773a813ed240ac96914c01e0b3f",
+        "sha512": "fe42e40aa1fec39a6e6d0e24ba54c994979868d77da4241fb629d3752a72c45b466a79889a15e9f6f1114c93e39ca74818622efc25f10af004bc54371db79362"
+      },
+      "filesize": 90809,
+      "side": "both",
+      "phase": 8,
+      "note": "required by Stellaris - not listed in Modrinth's own dependency metadata for our version, found only via the actual boot error (ModLoadingException naming it directly)"
+    },
+    {
+      "slug": "stellaris",
+      "project_id": "ItTQpuBn",
+      "version_id": "qjeIJgPn",
+      "version_number": "1.4.24",
+      "filename": "stellaris-1.21-neoforge-1.4.24.jar",
+      "url": "https://cdn.modrinth.com/data/ItTQpuBn/versions/qjeIJgPn/stellaris-1.21-neoforge-1.4.24.jar",
+      "hashes": {
+        "sha1": "97431ea0a90fe8a07b2fd7fe372f2386ca4d560b",
+        "sha512": "191c4d7820a4b9b85e91d9a94bbd03029b02716276cfd84e53f4950670cc8ff7c9b8bee900885e9bf7903a2ecfcefb7e1c49ef90f4976ffaad009af708c50c0a"
+      },
+      "filesize": 9307251,
+      "side": "both",
+      "phase": 8,
+      "note": "space travel: rocket crafting across planets/moons, the Starforged Age gateway per instructions.md's resolved space-travel decision (Ad Astra ruled out, stalled pre-1.21.1 NeoForge)"
+    },
+    {
+      "slug": "tfmg-stellaris-compat",
+      "project_id": "x6WYN4Ks",
+      "version_id": "MLHm74pl",
+      "version_number": "1.1.1",
+      "filename": "tfmg_stellaris_compat-1.1.1.jar",
+      "url": "https://cdn.modrinth.com/data/x6WYN4Ks/versions/MLHm74pl/tfmg_stellaris_compat-1.1.1.jar",
+      "hashes": {
+        "sha1": "7b7a225127bcab9efb8f66b34535c92717f04a41",
+        "sha512": "913f21fc70e8a8739900b0097305e2b42bf5e9dba95b0b3d926ea58b71c803c98d74c875e8ab7b417ba62302ab8df314e252a3b89040615c8c5ac9eed074f269"
+      },
+      "filesize": 81672,
+      "side": "both",
+      "phase": 8,
+      "note": "bridges Create: TFMG's industrial machines to Stellaris' rocket/planet progression - the reason Stellaris was chosen over other space mods"
     }
   ]
 }

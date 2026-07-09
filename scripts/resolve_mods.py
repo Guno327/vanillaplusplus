@@ -37,14 +37,23 @@ def api(url):
         return json.load(r)
 
 
-def resolve_one(slug, minecraft, loader):
+def resolve_one(slug, minecraft, loader, pin_version=None):
+    """pin_version: exact Modrinth version_number to use instead of newest -
+    for cases where a dependent mod hasn't caught up to the latest release
+    yet (e.g. a compat addon pinned to an older base mod's version range)."""
     params = urllib.parse.urlencode(
         {"loaders": json.dumps([loader]), "game_versions": json.dumps([minecraft])}
     )
     versions = api(f"https://api.modrinth.com/v2/project/{slug}/version?{params}")
     if not versions:
         raise SystemExit(f"no versions found for {slug} on {loader} {minecraft}")
-    v = versions[0]  # Modrinth returns newest-first
+    if pin_version:
+        matches = [ver for ver in versions if ver["version_number"] == pin_version]
+        if not matches:
+            raise SystemExit(f"pinned version {pin_version!r} not found for {slug}")
+        v = matches[0]
+    else:
+        v = versions[0]  # Modrinth returns newest-first
     primary = next((f for f in v["files"] if f.get("primary")), v["files"][0])
     return {
         "slug": slug,
@@ -96,7 +105,7 @@ def main():
         if entry.get("source") == "curseforge":
             info = resolve_one_curseforge(slug, entry)
         else:
-            info = resolve_one(slug, minecraft, loader)
+            info = resolve_one(slug, minecraft, loader, pin_version=entry.get("pin_version"))
         info["side"] = entry.get("side", "both")
         info["phase"] = entry.get("phase")
         info["note"] = entry.get("note", "")

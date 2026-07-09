@@ -1,26 +1,38 @@
 # ============================================================================
-# Vanilla++ Tier 5 — Starforged Age  [PLACEHOLDER — finalize in Phase 8]
-# The endgame tier: final combat/magic content, top-tier storage/autocrafting,
-# final boss dungeons. Which dimension/content mod anchors this is a Phase 8
-# decision (exploration + dungeons + mob scaling). Trigger below is a
-# temporary vanilla stand-in (Ender Dragon kill) so the chain is testable;
-# replace once Phase 8 picks the real endgame content.
+# Vanilla++ Tier 5 — Starforged Age
+# The space-travel gateway tier, finalized in Phase 8: per instructions.md's
+# resolved decision, Starforged Age is the explicit "you've beaten the
+# overworld/Nether/End, now build a rocket" tier, not a single catch-all
+# endgame tier. Its trigger (Ender Dragon kill, see triggers.toml) matches
+# that directly - you can't start building a rocket until the End is done.
+# Each planet beyond it is its own additional tier layered on top (Tier 6:
+# lunar_frontier, Tier 7: martian_frontier, Tier 8: inner_system, Tier 9:
+# jovian_frontier - see those files), gated behind the previous one the same
+# way Tiers 0-5 gate each other.
 # ============================================================================
 
 [stage]
 id = "starforged_age"
 display_name = "Starforged Age"
-description = "The far end of the journey. (placeholder tier — see Phase 8)"
+description = "The overworld, Nether, and End are conquered. Space travel begins."
 icon = "minecraft:nether_star"
-unlock_message = "&5&lStarforged Age Unlocked! &r&7Placeholder tier — refine in Phase 8."
+unlock_message = "&5&lStarforged Age Unlocked! &r&7Build a rocket - the stars await."
 dependency = "induction_age"
 
 [items]
-locked = []
+locked = [
+    "id:stellaris:rocket",
+    "id:stellaris:rocket_engine",
+    "id:stellaris:rocket_fin",
+    "id:stellaris:rocket_nose_cone",
+]
 always_unlocked = []
 
 [blocks]
-locked = []
+locked = [
+    "id:stellaris:rocket_launch_pad",
+    "id:stellaris:rocket_station",
+]
 always_unlocked = []
 
 [dimensions]

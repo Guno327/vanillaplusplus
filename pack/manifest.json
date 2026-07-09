@@ -23,6 +23,19 @@
     { "slug": "epic-fight", "side": "both", "phase": 7, "note": "combat variety: new weapon types with distinct movesets/playstyles, stamina, and a skill system - all-in-one rather than a separate weapon-variety + separate skill mod" },
     { "slug": "geckolib", "side": "both", "phase": 7, "note": "required by Ars Nouveau - not listed in Modrinth's own dependency metadata for our version, found only via the actual boot error (ModLoadingException naming it directly)" },
     { "slug": "curios", "side": "both", "phase": 7, "note": "required by Ars Nouveau - same as geckolib, found via the actual boot error rather than Modrinth's dependency metadata" },
-    { "slug": "ars-nouveau", "side": "both", "phase": 7, "note": "magic system: mage archetype via spell crafting, summoner archetype via summon rituals (Summon Guardians/Wilden) + combat familiars" }
+    { "slug": "ars-nouveau", "side": "both", "phase": 7, "note": "magic system: mage archetype via spell crafting, summoner archetype via summon rituals (Summon Guardians/Wilden) + combat familiars" },
+    { "slug": "placebo", "side": "both", "phase": 8, "note": "required by Apotheosis chain below" },
+    { "slug": "patchouli", "side": "both", "phase": 8, "note": "required by Apotheosis chain below (its in-game guidebook, technically optional per the mod but required by the jar's own dependency metadata)" },
+    { "slug": "apothic-attributes", "side": "both", "phase": 8, "note": "required by Apotheosis" },
+    { "slug": "apothic-spawners", "side": "both", "phase": 8, "note": "required by Apotheosis" },
+    { "slug": "apothic-enchanting", "side": "both", "phase": 8, "note": "required by Apotheosis" },
+    { "slug": "apotheosis", "side": "both", "phase": 8, "note": "mob scaling: Apothic Invaders (visual light-beam+sound spawn indicator, scaled loot) and Apothic Elites cover the 'tell a stronger mob by looking at it' + 'rewards scale with difficulty' asks; affix/gem loot system covers unique boss-tier drops" },
+    { "slug": "yungs-api", "side": "both", "phase": 8, "note": "required by YUNG's Better Dungeons below" },
+    { "slug": "yungs-better-dungeons", "side": "both", "phase": 8, "note": "overhauls vanilla's dungeon structure into larger multi-room dungeons - the 'some sort of dungeons' ask" },
+    { "slug": "dungeons-and-taverns", "side": "both", "phase": 8, "note": "structure variety/loot overhaul across most vanilla structures - world exploration emphasis + reward scaling for structures" },
+    { "slug": "create-tfmg", "side": "both", "phase": 8, "pin_version": "1.1.1", "note": "Create: The Factory Must Grow - Create-native industrial addon, bridges to Stellaris below via its own compat mod. Pinned to 1.1.1 (not latest 1.2.0) because tfmg-stellaris-compat 1.1.1 requires tfmg in range [1.1.0, 1.2.0) and hasn't been updated for 1.2.0 yet - found via the actual boot error, not Modrinth's dependency metadata" },
+    { "slug": "potentials", "side": "both", "phase": 8, "note": "required by Stellaris - not listed in Modrinth's own dependency metadata for our version, found only via the actual boot error (ModLoadingException naming it directly)" },
+    { "slug": "stellaris", "side": "both", "phase": 8, "note": "space travel: rocket crafting across planets/moons, the Starforged Age gateway per instructions.md's resolved space-travel decision (Ad Astra ruled out, stalled pre-1.21.1 NeoForge)" },
+    { "slug": "tfmg-stellaris-compat", "side": "both", "phase": 8, "note": "bridges Create: TFMG's industrial machines to Stellaris' rocket/planet progression - the reason Stellaris was chosen over other space mods" }
   ]
 }
