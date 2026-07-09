@@ -48,7 +48,29 @@
         "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_vibranium_tools",
         "level_hint": "6",
         "name": "vibranium"
-      }
+      },
+      "traits": [
+        {
+          "conditions": [],
+          "level": 2,
+          "trait": "silentgear:widen"
+        },
+        {
+          "conditions": [],
+          "level": 1,
+          "trait": "silentgear:magmatic"
+        },
+        {
+          "conditions": [],
+          "level": 3,
+          "trait": "silentgear:magnetic"
+        },
+        {
+          "conditions": [],
+          "level": 2,
+          "trait": "silentgear:fortunate"
+        }
+      ]
     },
     "silentgear:rod": {
       "harvest_speed": {

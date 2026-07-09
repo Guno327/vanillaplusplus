@@ -48,7 +48,19 @@
         "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_refined_radiance_tools",
         "level_hint": "4",
         "name": "refined_radiance"
-      }
+      },
+      "traits": [
+        {
+          "conditions": [],
+          "level": 1,
+          "trait": "silentgear:widen"
+        },
+        {
+          "conditions": [],
+          "level": 2,
+          "trait": "silentgear:magnetic"
+        }
+      ]
     },
     "silentgear:rod": {
       "harvest_speed": {

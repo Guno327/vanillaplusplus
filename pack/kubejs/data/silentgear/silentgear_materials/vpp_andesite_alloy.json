@@ -47,7 +47,14 @@
         "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_andesite_alloy_tools",
         "level_hint": "2",
         "name": "andesite_alloy"
-      }
+      },
+      "traits": [
+        {
+          "conditions": [],
+          "level": 1,
+          "trait": "silentgear:reach"
+        }
+      ]
     },
     "silentgear:rod": {
       "harvest_speed": {

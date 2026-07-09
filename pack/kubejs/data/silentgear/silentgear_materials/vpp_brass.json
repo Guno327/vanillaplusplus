@@ -48,7 +48,19 @@
         "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_brass_tools",
         "level_hint": "3",
         "name": "brass"
-      }
+      },
+      "traits": [
+        {
+          "conditions": [],
+          "level": 2,
+          "trait": "silentgear:reach"
+        },
+        {
+          "conditions": [],
+          "level": 1,
+          "trait": "silentgear:magnetic"
+        }
+      ]
     },
     "silentgear:rod": {
       "harvest_speed": {

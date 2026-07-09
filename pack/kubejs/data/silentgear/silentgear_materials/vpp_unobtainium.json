@@ -48,7 +48,29 @@
         "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_unobtainium_tools",
         "level_hint": "7",
         "name": "unobtainium"
-      }
+      },
+      "traits": [
+        {
+          "conditions": [],
+          "level": 3,
+          "trait": "silentgear:widen"
+        },
+        {
+          "conditions": [],
+          "level": 1,
+          "trait": "silentgear:magmatic"
+        },
+        {
+          "conditions": [],
+          "level": 4,
+          "trait": "silentgear:magnetic"
+        },
+        {
+          "conditions": [],
+          "level": 2,
+          "trait": "silentgear:fortunate"
+        }
+      ]
     },
     "silentgear:rod": {
       "harvest_speed": {

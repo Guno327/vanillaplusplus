@@ -133,6 +133,39 @@ GROWTH = {
     "magic_damage": 1.15, "ranged_damage": 1.15, "armor_toughness": 1.20,
 }
 
+# Utility overhaul Part 3: "additional utility... auto-smelting, increased
+# AoE" is satisfied entirely by Silent Gear's own data-driven trait system,
+# already used for material flavor elsewhere (see iron.json's "malleable"
+# trait) - no new mod or item needed, just a "traits" list on our own
+# materials' main properties, applying automatically to every tool/weapon/
+# armor piece made from that material. Confirmed by reading each trait's
+# JSON + doc comments in the installed jar: `widen` (mining AoE - "level N
+# = radius (2N+3)x(2N+3)", max level 3), `magnetic` (auto-pickup nearby
+# items, max level 5), `magmatic` (auto-smelts mined ore, max level 1 -
+# only meaningful on harvest tools), `fortunate` (built-in Fortune I-III,
+# max level 3), `reach` (+block/entity interaction range, max level 5).
+# `multi_break` (vein-miner-style) is a documented no-op stub in the jar
+# itself ("This trait has never been coded") and is deliberately not used.
+# Monotonically increasing by tier, same disclosed-simple-formula category
+# as the stat curves above (no live client to playtest actual feel either
+# way).
+TRAITS_BY_TIER = {
+    1: [("reach", 1)],
+    2: [("reach", 2), ("magnetic", 1)],
+    3: [("widen", 1), ("magnetic", 2)],
+    4: [("widen", 2), ("magnetic", 3), ("fortunate", 1)],
+    5: [("widen", 2), ("magmatic", 1), ("magnetic", 3), ("fortunate", 2)],
+    6: [("widen", 3), ("magmatic", 1), ("magnetic", 4), ("fortunate", 2)],
+    7: [("widen", 3), ("magmatic", 1), ("magnetic", 5), ("fortunate", 3), ("reach", 5)],
+}
+
+
+def traits_for(tier_index):
+    return [
+        {"conditions": [], "level": level, "trait": f"silentgear:{name}"}
+        for name, level in TRAITS_BY_TIER[tier_index]
+    ]
+
 
 def scaled_main(tier_index):
     # Start from diamond (tier 2) and grow outward for tier_index > 2;
@@ -174,6 +207,7 @@ def material_json(key, ingredient, display_name, harvest_name, tier_index):
                     "level_hint": str(tier_index + 1),
                     "name": harvest_name,
                 },
+                "traits": traits_for(tier_index),
             },
             "silentgear:rod": {
                 "harvest_speed": {"operation": "MULTIPLY_TOTAL", "value": 0.1},

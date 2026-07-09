@@ -48,7 +48,34 @@
         "incorrect_blocks_for_tool": "vanillaplusplus:incorrect_for_star_alloy_tools",
         "level_hint": "8",
         "name": "star_alloy"
-      }
+      },
+      "traits": [
+        {
+          "conditions": [],
+          "level": 3,
+          "trait": "silentgear:widen"
+        },
+        {
+          "conditions": [],
+          "level": 1,
+          "trait": "silentgear:magmatic"
+        },
+        {
+          "conditions": [],
+          "level": 5,
+          "trait": "silentgear:magnetic"
+        },
+        {
+          "conditions": [],
+          "level": 3,
+          "trait": "silentgear:fortunate"
+        },
+        {
+          "conditions": [],
+          "level": 5,
+          "trait": "silentgear:reach"
+        }
+      ]
     },
     "silentgear:rod": {
       "harvest_speed": {
