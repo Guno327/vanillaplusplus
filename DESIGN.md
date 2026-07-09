@@ -34,11 +34,20 @@ the original requirements this design satisfies, and `pack/manifest.json` /
 Every other system in this pack (storage caps, RPG skill unlocks, currency,
 combat/magic tiers, dimension access, mob difficulty zones) gates against one
 of these six tiers. Tiers 0-3 stay entirely inside Create's own material
-chain (no addon needed). Tier 5 is still a placeholder until Phase 8 picks
-the endgame/dimension content that anchors it — see the TODO in
-`pack/config/ProgressiveStages/starforged_age.toml`. Tier 4's storage
-content is fully resolved as of Phase 2; only its narrative trigger is still
-a Phase 8 TODO.
+chain (no addon needed). Tier 4's storage content is fully resolved as of
+Phase 2; only its narrative trigger is still a Phase 8 TODO.
+
+**Tier 5 (Starforged Age) is no longer "endgame content, TBD" — it's the
+explicit gateway to space.** Per a scope addition after Phase 2 (see
+`instructions.md`'s "Resource infinity & space travel" section), space
+travel is the modpack's ultimate end goal: once the overworld/Nether/End are
+fully progressed, Starforged Age is where you build a rocket, and each
+planet beyond it is its own additional tier layered on top (Tier 6, 7, ...),
+gated behind the previous planet the same way every earlier tier gates the
+next. The ladder isn't fixed at 6 tiers — it extends per planet, designed in
+Phase 8. **Stellaris** is the chosen space-travel mod (Ad Astra, the more
+famous pick, stalled at MC 1.20.4 and never reached NeoForge 1.21.1); it has
+an existing Create-addon compat path via TFMG.
 
 | # | Stage id | Name | Unlocked by | Create milestone | Storage / autocrafting rung | Vanilla tier & dimension also gated here |
 |---|---|---|---|---|---|---|
@@ -47,13 +56,26 @@ a Phase 8 TODO.
 | 2 | `brass_age` | Brass Age | craft/pick up `create:brass_ingot` | Mechanical Arm, Deployer, Sequenced Gearshift, Elevator Pulley, train control | **real powered network** — Refined Storage in full (Grid/Disk Drive/Controller, 1k+4k capacity), powered by Create Crafts & Additions' Alternator (kinetic→FE); first crafting automation via Create's Mechanical Arm/Deployer feeding RS's Importer/Exporter/External Storage | diamond tools/armor, enchanting table, beacon, **Nether** |
 | 3 | `precision_age` | Precision Age | obtain `create:refined_radiance` or `create:shadow_steel` | Sturdy Sheet (Create's own top alloy) | 16k capacity; wireless/network devices (Wireless Grid, Network Receiver/Transmitter, Relay, Portable Grid, Security Manager) | netherite tier, elytra, totem, **The End** |
 | 4 | `induction_age` | Induction Age | temp trigger: netherite ingot *(real narrative trigger TBD in Phase 8)* | — | **ceiling of the same system**: 64k capacity + Advanced Processor + native pattern-based autocrafting (Autocrafter/Autocrafter Manager/Pattern/Pattern Grid) | TBD |
-| 5 | `starforged_age` | Starforged Age *(placeholder)* | temp: kill Ender Dragon | — *(Phase 8 picks the real endgame/dimension content)* | — | TBD |
+| 5 | `starforged_age` | Starforged Age | temp: kill Ender Dragon *(real trigger likely "launch first rocket," TBD in Phase 8)* | — | — | gateway to space (Stellaris); Tier 6+ per-planet tiers extend beyond this, designed in Phase 8 |
 
 Dependency chain is strictly linear (`rootborn -> andesite_age -> brass_age ->
-precision_age -> induction_age -> starforged_age`); `linear_progression = true`
-in `progressivestages.toml` so granting any tier auto-grants everything below
-it. This directly satisfies "previous Create stuff should be necessary for
-the next tier of stuff."
+precision_age -> induction_age -> starforged_age -> ...per-planet tiers`);
+`linear_progression = true` in `progressivestages.toml` so granting any tier
+auto-grants everything below it. This directly satisfies "previous Create
+stuff should be necessary for the next tier of stuff."
+
+### Resource infinity (added after Phase 2)
+
+`instructions.md` now asks that all resources eventually become automatable
+into effectively infinite supply. Resolved to mean **automated harvesting at
+scale** — tireless Create contraptions, chunk-spanning quarries/miners, mob
+farms — not true something-from-nothing duplication; the world's internal
+logic stays consistent, automation just removes the need to manually gather.
+Genuinely unique items (boss trophies, one-off structure/dungeon rewards) are
+explicitly exempt and stay one-of-a-kind forever. Which tier this kicks in at
+per-resource, and the specific mods/mechanisms used, are a Phase 8/9 design
+question (likely spanning Induction Age onward through the space tiers) —
+not yet implemented.
 
 ### Storage: two mods, not one — "dumb storage" then a real powered network
 
@@ -137,10 +159,11 @@ ported past 1.20.x and is ruled out.
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.
 1. ✅ This tier ladder, implemented via ProgressiveStages config
    (`pack/config/ProgressiveStages/*.toml`).
-2. Tiered storage progression: browsable storage introduced at Tier 1
-   (tiny, manual-only), capacity scaling every tier after, autocrafting
-   unlocked at Tier 2 via Create's own Mechanical Arm/Deployer, scaling to
-   full network autocrafting by Tier 4.
+2. ✅ Tiered storage progression: "dumb storage" (Tom's Storage) at Tier 1,
+   real powered network (Refined Storage + Create Crafts & Additions) from
+   Tier 2 on, capacity scaling every tier after, autocrafting unlocked at
+   Brass Age via Create's own Mechanical Arm/Deployer, full native network
+   autocrafting by Induction Age.
 3. RPG skill/leveling system (Running/Swimming/Mining/Building/Swords/Bows/etc).
 4. Quest system: preset track (team-shared) + long-running exponential
    quests + randomized daily quests (both per-player).
@@ -149,7 +172,10 @@ ported past 1.20.x and is ruled out.
 7. Combat variety (balanced weapon classes tied to RPG skills) + blacksmithing
    recipe swap + mage/summoner archetype.
 8. Mob scaling by zone + visual power indicator + dungeons/bosses with unique
-   drops + structure density/reward scaling + real dimension for Tier 5.
+   drops + structure density/reward scaling + Starforged Age as the space
+   gateway (Stellaris, Create-addon compat via TFMG) with per-planet tiers
+   extending the ladder beyond Tier 5 + resource-infinity automation
+   (harvesting at scale, not duplication; unique boss/structure drops exempt).
 9. Full KubeJS recipe-gating pass (E2E-style) across the whole mod list +
    server performance tuning + final Prism/.mrpack + Linux server packaging.
 

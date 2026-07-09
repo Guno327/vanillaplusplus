@@ -166,3 +166,27 @@ index of *what was decided and why it matters going forward*.
   and Flames; Tetra, the usual pick for this, isn't ported to 1.21.1.
   Tier 1 currently unlocks vanilla iron tools as a placeholder in the
   meantime.
+
+## Resource infinity & space travel (added after Phase 2, resolved before Phase 3)
+- **"All resources automatable to infinite"**: means automated harvesting at
+  scale — tireless Create contraptions, chunk-spanning quarries/miners, mob
+  farms — not true something-from-nothing duplication. The world's internal
+  logic stays consistent; late-game automation just makes manual gathering
+  unnecessary because throughput is effectively infinite.
+- **Exemptions**: genuinely unique items (boss trophies, one-off structure/
+  dungeon rewards) stay permanently one-of-a-kind and are explicitly NOT
+  covered by the above — only standard ores/materials/alloys are meant to
+  become automatable over time.
+- **Space travel & the tier ladder**: Starforged Age (Tier 5) becomes the
+  explicit "you've beaten the overworld/Nether/End, now build a rocket"
+  gateway tier, not a single catch-all endgame tier. Each planet beyond it is
+  its own additional tier layered on top (Tier 6, 7, ...), gated behind the
+  previous planet the same way Tiers 0-5 gate each other, designed in
+  Phase 8.
+- **Space mod**: Ad Astra (the best-known space-travel mod) stalled at MC
+  1.20.4 and was never ported to NeoForge 1.21.1 — ruled out rather than
+  downgrading the whole modpack's Minecraft version for it. **Stellaris** is
+  the replacement: actively maintained, confirmed NeoForge 1.21.1 support,
+  rocket crafting across multiple planets/moons, and an existing Create-addon
+  compat path via TFMG (a Create addon). Full integration work happens in
+  Phase 8.
