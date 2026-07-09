@@ -239,7 +239,7 @@ methods. Lesson (same one Phase 3 already taught, reinforced harder this
 time): ground truth is whatever branch matches the shipped jar's own
 version number, never a repo's default branch.
 
-Three chapters:
+Three chapters originally (one now — see below):
 
 - **Tier Progression** (the preset track): one quest per `ProgressiveStages`
   tier, chained by `dependencies`, each gated by a `gamestage` task on that
@@ -249,53 +249,38 @@ Three chapters:
   below) and a themed item as a bonus layered on top, avoiding any
   assumption about whether writing back through the just-replaced stage
   provider is even supported.
-- **Lifetime Achievements** (long-running, exponential): four
-  `minecraft:custom`-stat chains (mob kills, play time, animals bred, fish
-  caught), four steps each, thresholds growing ~4x per step, not repeatable.
-  `instructions.md`'s own example list for this category — "blocks broken,
-  mobs killed, xp levels gained, time played" — doesn't map cleanly onto
-  FTB Quests' native tracking: its `stat` task type only reads Minecraft's
-  generic *custom*-stat registry (mob kills and play time fit; there's no
-  vanilla custom stat for "total blocks broken across all types," since
-  per-block mining counts live under a separate stat type `stat` can't
-  read), and its `xp` task type actually *spends*/consumes XP as a
-  turn-in cost rather than tracking cumulative gain — the opposite of what's
-  needed here. Substituted two more custom stats that fit the pack's own
-  themes (animals bred, fish caught) instead of forcing the literal
-  examples, per the user's explicit call when presented with this tradeoff
-  (2026-07-09) — the "e.g. ... etc" phrasing in `instructions.md` treats
-  those four as illustrative, not a mandated exact list.
-- **Daily Bounties**: ~18 quests (turn-in and kill-count tasks), each with
-  `repeat_cooldown: 86400` (24h, real-world time, tracked per-player
-  already since we're in solo team mode). Deliberately **not** randomized
-  per player/day — FTB Quests has no native random-subset-selection
-  mechanic; quests are static/authored, the only relevant primitive is
-  the per-quest repeat cooldown. This is a static pool that's always fully
-  visible and independently refreshes 24h after each completion, again per
-  the user's explicit call (2026-07-09) after this gap was found — chosen
-  over building bespoke KubeJS-driven randomization against an unverified
-  scripting surface.
+- ~~Lifetime Achievements~~ and ~~Daily Bounties~~ were originally built as
+  two more FTB Quests chapters (four `minecraft:custom`-stat exponential
+  chains; ~18 repeatable turn-in/kill-count quests) — **moved out of FTB
+  Quests entirely in Phase 6** once real multi-member teams made the open
+  issue below unavoidable. See Phase 6's "Team mode + claims" section for
+  where they live now (plain KubeJS, inherently per-player) and why. The
+  substitution of "blocks broken"/"xp levels gained" with other
+  `minecraft:custom` stats (mob kills, play time, animals bred, fish
+  caught — `instructions.md`'s own examples are introduced with "e.g. ...
+  etc", not a mandated exact list) and the "static pool, not true
+  randomization" call for dailies both carried over unchanged into the
+  Phase 6 rebuild — those were content/scope decisions independent of
+  which system tracks the progress.
 
-RPG skill XP rewards (all three chapters) go through a `command` reward
-type calling `puffish_skills`' own `/skills experience add {p} <category>
-<amount>` command (`net.puffish.skillsmod.commands.ExperienceCommand`,
-confirmed via the same `pufmat/skillsmod` clone from Phase 3) — needs
-`permission_level: 2` since that command requires gamemaster permission and
-a reward otherwise runs as the claiming player. Currency rewards (the
-"and/or" half of the long-running-quest reward requirement) are deferred to
-Phase 5, once the marketplace currency actually exists to grant.
+RPG skill XP rewards go through a `command` reward type calling
+`puffish_skills`' own `/puffish_skills experience add <player> <category>
+<amount>` command (`net.puffish.skillsmod.commands.ExperienceCommand`) —
+needs `permission_level: 2` since that command requires gamemaster
+permission and a reward otherwise runs as the claiming player. (An earlier
+draft had the wrong command path entirely — caught and fixed in Phase 5,
+see that section.) Currency rewards (the "and/or" half of the
+long-running-quest reward requirement) are deferred to Phase 5-and-beyond,
+once/wherever the marketplace currency is the more natural fit than XP.
 
-**Open issue found for Phase 6, not blocking now**: FTB Quests tracks *all*
+**Open issue found here, resolved in Phase 6**: FTB Quests tracks *all*
 progress at the FTB Teams level (`TeamData` — literally named for it), with
-no built-in per-quest-type granularity. In solo mode (current), each
-player's own 1-person team makes every quest type per-player already,
-satisfying `instructions.md`'s split trivially. But once Phase 6 flips
-`team_mode` to real multi-member teams, daily/long-running quest progress
-would become team-shared too unless something changes — this is a
-widely-requested-but-unimplemented FTB Quests limitation (confirmed via
-the FTB-Mods-Issues tracker), not a config option we're missing. Revisit
-then: either accept the deviation, or split daily/long-running quests into
-a separately-tracked system that's inherently per-player.
+no built-in per-quest-type granularity. In solo mode (as of this phase),
+each player's own 1-person team made every quest type per-player already,
+satisfying `instructions.md`'s split trivially — but once real multi-member
+teams exist, daily/long-running quest progress would become team-shared
+too. See Phase 6 for how this was actually resolved (moving those two
+chapters off FTB Quests, not just accepting the deviation).
 
 ### Economy (Phase 5)
 
@@ -397,18 +382,73 @@ Nether is where RS's Quartz chain comes from, and it unlocks at Brass Age —
 where RS itself unlocks, so there's no dead tier where the dimension is open
 but nothing needs it yet. The End stays gated behind Precision Age as before.
 
-### Team mode
+### Team mode + claims (Phase 6)
 
-`progressivestages.toml` currently sets `team_mode = "solo"` even though FTB
-Teams is now installed as of Phase 4 (it's a hard dependency of FTB Quests -
-see the Quest system section above). **Flip `team_mode` to `"ftb_teams"` in
-Phase 6** once real multi-member teams are actually wanted — that's meant to
-make the preset tier progression shared across a team while daily/
-long-running quest progress stays per-player, per the team requirement in
-`instructions.md`. See the Quest system section's "Open issue" for a real
-wrinkle discovered here: FTB Quests has no native way to keep some quest
-chapters team-shared and others per-player once real teams are on, so this
-flip needs its own decision in Phase 6, not just a config toggle.
+`progressivestages.toml`'s `team_mode` is now `"ftb_teams"` (was `"solo"`
+since Phase 1) — tier stages, and the Tier Progression FTB Quests chapter
+that reads them via `gamestage` tasks, now share across a real FTB Teams
+party rather than each player progressing independently. This is a config
+flip only; ProgressiveStages' own backend does the actual party-wide stage
+sharing (confirmed registered as FTB Library's stage provider since
+Phase 4), so FTB Quests' `gamestage` task correctly reflects party progress
+by checking any one member — no `team_stage: true` needed on the task
+itself. **Not independently verifiable in this sandbox** (no in-game client
+to actually form a party and check a second member's view — see the
+Verification section).
+
+**Claims: FTB Chunks.** All three of its required dependencies
+(Architectury API, FTB Library, FTB Teams) were already installed since
+Phase 4, so this reuses the exact same party/team system as the quest
+sharing above, rather than introducing a second, parallel claims-specific
+party concept (several Modrinth-native alternatives exist — Open Parties
+and Claims among them — but they'd mean running two independent
+party/team systems side by side for no benefit). Same CurseForge-CDN
+resolution path as the rest of the FTB suite (still not on Modrinth).
+
+**Real limitation resolved, not just documented — dailies/milestones moved
+out of FTB Quests.** Phase 4 flagged an open issue: FTB Quests tracks *all*
+progress at the FTB Teams level (`TeamData`), with no native way to keep
+some chapters team-shared and others per-player. Once real multi-member
+parties exist (this phase), that stopped being hypothetical — Lifetime
+Achievements and Daily Bounties would have become party-shared too,
+directly violating `instructions.md`'s "should NOT share daily/long running
+quest progress" requirement. Presented with accepting that deviation vs.
+rebuilding those two chapters outside FTB Quests, the user chose the
+rebuild (2026-07-09). Tier Progression stays in FTB Quests (team-shared, as
+intended); the other two moved to plain KubeJS, which is inherently
+per-player since nothing routes through FTB Teams at all:
+
+- **Lifetime Achievements** (`scripts/gen_achievements.py` →
+  `pack/kubejs/server_scripts/achievements.js`): same four
+  `minecraft:custom` stat chains as before, read via KubeJS's own
+  `player.stats.getMobKills()`/`getPlayTime()`/`getAnimalsBred()`/
+  `getFishCaught()` (confirmed by decompiling
+  `dev.latvian.mods.kubejs.player.PlayerStatsJS` in the installed jar — a
+  much more pleasant read than the FTB Quests source archaeology prior
+  phases needed), checked on a `ServerEvents.tick` every 100 ticks.
+  Progress ("how many tiers of this chain has this player already been
+  granted") lives in `player.persistentData`, which is a `CompoundTag`
+  stored directly on the player entity (confirmed via KubeJS's
+  `WithPersistentData` interface) — inherently per-player, survives
+  logout/restart, no team/party concept involved anywhere in the path.
+- **Daily Bounties** (`scripts/gen_dailies.py` →
+  `pack/kubejs/server_scripts/dailies.js`): same bounty pool. Kill bounties
+  are tracked passively via `EntityEvents.death`, checking the killer is a
+  player and the victim's type matches; item bounties are turned in via a
+  new `/turnin` command (consumes the held stack, same
+  `ServerEvents.commandRegistry` pattern as Phase 5's `/sell`) since "turn
+  in N items" has no natural passive trigger the way a kill does. A
+  `/dailies` command reports status. The 24h cooldown uses `Date.now()`
+  (real wall-clock time) in `player.persistentData`, matching FTB Quests'
+  own real-world `repeat_cooldown` semantics, not tick count.
+
+Both scripts boot-verified with zero KubeJS errors (5/5 server scripts
+loaded), and `/turnin`/`/dailies` both confirmed registered via the same
+console-command trick used for `/sell` in Phase 5 (fail only on "console
+isn't a player," never "Unknown command"). **What's not verified**: actual
+kill-detection and stat-threshold-crossing end to end, since that needs a
+live client actually killing a mob or racking up stats, which this sandbox
+has no way to do — flagging honestly rather than claiming full coverage.
 
 ### Blacksmithing (Tier 1+)
 
@@ -439,7 +479,10 @@ ported past 1.20.x and is ruled out.
    (per-player already, since team_mode is still solo).
 5. ✅ Economy via Create: Numismatics (tiered `/sell` pricing generated from
    ProgressiveStages tiers) + Create: Marketplace (global shop board).
-6. Teams (flip `team_mode` to `ftb_teams`) + chunk claims.
+6. ✅ Teams (`team_mode` flipped to `ftb_teams`) + chunk claims via FTB
+   Chunks. Lifetime Achievements/Daily Bounties rebuilt outside FTB Quests
+   as plain KubeJS (per-player by construction) once real parties made
+   Phase 4's open FTB Quests team-sharing issue unavoidable.
 7. Combat variety (balanced weapon classes tied to RPG skills) + blacksmithing
    recipe swap + mage/summoner archetype.
 8. Mob scaling by zone + visual power indicator + dungeons/bosses with unique

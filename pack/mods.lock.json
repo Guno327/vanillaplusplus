@@ -10,8 +10,8 @@
       "filename": "create-1.21.1-6.0.10.jar",
       "url": "https://cdn.modrinth.com/data/LNytGWDc/versions/UjX6dr61/create-1.21.1-6.0.10.jar",
       "hashes": {
-        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353",
-        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b"
+        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b",
+        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353"
       },
       "filesize": 19123767,
       "side": "both",
@@ -26,8 +26,8 @@
       "filename": "progressivestages-2.1.jar",
       "url": "https://cdn.modrinth.com/data/rY4mdP4Q/versions/J1BsRBDq/progressivestages-2.1.jar",
       "hashes": {
-        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619",
-        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909"
+        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909",
+        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619"
       },
       "filesize": 478877,
       "side": "both",
@@ -106,8 +106,8 @@
       "filename": "kubejs-neoforge-2101.7.2-build.368.jar",
       "url": "https://cdn.modrinth.com/data/umyGl7zF/versions/F2nzeC19/kubejs-neoforge-2101.7.2-build.368.jar",
       "hashes": {
-        "sha1": "edf131afd474151afe076ea975ce5fec5a206ad8",
-        "sha512": "5e2f1bd1460d8f443ce4bd44ed367d27f9170e50dff2ce9430954206e89651f8969dfbe842c3100b0244f8d58f843fc5fb9c46b5c576430a07f1e5b6dd4b9f7b"
+        "sha512": "5e2f1bd1460d8f443ce4bd44ed367d27f9170e50dff2ce9430954206e89651f8969dfbe842c3100b0244f8d58f843fc5fb9c46b5c576430a07f1e5b6dd4b9f7b",
+        "sha1": "edf131afd474151afe076ea975ce5fec5a206ad8"
       },
       "filesize": 2281720,
       "side": "both",
@@ -122,8 +122,8 @@
       "filename": "puffish_skills-0.18.0-1.21-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/hqQqvaa4/versions/jOHmw5g6/puffish_skills-0.18.0-1.21-neoforge.jar",
       "hashes": {
-        "sha512": "4269ca8c2cd340449c8cf7a6ea93ffbb68fe506d68d7d6684c301890a7d09d35edeea766d64fde6fa9bd5afd020f02720d73913f2338ca51c3caf39b314785b2",
-        "sha1": "9d26761b90627a56f274db4114ec03c5da524058"
+        "sha1": "9d26761b90627a56f274db4114ec03c5da524058",
+        "sha512": "4269ca8c2cd340449c8cf7a6ea93ffbb68fe506d68d7d6684c301890a7d09d35edeea766d64fde6fa9bd5afd020f02720d73913f2338ca51c3caf39b314785b2"
       },
       "filesize": 614216,
       "side": "both",
@@ -138,8 +138,8 @@
       "filename": "puffish_attributes-0.8.2-1.21-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/FCFcFw09/versions/Fl3WeKhH/puffish_attributes-0.8.2-1.21-neoforge.jar",
       "hashes": {
-        "sha1": "f4b67aa8da294203203bc8e6cd4b0cbf0a99d9dc",
-        "sha512": "0e4f1617025f41cff598b0cac6b53bff10d0a72ecc7831e009894157edf5a6b31149bd1fd6fe0d3d60feafe0176e467409a2af3550b3003d60098d2ad56e38b9"
+        "sha512": "0e4f1617025f41cff598b0cac6b53bff10d0a72ecc7831e009894157edf5a6b31149bd1fd6fe0d3d60feafe0176e467409a2af3550b3003d60098d2ad56e38b9",
+        "sha1": "f4b67aa8da294203203bc8e6cd4b0cbf0a99d9dc"
       },
       "filesize": 235521,
       "side": "both",
@@ -154,8 +154,8 @@
       "filename": "architectury-13.0.8-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/lhGA9TYQ/versions/ZxYGwlk0/architectury-13.0.8-neoforge.jar",
       "hashes": {
-        "sha512": "65e3664953385d880320dd6bb818bcb96d361c07c53e2a7f65e64c6a47720ee26b233224ae9cad465ef0b2bbaefdaf30fb0175a983cecd91de058817d6fcf57e",
-        "sha1": "6ca11d3cc136bf69bb8f4d56982481eb85b5100b"
+        "sha1": "6ca11d3cc136bf69bb8f4d56982481eb85b5100b",
+        "sha512": "65e3664953385d880320dd6bb818bcb96d361c07c53e2a7f65e64c6a47720ee26b233224ae9cad465ef0b2bbaefdaf30fb0175a983cecd91de058817d6fcf57e"
       },
       "filesize": 584004,
       "side": "both",
@@ -192,7 +192,7 @@
       "filesize": 302712,
       "side": "both",
       "phase": 4,
-      "note": "hard dependency of FTB Quests (not optional) - installed now so FTB Quests loads, but progressivestages.toml's team_mode stays 'solo' until Phase 6; installing the mod and turning on its team-progression semantics are separate steps"
+      "note": "hard dependency of FTB Quests (not optional), installed in Phase 4; team_mode flipped to 'ftb_teams' in Phase 6 once real parties are wanted - see that phase's DESIGN.md notes"
     },
     {
       "slug": "ftb-quests",
@@ -234,13 +234,29 @@
       "filename": "create_marketplace-0.4.2.jar",
       "url": "https://cdn.modrinth.com/data/O7RTXyyq/versions/IxMHMYSw/create_marketplace-0.4.2.jar",
       "hashes": {
-        "sha1": "4615dadf2136620557e2b79f5d9e944917c01a8a",
-        "sha512": "d6fba33600cb8f84bba23c763b63d55c25b1b77e75a75beeb802cb6b0131d8330b46217fd6009290f4a2a123ac7003dafefa888b8661ac1197199b60e52cd6cd"
+        "sha512": "d6fba33600cb8f84bba23c763b63d55c25b1b77e75a75beeb802cb6b0131d8330b46217fd6009290f4a2a123ac7003dafefa888b8661ac1197199b60e52cd6cd",
+        "sha1": "4615dadf2136620557e2b79f5d9e944917c01a8a"
       },
       "filesize": 972518,
       "side": "both",
       "phase": 5,
       "note": "global board for player-run Numismatics shops - browse/compare listings and navigate to a seller's persistent Vendor block from anywhere; purchase itself still happens at that block (doesn't require the seller online), not an instant remote transaction"
+    },
+    {
+      "slug": "ftb-chunks",
+      "project_id": "ftb-chunks-forge",
+      "version_id": "8317865",
+      "version_number": "2101.1.20",
+      "filename": "ftb-chunks-neoforge-2101.1.20.jar",
+      "url": "https://mediafilez.forgecdn.net/files/8317/865/ftb-chunks-neoforge-2101.1.20.jar",
+      "hashes": {
+        "sha1": "f8fd8b158379015302f7aa234785f29a1353803d",
+        "sha512": "fa973ebb3f0996a59e9b664e319ced9d892fe751c2ce47b53347b1db8331ed4592e8fd16954a112e33f5d40f1330bf5b25d9641e9a5fe6c23e1ba13b6aeb0ead"
+      },
+      "filesize": 655911,
+      "side": "both",
+      "phase": 6,
+      "note": "chunk claims. All 3 required deps (Architectury API, FTB Library, FTB Teams) already installed since Phase 4 - reuses the same team/party system as FTB Quests' preset-track sharing rather than a second, parallel party concept"
     }
   ]
 }

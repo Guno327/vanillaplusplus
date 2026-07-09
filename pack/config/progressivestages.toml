@@ -7,9 +7,10 @@
 	#Team mode: "ftb_teams" (requires FTB Teams mod) or "solo" (each player is their own team)
 	#If "ftb_teams", stages are shared across team members
 	#If "solo", each player has independent progression
-	#NOTE: set back to "ftb_teams" in Phase 6 once FTB Teams is installed, so the
-	#preset progression track shares across a team as required by the design.
-	team_mode = "solo"
+	#Phase 6: flipped to "ftb_teams" now that FTB Teams (installed since Phase 4)
+	#is actually being used for parties - tier stages (and the Tier Progression
+	#FTB Quests chapter that reads them) now share across a party, as required.
+	team_mode = "ftb_teams"
 	#Enable debug logging for stage checks, lock queries, and team operations
 	debug_logging = false
 	#Enable linear progression (auto-grant dependency stages)
