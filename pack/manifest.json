@@ -8,6 +8,8 @@
     { "slug": "createaddition", "side": "both", "phase": 2, "note": "Create Crafts & Additions - Alternator (kinetic->FE) and Electric Motor (FE->kinetic), unlocked at Brass Age to power Refined Storage" },
     { "slug": "refined-storage", "side": "both", "phase": 2, "note": "browsable storage network, explicitly named in instructions.md; moved to Brass Age unlock (needs Nether Quartz + diamond-tier processor, both available there), energy requirement kept on and powered by Create's own Alternator" },
     { "slug": "rhino", "side": "both", "phase": 2, "note": "JS engine required by KubeJS" },
-    { "slug": "kubejs", "side": "both", "phase": 2, "note": "recipe/loot scripting used for the storage tier patches here, and for the full recipe-gating pass in Phase 9" }
+    { "slug": "kubejs", "side": "both", "phase": 2, "note": "recipe/loot scripting used for the storage tier patches here, and for the full recipe-gating pass in Phase 9" },
+    { "slug": "skills", "side": "both", "phase": 3, "note": "Pufferfish's Skills - RPG skill tree framework, categories authored in pack/kubejs/data/puffish_skills/" },
+    { "slug": "attributes", "side": "both", "phase": 3, "note": "Pufferfish's Attributes - mining/pickaxe/sprinting speed, sword/ranged damage, bow/crossbow projectile speed etc used by our skill categories" }
   ]
 }

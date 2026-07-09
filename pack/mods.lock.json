@@ -26,8 +26,8 @@
       "filename": "progressivestages-2.1.jar",
       "url": "https://cdn.modrinth.com/data/rY4mdP4Q/versions/J1BsRBDq/progressivestages-2.1.jar",
       "hashes": {
-        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909",
-        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619"
+        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619",
+        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909"
       },
       "filesize": 478877,
       "side": "both",
@@ -58,8 +58,8 @@
       "filename": "createaddition-1.6.0.jar",
       "url": "https://cdn.modrinth.com/data/kU1G12Nn/versions/qPr8V4G2/createaddition-1.6.0.jar",
       "hashes": {
-        "sha512": "e3a31eefb15d37bd1a2ba9012d0c00ec92f7c9e57b7a35c993676ea0cc85ba4f35a055a9f98d57636f24a0562d6da18b4e90713f4f46d47959666a097a6a5cea",
-        "sha1": "87b539d41ed238e98b26c607c0c81a973323147e"
+        "sha1": "87b539d41ed238e98b26c607c0c81a973323147e",
+        "sha512": "e3a31eefb15d37bd1a2ba9012d0c00ec92f7c9e57b7a35c993676ea0cc85ba4f35a055a9f98d57636f24a0562d6da18b4e90713f4f46d47959666a097a6a5cea"
       },
       "filesize": 1661802,
       "side": "both",
@@ -74,8 +74,8 @@
       "filename": "refinedstorage-neoforge-2.0.9.jar",
       "url": "https://cdn.modrinth.com/data/KDvYkUg3/versions/lHHiI26k/refinedstorage-neoforge-2.0.9.jar",
       "hashes": {
-        "sha512": "b98a938b8af859f1952bfb35fb6db712835a7dead88fa15258ac0f4f06b26b08ebfa49fd9a35b2c81f7a745b3cd4370ced98c242d0fe7473ba019d92da8f6c57",
-        "sha1": "59d8e734ccb6eaab4cdf04093c55872af7a3e23a"
+        "sha1": "59d8e734ccb6eaab4cdf04093c55872af7a3e23a",
+        "sha512": "b98a938b8af859f1952bfb35fb6db712835a7dead88fa15258ac0f4f06b26b08ebfa49fd9a35b2c81f7a745b3cd4370ced98c242d0fe7473ba019d92da8f6c57"
       },
       "filesize": 4360871,
       "side": "both",
@@ -113,6 +113,38 @@
       "side": "both",
       "phase": 2,
       "note": "recipe/loot scripting used for the storage tier patches here, and for the full recipe-gating pass in Phase 9"
+    },
+    {
+      "slug": "skills",
+      "project_id": "hqQqvaa4",
+      "version_id": "jOHmw5g6",
+      "version_number": "0.18.0",
+      "filename": "puffish_skills-0.18.0-1.21-neoforge.jar",
+      "url": "https://cdn.modrinth.com/data/hqQqvaa4/versions/jOHmw5g6/puffish_skills-0.18.0-1.21-neoforge.jar",
+      "hashes": {
+        "sha512": "4269ca8c2cd340449c8cf7a6ea93ffbb68fe506d68d7d6684c301890a7d09d35edeea766d64fde6fa9bd5afd020f02720d73913f2338ca51c3caf39b314785b2",
+        "sha1": "9d26761b90627a56f274db4114ec03c5da524058"
+      },
+      "filesize": 614216,
+      "side": "both",
+      "phase": 3,
+      "note": "Pufferfish's Skills - RPG skill tree framework, categories authored in pack/kubejs/data/puffish_skills/"
+    },
+    {
+      "slug": "attributes",
+      "project_id": "FCFcFw09",
+      "version_id": "Fl3WeKhH",
+      "version_number": "0.8.2",
+      "filename": "puffish_attributes-0.8.2-1.21-neoforge.jar",
+      "url": "https://cdn.modrinth.com/data/FCFcFw09/versions/Fl3WeKhH/puffish_attributes-0.8.2-1.21-neoforge.jar",
+      "hashes": {
+        "sha1": "f4b67aa8da294203203bc8e6cd4b0cbf0a99d9dc",
+        "sha512": "0e4f1617025f41cff598b0cac6b53bff10d0a72ecc7831e009894157edf5a6b31149bd1fd6fe0d3d60feafe0176e467409a2af3550b3003d60098d2ad56e38b9"
+      },
+      "filesize": 235521,
+      "side": "both",
+      "phase": 3,
+      "note": "Pufferfish's Attributes - mining/pickaxe/sprinting speed, sword/ranged damage, bow/crossbow projectile speed etc used by our skill categories"
     }
   ]
 }

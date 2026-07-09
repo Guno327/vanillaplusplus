@@ -1,0 +1,52 @@
+{
+	"n0": {
+		"x": 0,
+		"y": 0,
+		"definition": "mining_speed+3%"
+	},
+	"n1": {
+		"x": 32,
+		"y": 0,
+		"definition": "fortune+0.1"
+	},
+	"n2": {
+		"x": 64,
+		"y": 0,
+		"definition": "mining_speed+3%"
+	},
+	"n3": {
+		"x": 96,
+		"y": 0,
+		"definition": "pickaxe_speed+3%"
+	},
+	"n4": {
+		"x": 128,
+		"y": 0,
+		"definition": "fortune+0.1"
+	},
+	"n5": {
+		"x": 160,
+		"y": 0,
+		"definition": "mining_speed+3%"
+	},
+	"n6": {
+		"x": 192,
+		"y": 0,
+		"definition": "submerged_mining_speed+5%"
+	},
+	"n7": {
+		"x": 224,
+		"y": 0,
+		"definition": "fortune+0.1"
+	},
+	"n8": {
+		"x": 256,
+		"y": 0,
+		"definition": "pickaxe_speed+3%"
+	},
+	"n9": {
+		"x": 288,
+		"y": 0,
+		"definition": "mining_speed+3%"
+	}
+}

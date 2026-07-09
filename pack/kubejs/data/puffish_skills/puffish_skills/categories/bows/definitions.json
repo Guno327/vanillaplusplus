@@ -1,0 +1,59 @@
+{
+	"ranged_damage+3%": {
+		"title": "+3% Ranged Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "bow"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.ranged_damage",
+					"value": 0.03,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	},
+	"bow_speed+3%": {
+		"title": "+3% Bow Projectile Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "arrow"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:bow_projectile_speed",
+					"value": 0.03,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"crossbow_speed+3%": {
+		"title": "+3% Crossbow Projectile Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "crossbow"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:crossbow_projectile_speed",
+					"value": 0.03,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	}
+}

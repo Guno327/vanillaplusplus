@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Bows",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "bow"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/adventure.png"
+}

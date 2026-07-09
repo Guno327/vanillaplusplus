@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Swimming",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "turtle_helmet"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/end.png"
+}
