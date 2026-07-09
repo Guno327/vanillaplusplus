@@ -77,6 +77,15 @@ locked = [
     # this is a light touch on top of gating that largely exists already -
     # just keeping the wand off the table at the very first moment of play.
     "id:ars_nouveau:wand",
+
+    # Gear overhaul Part 4: Sorcerer's Wrap (lowest defense of the 3 Ars
+    # Nouveau robe pieces, but the most Thread slots) is now reagent-gated on
+    # a Silent Gear chestplate of ANY material (see ars_nouveau_armor.js) -
+    # since the robe's own defense value is fixed regardless of which
+    # material was used, tier-locking the robe item itself is what actually
+    # enforces "as difficult as similarly-strengthed armour". Paired with the
+    # lowest tier here to match its lowest-defense role.
+    "id:ars_nouveau:sorcerer_robes",
 ]
 always_unlocked = []
 

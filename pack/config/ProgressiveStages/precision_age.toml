@@ -60,6 +60,11 @@ locked = [
     "id:refinedstorage:fallback_security_card",
 
     "id:toms_storage:adv_wireless_terminal",
+
+    # Gear overhaul Part 4: Arcanist's Robes (mid defense/mid Thread slots) -
+    # see andesite_age.toml's sorcerer_robes comment for why the robe item
+    # itself is what's tier-locked (its reagent is any Silent Gear chestplate).
+    "id:ars_nouveau:arcanist_robes",
 ]
 always_unlocked = []
 

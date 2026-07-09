@@ -30,6 +30,11 @@ locked = [
     # tier - see induction_age.toml's comment for why locking just the raw
     # ingot is sufficient (block_crafting_with_locked_ingredients).
     "id:allthemodium:vibranium_ingot",
+
+    # Gear overhaul Part 4: Battlemage's Gambeson (highest defense, fewest
+    # Thread slots of the 3 robes) - see andesite_age.toml's sorcerer_robes
+    # comment for why the robe item itself is what's tier-locked.
+    "id:ars_nouveau:battlemage_robes",
 ]
 always_unlocked = []
 
