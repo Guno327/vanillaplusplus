@@ -44,6 +44,27 @@ locked = [
     # Travel overhaul Part 2: Immersive Aircraft's top tier - warship
     # (upgrades a cargo_airship + industrial_gears), the mod's own ceiling.
     "id:immersive_aircraft:warship",
+
+    # Travel overhaul Part 3: Waystones - teleportation, explicitly gated
+    # late per the user's request, placed at this tier's automation ceiling
+    # just before the Tier 5 space gateway. Every Waystones recipe uses
+    # only vanilla materials (ender pearl, amethyst shard, emerald,
+    # obsidian, stone bricks) with nothing naturally tier-locked in this
+    # pack, so this is entirely explicit locking. warp_stone is itself an
+    # ingredient in the waystone block's own recipe, so locking it alone
+    # already blocks crafting a waystone transitively - both are still
+    # listed explicitly, matching this pack's established double-locking
+    # convention.
+    "id:waystones:warp_stone",
+    "id:waystones:waystone",
+    "id:waystones:mossy_waystone",
+    "id:waystones:sandy_waystone",
+    "id:waystones:blackstone_waystone",
+    "id:waystones:deepslate_waystone",
+    "id:waystones:end_stone_waystone",
+    "id:waystones:warp_scroll",
+    "id:waystones:return_scroll",
+    "id:waystones:portal_scroll",
 ]
 always_unlocked = []
 
