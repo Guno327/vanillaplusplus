@@ -30,9 +30,15 @@ orchestrator-mode switch. Newest entries at the bottom of each section.
   status when pinged via SendMessage. Integrator commits remain the
   strongest checkpoints; the file protocol covers non-integrator agents
   who cannot commit.
-- Scheduling: one-shot CronCreate wakeups ~4h apart carry the session
-  across usage resets (next: 03:48 UTC Jul 10). A one-shot cron pinned to
+- Scheduling (revised 2026-07-10 ~14:35 UTC, user call): each session
+  schedules its successor wakeup for **5 hours after that session's own
+  start** (first message), not a fixed ~4h cadence — usage windows are 5h
+  from the first message, so the old ~4h spacing woke the session before
+  its usage had reset. Add a few minutes' buffer past the exact +5h mark,
+  pick an off-minute, use one-shot CronCreate. A one-shot cron pinned to
   the current minute never fires — always pin future, verify via CronList.
+  Cron jobs are session-only (in-memory): if the session ends, the chain
+  dies and the user must re-prompt.
 
 ## Item 4 (mobility) — orchestrator calls on research verdicts
 
