@@ -14,12 +14,28 @@ still fully scoped in `TODO.md`/`DECISIONS.md` but not implemented — see
 "Post-release backlog" below. A handful of item-10/11 checklist items
 require an actual player and could not be verified by this repo's L0/L1/L2
 harnesses (none simulate player actions) — see `TODO.md` items 10/11 and
-`DECISIONS.md`'s post-release-merges section for the explicit
-needs-in-game-verification lists. Read `TODO.md` before doing anything
-else — it's the authoritative backlog. `DECISIONS.md` at the repo root is
-the durable decision log for everything decided in orchestrator-mode
+`DECISIONS.md`'s post-release-merges section for the historical record of
+those, but **the live checklists now live as GitHub issues, not here** —
+see the next paragraph. Read `TODO.md` before doing anything else — it's
+the authoritative backlog for planned feature work. `DECISIONS.md` at the
+repo root is the durable decision log for everything decided in
+orchestrator-mode
 sessions after the original 8-item planning pass; treat it as trusted
 input alongside `TODO.md`/`DESIGN.md`.
+
+**GitHub repo + issues are now the ground truth for outstanding bugs and
+in-game verifications** (user directive, 2026-07-10): the project's
+private GitHub repo at `https://github.com/Guno327/vanillaplusplus`
+(remote `origin`) now tracks all open bugs, needs-in-game-verification
+checklists, and open reviews as issues — see DECISIONS.md's "GitHub as
+ground truth (2026-07-10)" section for the full mapping (issues #1-#8 as
+of this writing) and the label state machine. `TODO.md` remains the
+backlog for planned feature work; GitHub issues are for bugs/
+verifications/reviews surfaced after something ships. Also note: the
+next release will be tagged **`v0.1.0`** (beta semantics, supersedes the
+local-only `1.0.0` naming below), cut after TODO.md item 9 lands —
+`pack/VERSION` has not been bumped yet, see DECISIONS.md for the full
+reasoning.
 
 ## Release 1.0.0
 
@@ -65,6 +81,12 @@ balance. See DESIGN.md's "The honest L2/L3 boundary" for the full statement
 — it's restated there so it survives future summarization.
 
 ## Post-release backlog
+
+*(Note, 2026-07-10: the rendering-correctness spot-check and residual
+Rhino const-in-loop risk items below are also now filed as GitHub issues
+#3 and #8 respectively — see DECISIONS.md's "GitHub as ground truth"
+section. The bullets below are left as-is for history; check the issues
+for current status.)*
 
 - **L3 — live client join test.** Deferred from this release (unproven join
   mechanism against NeoForge's handshake, highest cost, least proven value
