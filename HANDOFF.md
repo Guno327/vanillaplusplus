@@ -35,7 +35,21 @@ python3 scripts/tests/l1_selftest.py     # boot + /vpp_selftest + parse the resu
 python3 scripts/tests/l2_client_smoke.py # full client mod set via HeadlessMC
 python3 scripts/build_mrpack.py          # client .mrpack
 python3 scripts/build_server_bundle.py   # server .zip
+python3 scripts/update_nix_release.py    # repin nix/release.json to the minted release
 ```
+
+**NixOS flake obligation (added 2026-07-10)**: `update_nix_release.py` must
+run *after* the GitHub release is actually cut (it reads the release back
+via the API, so the release has to exist first) and its output
+(`nix/release.json`) must be committed. This keeps the NixOS module
+(`flake.nix`/`nix/module.nix`) informed of the current release's
+version/sha256 for its `serverArchive` mismatch-warning check — the module
+itself deploys from a manually downloaded release zip, not an automatic
+fetch (see README.md's "Running on NixOS" section and DECISIONS.md's dated
+entry for why), so nothing else about this pipeline needs to change, but
+this step is easy to forget since it's new and separate from the
+mrpack/server-zip build steps above. Needs a GitHub token (env var,
+`--token`, or `gh auth token`).
 
 L2 needs the HeadlessMC research instance at `/tmp/vpp-research/headlessmc/`
 + `/home/ubuntu/.minecraft` (not part of this repo; a fresh environment
