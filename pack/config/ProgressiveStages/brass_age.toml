@@ -175,6 +175,16 @@ locked = [
     # an accepted tradeoff per the orchestrator, matching the Elytra
     # precedent already established in this pack.
     "id:create_sa:andesite_jetpack_chestplate",
+
+    # TODO.md item 10: Time in a Bottle's tick accelerator (DECISIONS.md
+    # "Item 10 - Tick accelerator", gate: Brass Age). Plain item lock, same
+    # convention as every other explicit lock in this file - tiab:
+    # time_in_a_bottle has no natural ingredient-based gate of its own
+    # (gold_ingot/diamond/lapis_lazuli/clock/glass_bottle are all obtainable
+    # well before this tier), so a direct ProgressiveStages lock is the only
+    # way to hold it back to the mid-game automation milestone this tier
+    # represents.
+    "id:tiab:time_in_a_bottle",
 ]
 always_unlocked = []
 
