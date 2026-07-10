@@ -1,16 +1,83 @@
 # Handoff
 
-**Status as of this note: wave-2 complete. All 8 originally-scoped TODO.md
-items (1-8) plus items 4/5/6's actual mechanics are implemented, boot-tested,
-committed, and documented in `DESIGN.md`. Items 9/10/11 (food overhaul, tick
-accelerator, skill-tree overhaul) are fully scoped and recorded in `TODO.md`
-but explicitly DEFERRED POST-RELEASE per user directive — do not implement
-them without being told to. Next focus is RELEASE PREP, not more features —
-see "Release prep (current focus)" below.** Read `TODO.md` before doing
-anything else — it's the authoritative backlog. `DECISIONS.md` at the repo
-root is the durable decision log for everything decided in orchestrator-mode
-sessions after the original 8-item planning pass; treat it as trusted input
-alongside `TODO.md`/`DESIGN.md`.
+**Status as of this note: RELEASE 1.0.0 SHIPPED.** All 8 originally-scoped
+`TODO.md` items (1-8) plus items 4/5/6's actual mechanics, the release
+client-optimization/QoL mod set, the L0/L1/L2 test suite, and both release
+artifacts are implemented, tested, committed, and documented in `DESIGN.md`'s
+"Release engineering" section. Items 9/10/11 (food overhaul, tick
+accelerator, skill-tree overhaul) are fully scoped in `TODO.md`/`DECISIONS.md`
+but explicitly DEFERRED POST-RELEASE — see "Post-release backlog" below.
+Read `TODO.md` before doing anything else — it's the authoritative backlog.
+`DECISIONS.md` at the repo root is the durable decision log for everything
+decided in orchestrator-mode sessions after the original 8-item planning
+pass; treat it as trusted input alongside `TODO.md`/`DESIGN.md`.
+
+## Release 1.0.0
+
+Artifacts (both gitignored build output, regenerate on demand — see
+"Re-running the release pipeline" below):
+- **Client**: `vanilla-plus-plus-client-1.0.0.mrpack` (~250 KB) — import
+  into Prism Launcher.
+- **Server**: `vanilla-plus-plus-server-1.0.0.zip` (~350 MB) — extract,
+  read the bundled `README.md`, accept the EULA yourself (deliberately not
+  pre-accepted), `sh run.sh nogui`.
+
+Both build from `pack/VERSION` (currently `1.0.0`) via
+`scripts/build_mrpack.py` / `scripts/build_server_bundle.py` respectively —
+bump that one file at the next release cut, nowhere else.
+
+### Re-running the release pipeline
+
+```
+python3 scripts/resolve_mods.py          # manifest.json -> mods.lock.json
+sh scripts/tests/l0_boot_smoke.sh        # build + boot + baseline-diff the log
+python3 scripts/tests/l1_selftest.py     # boot + /vpp_selftest + parse the result
+python3 scripts/tests/l2_client_smoke.py # full client mod set via HeadlessMC
+python3 scripts/build_mrpack.py          # client .mrpack
+python3 scripts/build_server_bundle.py   # server .zip
+```
+
+L0/L1/L2 all exit nonzero on failure — safe to chain with `&&`. L2 needs the
+HeadlessMC research instance at `/tmp/vpp-research/headlessmc/` +
+`/home/ubuntu/.minecraft` (not part of this repo; a fresh environment would
+need to redo that setup — see DESIGN.md's "Release engineering" section for
+the exact working launch invocation, including the two harness-specific
+flags (`sodium.checks.issue2561=false`, `--retries 3`) that took real
+`javap` decompilation to discover).
+
+### What this release's testing does NOT cover (read before assuming it's bug-free)
+
+Rendering correctness (Create contraption/pulley/train visuals, GeckoLib
+animation, Epic Fight combat animation, general UI/inventory layout —
+including whether ImmediatelyFast 1.6.11 actually fixed the Staff-of-Physics
+display bug reported at 1.6.10), a live client join (L3, deliberately
+deferred — see below), multiplayer interaction, and live combat/economy
+balance. See DESIGN.md's "The honest L2/L3 boundary" for the full statement
+— it's restated there so it survives future summarization.
+
+## Post-release backlog
+
+- **L3 — live client join test.** Deferred from this release (unproven join
+  mechanism against NeoForge's handshake, highest cost, least proven value
+  of the 4 test layers). If picked up: use a separate test-only
+  `server.properties` profile with `online-mode=false`, never the shipped
+  default.
+- **Items 9/10/11** (food overhaul, tick accelerator, skill-tree overhaul) —
+  fully scoped in `TODO.md`/`DECISIONS.md`, not implemented. Don't start
+  without being told to.
+- **Rendering-correctness spot-check** — the L2/L3 boundary above means
+  nobody has actually looked at this pack's GeckoLib entities, Create
+  contraption visuals, or Epic Fight combat animations render correctly.
+  Worth a manual pass before wider release, not blocking this 1.0.0 cut.
+- **Residual Rhino const-in-loop risk** — this release's L1 development
+  found the installed Rhino engine doesn't give `const`/`let` fresh
+  per-iteration scoping inside `for(;;)` loops or try/catch blocks invoked
+  from one (see DESIGN.md's "Release engineering" section for the full
+  finding). Fixed everywhere it was actually hit
+  (`selftest.js`/`leaderboard.js`), but two `for (const x of ...)` for-of
+  forms elsewhere (`economy.js`'s `payCoins`, `selftest.js`'s own coin
+  helper) were left unverified — worth a deliberate audit pass, not an
+  emergency.
 
 ## What's done
 
@@ -108,61 +175,22 @@ boot-tested, committed, and documented in `DESIGN.md`:
     unique weapons/armor/combat-stat charms stripped, `mob_scaling.js`'s
     `MONSTER_TYPES` extended with 61 new hostile ids. See DESIGN.md's
     "Hostile + passive mob variety, limited unique drops" section.
-
-## Release prep (current focus)
-
-All 8 originally-scoped `TODO.md` items (1-8) plus items 4/5/6's actual
-mechanics are done (see "What's done" above) — the pack is feature-complete
-for an initial release per user directive (2026-07-10 ~01:15 UTC). Three
-further items (9: food overhaul, 10: tick accelerator, 11: skill-tree
-overhaul) are fully scoped in `TODO.md`/`DECISIONS.md` but **explicitly
-deferred to post-release** — don't implement them without being told to.
-
-Priority order from here, per the user's own framing:
-1. ~~Wave-2 integration of items 4/5/6~~ — **done, this pass.**
-2. **Client-side test harness + functional test suite — architecture
-   ADOPTED (`DECISIONS.md`, ~2026-07-10 02:15 UTC), NOT YET IMPLEMENTED.**
-   GameTest was rejected (needs custom Java, this pack has none by design);
-   protocol bots were rejected (confirmed dead end - NeoForge handshake
-   doesn't cooperate). Adopted instead, in implementation order: **L0** boot
-   smoke (`scripts/tests/l0_boot_smoke.sh` - formalize the grep discipline
-   already used ad hoc every boot test in this project, against a
-   documented known-noise baseline); **L1** a KubeJS `/vpp_selftest` command
-   + runner (`l1_selftest.py`, via `cmd_fifo` or RCON) covering ~20
-   data/parse/count/resolve assertions plus sell/leaderboard round-trips
-   (the assertion list is sketched against expected KubeJS API surface, NOT
-   yet verified against the installed jar - the implementing agent must
-   verify each one and disclose any that Rhino can't actually reach); **L2**
-   HeadlessMC client smoke (prototype-verified, artifacts at
-   `/tmp/vpp-research/headlessmc/` - pinned launcher 2.9.0, note the repo
-   moved to `headlesshq/headlessmc`) with the full `side != server` mod set,
-   to catch client-only mixin crashes; **L3** an actual client join test,
-   deliberately deferred until L0/L1/L2 are solid (unproven join mechanism,
-   highest cost, least proven value so far). Watch-list once L2 exists:
-   loaded-mods count, Create contraption/pulley/train rendering, GeckoLib
-   entity visibility, Epic Fight animation playback, and a narrow
-   Create-Aeronautics-Staff-of-Physics inventory-display bug reported at
-   1.6.10 (confirm fixed at the installed 1.6.11).
-3. **A release containing both a server bundle and a client bundle —
-   architecture ADOPTED, NOT YET IMPLEMENTED.** `scripts/build_mrpack.py`
-   already builds the client `.mrpack` (currently hardcodes version
-   `0.9.0`). A new `scripts/build_server_bundle.py` is planned but not yet
-   written: reuse `build_server.py`, zip `server/` minus
-   `world/`/`logs/`/`cmd_fifo`, include `run.sh`/`libraries/`, and handle
-   the EULA as an explicit first-run prompt documented in the bundle's
-   README (a silent pre-acceptance was explicitly rejected). Versioning
-   plan: a single `pack/VERSION` file read by both build scripts, embedded
-   in both bundle filenames, bumped to `1.0.0` at the actual release cut.
-   The shipped server bundle keeps `online-mode=true`; any L3 join testing
-   must use a separate test-only `server.properties` profile with it
-   flipped off, never the shipped default.
+14. **Release 1.0.0** — 10 client-optimization/QoL mods (sodium,
+    entityculling, immediatelyfast, moreculling, dynamic-fps, clumps, jei,
+    xaeros-minimap, xaeros-world-map, appleskin); a 4-layer test suite (L0
+    boot smoke, L1 `/vpp_selftest`, L2 HeadlessMC client smoke, L3
+    deferred); `pack/VERSION`-driven client `.mrpack` + server `.zip`
+    bundles. Fixed a real, previously-shipping bug found via testing
+    (`noisiumed`'s Fabric-jar mis-resolution) and a Rhino const-in-loop
+    scoping bug in `leaderboard.js`. See DESIGN.md's "Release engineering"
+    section.
 
 `DECISIONS.md` at the repo root is the durable decision log for
 orchestrator-mode sessions (operating model, per-item research verdicts,
 items 9/10/11's finalized specs, the full release test/bundling
-architecture above, standing implementation notes) — read it alongside
-`TODO.md`/`DESIGN.md` before picking up any of the above; it's more current
-than this summary on the release-prep specifics.
+architecture, standing implementation notes) — read it alongside
+`TODO.md`/`DESIGN.md`; DESIGN.md's "Release engineering" section is the
+canonical, detailed writeup of everything summarized above.
 
 **Serial-resource ownership still applies** if work resumes in
 orchestrator/subagent mode: exactly one integrator agent owns git, `server/`
@@ -190,7 +218,17 @@ and why, in order.
   launch with `(tail -f cmd_fifo | timeout 120 sh run.sh nogui > /tmp/LOG 2>&1 &)`,
   poll for `Done (` / `Loading errors` / `ModLoadingException` in the log,
   grep for errors and stage-tag/recipe/material counts, then
-  `echo "stop" > cmd_fifo` to shut down cleanly.
+  `echo "stop" > cmd_fifo` to shut down cleanly. As of the 1.0.0 release,
+  `sh scripts/tests/l0_boot_smoke.sh` formalizes exactly this (build + boot
+  + baseline-diffed log + clean stop, single exit code) — prefer it over
+  hand-rolling the sequence above for a plain pass/fail check;
+  `scripts/tests/l1_selftest.py` additionally drives `/vpp_selftest` for a
+  runtime data/registry/command sanity sweep. IMPORTANT: always stop a
+  server you booted manually (`echo "stop" > cmd_fifo`, then confirm no
+  `java`/`tail -f cmd_fifo` processes remain) before booting another one —
+  a stale process still holding `server/world`'s lock will make the next
+  boot fail with a `DirectoryLock` exception that looks like a real bug but
+  isn't (hit and lost time to this during 1.0.0's L1 development).
 - Ground truth over assumption: verify against the actually-installed jar
   (decompile with `javap`/`jar tf`/`jar xf` under
   `.tools/jdk-21.0.11+10/bin`) rather than training-data memory of a mod's

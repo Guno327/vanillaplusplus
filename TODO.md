@@ -714,3 +714,56 @@ respeccable specialization paths.
 - Concrete node-by-node design for all 12 categories × ~15 nodes — a large
   content-design task in its own right, comparable in scope to the
   original gear-overhaul melee-skill-split work.
+
+## 12. NOT STARTED — Release follow-ups (post-1.0.0)
+
+**Ask**: cleanup/extension items surfaced by shipping release 1.0.0 (see
+DESIGN.md's "Release engineering" section for full context on each).
+
+- **L3 — live client join test.** Deliberately deferred from the 1.0.0 test
+  suite (L0 boot smoke / L1 self-test / L2 HeadlessMC client smoke all
+  shipped and green). The join mechanism itself is unproven — protocol bots
+  were already confirmed a dead end against NeoForge's handshake — so this
+  is genuinely new implementation work, not a small addition. If picked up:
+  use a separate test-only `server.properties` profile with
+  `online-mode=false`; never flip that on the shipped default profile.
+- **Rendering-correctness spot-check.** L0-L2 prove mod loading and
+  server-side data/registry correctness, but nothing in this release's test
+  suite looks at an actual rendered frame. Worth a manual pass: Create
+  contraption/pulley/train visuals, GeckoLib entity animation (Ars Nouveau
+  familiars, Born in Chaos, Naturalist), Epic Fight's animation-driven
+  combat, general UI/inventory layout, and specifically whether
+  ImmediatelyFast 1.6.11 actually fixed the Create Aeronautics
+  Staff-of-Physics inventory-display bug reported at 1.6.10 (this release
+  shipped 1.6.11 on the strength of the changelog claim alone, unverified
+  by anything in the L0-L2 pipeline).
+- **Residual Rhino const-in-loop scoping risk.** Building L1
+  (`pack/kubejs/server_scripts/selftest.js`) found the installed Rhino
+  engine (KubeJS 2101.7.2/build.368) doesn't give `const`/`let` fresh
+  per-iteration scoping inside a `for(;;)` loop body or a `try`/`catch`
+  invoked from one — re-executing throws `TypeError: redeclaration of
+  const/var X`. Fixed everywhere it was actually hit this release
+  (`selftest.js`, `leaderboard.js`), but two `for (const x of ...)` for-of
+  forms elsewhere (`economy.js`'s `payCoins`, `selftest.js`'s own coin
+  helper) were left unverified since that's a different iteration protocol
+  and wasn't proven broken — worth a deliberate audit pass across all
+  `server_scripts/*.js` for the same pattern before relying on it under
+  heavier load than this release's testing exercised.
+- **MoreCulling long-term watch.** Its `neoforge.mods.toml` minecraft-
+  version range is literally `[1.21,1.21.1)`, textually excluding exact
+  1.21.1 — it loaded fine in this release's L2 HeadlessMC smoke test (not
+  a false alarm, matching JEI's identical-range precedent), but a future
+  MoreCulling update could tighten that range for real. Re-run
+  `scripts/tests/l2_client_smoke.py` after any MoreCulling version bump;
+  its own built-in contingency (drop from manifest/lockfile, not
+  pin/patch) already fires automatically if it ever does fail to load.
+- **`noisiumed`-class resolver bugs in other mods.** `resolve_mods.py`'s
+  `pick_file()` was fixed this release after discovering `noisiumed` had
+  silently shipped a non-functional Fabric jar since Phase 9 (Modrinth's
+  per-file `"primary"` flag isn't reliable when a single version bundles
+  multi-loader jars). The fix is loader-name-matching, applied pack-wide on
+  the next `resolve_mods.py` run, but it's worth explicitly re-running the
+  resolver once and diffing `mods.lock.json` after any future manifest
+  change, in case another mod has the same latent issue that just hasn't
+  been noticed yet (only `noisiumed` was affected as of this release, per
+  a full lockfile diff this session).

@@ -2069,6 +2069,212 @@ cd server && java @user_jvm_args.txt @libraries/net/neoforged/neoforge/21.1.235/
 errors and dependency issues; `/stage tree` prints the resolved dependency
 graph.
 
-`scripts/build_mrpack.py` builds `vanilla-plus-plus.mrpack` (gitignored,
-regenerate on demand) directly from `pack/mods.lock.json` — importable into
-Prism Launcher for a client instance.
+`scripts/build_mrpack.py` builds `vanilla-plus-plus-client-<VERSION>.mrpack`
+(gitignored, regenerate on demand) directly from `pack/mods.lock.json` —
+importable into Prism Launcher for a client instance. See "Release
+engineering" below for the full release test/bundling pipeline this became
+part of for the 1.0.0 cut.
+
+## Release engineering
+
+Added for the 1.0.0 initial release (DECISIONS.md's "Release test +
+bundling architecture — ADOPTED", ~2026-07-10). Everything through the
+"Phase plan" above shipped features; this section covers how the release
+itself is tested, versioned, and packaged.
+
+### Test architecture: four layers, each catching a different failure class
+
+**L0 — boot smoke** (`scripts/tests/l0_boot_smoke.sh`). Builds `server/`,
+boots it, and asserts: a clean `Done(` line; zero
+`ModLoadingException`/`Loading errors`/`FATAL`; the server-side mod count
+matches `pack/mods.lock.json`'s `side != "client"` count; both KubeJS
+script layers (startup + server) report `0 errors and 0 warnings`; every
+WARN/ERROR line in the boot log matches an explicitly documented
+known-noise baseline (encoded as grep patterns, not a blanket allow-list —
+DECISIONS.md's "Known-acceptable boot noise" section plus a few more
+categories this release wave ground-truthed across 6+ clean boots:
+pre-existing benign recipe-skip WARNs from stellaris/tfmg/silentgear,
+ModernFix/mixin/VanillaPackResourcesBuilder informational WARNs). Catches:
+mod-loading/dependency regressions, config corruption, and — critically —
+*new* warning classes a change might silently introduce, which ad hoc "eyeball
+the log" boot testing (this project's practice through wave-2) reliably
+misses once a boot log is thousands of lines long.
+
+**L1 — self-test** (`pack/kubejs/server_scripts/selftest.js`'s
+`/vpp_selftest` command + `scripts/tests/l1_selftest.py`'s driver). Boots the
+server, issues the command via `cmd_fifo` (no attached `ServerPlayer` —
+console-only, matching this project's whole boot-testing history), and
+parses a machine-readable `VPP_SELFTEST: PASS (n/n, k skipped)` summary
+line. 17 always-executable assertions cover the pack's real systems:
+ProgressiveStages stage resolution, Pufferfish Skills category/experience
+presence, Numismatics bank API reachability, FTB Teams manager reachability,
+item/entity/loot-table registry resolution (coin denominations, cross-mod
+dedup-canonical items, `born_in_chaos_v1:krampus`, a generated
+`artifacts:vpp_bucket/common` loot table), recipe-manager sanity (>1000
+total recipes; the Curios upgrade recipes are exactly 46, matching item 5's
+implementation count), command registration (`/leaderboard`, `/sell`), a
+`persistentData` round-trip, and an economy sell round-trip mirroring
+`economy.js`'s own price table. 3 more assertions need a live
+`ServerPlayer` (bank balance for a player, stage checks against a player,
+the sell round-trip's inventory side) and report `SKIP` rather than a faked
+`PASS` when none is attached — an honest gap, not a lowered bar; driving
+those needs L2/L3. There was **no pre-existing 20-assertion list** anywhere
+in the repo despite DECISIONS.md referencing one (the research brief that
+would have enumerated it was never captured to a durable file) — this set
+was authored fresh against the pack's actual systems and iterated against
+real boot errors until every assertion either passed or was replaced.
+
+Building L1 surfaced three real bugs no prior boot test had caught, because
+none had ever actually *executed a command* against a live server before —
+every previous "boot test" in this project's history only ever watched the
+startup log, never drove gameplay logic:
+1. **`noisiumed` had shipped a non-functional Fabric jar since Phase 9.**
+   `resolve_mods.py` trusted Modrinth's per-file `"primary"` flag, but a
+   single Modrinth *version* can bundle fabric/forge/neoforge jars
+   together, and noisiumed's primary happened to be its Fabric build even
+   when queried with `loaders=["neoforge"]`. FML silently skipped it every
+   boot (`"is a Fabric mod and cannot be loaded"`) — a real, live gap this
+   pack shipped for an entire wave. Fixed: `resolve_mods.py`'s new
+   `pick_file()` matches the file to the requested loader by filename,
+   falling back to `"primary"` only when no loader-specific match exists.
+2. **The installed Rhino engine (KubeJS 2101.7.2/build.368) does not give
+   `const`/`let` fresh per-iteration block scoping inside a `for(;;)` loop
+   body or a `try`/`catch` invoked from one** — re-executing the same
+   `const` declaration on a 2nd+ iteration throws
+   `TypeError: redeclaration of const/var X`. This is a real, load-bearing
+   Rhino limitation different from standard V8/spec ES6 behavior. Found
+   because `/leaderboard` — wave-2, committed, boot-tested, but never
+   actually *command-executed* — would have crashed the instant more than
+   one cached/online entry existed. Fixed by converting nested `const` to
+   `let` throughout `selftest.js` and `leaderboard.js`. Two `for (const x
+   of ...)` for-of forms elsewhere (`economy.js`'s `payCoins`,
+   `selftest.js`'s own coin helper) were left as-is — different iteration
+   protocol, not proven broken, flagged here as an unverified residual risk
+   for anyone else writing command-execution KubeJS code.
+3. **KubeJS/Rhino exposes zero-arg Java accessors like
+   `ServerLevel.dimension()` as pre-resolved bean properties, not callable
+   methods** — calling them with `()` throws `"Cannot call property X ...
+   It is not a function"`. Also learned `server.registryAccess()` does
+   **not** contain the loot_table registry (`"Missing registry:
+   minecraft:loot_table"`) — loot tables are a *reloadable* (datapack)
+   registry reached via `server.reloadableRegistries().lookup()
+   .lookupOrThrow(...)`, which returns a `HolderLookup` (`.get(ResourceKey)
+   -> Optional`, not `Registry`'s `.containsKey()`).
+
+**L2 — HeadlessMC client smoke** (`scripts/tests/l2_client_smoke.py`).
+Assembles the *full* client-relevant mod set (every lockfile entry with
+`side != "server"`, 81 mods including all 6 client-optimization mods and 3
+QoL mods added for this release) into a real HeadlessMC 2.9.0 instance
+(`/home/ubuntu/.minecraft`) and launches it offline, catching client-only
+mixin/dependency crashes the dedicated server structurally can't see
+(`side:client` mods never land in `server/mods` — `build_server.py` has
+excluded them since before this release, verified correct this wave). The
+"Reloading ResourceManager" line — reached on every attempt — lists every
+loaded mod's resource pack; reaching it, with zero
+`ModLoadingException`/missing-dependency/cowardly-refusing errors, is
+conclusive proof of mod discovery + dependency resolution + mixin
+application for the complete set. Two real blockers were found and worked
+around in the *test harness*, ground-truthed via `javap` decompilation and
+repeated manual launches rather than assumed:
+- **Sodium's `PreLaunchChecks` aborts before any mod loads** because it
+  can't recognize HeadlessMC's LWJGL version string. Decompiling Sodium's
+  `BugChecks`/`PreLaunchChecks` classes found the documented workaround for
+  exactly this non-standard-launcher case (Sodium's own GH issue 2561):
+  system property `sodium.checks.issue2561=false`, which must be passed via
+  HeadlessMC's `launch ... --jvm "..."` flag — the actual game runs in a
+  *forked* process, so an outer `-D` flag on the launcher jar never reaches
+  it.
+- **HeadlessMC's own `headlessmc-lwjgl` module has a flaky race condition**
+  in its STB→`javax.imageio` PNG-decode redirection under this pack's
+  ~4000-texture concurrent resource-reload load — confirmed via 10 repeated
+  manual launches: the complete mod list loaded cleanly *every single time*,
+  but a different specific `javax.imageio.IIOException` (different message,
+  different texture) crashed asset decoding each run before reaching a
+  fully texture-atlas-stitched "menu-ready" state. This is a harness-level
+  instability, not a pack defect (10/10 consistent full mod-list load, 0/10
+  FML errors, the specific crash point never repeats). `l2_client_smoke.py`
+  discloses this explicitly in its own PASS report rather than either
+  silently failing the whole client bundle over it or silently ignoring it;
+  `--retries 3` is a pragmatic mitigation that doesn't mask genuine FML
+  errors (checked independently of retry count).
+
+**MoreCulling verdict**: loaded successfully. DECISIONS.md's pre-declared
+contingency (its `neoforge.mods.toml` minecraft-version range is literally
+`[1.21,1.21.1)`, textually excluding exact 1.21.1) was evaluated and did
+**not** trigger — confirmed present in L2's loaded-mod list, matching the
+JEI-precedent reasoning already recorded (JEI has the identical range
+pattern and is known-good everywhere on 1.21.1). Kept in the manifest with
+no changes needed.
+
+**L3 — live client join** — deliberately **not implemented** for this
+release. The join mechanism itself is unproven (protocol bots were already
+confirmed a dead end against NeoForge's handshake, per DECISIONS.md), it's
+the highest-cost layer to build, and L0–L2 already cover the failure modes
+most likely to actually break a release (server-side data/recipe/loot
+regressions, client-only mod-loading crashes). Left as explicit post-release
+backlog — see TODO.md.
+
+### The honest L2/L3 boundary
+
+L0-L2 together prove: the server boots clean with no fatal errors and no
+new warning classes; the pack's core data/recipe/loot/registry systems
+resolve correctly at runtime (not just "the JSON parses"); and the full
+client mod set discovers, dependency-resolves, and mixin-applies cleanly.
+
+**None of this release's testing verifies:**
+- **Rendering correctness** — Create contraption/pulley/train visuals,
+  GeckoLib entity animation playback (Ars Nouveau familiars, Born in Chaos,
+  Naturalist), Epic Fight's animation-driven combat, general UI/inventory
+  layout (including the narrow Create Aeronautics Staff-of-Physics
+  inventory-display bug reported at ImmediatelyFast 1.6.10 — this release
+  ships 1.6.11, which the changelog claims fixes it, but that claim itself
+  is unverified by anything in this pipeline).
+- **A live client join** — L3, deliberately deferred.
+- **Multiplayer interaction** — team/party mechanics, PvP balance, server
+  load under multiple real players.
+- **Live combat/economy balance** — numbers were set by design intent
+  (DESIGN.md's various tier/pricing sections), not measured against actual
+  play.
+
+These gaps are genuine, not oversights papered over — L2's own script prints
+this boundary explicitly in its PASS report, and it's restated here and in
+HANDOFF.md so it survives a session reset.
+
+### Bundle design
+
+Two artifacts, both versioned from the single `pack/VERSION` file (`1.0.0`
+for this release):
+
+- **Client**: `scripts/build_mrpack.py` → `vanilla-plus-plus-client-<VERSION>.mrpack`.
+  Modrinth's `.mrpack` format — a `modrinth.index.json` mod-download
+  manifest (direct URLs + hashes, `env` markers derived from each lockfile
+  entry's `side`) plus an `overrides/` folder for `config`/`kubejs`/
+  `defaultconfigs`. Small (~250 KB) since it doesn't embed the actual mod
+  jars, just downloads them on import (Prism Launcher).
+- **Server**: `scripts/build_server_bundle.py` → `vanilla-plus-plus-server-<VERSION>.zip`.
+  Reuses `build_server.py`'s own sync (imported, not duplicated) then zips
+  `server/` minus runtime/session state (`world/`, `logs/`, `cmd_fifo`,
+  `crash-reports/`, `*.log`, the redundant `neoforge-installer.jar`, and
+  pure caches like `.sable/`/`cache/`/`local/`). Includes everything
+  `run.sh`/`run.bat` need to boot (`mods/`, `config/`, `kubejs/`,
+  `defaultconfigs/`, `libraries/`, `server.properties`,
+  `user_jvm_args.txt`). ~350 MB (mostly `libraries/` + server-side mod
+  jars). `eula.txt` is **deliberately excluded** — even though this dev
+  session's own `server/eula.txt` has `eula=true` from boot-testing,
+  shipping that would silently pre-accept the EULA on the operator's
+  behalf, which the recorded release decision explicitly rejected. A
+  generated `README.md` at the zip root documents the first-run EULA step,
+  Java 21 requirement, and the JVM/RAM tuning already baked into
+  `user_jvm_args.txt`.
+
+`online-mode=true` ships unchanged in the server bundle (the recorded
+default); any future L3 join-testing must use a separate test-only
+`server.properties` profile with it flipped off, never this shipped one.
+
+### Versioning
+
+`pack/VERSION` is the single source of truth, read by both build scripts
+and embedded in both artifact filenames — bump it once at the next release
+cut rather than hunting for hardcoded version strings in multiple places
+(the bug this replaced: `build_mrpack.py` hardcoded `"0.9.0"` and had
+silently drifted from reality before this release wave).
