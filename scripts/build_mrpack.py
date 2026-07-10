@@ -25,10 +25,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LOCKFILE = ROOT / "pack" / "mods.lock.json"
-OUT_FILE = ROOT / "vanilla-plus-plus.mrpack"
+VERSION_FILE = ROOT / "pack" / "VERSION"
 PACK_NAME = "Vanilla++"
-PACK_VERSION = "0.9.0"
-PACK_SUMMARY = "A from-scratch Create-centric RPG modpack: tiered progression, RPG leveling, economy/marketplace, quests, teams/claims, combat/magic variety, mob scaling, dungeons, and space travel."
+PACK_VERSION = VERSION_FILE.read_text().strip()
+OUT_FILE = ROOT / f"vanilla-plus-plus-client-{PACK_VERSION}.mrpack"
+PACK_SUMMARY = "A from-scratch Create-centric RPG modpack: tiered progression, RPG leveling, economy/marketplace, quests, teams/claims, combat/magic variety, mob scaling, dungeons, and space travel. Client bundle - see the matching vanilla-plus-plus-server-*.zip for the dedicated server."
 NEOFORGE_VERSION = "21.1.235"
 
 OVERRIDE_DIRS = ("config", "kubejs", "defaultconfigs")
