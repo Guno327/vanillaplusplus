@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "tag": "c:ingots/nickel"
+    },
+    "h": {
+      "tag": "alltheores:ore_hammers"
+    }
+  },
+  "pattern": [
+    "   ",
+    "ha ",
+    "a  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "tfmg:nickel_sheet"
+  }
+}

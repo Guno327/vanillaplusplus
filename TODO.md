@@ -142,7 +142,25 @@ as the true final rewards.
   ProgressiveStages stages inserted into the ladder, or stay as ungated
   "soft" progression within an existing stage).
 
-## 3. Duplicate-resource consolidation audit
+## 3. ✅ DONE — Duplicate-resource consolidation audit
+
+**Implemented.** See `DESIGN.md`'s "Duplicate-resource consolidation
+audit" section for the full writeup: zinc/aluminum/lead/nickel
+(AllTheOres -> Create/TFMG) and steel (Stellaris -> TFMG) hard-
+consolidated via redirected smelting/crafting/loot-table datapack
+overrides plus `pack/kubejs/server_scripts/dedup.js` for additive tag
+cleanup; ATO's overworld-only ore worldgen neutralized per-metal (nether/
+End variants kept since no canonical source covers those dimensions);
+Stellaris's overworld steel ore removed outright, its moon steel ore
+surgically dropped from a shared feature list. The aluminum consolidation
+closes a real tier-bypass hole (`alltheores:aluminum_ingot` had no
+ProgressiveStages lock, letting players skip the Tier 5 gate on
+`tfmg:aluminum_ingot`). Bounded sweep: Stellaris-vs-TFMG steel implemented
+(clean case); TFMG-vs-RefinedStorage silicon checked and left alone
+(genuinely different resources - different tag namespaces, ingot vs. raw
+material, no shared recipe chain). No orphaned tier-lock/pricing
+references found. Boot-tested clean, committed. Original scoping notes
+kept below for reference.
 
 **Ask**: with ~40 mods installed, some likely add overlapping/duplicate
 versions of the same underlying resource (raw ores, but also potentially

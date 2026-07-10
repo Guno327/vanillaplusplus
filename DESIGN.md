@@ -1383,6 +1383,130 @@ milestone item lists are the *right* representative picks out of TFMG's
 balanced as "the hardest thing in the game" can't be verified here - only
 that every id is real, every lock loads, and every new recipe resolves.
 
+### Duplicate-resource consolidation audit (TODO.md item 3)
+
+Ask: with ~40 mods installed, find overlapping copies of the same
+underlying resource and hard-consolidate each down to one canonical item,
+same pattern Phase 10 used to fold Allthemodium's native tools/armor into
+Silent Gear. Tie-break rule set in `TODO.md`: vanilla wins if it exists,
+otherwise whichever mod is most central to this pack's own material chain
+(Create/its addons) beats an incidental mod.
+
+**What was actually duplicated, confirmed jar-by-jar, not assumed.**
+AllTheOres (ATO) ships its own zinc/aluminum/lead/nickel lines that fully
+duplicate items Create and TFMG already provide, and Stellaris ships its
+own steel line duplicating TFMG's:
+- **Zinc**: `create:zinc_ingot`/`zinc_block`/`zinc_nugget`/`raw_zinc`/
+  `raw_zinc_block` all confirmed present in the installed Create 6.0.10
+  jar (`jar tf` against `assets/create/textures/item/zinc_ingot.png` etc.)
+  - canonical over `alltheores:zinc_*`.
+- **Aluminum/lead/nickel**: `tfmg:aluminum_ingot`/`lead_ingot`/
+  `nickel_ingot` all confirmed present in the installed TFMG 1.1.1 jar -
+  canonical over `alltheores:aluminum_*`/`lead_*`/`nickel_*`.
+- **Steel**: `tfmg:steel_ingot` (this pack's own Tier 6 TFMG milestone
+  lock, see the endgame-automation section above) vs. `stellaris:
+  steel_ingot`, a fully parallel ore->ingot chain Stellaris ships with
+  **no ProgressiveStages lock at all** - a real, exploitable bypass of the
+  Tier 6 gate. Folded into the bounded extra sweep the TODO item invited
+  ("check stellaris-vs-tfmg steel"); confirmed and fixed.
+
+**Consolidation mechanism**: hard redirect via raw datapack overrides
+under `pack/kubejs/data/<modid>/...` (the same JSON-override pattern used
+throughout this pack) - each override keeps the original recipe/loot
+entry's id but redirects its *output* to the canonical item, rather than
+adding a new competing recipe. Covers: all 4 metals' smelting/blasting
+(ore/raw/raw_block/dust, 32 files), zinc/aluminum/lead/nickel's crafting
+conversions (block<->ingot<->nugget, plates, raw<->raw_block, 24 files),
+and 12 ATO ore-block loot tables across nether/end/"other" dimension
+variants (redirecting the raw-drop entry only, verified against each
+original loot table's actual JSON via `jar xf` before editing - e.g.
+`alltheores:raw_zinc` -> `create:raw_zinc`, confirmed to exist in the
+Create jar first). Stellaris's steel recipe outputs were redirected the
+same way (`pack/kubejs/data/stellaris/recipe/misc/steel_*.json`, 12
+files).
+
+**Worldgen neutralization, done per-metal not blanket.** ATO's ore
+worldgen lives in `data/alltheores/neoforge/biome_modifier/<metal>_
+{overworld,nether,end}.json` (confirmed via `jar tf`) - three separate
+files per metal, not one. Only the `_overworld` variant was neutered
+(`{"type": "neoforge:none"}`) for zinc/aluminum/lead/nickel, since Create's
+own zinc ore and TFMG's own aluminum/lead/nickel sources (verified: TFMG
+generates aluminum via bauxite, separately from ATO's ore-block system)
+already cover the overworld. The `_nether`/`_end` variants were
+deliberately left alone - Create/TFMG have no nether/End generation for
+these metals, so removing ATO's would leave zinc/aluminum/lead/nickel with
+zero worldgen source in those dimensions. Their ore blocks and loot tables
+(`nether_zinc_ore.json` etc.) still generate and still drop `create:
+raw_zinc` (via the redirected loot table) or the equivalent, so the tag-
+based smelting override still resolves them correctly. Stellaris's steel
+worldgen got asymmetric treatment for the same reason: `add_overworld_
+ores.json` (steel-ore-only in that dimension) was fully neutered since
+vanilla iron - TFMG's real feedstock - already covers the overworld, but
+`add_moon_ores.json` mixes `moon_steel_ore` in with three *other*
+Stellaris-exclusive features (`moon_desh_ore`, `moon_ice_shard_ore`,
+`moon_soul_soil`) with no TFMG/Create counterpart - that file was
+surgically edited to drop only `moon_steel_ore` from its `features` array,
+confirmed by diffing against the original extracted from the jar rather
+than guessing the feature list.
+
+**Tag cleanup via `dedup.js`, not tag-file overrides.** A tag JSON
+override fully replaces the file (no merge, this project's own standing
+datapack rule) - overriding `c:ingots/zinc` directly would silently drop
+every other mod's entry in that tag too. Used KubeJS's additive
+`ServerEvents.tags(...).remove(tag, id)` API instead
+(`pack/kubejs/server_scripts/dedup.js`), removing only the now-dead
+duplicate entries (`alltheores:zinc_ingot`, `stellaris:steel_ore`, etc.)
+while leaving every other mod's tag membership untouched. Entries for
+items that still legitimately generate somewhere (nether/end ore blocks,
+per the worldgen decision above) were deliberately kept in their `c:ores/*`
+tag rather than removed, since the smelting recipe's `tag`-based ingredient
+still needs to resolve them.
+
+**Closing the aluminum tier-bypass hole - the actual point of the aluminum
+consolidation.** `tfmg:aluminum_ingot` is locked at `starforged_age.toml`
+(Tier 5) - confirmed via `grep` against the tier files. Before this
+change, `alltheores:aluminum_ingot` had zero lock anywhere, so a player
+could smelt aluminum via ATO's ore chain and skip the Tier 5 gate entirely
+for anything downstream that only checked for "an aluminum ingot" loosely
+via the `c:ingots/aluminum` tag. Redirecting ATO's own smelting recipes to
+output `tfmg:aluminum_ingot` directly closes this the same way the item
+3/7 pattern closes every other hole in this pack: the locked item id is
+now the *only* aluminum ingot obtainable by any path, so ProgressiveStages'
+existing recipe-blocking already covers it with no new lock needed.
+
+**Bounded extra sweep - one clean case shipped, one ambiguous case flagged
+and skipped.** Per the TODO item's own scoping ("implement only clean
+cases, document-and-skip ambiguous ones"):
+- Stellaris steel vs. TFMG steel: clean case, implemented (above).
+- TFMG silicon vs. Refined Storage silicon: checked both jars directly.
+  `tfmg:silicon_ingot` is a solid metal-ingot-style item fed by TFMG's own
+  bauxite/vat industrial chain (tagged `c:ingots/silicon`), while
+  `refinedstorage:silicon` is a separate raw/processed material used in
+  RS's own processor recipes (tagged plainly `c:silicon`, a different tag
+  namespace entirely, not `c:ingots/*`). The two mods never converge on a
+  shared tag, and nothing in either mod's recipe chain suggests they're
+  meant to be the same underlying resource (one is a cast metal ingot, the
+  other reads as a semiconductor-grade material) - genuinely ambiguous,
+  left alone, flagged here rather than guessed at.
+
+**Orphan sweep**: grepped every `ProgressiveStages/*.toml`, `server_
+scripts/*.js`, and `scripts/gen_economy.py` for references to every
+removed/redirected id. No orphaned references found - none of the removed
+`alltheores:*`/`stellaris:steel_*` ids were ever locked, priced, or
+scripted against directly anywhere else in the pack (they were pure
+parallel-duplicate items with no other pack-side integration), so nothing
+needed patching beyond the consolidation itself.
+
+**Boot-tested clean**: `jar tf`-verified item ids for every redirect
+target before writing the override (`create:zinc_ingot`/`zinc_block`/
+`raw_zinc`, `tfmg:aluminum_ingot`/`lead_ingot`/`nickel_ingot`), all 68 new/
+modified datapack files load with 0 KubeJS errors (`Added 59 recipes,
+removed 120 recipes, modified 9 recipes, with 0 failed recipes`), and the
+pre-existing `tfmg_stellaris_compat:replace_stellaris_loot` non-fatal WARN
+(`stellaris:heavy_ingot` unknown registry key - a bug in that compat mod
+itself, unrelated to this consolidation) is present and unchanged from its
+previously-known baseline.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.
