@@ -138,13 +138,13 @@ function ensureCompound(parent, key) {
 }
 
 function getMetricCache(server, metric) {
-    const root = ensureCompound(server.persistentData, CACHE_ROOT_KEY)
+    let root = ensureCompound(server.persistentData, CACHE_ROOT_KEY)
     return ensureCompound(root, metric)
 }
 
 function cacheMetricValue(server, metric, player, value, extra) {
-    const cache = getMetricCache(server, metric)
-    const entry = new CompoundTagClass()
+    let cache = getMetricCache(server, metric)
+    let entry = new CompoundTagClass()
     entry.putString('username', player.username)
     entry.putInt('value', Math.trunc(value))
     entry.putLong('timestamp', Date.now())
@@ -156,11 +156,11 @@ function cacheMetricValue(server, metric, player, value, extra) {
 
 function countCoins(container) {
     let total = 0
-    const size = container.getContainerSize()
+    let size = container.getContainerSize()
     for (let i = 0; i < size; i++) {
-        const stack = container.getItem(i)
+        let stack = container.getItem(i)
         if (!stack || stack.isEmpty()) continue
-        const value = COIN_VALUES[stack.id]
+        let value = COIN_VALUES[stack.id]
         if (value !== undefined) total += value * stack.getCount()
     }
     return total
@@ -171,7 +171,7 @@ function computeWealth(player) {
     total += countCoins(player.getEnderChestInventory())
     if (NumismaticsClass) {
         try {
-            const account = NumismaticsClass.BANK.getAccount(player)
+            let account = NumismaticsClass.BANK.getAccount(player)
             total += account.getBalance()
         } catch (e) {
             console.error('[vpp leaderboard] bank balance read failed for ' + player.username + ': ' + e)
@@ -202,10 +202,10 @@ function computeLevel(player) {
     let total = 0
     for (let i = 0; i < SKILL_CATEGORIES.length; i++) {
         try {
-            const rl = ResourceLocationClass.fromNamespaceAndPath('puffish_skills', SKILL_CATEGORIES[i])
-            const catOpt = SkillsAPIClass.getCategory(rl)
+            let rl = ResourceLocationClass.fromNamespaceAndPath('puffish_skills', SKILL_CATEGORIES[i])
+            let catOpt = SkillsAPIClass.getCategory(rl)
             if (catOpt.isPresent()) {
-                const expOpt = catOpt.get().getExperience()
+                let expOpt = catOpt.get().getExperience()
                 if (expOpt.isPresent()) {
                     total += expOpt.get().getLevel(player)
                 }
@@ -221,20 +221,20 @@ function computeLevel(player) {
 // computeFn: ServerPlayer -> { value, extra }
 
 function collectPlayerEntries(server, metric, computeFn) {
-    const cache = getMetricCache(server, metric)
-    const onlineKeys = {}
-    const entries = []
+    let cache = getMetricCache(server, metric)
+    let onlineKeys = {}
+    let entries = []
     for (const p of server.players) { // KubeJS EntityArrayList, proven for-of target (mob_scaling.js)
-        const r = computeFn(p)
+        let r = computeFn(p)
         cacheMetricValue(server, metric, p, r.value, r.extra)
         onlineKeys[String(p.uuid)] = true
         entries.push({ name: p.username, value: r.value, extra: r.extra, online: true })
     }
-    const offlineKeys = cache.getAllKeys().toArray() // raw java.util.Set - iterate via toArray, not for-of
+    let offlineKeys = cache.getAllKeys().toArray() // raw java.util.Set - iterate via toArray, not for-of
     for (let i = 0; i < offlineKeys.length; i++) {
-        const key = String(offlineKeys[i])
+        let key = String(offlineKeys[i])
         if (onlineKeys[key]) continue
-        const entry = cache.getCompound(key)
+        let entry = cache.getCompound(key)
         entries.push({
             name: entry.getString('username'),
             value: entry.getInt('value'),
@@ -255,30 +255,30 @@ function collectTeamEntries(server, metric, computeFn) {
         console.error('[vpp leaderboard] FTB Teams manager read failed: ' + e)
         return null
     }
-    const cache = getMetricCache(server, metric)
-    const teams = manager.getTeams().toArray()
-    const results = []
+    let cache = getMetricCache(server, metric)
+    let teams = manager.getTeams().toArray()
+    let results = []
     for (let i = 0; i < teams.length; i++) {
-        const team = teams[i]
-        const members = team.getMembers().toArray()
+        let team = teams[i]
+        let members = team.getMembers().toArray()
         let total = 0
         let best = 0
         let bestExtra = null
         let hasData = false
         for (let j = 0; j < members.length; j++) {
-            const uuid = members[j]
-            const onlinePlayer = server.getPlayerList().getPlayer(uuid)
+            let uuid = members[j]
+            let onlinePlayer = server.getPlayerList().getPlayer(uuid)
             let value, extra
             if (onlinePlayer) {
-                const r = computeFn(onlinePlayer)
+                let r = computeFn(onlinePlayer)
                 value = r.value
                 extra = r.extra
                 cacheMetricValue(server, metric, onlinePlayer, value, extra)
                 hasData = true
             } else {
-                const key = String(uuid)
+                let key = String(uuid)
                 if (cache.contains(key, 10)) {
-                    const entry = cache.getCompound(key)
+                    let entry = cache.getCompound(key)
                     value = entry.getInt('value')
                     extra = entry.contains('extra') ? entry.getString('extra') : null
                     hasData = true
@@ -315,7 +315,7 @@ function sendTop10(player, title, entries, formatLine) {
         player.tell('No data yet - run this again after players have been online.')
         return
     }
-    const top = entries.slice(0, 10)
+    let top = entries.slice(0, 10)
     for (let i = 0; i < top.length; i++) {
         player.tell(`${i + 1}. ${formatLine(top[i])}`)
     }
@@ -324,7 +324,7 @@ function sendTop10(player, title, entries, formatLine) {
 // ---- command registration ----
 
 ServerEvents.commandRegistry(event => {
-    const { commands: Commands } = event
+    let { commands: Commands } = event
 
     function metricCommand(name, computeFn, formatPlayerLine, formatTeamLine, unavailableMessage) {
         function levelGuardFails() {
@@ -332,18 +332,18 @@ ServerEvents.commandRegistry(event => {
         }
 
         function playersExec(ctx) {
-            const player = ctx.source.playerOrException
+            let player = ctx.source.playerOrException
             if (levelGuardFails()) {
                 player.tell(unavailableMessage)
                 return 0
             }
-            const entries = collectPlayerEntries(player.server, name, computeFn)
+            let entries = collectPlayerEntries(player.server, name, computeFn)
             sendTop10(player, `${titleCase(name)} Leaderboard - Players`, entries, formatPlayerLine)
             return entries.length
         }
 
         function teamsExec(ctx) {
-            const player = ctx.source.playerOrException
+            let player = ctx.source.playerOrException
             if (levelGuardFails()) {
                 player.tell(unavailableMessage)
                 return 0
@@ -352,7 +352,7 @@ ServerEvents.commandRegistry(event => {
                 player.tell('Teams leaderboard unavailable: FTB Teams API (dev.ftb.mods.ftbteams.api.FTBTeamsAPI) could not be loaded on this server.')
                 return 0
             }
-            const entries = collectTeamEntries(player.server, name, computeFn)
+            let entries = collectTeamEntries(player.server, name, computeFn)
             if (entries === null) {
                 player.tell('Teams leaderboard unavailable: could not read the FTB Teams manager.')
                 return 0
@@ -397,7 +397,7 @@ ServerEvents.commandRegistry(event => {
 // reflects their final state rather than whatever it was the last time
 // someone happened to run /leaderboard.
 PlayerEvents.loggedOut(event => {
-    const player = event.player
+    let player = event.player
     if (!player || !player.server) return
 
     try {
@@ -407,7 +407,7 @@ PlayerEvents.loggedOut(event => {
     }
 
     try {
-        const t = computeTier(player)
+        let t = computeTier(player)
         cacheMetricValue(player.server, 'tier', player, t.count, t.highestId)
     } catch (e) {
         console.error('[vpp leaderboard] logout tier cache refresh failed for ' + player.username + ': ' + e)

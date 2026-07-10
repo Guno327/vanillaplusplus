@@ -37,6 +37,31 @@ def api(url):
         return json.load(r)
 
 
+def pick_file(files, loader, slug):
+    """Pick the file matching our loader out of a version's file list.
+
+    Caught via an actual L0 boot-log FML warning ("is a Fabric mod and
+    cannot be loaded") for noisiumed: a single Modrinth *version* can
+    bundle jars for multiple loaders at once (fabric/forge/neoforge all
+    published under one version_number), and the 'primary' flag is not
+    guaranteed to point at the file for the loader we actually queried for
+    - noisiumed's primary file was its Fabric jar even when queried with
+    loaders=["neoforge"]. Prefer a file whose name unambiguously names our
+    loader; only fall back to 'primary'/first when that's not possible.
+    """
+    if len(files) == 1:
+        return files[0]
+    loader_matches = [f for f in files if loader.lower() in f["filename"].lower()]
+    if len(loader_matches) == 1:
+        return loader_matches[0]
+    if len(loader_matches) > 1:
+        return next((f for f in loader_matches if f.get("primary")), loader_matches[0])
+    print(f"  WARNING: {slug}: no filename unambiguously matches loader {loader!r} among "
+          f"{[f['filename'] for f in files]}, falling back to primary/first - verify manually",
+          file=sys.stderr)
+    return next((f for f in files if f.get("primary")), files[0])
+
+
 def resolve_one(slug, minecraft, loader, pin_version=None):
     """pin_version: exact Modrinth version_number to use instead of newest -
     for cases where a dependent mod hasn't caught up to the latest release
@@ -54,7 +79,7 @@ def resolve_one(slug, minecraft, loader, pin_version=None):
         v = matches[0]
     else:
         v = versions[0]  # Modrinth returns newest-first
-    primary = next((f for f in v["files"] if f.get("primary")), v["files"][0])
+    primary = pick_file(v["files"], loader, slug)
     return {
         "slug": slug,
         "project_id": v["project_id"],
