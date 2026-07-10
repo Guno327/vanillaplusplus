@@ -1602,6 +1602,102 @@ bug in the compat mod itself) is present and byte-for-byte unchanged
 across all three boot tests this session - the bump didn't fix or worsen
 it, and didn't introduce any new Stellaris-side warnings.
 
+### Leaderboards: wealth / tier / level (TODO.md item 8)
+
+Ask: a `/leaderboard` chat command (no GUI, no item) comparing Numismatics
+wealth, ProgressiveStages tier, and Pufferfish Skills level, for both
+individual players and FTB Teams teams.
+
+**One new file, one established pattern.** `pack/kubejs/server_scripts/
+leaderboard.js` follows `economy.js`'s own `ServerEvents.commandRegistry`
+pattern exactly - no new mod or GUI framework. Coin denominations
+(`spur`=1, `bevel`=8, `sprocket`=16, `cog`=64, `crown`=512, `sun`=4096)
+were copied from `economy.js`'s own already-verified table rather than
+re-derived.
+
+**Wealth**: physical coins are counted across both `Player.getInventory()`
+and `Player.getEnderChestInventory()` (confirmed both implement
+`net.minecraft.world.Container` via `javap` against the installed server
+jars) - plus, going beyond the TODO item's own "may need to be computed
+as counted coin value" hedge, a genuine Numismatics bank-balance read.
+`dev.ithundxr.createnumismatics.Numismatics.BANK` (public static
+`GlobalBankManager`) -> `.getAccount(Player)` -> `.getBalance()` was
+confirmed reachable from Rhino via `Java.loadClass` and `javap` against
+the installed `CreateNumismatics-1.0.20` jar, and is added into the wealth
+total. `getAccount()` is get-or-create (matching the mod's own `/view`
+command's behavior), so calling it can silently create an empty
+0-balance account for a player who never opened a bank terminal -
+harmless, noted in-code.
+
+**Tier**: `player.stages.has(id)` across the 10 ProgressiveStages tier
+ids, the same KubeJS game-stages binding `mob_scaling.js` already uses -
+count of stages held, highest held stage shown by name.
+
+**Level**: `net.puffish.skillsmod.api.SkillsAPI.getCategory(...)` ->
+`Category.getExperience()` -> `Experience.getLevel(ServerPlayer)`,
+confirmed via `javap` against the installed `puffish_skills-0.18.0` jar,
+summed across the 12 skill category ids (Pufferfish Skills has no single
+"overall level" concept - it's inherently per-category, so a sum is the
+`/leaderboard level` value). Category `ResourceLocation`s use namespace
+`puffish_skills`, confirmed by decompiling the mod's own
+`SkillsMod.createIdentifier` (the same resolution method its
+`CategoryArgumentType` uses for the bare category names `skills.js`/
+`dailies.js` already pass to its command).
+
+**Teams**: reuses `player.stages.has(...)` for team tier rather than FTB
+Teams' own separate `TeamStagesHelper` (a different stage store backing
+FTB Quests' `team_stage` feature, not confirmed to share
+ProgressiveStages' own backing data) - `progressivestages.toml`'s
+`team_mode = "ftb_teams"` (confirmed in Phase 6) already means every team
+member reads the same tier value, so this is the more directly-proven
+path per this project's ground-truth rule. `dev.ftb.mods.ftbteams.api.
+FTBTeamsAPI.api().getManager().getTeams()` -> `Team.getMembers()`/
+`getShortName()`, confirmed via `javap` against the installed `ftb-teams`
+jar. Team wealth/level are **summed** across members (own decision, since
+neither is natively team-pooled - stated as the most natural aggregate,
+matching how a shared team storage/XP pool would read); team tier is the
+**max** across members as a safety net even though it should already be
+identical team-wide.
+
+**Caching for offline players/members.** `player.stages.has()` and
+`SkillsAPI...getLevel()` both require a live `ServerPlayer` instance, and
+wealth is expensive to recompute from a live inventory - so all three
+metrics are cached in `server.persistentData` (confirmed present via
+`javap` against `MinecraftServerKJS`, the same pattern `mob_scaling.js`
+already uses on `entity.persistentData`), keyed by metric -> player UUID
+-> `{username, value, extra, timestamp}`. Refreshed for every online
+player on each `/leaderboard` invocation, and also on `PlayerEvents.
+loggedOut` (confirmed present via `javap` against KubeJS's own
+`PlayerEvents` plugin class) so a departing player's numbers are
+reasonably fresh even if nobody ran the command right before they left.
+Offline entries are marked `(last seen)` in the output.
+
+**Command shape**: `/leaderboard <wealth|tier|level> [players|teams]`
+(defaulting to `players`), top-10 via `player.tell`, matching the TODO
+item's own suggested syntax exactly.
+
+**Honest unavailability, never a silent vanilla substitute.** All three
+mod APIs (Numismatics bank, Pufferfish Skills, FTB Teams) are loaded via
+try/catch `Java.loadClass` at script-load time; if any fails to load, the
+corresponding feature degrades to an honest chat message (`"Level
+leaderboard unavailable: Pufferfish Skills server API ... could not be
+loaded on this server."`) rather than silently falling back to something
+misleading like vanilla XP levels - the TODO item's own explicit
+instruction ("never substitute vanilla XP"). Every individual reflective
+call inside the per-player loops is also wrapped in its own try/catch, so
+one player's bad read can't take down the whole leaderboard for everyone
+else.
+
+**Boot-tested clean**: all three mod API classes (`Numismatics`,
+`SkillsAPI`, `FTBTeamsAPI`) loaded successfully via `Java.loadClass` (no
+"failed to load" console errors from `leaderboard.js` in the boot log),
+and the script counted cleanly among the `12/12 KubeJS server scripts...
+0 errors and 0 warnings` boot line. Command registration and live
+leaderboard output couldn't be exercised without a connected client (same
+disclosed limitation as every prior overhaul) - verified that the script
+loads and every referenced class/method resolves, not that a real
+`/leaderboard` invocation produces correct-looking chat output.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.

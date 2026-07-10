@@ -451,7 +451,27 @@ placeable block instead of that menu-driven flow.
   needed on top of the running-cost guardrail, given the performance
   concern flagged above but not resolved into a specific limit.
 
-## 8. Leaderboards: wealth / tier / level comparison
+## 8. ✅ DONE — Leaderboards: wealth / tier / level comparison
+
+**Implemented.** See `DESIGN.md`'s "Leaderboards: wealth / tier / level"
+section for the full writeup: one new file (`pack/kubejs/server_scripts/
+leaderboard.js`) implementing `/leaderboard <wealth|tier|level>
+[players|teams]` via `player.tell`, following `economy.js`'s command-
+registration pattern. Wealth = physical coin count (inventory + ender
+chest) plus a genuinely-reachable Numismatics bank-balance read
+(`dev.ithundxr.createnumismatics.Numismatics.BANK`, confirmed via
+`javap`). Tier = count of held ProgressiveStages stages via `player.
+stages.has`. Level = summed Pufferfish Skills per-category levels via its
+`SkillsAPI` (confirmed reachable via `javap`, all 12 category ids
+verified). Teams = FTB Teams API, wealth/level summed across members,
+tier maxed (reusing `player.stages.has` rather than FTB Teams' own
+separate stage store, since it's already proven team-shared per Phase 6).
+Offline players/members cached in `server.persistentData`, refreshed live
+and on logout, shown with a `(last seen)` marker. All three mod APIs
+wrapped in try/catch with honest "unavailable" chat messages - never a
+silent vanilla-XP substitute. Boot-tested clean (all API classes loaded,
+script counted among 12/12 KubeJS scripts with 0 errors), committed.
+Original scoping notes kept below for reference.
 
 **Ask**: some way for players to compare wealth (Numismatics currency),
 tier progress (ProgressiveStages stage reached), and RPG skill levels
