@@ -20,6 +20,50 @@ const MONSTER_TYPES = new Set([
     'minecraft:piglin_brute', 'minecraft:hoglin', 'minecraft:zoglin',
     'minecraft:guardian', 'minecraft:elder_guardian', 'minecraft:shulker',
     'minecraft:silverfish', 'minecraft:endermite', 'minecraft:vex',
+
+    // Creeper Overhaul 4.0.6 - 16 biome-flavored creeper variants (all
+    // wild-spawning, confirmed via the mod's own neoforge/biome_modifier
+    // add_spawns entries; drops are 100% vanilla so no loot override was
+    // needed for this mod - see TODO.md item 6).
+    'creeperoverhaul:badlands_creeper', 'creeperoverhaul:bamboo_creeper',
+    'creeperoverhaul:beach_creeper', 'creeperoverhaul:birch_creeper',
+    'creeperoverhaul:cave_creeper', 'creeperoverhaul:dark_oak_creeper',
+    'creeperoverhaul:desert_creeper', 'creeperoverhaul:dripstone_creeper',
+    'creeperoverhaul:hills_creeper', 'creeperoverhaul:jungle_creeper',
+    'creeperoverhaul:mushroom_creeper', 'creeperoverhaul:ocean_creeper',
+    'creeperoverhaul:savannah_creeper', 'creeperoverhaul:snowy_creeper',
+    'creeperoverhaul:spruce_creeper', 'creeperoverhaul:swamp_creeper',
+
+    // Born in Chaos 1.7.6 - 45 wild-spawning hostiles (confirmed via the
+    // mod's own neoforge/biome_modifier add_spawns entries; note the
+    // mod's real namespace is "born_in_chaos_v1", not "borninchaos" - the
+    // Modrinth slug doesn't match the jar's registered namespace). Loot
+    // tables were normalized to a vanilla-canonical set in
+    // pack/kubejs/data/born_in_chaos_v1/loot_table/entities/** per
+    // TODO.md item 6; unique weapon/armor drops were stripped.
+    'born_in_chaos_v1:baby_skeleton', 'born_in_chaos_v1:baby_spider',
+    'born_in_chaos_v1:barrel_zombie', 'born_in_chaos_v1:bloody_gadfly',
+    'born_in_chaos_v1:bone_imp', 'born_in_chaos_v1:bonescaller',
+    'born_in_chaos_v1:corpse_fish', 'born_in_chaos_v1:corpse_fly',
+    'born_in_chaos_v1:dark_vortex', 'born_in_chaos_v1:decaying_zombie',
+    'born_in_chaos_v1:decrepit_skeleton', 'born_in_chaos_v1:dire_hound_leader',
+    'born_in_chaos_v1:door_knight', 'born_in_chaos_v1:dread_hound',
+    'born_in_chaos_v1:fallen_chaos_knight', 'born_in_chaos_v1:firelight',
+    'born_in_chaos_v1:glutton_fish', 'born_in_chaos_v1:krampus',
+    'born_in_chaos_v1:krampus_henchman', 'born_in_chaos_v1:lifestealer',
+    'born_in_chaos_v1:missioner', 'born_in_chaos_v1:mother_spider',
+    'born_in_chaos_v1:mr_pumpkin', 'born_in_chaos_v1:mrs_pumpkin',
+    'born_in_chaos_v1:nightmare_stalker', 'born_in_chaos_v1:phantom_creeper',
+    'born_in_chaos_v1:pumpkin_bruiser', 'born_in_chaos_v1:pumpkin_dunce',
+    'born_in_chaos_v1:restless_spirit', 'born_in_chaos_v1:seared_spirit',
+    'born_in_chaos_v1:senor_pumpkin', 'born_in_chaos_v1:siamese_skeletons',
+    'born_in_chaos_v1:sir_pumpkinhead', 'born_in_chaos_v1:skeleton_demoman',
+    'born_in_chaos_v1:skeleton_thrasher', 'born_in_chaos_v1:spirit_guide',
+    'born_in_chaos_v1:spirit_guide_assistant', 'born_in_chaos_v1:spiritof_chaos',
+    'born_in_chaos_v1:supreme_bonescaller', 'born_in_chaos_v1:swarmer',
+    'born_in_chaos_v1:thornshell_crab', 'born_in_chaos_v1:zombie_bruiser',
+    'born_in_chaos_v1:zombie_clown', 'born_in_chaos_v1:zombie_fisherman',
+    'born_in_chaos_v1:zombie_lumberjack',
 ])
 
 const DIMENSION_FACTOR = {

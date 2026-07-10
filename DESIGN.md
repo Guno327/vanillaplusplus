@@ -1935,6 +1935,90 @@ no live client to confirm loot actually rolls artifacts at the expected
 right in an actual crafting grid - verified that the schema is well-formed
 and every recipe/table resolves, not the in-game feel.
 
+### Hostile + passive mob variety, limited unique drops (TODO.md item 6)
+
+Ask: `instructions.md` explicitly called for "more varied mobs/animals" with
+"still limited types of drop" (its own example: multiple cattle types should
+all still just drop beef) - never addressed in any prior phase. The pack was
+still effectively vanilla-mob-only going into this item.
+
+**Mod choice (wave-1 scaffolding, folded in here): Creeper Overhaul 4.0.6 +
+Born in Chaos 1.7.6 + Naturalist for passive fauna.** Alex's Mobs was
+explicitly ruled out during scoping for being known to ship lots of
+mob-specific unique drops/trophies, cutting directly against this item's own
+drop-cleanliness constraint. Creeper Overhaul required two additional
+dependencies discovered only via an actual boot-test crash (`resourceful-
+config` declared in its own `neoforge.mods.toml`; `resourceful-lib` needed
+at the **class level** - `NoClassDefFoundError` on `ResourcefulRegistries` -
+even though neither Modrinth's dependency metadata nor the mod's own
+`neoforge.mods.toml` names it, the same discovery pattern this pack already
+hit for Ars Nouveau's geckolib/curios dependency in Phase 7).
+
+**Namespace catch: Born in Chaos' real data namespace is `born_in_chaos_v1`,
+NOT the Modrinth slug `borninchaos`.** Confirmed by extracting the jar
+directly - a slug-named override path would have silently no-op'd against
+nothing, producing zero errors and zero effect, the worst kind of silent
+failure. Every loot override and `mob_scaling.js` entry for this mod uses
+the verified real namespace.
+
+**Canonical drop mapping, patched after the fact regardless of what each mod
+ships natively** (per the recorded decision - mod selection was driven by
+creature quality/variety, not narrowed to only-vanilla-drop mods up front):
+entity loot table overrides at `pack/kubejs/data/born_in_chaos_v1/
+loot_table/entities/` (22 files) and `pack/kubejs/data/naturalist/
+loot_table/entities/` (10 files), each copied from the real installed-jar
+table and redirected onto this pack's existing shared canonical drop set
+(beef/porkchop/mutton/chicken/leather/feathers/string/etc.) - matching
+`instructions.md`'s own cattle/bird example precisely. Creeper Overhaul's 16
+biome-flavored creeper variants were checked against the installed jar and
+found to already be 100% vanilla-drop (they just reskin/reflavor the
+creeper, no custom items anywhere in their loot), so no override was needed
+there at all - verified, not assumed, before leaving them untouched.
+
+**Load-bearing custom items kept, unique weapons/armor/charms stripped.**
+Where a mob's native drop is structurally load-bearing to that mod's own
+mechanics (not just a flavor drop), it stayed in the overridden table
+alongside the canonical redirect; every unique weapon, armor piece, and
+combat-stat charm was stripped outright. That last category specifically
+includes Born in Chaos' charm accessories (`charmof_power/resistance/
+stealth/endurance/fury`) - a call made and endorsed during implementation,
+not just a drop-cleanliness technicality: permanent combat-stat accessories
+from mob drops would have competed directly with both this pack's own skill
+system and item 5's Artifacts as the sanctioned source of that kind of
+bonus, so they were cut rather than kept as a second, unscaled source of the
+same thing.
+
+**Difficulty-scaling hookup, as decided**: `mob_scaling.js`'s `MONSTER_
+TYPES` whitelist - previously a hardcoded `Set` of vanilla mob ids only -
+was extended with all 16 Creeper Overhaul variants and all 45 wild-spawning
+Born in Chaos hostiles (61 new ids total), so every new hostile participates
+in the same dimension/distance/player-tier scaling, star-rating nametag, and
+bonus-currency-on-kill system vanilla hostiles already get. Passive mobs
+(all of Naturalist, Born in Chaos' non-hostile entries) stay outside this
+system entirely, consistent with vanilla passive mobs already being excluded
+from it today - no new precedent needed there.
+
+**Flagged for live-play review, not blocking**: 41 of Born in Chaos' 45
+hostiles spawn via a `neoforge:any` biome predicate - everywhere, in every
+dimension, with no biome-appropriateness filtering relative to the ~100 new
+Terralith biomes the world exploration overhaul added. Left as-is rather
+than guessed at without a live world to actually judge "does this feel too
+samey" against - recorded as a candidate for a future spawn-tuning pass if
+it turns out to be a real problem in practice, not treated as a bug now.
+
+**Boot-tested clean**: `Creeper Overhaul 4.0.6`, `Born in Chaos 1.7.6`, and
+`Naturalist 1.0.2` (plus `resourcefulconfig`/`resourcefullib`) all load with
+no `ModLoadingException`; all 32 entity loot overrides parse with zero
+missing-loot-table/unknown-item errors; `mob_scaling.js`'s extended
+`MONSTER_TYPES` set loaded cleanly among the 14/14 KubeJS server scripts
+with 0 errors, 0 warnings.
+
+**Disclosed limitation**: same as every other overhaul in this sandbox - no
+live client to confirm actual spawn rates, drop rates, or the `neoforge:any`
+spawn-everywhere finding above feel right in a real explored world; verified
+that every mod loads, every override resolves, and the scaling hookup is
+correctly wired, not the in-game feel.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.
