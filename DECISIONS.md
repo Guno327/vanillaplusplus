@@ -419,6 +419,75 @@ server-side presence for full functionality (JEI recipe sync, Xaero's
 optional server component) — side:both is acceptable where the jar
 supports it, client-only otherwise.
 
+## Acceleration wave during release cut (orchestrator calls, 2026-07-10 ~02:50 UTC)
+
+While the release integrator owns main/server, three parallel accelerators
+run in isolation:
+- **Items 10 and 11 pre-implemented in git WORKTREES** (own branches,
+  static validation only — no boots, no main-tree writes, read-only
+  access to the main repo's server/mods jars). Merged + boot-verified by
+  a post-release integrator, NOT before the 1.0.0 cut. Provisional
+  balance calls made to unblock item 11: XP formula unchanged (accept the
+  ~50% longer grind for 15 nodes; playtest later), respec initially free
+  (cost/cooldown friction deferred to a balance pass) — both explicitly
+  provisional.
+- **L3 join-mechanism research** runs against its OWN /tmp server copy on
+  port 25566 with online-mode=false (test-only profile per the recorded
+  rule) and its own isolated HeadlessMC game dir — explicitly forbidden
+  from ~/.minecraft (in use by the release integrator's L2) and the repo
+  server/.
+- Release-wave finding worth its own line: **noisiumed had shipped a
+  non-functional Fabric jar since Phase 9** (Modrinth "primary" file flag
+  unreliable when a version bundles multi-loader jars) — resolver fixed to
+  prefer loader-matched jars; the pack's worldgen-noise optimizer loads
+  for the first time ever in 1.0.0.
+
+## Item 11 pre-built — branch ready for post-release merge (2026-07-10 ~03:10 UTC)
+
+- **Branch: `worktree-agent-a77d7c3d4e95059c7`** (2 commits: generator
+  rewrite + regenerated 12×15-node trees; skill_respec.js). Static
+  validation complete: all 61 JSON files parse, every category has
+  exactly 15 nodes / 14 normal edges / 1 exclusive edge between fork
+  entries, zero `epicfight:` attributes anywhere, all SkillsAPI
+  signatures javap-verified (including bytecode confirmation of the
+  orphaned-node gotcha — unlocked skills return UNLOCKED before the
+  exclusion check, so respec MUST lock all 5 path nodes, which it does).
+- Endorsed deviations: /respec uses 12 literal subcommands (no
+  Commands.argument precedent in this codebase to verify unbooted);
+  Skill$State compared via string, not nested-class loading.
+- **Post-release merge checklist** (boot-verify after merging the
+  branch): no "[puffish_skills] Data pack could not be loaded" at boot;
+  in-game exclusive-edge behavior (unlock a0 → b0 EXCLUDED, a-path opens,
+  b-path stays shut); /respec full-path lock + point refund + re-pick;
+  /respec-with-nothing-committed says "nothing to respec" without
+  throwing; L0/L1 suites still green.
+
+## Item 10 pre-built — branch ready for post-release merge (2026-07-10 ~03:25 UTC)
+
+- **Branch: `worktree-agent-ae58d0ccfdfb4ce35`** (3 commits: manifest +
+  lockfile for tiab-universal 6.5.4 + tiabfix; brass_age.toml lock on
+  `tiab:time_in_a_bottle`; tick_accelerator.js with both mechanisms).
+- Ground-truthed: exact refund recipe (3 gold, 2 diamond, 2 lapis, clock,
+  glass bottle); the un_acceleratable tag is replace:false and actively
+  read by the mod; fix addon modId `tiabfix` (its jar-internal version
+  string says 1.0.0 vs Modrinth's 1.3.0 — cosmetic mismatch, both pinned).
+- Two verification wins that shaped the implementation: KubeJS's
+  ItemCraftedKubeEvent is NOT cancellable (confirmed — enforcement voids
+  the stack via count=0 + refunds, exactly the fallback DECISIONS.md
+  anticipated), and NeoForge fires the craft event BEFORE the crafted
+  item reaches the inventory (verified in ResultSlot bytecode), so the
+  live one-per-player scan cannot false-positive on the bottle being
+  crafted.
+- **Post-release merge checklist**: registry-scan runs at tag-gen time
+  with a sane logged count; tagged Create block genuinely refuses
+  acceleration in-game; tiabfix mixins apply + crops/animals accelerate;
+  double-craft (incl. shift-click batch) voids+refunds the second bottle
+  and re-craft after genuine loss works; spawners remain accelerable.
+- Note for merge order: BOTH pre-built branches (items 10 + 11) touch
+  pack/kubejs/server_scripts/ additively and item 10 touches
+  brass_age.toml/manifest — merge each with a boot test between, item
+  order at the post-release integrator's discretion.
+
 ## Standing implementation notes
 
 - Incidental Stellaris bump rode along with the item 7 resolver run
