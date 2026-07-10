@@ -55,5 +55,24 @@
 				}
 			}
 		]
+	},
+	"step_height+0.25": {
+		"title": "+0.25 Step Height",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "scaffolding"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.step_height",
+					"value": 0.25,
+					"operation": "addition"
+				}
+			}
+		]
 	}
 }

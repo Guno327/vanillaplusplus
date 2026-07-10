@@ -24,29 +24,54 @@
 		"y": 0,
 		"definition": "attack_speed+3%"
 	},
-	"n5": {
+	"a0": {
 		"x": 160,
-		"y": 0,
+		"y": -40,
+		"definition": "attack_speed+3%"
+	},
+	"a1": {
+		"x": 192,
+		"y": -40,
 		"definition": "sword_damage+3%"
 	},
-	"n6": {
+	"a2": {
+		"x": 224,
+		"y": -40,
+		"definition": "attack_speed+3%"
+	},
+	"a3": {
+		"x": 256,
+		"y": -40,
+		"definition": "sword_damage+3%"
+	},
+	"a4": {
+		"x": 288,
+		"y": -40,
+		"definition": "attack_speed+3%"
+	},
+	"b0": {
+		"x": 160,
+		"y": 40,
+		"definition": "attack_damage+3%"
+	},
+	"b1": {
 		"x": 192,
-		"y": 0,
+		"y": 40,
 		"definition": "knockback+5%"
 	},
-	"n7": {
+	"b2": {
 		"x": 224,
-		"y": 0,
-		"definition": "melee_damage+2%"
+		"y": 40,
+		"definition": "attack_damage+3%"
 	},
-	"n8": {
+	"b3": {
 		"x": 256,
-		"y": 0,
-		"definition": "sword_damage+3%"
+		"y": 40,
+		"definition": "knockback+5%"
 	},
-	"n9": {
+	"b4": {
 		"x": 288,
-		"y": 0,
-		"definition": "attack_speed+3%"
+		"y": 40,
+		"definition": "attack_damage+3%"
 	}
 }

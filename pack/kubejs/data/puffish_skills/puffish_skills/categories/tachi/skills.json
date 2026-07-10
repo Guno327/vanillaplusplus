@@ -24,29 +24,54 @@
 		"y": 0,
 		"definition": "luck+1"
 	},
-	"n5": {
+	"a0": {
 		"x": 160,
-		"y": 0,
-		"definition": "attack_damage+3%"
-	},
-	"n6": {
-		"x": 192,
-		"y": 0,
+		"y": -40,
 		"definition": "attack_speed+3%"
 	},
-	"n7": {
-		"x": 224,
-		"y": 0,
+	"a1": {
+		"x": 192,
+		"y": -40,
 		"definition": "move_speed+1%"
 	},
-	"n8": {
+	"a2": {
+		"x": 224,
+		"y": -40,
+		"definition": "attack_speed+3%"
+	},
+	"a3": {
 		"x": 256,
-		"y": 0,
+		"y": -40,
+		"definition": "move_speed+1%"
+	},
+	"a4": {
+		"x": 288,
+		"y": -40,
+		"definition": "attack_speed+3%"
+	},
+	"b0": {
+		"x": 160,
+		"y": 40,
+		"definition": "attack_damage+3%"
+	},
+	"b1": {
+		"x": 192,
+		"y": 40,
 		"definition": "luck+1"
 	},
-	"n9": {
+	"b2": {
+		"x": 224,
+		"y": 40,
+		"definition": "attack_damage+3%"
+	},
+	"b3": {
+		"x": 256,
+		"y": 40,
+		"definition": "luck+1"
+	},
+	"b4": {
 		"x": 288,
-		"y": 0,
+		"y": 40,
 		"definition": "attack_damage+3%"
 	}
 }

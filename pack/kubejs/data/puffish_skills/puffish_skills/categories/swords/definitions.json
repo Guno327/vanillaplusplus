@@ -74,5 +74,24 @@
 				}
 			}
 		]
+	},
+	"attack_damage+3%": {
+		"title": "+3% Attack Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "iron_sword"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.attack_damage",
+					"value": 0.03,
+					"operation": "multiply_base"
+				}
+			}
+		]
 	}
 }
