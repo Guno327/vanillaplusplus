@@ -69,7 +69,7 @@
 // like EntityArrayList are a proven for-of target, but a *raw* Java
 // Iterable/Set is walked via explicit iteration instead, not for-of).
 ServerEvents.tags('block', event => {
-    const UN_ACCELERATABLE_TAG = 'tiab:un_acceleratable'
+    let UN_ACCELERATABLE_TAG = 'tiab:un_acceleratable'
     // Never touch spawners - explicit, twice-stated user decision in
     // DECISIONS.md ("Spawners deliberately remain accelerable... synergy
     // with Apothic Spawners upgrades is an intended late-game payoff").
@@ -79,29 +79,41 @@ ServerEvents.tags('block', event => {
     // vanilla SpawnerBlock, no relation to Create's KineticBlockEntity
     // hierarchy at all) but this id-based skip is kept as an explicit,
     // readable guarantee rather than relying solely on the type check.
-    const NEVER_EXCLUDE = ['minecraft:spawner', 'minecraft:trial_spawner']
+    let NEVER_EXCLUDE = ['minecraft:spawner', 'minecraft:trial_spawner']
 
     try {
-        const BuiltInRegistries = Java.loadClass('net.minecraft.core.registries.BuiltInRegistries')
-        const EntityBlockClass = Java.loadClass('net.minecraft.world.level.block.EntityBlock')
-        const KineticBlockEntityClass = Java.loadClass('com.simibubi.create.content.kinetics.base.KineticBlockEntity')
-        const BlockPosClass = Java.loadClass('net.minecraft.core.BlockPos')
+        // NOTE: every binding in this try block (and the while loop below)
+        // is declared with `let`, not `const` - this pack's installed Rhino
+        // engine (KubeJS 2101.7.2/build.368) does not give `const` fresh
+        // per-invocation/per-iteration scoping inside a try/catch or loop
+        // body that can run more than once (see DESIGN.md's "Release
+        // engineering" Rhino-bugs note - the same fix already applied to
+        // selftest.js/leaderboard.js). ServerEvents.tags' callback runs more
+        // than once per boot (confirmed at post-release-merge boot-test
+        // time: the original all-`const` version threw "TypeError:
+        // redeclaration of const/var X" on the very first statement of a
+        // second invocation, sending every boot down the static-fallback
+        // path below instead of the real registry scan).
+        let BuiltInRegistriesClass = Java.loadClass('net.minecraft.core.registries.BuiltInRegistries')
+        let EntityBlockClass = Java.loadClass('net.minecraft.world.level.block.EntityBlock')
+        let KineticBlockEntityClass = Java.loadClass('com.simibubi.create.content.kinetics.base.KineticBlockEntity')
+        let BlockPosClass = Java.loadClass('net.minecraft.core.BlockPos')
 
-        const blockRegistry = BuiltInRegistries.BLOCK
-        const zeroPos = BlockPosClass.ZERO
+        let blockRegistry = BuiltInRegistriesClass.BLOCK
+        let zeroPos = BlockPosClass.ZERO
 
         let scanned = 0
         let tagged = 0
         let skippedSpawners = 0
-        const it = blockRegistry.iterator()
+        let it = blockRegistry.iterator()
         while (it.hasNext()) {
-            const block = it.next()
+            let block = it.next()
             scanned++
             if (!(block instanceof EntityBlockClass)) continue
 
-            const idObj = blockRegistry.getKey(block)
+            let idObj = blockRegistry.getKey(block)
             if (!idObj) continue
-            const id = idObj.toString()
+            let id = idObj.toString()
             if (NEVER_EXCLUDE.indexOf(id) !== -1) {
                 skippedSpawners++
                 continue
@@ -171,8 +183,15 @@ const TIAB_RECIPE_REFUND = [
 
 ItemEvents.crafted(TIAB_ITEM_ID, event => {
     try {
-        const player = event.player
-        const craftedStack = event.item
+        // `let`, not `const` - this callback fires on every craft of this
+        // item, and this pack's installed Rhino build does not give `const`
+        // fresh scoping across repeat invocations of the same try block
+        // (see the registry-scan fix above / DESIGN.md's Rhino-bugs note);
+        // an all-`const` version here would throw "redeclaration" on the
+        // second bottle craft, silently defeating the one-per-player
+        // enforcement this whole file exists to add.
+        let player = event.player
+        let craftedStack = event.item
         if (!player || !craftedStack || craftedStack.isEmpty()) return
 
         // NeoForge's PlayerEvent.ItemCraftedEvent (which this KubeJS event
@@ -196,7 +215,7 @@ ItemEvents.crafted(TIAB_ITEM_ID, event => {
         // offhand" all at once, per DECISIONS.md's requirement - it does
         // NOT reach Ender Chest, Curios slots, backpacks, or any storage
         // network (see the disclosed gaps at the top of this file).
-        const existingSlot = player.inventory.find(TIAB_ITEM_ID)
+        let existingSlot = player.inventory.find(TIAB_ITEM_ID)
         if (existingSlot < 0) {
             return // no existing bottle found - this craft is legitimate
         }
