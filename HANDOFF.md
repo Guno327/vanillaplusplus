@@ -1,16 +1,16 @@
 # Handoff
 
-**Status as of this note: autonomous work in progress, mid-TODO-list.**
-The user asked for a planning-only session (brainstormed and scoped 8
-TODO items into `TODO.md`, no implementation) followed by unattended
-overnight-style work: implement `TODO.md` items in order, self-scheduling
-wakeups across usage-refresh boundaries (CronCreate one-shot jobs, ~4
-hours apart — see the memory note below for the pattern), until either
-the list is exhausted or told to stop. **Read `TODO.md` before doing
-anything else** — it's the authoritative backlog, each item pre-scoped
-with the user so implementation shouldn't need to re-ask questions already
-answered there. Item 1 (ore veins) is done; resume at whichever item is
-next un-checked.
+**Status as of this note: wave-2 complete. All 8 originally-scoped TODO.md
+items (1-8) plus items 4/5/6's actual mechanics are implemented, boot-tested,
+committed, and documented in `DESIGN.md`. Items 9/10/11 (food overhaul, tick
+accelerator, skill-tree overhaul) are fully scoped and recorded in `TODO.md`
+but explicitly DEFERRED POST-RELEASE per user directive — do not implement
+them without being told to. Next focus is RELEASE PREP, not more features —
+see "Release prep (current focus)" below.** Read `TODO.md` before doing
+anything else — it's the authoritative backlog. `DECISIONS.md` at the repo
+root is the durable decision log for everything decided in orchestrator-mode
+sessions after the original 8-item planning pass; treat it as trusted input
+alongside `TODO.md`/`DESIGN.md`.
 
 ## What's done
 
@@ -85,111 +85,94 @@ boot-tested, committed, and documented in `DESIGN.md`:
     appropriate. All three mod APIs wrapped with honest "unavailable"
     fallbacks, never a silent vanilla-XP substitute. See DESIGN.md's
     "Leaderboards: wealth / tier / level" section.
+11. **TODO.md item 4 (mobility)** — Create Stuff & Additions' native 4-tier
+    jetpack ladder (copper/andesite/brass/netherite) mapped 1:1 onto
+    Andesite/Brass/Precision/Induction Age; a Starforged Age (Tier 5)
+    capstone grants item-free, stage-bound persistent `abilities.mayfly`
+    via `mobility.js`, surviving death by construction since the grant is
+    driven by ProgressiveStages stage membership, not an item/effect. Also
+    closed the `create_nj` duplicate-netherite-jetpack tier-bypass hole
+    wave-1 flagged, folded into `dedup.js`'s item-3 pattern. See DESIGN.md's
+    "Personal mobility: jetpack -> persistent creative flight" section.
+12. **TODO.md item 5 (Curios)** — Artifacts 13.2.1 wired into this pack's
+    existing 4-tier structure-loot rarity buckets as its sole placement
+    path (its own native loot injection silenced entirely); a 48-item
+    curation table (ground-truthed, not the estimated 47); a
+    duplicate-combine upgrade mechanic (`curios_upgrades.js`, 46 recipes)
+    using Curios' own `curios:attribute_modifiers` component since
+    vanilla's never applies in Curios slots. See DESIGN.md's "Curios as a
+    discoverable/upgradeable player-ability system" section.
+13. **TODO.md item 6 (mob variety)** — Creeper Overhaul + Born in Chaos
+    (hostile) + Naturalist (passive fauna), every new mob's loot patched
+    onto this pack's shared canonical drop set (32 entity loot overrides),
+    unique weapons/armor/combat-stat charms stripped, `mob_scaling.js`'s
+    `MONSTER_TYPES` extended with 61 new hostile ids. See DESIGN.md's
+    "Hostile + passive mob variety, limited unique drops" section.
 
-## TODO backlog (in progress)
+## Release prep (current focus)
 
-`TODO.md` at the repo root has 8 user-scoped items from a planning session
-— read it fully before picking up work. Items 1, 2, 3, 7, and 8 are done
-(see above). Items 4, 5, and 6 (jetpack→creative-flight mobility,
-discoverable Curios abilities, hostile/passive mob variety) are
-**scaffolded but not implemented** — see "Wave-2 scaffolding" below for
-exactly what's in place vs. still open. Implement in order unless told
-otherwise, don't re-litigate decisions already recorded in the file, but
-do still verify any named mod against the actually-installed jar before
-building on it.
+All 8 originally-scoped `TODO.md` items (1-8) plus items 4/5/6's actual
+mechanics are done (see "What's done" above) — the pack is feature-complete
+for an initial release per user directive (2026-07-10 ~01:15 UTC). Three
+further items (9: food overhaul, 10: tick accelerator, 11: skill-tree
+overhaul) are fully scoped in `TODO.md`/`DECISIONS.md` but **explicitly
+deferred to post-release** — don't implement them without being told to.
 
-### Wave-2 scaffolding (mods added, mechanics NOT implemented)
+Priority order from here, per the user's own framing:
+1. ~~Wave-2 integration of items 4/5/6~~ — **done, this pass.**
+2. **Client-side test harness + functional test suite — architecture
+   ADOPTED (`DECISIONS.md`, ~2026-07-10 02:15 UTC), NOT YET IMPLEMENTED.**
+   GameTest was rejected (needs custom Java, this pack has none by design);
+   protocol bots were rejected (confirmed dead end - NeoForge handshake
+   doesn't cooperate). Adopted instead, in implementation order: **L0** boot
+   smoke (`scripts/tests/l0_boot_smoke.sh` - formalize the grep discipline
+   already used ad hoc every boot test in this project, against a
+   documented known-noise baseline); **L1** a KubeJS `/vpp_selftest` command
+   + runner (`l1_selftest.py`, via `cmd_fifo` or RCON) covering ~20
+   data/parse/count/resolve assertions plus sell/leaderboard round-trips
+   (the assertion list is sketched against expected KubeJS API surface, NOT
+   yet verified against the installed jar - the implementing agent must
+   verify each one and disclose any that Rhino can't actually reach); **L2**
+   HeadlessMC client smoke (prototype-verified, artifacts at
+   `/tmp/vpp-research/headlessmc/` - pinned launcher 2.9.0, note the repo
+   moved to `headlesshq/headlessmc`) with the full `side != server` mod set,
+   to catch client-only mixin crashes; **L3** an actual client join test,
+   deliberately deferred until L0/L1/L2 are solid (unproven join mechanism,
+   highest cost, least proven value so far). Watch-list once L2 exists:
+   loaded-mods count, Create contraption/pulley/train rendering, GeckoLib
+   entity visibility, Epic Fight animation playback, and a narrow
+   Create-Aeronautics-Staff-of-Physics inventory-display bug reported at
+   1.6.10 (confirm fixed at the installed 1.6.11).
+3. **A release containing both a server bundle and a client bundle —
+   architecture ADOPTED, NOT YET IMPLEMENTED.** `scripts/build_mrpack.py`
+   already builds the client `.mrpack` (currently hardcodes version
+   `0.9.0`). A new `scripts/build_server_bundle.py` is planned but not yet
+   written: reuse `build_server.py`, zip `server/` minus
+   `world/`/`logs/`/`cmd_fifo`, include `run.sh`/`libraries/`, and handle
+   the EULA as an explicit first-run prompt documented in the bundle's
+   README (a silent pre-acceptance was explicitly rejected). Versioning
+   plan: a single `pack/VERSION` file read by both build scripts, embedded
+   in both bundle filenames, bumped to `1.0.0` at the actual release cut.
+   The shipped server bundle keeps `online-mode=true`; any L3 join testing
+   must use a separate test-only `server.properties` profile with it
+   flipped off, never the shipped default.
 
-An integrator pass (2026-07-10) added the 7 new mods items 4-6 need to
-`pack/manifest.json`/`pack/mods.lock.json` and boot-tested them in, plus
-added the jetpack tier locks item 4 needs — but did **not** implement any
-of items 4/5/6's actual mechanics (that's still wave-2's job):
+`DECISIONS.md` at the repo root is the durable decision log for
+orchestrator-mode sessions (operating model, per-item research verdicts,
+items 9/10/11's finalized specs, the full release test/bundling
+architecture above, standing implementation notes) — read it alongside
+`TODO.md`/`DESIGN.md` before picking up any of the above; it's more current
+than this summary on the release-prep specifics.
 
-- **Item 4 (jetpacks)**: `create-stuff-additions` (mod id `create_sa`,
-  4 native chestplate jetpacks: copper/andesite/brass/netherite) +
-  `create-netherite-additions` (mod id `create_nj`, adds a Netherite
-  Exoskeleton + its own second netherite jetpack). Tier locks added:
-  copper→andesite_age, andesite→brass_age, brass→precision_age,
-  **both** netherite jetpacks (`create_sa:netherite_jetpack_chestplate`
-  AND `create_nj:netherite_jetpack_chestplate`)→induction_age (locking
-  both closes a tier-bypass hole the same way item 3 did for aluminum).
-  **GROUND-TRUTH FINDING for wave-2**: `create_nj`'s netherite jetpack is
-  a duplicate of `create_sa`'s own native one (different recipe, same
-  functional slot) - worth folding into TODO.md item 3's dedup pattern,
-  not confirmed necessary since `create_nj` is also needed for its
-  Exoskeleton. **Still open**: the Starforged Age creative-flight
-  capstone itself (not started - no mod/mechanism chosen yet), and
-  whether any intermediate jetpack rungs need KubeJS-scripted stat
-  changes beyond the mod's own native behavior.
-- **Item 5 (Curios)**: `artifacts` added (zero hard deps, Curios/
-  cloth-config/JEI all soft-detected). **Nothing else done** - loot-table
-  wiring into `scripts/gen_structure_loot.py`'s rarity tiers, the
-  duplicate-combine upgrade mechanic, and the "no tier lock, loot-weight
-  only" balance question are all still fully open.
-- **Item 6 (mob variety)**: `creeper-overhaul` + its required deps
-  `resourceful-config` and `resourceful-lib` (the latter needed at the
-  **class level** - `NoClassDefFoundError` on `ResourcefulRegistries` -
-  even though neither Modrinth's dependency metadata nor the mod's own
-  `neoforge.mods.toml` declares it; found only via an actual boot-test
-  crash, same pattern as this pack's existing geckolib/curios precedent
-  for Ars Nouveau). Plus `borninchaos` (confirmed via its own jar:
-  geckolib is genuinely optional there, Modrinth's metadata is wrong to
-  call it required) and `naturalist` (geckolib 4.9.2 satisfies its
-  `>=4.7` requirement). **Nothing else done** - no loot-table patching to
-  the shared canonical drop set, no `mob_scaling.js` `MONSTER_TYPES`
-  extension, no biome-appropriateness pass against the new Terralith
-  biomes.
-
-All 7 new mods are boot-tested clean as of this pass (third boot test,
-after fixing the resourceful-lib gap above) - they load with no
-`ModLoadingException`/`FATAL` and no new errors beyond one pre-existing-
-pattern non-fatal WARN (`create_nj:netherite_flywheel_recipe` fails to
-parse - a bug in that mod's own bundled recipe JSON, unrelated to
-anything added this pass, doesn't block loading).
-
-This is an unattended, self-resuming work session: each wakeup should
-schedule the *next* wakeup (~4 hours out, via `CronCreate` with
-`recurring: false` since `ScheduleWakeup` caps at 1 hour) *before*
-starting any work, then read this file + `TODO.md`, then continue. Keep
-working through items without stopping at each one's completion — only
-stop if the list is exhausted or capacity runs out mid-task (in which
-case, update this section with exactly what's mid-flight before you can't
-anymore). **Scheduling gotcha learned the hard way**: a one-shot cron
-pinned to the *current* minute has already passed by the time it's
-created and will never fire — always pin it to a future time and sanity-
-check with CronList.
-
-**Orchestrator mode (user directive, 2026-07-10 ~00:05 UTC)**: the main
-session now orchestrates; heavy implementation/research is delegated to
-background subagents on the "sonnet" model via the Agent tool. Division
-of labor: subagents write code/do research but never run git, never boot
-the server, and never touch manifest.json/mods.lock.json/DESIGN.md/
-HANDOFF.md/TODO.md; the orchestrator integrates their output, runs the
-single boot test (one server, one port — boot tests can't run
-concurrently anyway), commits each logical part separately, updates docs,
-and adds any new mods to the manifest itself via resolve_mods.py/
-build_server.py.
-
-**Status as of the integrator pass (2026-07-10, ~00:35-00:47 UTC)**: the
-4 sonnet subagents referenced above (items 3+8 implementation, items 4+5
-and 6+7 research) have all completed and been integrated, boot-tested
-(3 full boot cycles - items 3/7(partial)/8 together, then the completed
-FTB Chunks config, then the 7 wave-2-scaffold mods), and committed. Items
-3, 7, and 8 are now fully done (see "What's done" above). Items 4/5/6 are
-scaffolded only (new mods in the manifest + jetpack tier locks) - see
-"Wave-2 scaffolding" above for the exact boundary of what's in place vs.
-still open.
-
-**Next session should**: pick up items 4/5/6's actual mechanics using the
-scaffolding + research briefs already in place (mods installed, deps
-verified, jetpack items tier-locked) - no further mod-discovery research
-should be needed for the mods already chosen, though item 4's creative-
-flight capstone and item 5's content-mod choice for Curios still need
-mod/mechanism decisions of their own (only `artifacts` was scaffolded per
-the research brief's leading candidate; nothing was scaffolded yet for a
-capstone mechanism). Same orchestrator/subagent division of labor as
-before: subagents write code/do research, the orchestrating session runs
-git/boot-tests/manifest edits/docs.
+**Serial-resource ownership still applies** if work resumes in
+orchestrator/subagent mode: exactly one integrator agent owns git, `server/`
+boots, `pack/manifest.json`+`mods.lock.json`, `pack/config/**`, and the docs
+(`DESIGN.md`/`HANDOFF.md`/`TODO.md`) at a time; parallel agents get disjoint
+file scopes and never touch those. This wave hit a live example of why that
+matters — see `DECISIONS.md`'s operating-model notes and this session's own
+checkpoint log (`/tmp/vpp-agent-checkpoints/wave2-integrator.md`) for the
+concurrent-integrator race this pass detected and safely waited out rather
+than fighting over git.
 
 Full narrative and rationale for every decision lives in `DESIGN.md` —
 that file, not this one, is the source of truth. `instructions.md` has the

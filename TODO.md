@@ -210,7 +210,25 @@ down to one canonical item each, not left sitting side by side.
   already tier-gated, the other isn't) — the merge needs to preserve
   whichever gating is more correct, not silently drop it.
 
-## 4. Personal mobility progression: jetpack → persistent creative flight
+## 4. ✅ DONE — Personal mobility progression: jetpack → persistent creative flight
+
+**Implemented.** See `DESIGN.md`'s "Personal mobility: jetpack -> persistent
+creative flight" section for the full writeup: Create Stuff & Additions'
+native 4-tier jetpack ladder (copper/andesite/brass/netherite) mapped 1:1
+onto Andesite/Brass/Precision/Induction Age; the Starforged Age (Tier 5)
+capstone is a straight `abilities.mayfly` grant/revoke keyed to
+ProgressiveStages stage membership (`pack/kubejs/server_scripts/
+mobility.js`), not a wearable — item-free by design, survives death by
+construction since the grant is stage-driven rather than item/effect-driven
+(this pack's `keepInventory: false` never touches it). Also closed the
+tier-bypass hole wave-1 flagged: `create-netherite-additions` shipped a
+second, duplicate netherite jetpack — its recipe is now redirected to the
+canonical `create_sa` item via a datapack override, folded into `dedup.js`'s
+existing TODO.md item 3 pattern; both jetpacks' `induction_age.toml` locks
+stay in place regardless (defense in depth). Two disclosed boot-only
+unknowns remain (no per-tick mayfly reassertion; client-side toggle
+responsiveness mid-session unverified without a live client). Boot-tested
+clean, committed. Original scoping notes kept below for reference.
 
 **Ask**: the pack currently has no personal flight ability at all — only
 Elytra gliding (Precision Age) and Create Aeronautics vehicles (Brass Age
@@ -261,7 +279,24 @@ creative-style flight.
   flagging since a "persistent" flight capstone that's trivially lost on
   death would undercut the "persistent" framing.
 
-## 5. Curios as a discoverable/upgradeable player-ability system
+## 5. ✅ DONE — Curios as a discoverable/upgradeable player-ability system
+
+**Implemented** via Artifacts 13.2.1 (zero new hard deps). See `DESIGN.md`'s
+"Curios as a discoverable/upgradeable player-ability system" section for the
+full writeup: Artifacts' own native loot injection was silenced entirely
+(empty-pool overrides across all 35 of its inject tables) so this pack's
+existing 4-tier structure-loot rarity buckets become the sole placement
+path — no ProgressiveStages tier lock, per the recorded decision, just loot
+weighting; a 48-item curation table (the master tag holds 48, not the
+estimated 47, counted programmatically) split 18/19/8/3 across Common/
+Uncommon/Rare/Epic, landing a tier-flat ~5-6% artifact chance per chest
+while bucket choice scales quality. `pack/kubejs/server_scripts/
+curios_upgrades.js` implements the duplicate-combine upgrade (2x same
+artifact → 1x plus a bonus stat, one rule per Curios slot type, 46 recipes
+total) using Curios' own `curios:attribute_modifiers` component rather than
+vanilla's — a verified ground-truth deviation, since vanilla's component
+never applies in Curios slots. Boot-tested clean, committed. Original
+scoping notes kept below for reference.
 
 **Ask**: make Curios (already installed as an Ars Nouveau dependency, not
 yet used as its own content system) a strong source of player abilities —
@@ -316,7 +351,26 @@ trinket granting an ability or bonus, with an upgrade path.
   backstop) — flagged as a real tension between "pure reward" and overall
   pack balance, not resolved in this session.
 
-## 6. Hostile + passive monster/animal variety, with limited unique drops
+## 6. ✅ DONE — Hostile + passive monster/animal variety, with limited unique drops
+
+**Implemented** via Creeper Overhaul 4.0.6 + Born in Chaos 1.7.6 (hostile
+variety) + Naturalist (passive fauna) — Alex's Mobs was ruled out during
+scoping for its unique-drop-heavy design. See `DESIGN.md`'s "Hostile +
+passive mob variety, limited unique drops" section for the full writeup:
+every new mob's loot was patched after the fact onto this pack's existing
+shared canonical drop set (32 entity loot overrides across `born_in_chaos_v1`
+— note the real data namespace, NOT the Modrinth slug `borninchaos` — and
+`naturalist`), matching `instructions.md`'s own cattle/bird example; unique
+weapons/armor/combat-stat charms stripped (including Born in Chaos' charm
+accessories, to keep the skill system and item 5's Artifacts as the sole
+sanctioned sources of that kind of permanent bonus); Creeper Overhaul's 16
+variants verified already 100% vanilla-drop, no override needed.
+`mob_scaling.js`'s `MONSTER_TYPES` whitelist extended with all 61 new
+hostile ids so they participate in the existing difficulty-scaling system.
+Flagged for live-play review, not blocking: 41/45 Born in Chaos hostiles
+spawn via a `neoforge:any` biome predicate (everywhere), no
+biome-appropriateness tuning against the new Terralith biomes yet. Boot-
+tested clean, committed. Original scoping notes kept below for reference.
 
 **Ask**: `instructions.md` explicitly asks for "more varied mobs/animals"
 and "lots of different types of mobs > still limited types of drop" (its
@@ -521,3 +575,142 @@ tier progress (ProgressiveStages stage reached), and RPG skill levels
   cached) — not discussed this session, but worth a real decision given
   the wealth metric in particular may be expensive to compute live if it
   means scanning inventories/storage networks.
+
+## 9. NOT STARTED — DEFERRED POST-RELEASE — Food overhaul (diet variety)
+
+**Ask**: a food/diet overhaul rewarding meal variety, built on Farmer's
+Delight and its ecosystem, fully Create-automatable end to end.
+
+**Decisions (finalized, user session 2026-07-10)**:
+- **Diet mechanic: reward variety only** — Spice-of-Life-Carrot style
+  permanent bonus hearts at distinct-foods-eaten milestones. **No**
+  repetition punishment, no food groups — purely additive.
+- **Content: the full Farmer's Delight ecosystem**, orchestrator-adopted
+  after research (verified against NeoForge 1.21.1, not assumed): farmers-
+  delight 1.21.1-1.3.2; create-central-kitchen 2.5.0 (chosen over Slice &
+  Dice — reuses base-Create blocks (Saw/Arm/Blaze Burner) instead of a
+  bespoke automation block, avoids a Kotlin-for-Forge hard dep, converts all
+  75 FD cutting recipes to Saw recipes at runtime) + create-dragons-plus
+  1.11.2 (its required lib); spice-of-life-onion 1.5.6 (the diet-variety
+  mechanic itself) + creativecore (its required lib); appleskin 3.0.9+mc1.21
+  (hunger/saturation UI); ends-delight 2.6.1; extradelight 2.6.6. Rejected:
+  miners-delight, brewin-and-chewin (each drags a new hard library
+  dependency — fails the zero-new-deps bar for optional companions).
+- **Light tier gating**: basic farming/cooking free from Tier 0 (food is
+  survival-critical, shouldn't be gated); advanced stations/meals at
+  Andesite/Brass Age. No new explicit tier locks are expected to be needed
+  — gating should fall out of existing iron/diamond material locks
+  (cooking pot/stove/skillet/iron knife are iron-gated → Andesite; diamond
+  knife → Brass; automation is Brass via Arm/Deployer). One explicit add
+  planned regardless, for this pack's lock-everything-explicitly
+  convention: `farmersdelight:golden_knife` locked at Brass alongside the
+  diamond knife.
+- **Automation bar**: every food chain must be fully Create-automatable
+  end-to-end; any station that can't be driven by Create gets patched, or
+  the gap gets disclosed rather than silently left unautomatable.
+- **SoL-Onion config MUST ship with its `detriments` list empty/disabled**
+  — the mod supports penalties, but the user chose reward-only. This is a
+  config obligation to verify on first boot, not just a code change.
+- Interaction flags for the implementer: FD meals inherit the economy's
+  tier-0 default sell price unless that looks wrong on inspection; foods
+  from Create Stuff & Additions/Naturalist must count toward diet-variety
+  totals, not just base-FD foods.
+
+**Open for the implementing session to resolve**:
+- Boot-check obligations flagged in advance: Terralith wild-crop generation
+  (tag-based, structurally sound per research but unverified live),
+  Central Kitchen's Saw-conversion tool-requirement edge case, and
+  `gen_economy.py` tier-0 pricing for the new foods (keep cheap).
+- Exact bonus-heart milestone curve (how many distinct foods per heart,
+  cap) — not pinned down in the decision session.
+
+## 10. NOT STARTED — DEFERRED POST-RELEASE — Tick accelerator (Time in a Bottle)
+
+**Ask**: a classic "Time in a Bottle" item — passive real-time tick accrual,
+right-click a block to spend the stored time as a temporary speed
+multiplier on that block/machine.
+
+**Decisions (finalized, user session 2026-07-10)**:
+- **Model**: classic Time-in-a-Bottle item — passive real-time accrual,
+  consumed on right-click against a target block to stack a temporary
+  speed multiplier there.
+- **Adopt**: time-in-a-bottle-universal 6.5.4 (the only viable TiaB-style
+  mod found for NeoForge 1.21.1, zero hard deps) plus its companion fix
+  addon (tiab-entity-fix, required for crop/animal acceleration to work at
+  all on modern versions — confirmed via research, not assumed).
+- **Gate: Brass Age (Tier 2)** — a plain ProgressiveStages item lock, no
+  more elaborate gating mechanism needed.
+- **Exclusions: Create kinetic blocks ONLY.** Layer the exclusion onto the
+  mod's own `tiab:un_acceleratable` block tag (confirmed `replace:false`,
+  i.e. additive) via a KubeJS registry scan tagging every block whose
+  BlockEntity subclasses Create's `KineticBlockEntity` (~39 base classes /
+  ~90+ ids including addons — a hand-maintained list would rot as this pack
+  adds/removes Create addons over time). Fallback if the Rhino/Java
+  registry-scan interop fails at implementation time: a generated static id
+  list instead. This keeps Create's own RPM/Stress economy orthogonal to
+  the accelerator, matching this pack's "engaging with Create is the sole
+  automation process" rule.
+- **Spawners deliberately stay accelerable** — explicitly NOT excluded.
+  Synergy with Apothic Spawners upgrades (already installed, Phase 8) is an
+  intended late-game payoff, not an exploit to close off.
+- **Hard one-per-player** — not natively supported by any TiaB mod, needs a
+  bespoke KubeJS craft-enforcement layer: an `ItemEvents.crafted` hook plus
+  a live inventory scan (not a permanent flag, since re-crafting after a
+  genuine loss must keep working) plus a manual ingredient refund on the
+  blocked craft (exact `cancel()` semantics need verifying at
+  implementation time). Keep `max_rate_multi` at its default 256x cap, per
+  the pack's standing server-performance mandate — no reason to raise it.
+
+**Open for the implementing session to resolve**:
+- Disclosed, accepted soft-enforcement gaps in the one-per-player rule:
+  stashed copies sitting in external storage (not on the player, not in
+  their tracked inventory scan) evade the craft-time scan; the same
+  `create:creative_crate` duplication gap already disclosed for item 2's
+  infinite capstones applies here too, unchanged.
+- Exact `cancel()`/refund mechanics for the enforcement hook — needs
+  implementation-time verification against the installed KubeJS/ItemEvents
+  API, not assumed from the mod's docs.
+
+## 11. NOT STARTED — DEFERRED POST-RELEASE — Skill-tree overhaul (all 12 categories)
+
+**Ask**: rework Pufferfish Skills' skill trees across all 12 categories (not
+just combat) into a shared-trunk-then-fork shape, with hard-exclusive but
+respeccable specialization paths.
+
+**Decisions (finalized, user session 2026-07-10)**:
+- **All 12 categories branch**, not just combat: swords, daggers,
+  greatswords, longswords, spears, tachi, bows, magic, mining, running,
+  swimming, building.
+- **Shape**: ~15 nodes per category — a ~5-node shared trunk of general
+  passives, then a fork into TWO 5-node specialization paths.
+- **Exclusivity: HARD but respeccable.** Taking one path locks out the
+  other entirely; a respec mechanism must exist to undo that choice.
+  Implementation-time research needed to verify native support: the
+  skill-connection schema, `skillReplaceCooldown`/`maxPassiveSkills`
+  gamerules, and whether a reset command already exists natively before
+  building a bespoke one.
+- **Node effects: attribute modifiers ONLY** — no scripted procs anywhere
+  in the tree. Keeps every node mechanically simple and inspectable.
+- **Core design law, the load-bearing constraint for the whole item: paths
+  trade by stacking DIFFERENT FAMILIES OF UPSIDES — no node anywhere
+  carries a downside.** Flagship worked example from the decision session:
+  a swords category forking into a fast-attacks path vs. a slower-
+  deliberate-hits path, each all-upside within its own theme (attack speed
+  + smaller per-hit bonuses vs. attack damage + heavier per-hit bonuses,
+  not "faster but weaker" as a tradeoff). Every weapon category needs a
+  topical equivalent of this same shape, not a copy-paste of the sword
+  example. Path themes must be designed against the VERIFIED attribute
+  inventory this pack's mods actually expose — especially which attributes
+  Epic Fight's animation-driven combat engine actually respects, since a
+  path built around an attribute Epic Fight silently ignores would be a
+  dead spec. This attribute-inventory verification is the implementation
+  session's central research crux, not a minor detail.
+
+**Open for the implementing session to resolve**:
+- Full verified inventory of which vanilla/modded attributes Epic Fight's
+  combat actually reads at runtime, before any path is designed around one.
+- Native respec support (connection schema, gamerules, commands) vs.
+  needing a bespoke KubeJS reset mechanism.
+- Concrete node-by-node design for all 12 categories × ~15 nodes — a large
+  content-design task in its own right, comparable in scope to the
+  original gear-overhaul melee-skill-split work.
