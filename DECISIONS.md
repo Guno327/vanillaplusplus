@@ -40,170 +40,51 @@ orchestrator-mode switch. Newest entries at the bottom of each section.
   Cron jobs are session-only (in-memory): if the session ends, the chain
   dies and the user must re-prompt.
 
-## Item 4 (mobility) — orchestrator calls on research verdicts
+## Items 4/5/6 (mobility / curios / mob variety) — research verdicts
 
-- **Primary mod: Create Stuff & Additions 2.1.4.a** (+ Create: Stuff &
-  Netherite Additions 1.2): 4 native jetpack tiers map 1:1 onto Tiers 1-4
-  (Copper→Andesite Age, Andesite→Brass, Brass→Precision,
-  Netherite→Induction). Runner-up (Create Jetpack) rejected: hard Kotlin
-  dependency, only 2 tiers, elytra-ingredient recipe needing patches.
-- **Chest-slot contention accepted**: jetpacks are chestplates, competing
-  with Silent Gear chestplates/Elytra/battlemage robes — same tradeoff
-  shape as vanilla Elytra; documented, not worked around.
-- **Starforged flight capstone is item-free and stage-bound**: KubeJS
-  grants `mayfly` on `starforged_age` stage (stageAdded + loggedIn +
-  respawned reassertion; revoke path if stage lost). Survives death by
-  construction (`keepInventory: false` concern resolved). Not tied to any
-  wearable; Curios stays reserved for item 5.
+Fully transcribed into DESIGN.md: "Personal mobility: jetpack -> persistent
+creative flight" (item 4 — mod choice/runner-up rejection, chest-slot
+contention, Starforged capstone mechanism), "Curios as a discoverable/
+upgradeable player-ability system" (item 5 — mod choice, native loot
+injection silencing, duplicate-combine design), and "Hostile + passive mob
+variety, limited unique drops" (item 6 — Born in Chaos namespace gotcha,
+charm-accessory stripping, spawn-predicate flag) sections.
 
-## Item 5 (curios) — orchestrator calls on research verdicts
+## Items 9/10/11 (food / tick accelerator / skill-tree overhaul) — decisions
 
-- **Mod: Artifacts 13.2.1** (zero new hard deps; Curios 9.5.1 soft-detect).
-  Runner-up Relics rejected (new hard dep, smaller pool, craft-first).
-- Native loot injection silenced via empty-pool overrides of ALL its
-  inject tables; this pack's 4-tier structure-loot buckets become the ONLY
-  placement path (one rarity system, not two).
-- **Duplicate-combine upgrade design**: 2x same artifact → same artifact +
-  bonus stat via `minecraft:attribute_modifiers` component on the crafted
-  result (generic across all 47 Java-coded abilities; items are
-  component-free so no matching breakage). Capped; exact syntax verified
-  by the implementing agent.
+Item 9's finalized decisions (diet mechanic, Farmer's Delight ecosystem
+adoption + rejections, tier gating, automation bar, SoL-Onion config
+obligation) and its research-verdict detail (exact mod/version list,
+Central Kitchen-over-Slice&Dice rationale, boot-check obligations) are
+fully transcribed into TODO.md item 9 — that item is still IN PROGRESS, so
+TODO.md's copy is the one to read/update, not this file.
 
-## Item 6 (mob variety) — endorsed judgment calls from implementation
-
-- Born in Chaos data namespace is `born_in_chaos_v1` (NOT the Modrinth
-  slug) — overrides written there; a slug-named path would silently no-op.
-- **Charm accessories stripped along with weapons** (charmof_power/
-  resistance/stealth/endurance/fury): permanent combat-stat accessories
-  would compete with the skill system and item 5's Artifacts as the
-  sanctioned accessory source. Endorsed by orchestrator.
-- Flagged for live-play review: 41/45 Born in Chaos hostiles spawn via
-  `neoforge:any` biome predicate (everywhere, all dimensions) — possible
-  future spawn-tuning pass if the world feels samey; not blocking.
-
-## Item 9 — Food overhaul (user decisions, FINAL — to be written into TODO.md at wave-2)
-
-- **Diet mechanic: reward variety only** — Spice-of-Life-Carrot style
-  permanent bonus hearts at distinct-foods-eaten milestones; NO repetition
-  punishment, no food groups.
-- **Content: Farmer's Delight ecosystem** (research verifying exact
-  NeoForge 1.21.1 port + a Create automation bridge like Central Kitchen
-  for our versions; KubeJS fallback assessed if the diet mod is dead on
-  1.21.1).
-- **Light tier gating**: basic farming/cooking free from Tier 0 (food is
-  survival-critical); advanced stations/meals at Andesite/Brass Age.
-- **Automation bar: every food chain fully Create-automatable end-to-end**;
-  stations that can't be driven by Create get patched or the gap disclosed.
-- Interaction flags for the implementer: FD meals inherit the economy's
-  tier-0 default sell price (probably correct, deliberate look wanted);
-  foods from Create Stuff & Additions/Naturalist must count toward diet
-  variety totals.
-
-## Item 10 — Tick accelerator (user decisions, FINAL — to be written into TODO.md at wave-2)
-
-- **Model: classic Time-in-a-Bottle item** — passive real-time tick
-  accrual; right-click a block to stack a temporary speed multiplier.
-- **Gate: Brass Age (Tier 2)** — plain ProgressiveStages item lock.
-- **Exclusions: Create kinetic blocks ONLY** (RPM/stress economy stays
-  orthogonal — research checking for a Create block tag to blacklist
-  against). **Spawners deliberately remain accelerable** — user explicitly
-  declined that exclusion; synergy with Apothic Spawners upgrades is an
-  intended late-game payoff, not an exploit to close.
-- **Hard one-per-player** — not native to any TiaB mod; needs a KubeJS
-  craft-enforcement layer (research designing it: re-craft after genuine
-  loss should work; the jovian creative-crate duplication gap applies and
-  stays disclosed like other unique items).
-
-## Item 11 — Skill-tree overhaul (user decisions, FINAL — to be written into TODO.md at wave-2)
-
-- **All 12 categories branch** (not just combat): swords, daggers,
-  greatswords, longswords, spears, tachi, bows, magic, mining, running,
-  swimming, building.
-- **Shape: ~15 nodes each** — ~5-node shared trunk of general passives,
-  then a fork into TWO 5-node spec paths.
-- **Exclusivity: HARD but respeccable** — taking one path locks the other;
-  respec exists (research verifying native support: connection schema,
-  skillReplaceCooldown/maxPassiveSkills gamerules, reset commands).
-- **Node effects: attribute modifiers ONLY** — no scripted procs.
-- **Core design law: paths trade by stacking DIFFERENT FAMILIES OF
-  UPSIDES — no node anywhere carries a downside.** Flagship example:
-  swords spec into fast attacks vs slower deliberate hits; every weapon
-  gets a topical equivalent. Path themes must be designed against the
-  VERIFIED attribute inventory (especially which attributes Epic Fight's
-  animation-driven combat actually respects — the research crux).
-
-## Item 9 (food) — orchestrator calls on research verdicts (2026-07-10 ~00:50 UTC)
-
-- **Adopt the full recommended stack**: farmers-delight 1.21.1-1.3.2,
-  create-central-kitchen 2.5.0 + create-dragons-plus 1.11.2 (its required
-  lib), spice-of-life-onion 1.5.6 + creativecore (its required lib),
-  appleskin 3.0.9+mc1.21, ends-delight 2.6.1, extradelight 2.6.6.
-- **Central Kitchen over Slice & Dice**: reuses base-Create blocks
-  (Saw/Arm/Blaze Burner) instead of adding a bespoke automation block;
-  avoids a Kotlin-for-Forge hard dep; converts all 75 FD cutting recipes
-  to Saw recipes at runtime. Slice & Dice's sprinkler deferred as a
-  possible future nice-to-have, NOT installed.
-- **Rejected**: miners-delight, brewin-and-chewin (each drags a new hard
-  library dep — fails the zero-new-deps bar for optional companions).
-- **SoL-Onion config MUST ship with the `detriments` list empty/disabled**
-  (the mod supports penalties; the user chose reward-only — this is a
-  config obligation, verify on first boot).
-- **No new tier locks needed** — gating falls out of existing iron/diamond
-  locks (cooking pot/stove/skillet/iron knife are iron-gated → Andesite;
-  diamond knife → Brass; automation is Brass via Arm/Deployer). One
-  convention add: explicitly lock `farmersdelight:golden_knife` at Brass
-  alongside the diamond knife for this pack's explicit-lock consistency.
-- Boot-check obligations: Terralith wild-crop generation (tag-based,
-  structurally sound), Central Kitchen Saw-conversion tool-requirement
-  edge case, gen_economy tier-0 pricing for new foods (keep cheap).
-
-## Item 10 (tick accelerator) — orchestrator calls on research verdicts (2026-07-10 ~00:50 UTC)
-
-- **Adopt**: time-in-a-bottle-universal 6.5.4 (only viable TiaB-style mod
-  on NeoForge 1.21.1; zero hard deps) + its companion fix addon
-  (time-in-a-bottle-fix-tiab-fix / tiab-entity-fix-1.0.3 — required for
-  crop/animal acceleration to work at all in modern versions).
-- **Create-kinetics exclusion**: layer onto the mod's own
-  `tiab:un_acceleratable` block tag (replace:false confirmed) via a KubeJS
-  registry scan tagging every block whose BlockEntity subclasses Create's
-  `KineticBlockEntity` (~39 base classes / ~90+ ids incl. addons — a hand
-  list would rot). Fallback if the Rhino interop fails at boot: generated
-  static id list. Spawners NEVER go in that tag (user decision).
-- **One-per-player**: ItemEvents.crafted hook + live inventory scan (not a
-  permanent flag — re-crafting after genuine loss must work) + manual
-  ingredient refund (cancel() semantics unverified). Accepted, disclosed
-  soft-enforcement gaps: stashed copies in external storage evade the
-  scan; the jovian creative-crate duplication gap applies as it does to
-  all unique items. Keep `max_rate_multi` at default (256x cap) per the
-  server-performance mandate.
+Item 10's finalized decisions (TiaB model, Brass Age gate, Create-kinetics-
+only exclusion mechanism, spawners-stay-accelerable call, one-per-player
+enforcement design) and item 11's finalized decisions (all-12-categories
+branch, ~15-node shared-trunk-then-fork shape, hard-but-respeccable
+exclusivity, attribute-modifiers-only node design, the no-downside design
+law) are fully transcribed into TODO.md items 10/11 respectively, both now
+DONE and merged — see those sections for the implementation-time research
+verdicts too (exact mod versions, the `tiab:un_acceleratable` tag scan
+mechanism, native puffish_skills exclusivity/respec support). No DESIGN.md
+section exists for items 10/11 (they landed after the last DESIGN.md
+transcription pass) — TODO.md is their canonical home.
 
 ## Wave-1 integrator findings — orchestrator calls (2026-07-10)
 
-- `create_nj` (Netherite Additions) ships a SECOND netherite jetpack
-  duplicating `create_sa`'s — integrator locked BOTH at induction_age
-  (closing the tier bypass). **Call: fold into the item 3 dedup pattern at
-  wave 2** — remove/redirect the duplicate jetpack recipe, keep create_nj
-  installed for its Exoskeleton.
-- Items 3/7/8 committed; item 4/5/6 mod scaffolding committed and
-  boot-tested. Wave-2 integrator picks up from HANDOFF.md's "Wave-2
-  scaffolding" section.
+`create_nj`'s duplicate netherite-jetpack tier-bypass finding and its
+fold-in to the item 3 dedup pattern is fully transcribed into DESIGN.md's
+"Personal mobility" section (the `create_nj`/`create_sa` dedup writeup).
+Wave-2 (items 3/4/5/6/7/8 committed and boot-tested) is long complete.
 
 ## Item 5 implementation outcomes — endorsed deviations (2026-07-10 ~01:10 UTC)
 
-- Artifacts' master tag holds **48** items, not research's 47 (counted
-  programmatically by the implementing agent).
-- **Upgrade combines use `curios:attribute_modifiers`**, not vanilla's
-  component: vanilla equipment modifiers never apply in Curios slots;
-  Curios ships a field-for-field-identical parallel DataComponentType
-  (verified via javap against Curios 9.5.1). The one held (not worn)
-  artifact — umbrella — uses the vanilla component. Endorsed: correct
-  ground-truth deviation from the original design.
-- `everlasting_beef`/`eternal_steak` excluded from combines (consumables,
-  no equip slot; they already have Artifacts' own smelt-upgrade path).
-- Bonus stat is defined per Curios slot type (head/necklace/hands/feet/
-  belt/curio), not per item; repeat combines are implicitly capped (output
-  components are fixed, second combine reproduces the same result).
-- 46 combine recipes total under `vanillaplusplus:artifact_upgrade/*`.
+Fully transcribed into DESIGN.md's "Curios as a discoverable/upgradeable
+player-ability system" section: the 48-not-47 item count, the
+`curios:attribute_modifiers`-over-vanilla-component deviation, the
+`everlasting_beef`/`eternal_steak` combine exclusion, per-slot-type bonus
+stats, and the 46-recipe total.
 
 ## Checkpoint-protocol lesson (2026-07-10 ~01:10 UTC)
 
@@ -375,42 +256,13 @@ Six mods, zero new hard deps (cloth-config already installed):
 
 ## Release test + bundling architecture — ADOPTED (orchestrator calls, 2026-07-10 ~02:15 UTC)
 
-Research prototype-verified (artifacts at /tmp/vpp-research/headlessmc/ +
-~/.minecraft/ ready to extend; HeadlessMC pinned at launcher 2.9.0 — repo
-renamed to headlesshq/headlessmc, old docs 404, treat upgrades cautiously).
-
-- **Test layers adopted**: L0 boot smoke (scripts/tests/l0_boot_smoke.sh —
-  formalizes the existing grep discipline + the known-noise baseline
-  recorded above); L1 = KubeJS `/vpp_selftest` command + runner
-  (l1_selftest.py via cmd_fifo or RCON) implementing the 20-assertion
-  list from the research brief (data/parse/count/resolve assertions +
-  sell/leaderboard round-trips); L2 = HeadlessMC client smoke with the
-  full side!=server mod set (catches client-only mixin crashes);
-  L3 = client join test — DEFERRED until L1/L2 are solid (join mechanism
-  unproven; highest cost, least proven value).
-- **Implementation order**: L0+L1 first, then L2, then server bundle,
-  L3 last.
-- **GameTest rejected** (needs custom Java; pack has none by design).
-  **Protocol bots rejected** (NeoForge handshake, confirmed dead end).
-- **online-mode call**: the SHIPPED server bundle keeps
-  `online-mode=true`. Any L3 join testing uses a separate test-only
-  server.properties profile with it flipped false — never the default.
-- **RCON**: enabling it is left to the release integrator's judgment for
-  the L1 runner (fifo works today; RCON gives request/response).
-- **Server bundle**: new scripts/build_server_bundle.py — reuse
-  build_server.py, zip server/ minus world//logs//cmd_fifo, include
-  run.sh/libraries/, eula handled as a first-run prompt (NOT pre-accepted
-  silently... a loud documented pre-acceptance is acceptable if the
-  implementer finds first-run friction too high; either way it must be
-  explicit in the bundle README).
-- **Versioning**: single source of truth — pack/VERSION file read by both
-  build_mrpack.py (currently hardcodes 0.9.0) and build_server_bundle.py;
-  version embedded in both bundle filenames. Initial release target:
-  bump to 1.0.0 at cut time.
-- L1 caveat recorded honestly: the 20-assertion list is sketched against
-  expected KubeJS API surface, not yet verified against the installed
-  jar — the implementing agent verifies per assertion and drops/replaces
-  what Rhino can't reach, disclosing each.
+The L0/L1/L2/L3 test-layer design, bundle contents, and versioning scheme
+decided here are fully transcribed (as-built, with real bug findings) into
+DESIGN.md's "Release engineering" section — see that section rather than
+this one for current detail. Two rejected-alternative calls worth keeping
+since DESIGN.md only references them, not restates why: **GameTest
+rejected** (needs custom Java; pack has none by design). **Protocol bots
+rejected** (NeoForge handshake, confirmed dead end).
 
 ## Client QoL mods — user decision (2026-07-10 ~02:20 UTC)
 
@@ -427,151 +279,54 @@ supports it, client-only otherwise.
 
 ## Acceleration wave during release cut (orchestrator calls, 2026-07-10 ~02:50 UTC)
 
-While the release integrator owns main/server, three parallel accelerators
-run in isolation:
-- **Items 10 and 11 pre-implemented in git WORKTREES** (own branches,
-  static validation only — no boots, no main-tree writes, read-only
-  access to the main repo's server/mods jars). Merged + boot-verified by
-  a post-release integrator, NOT before the 1.0.0 cut. Provisional
-  balance calls made to unblock item 11: XP formula unchanged (accept the
-  ~50% longer grind for 15 nodes; playtest later), respec initially free
-  (cost/cooldown friction deferred to a balance pass) — both explicitly
-  provisional.
-- **L3 join-mechanism research** runs against its OWN /tmp server copy on
-  port 25566 with online-mode=false (test-only profile per the recorded
-  rule) and its own isolated HeadlessMC game dir — explicitly forbidden
-  from ~/.minecraft (in use by the release integrator's L2) and the repo
-  server/.
-- Release-wave finding worth its own line: **noisiumed had shipped a
-  non-functional Fabric jar since Phase 9** (Modrinth "primary" file flag
-  unreliable when a version bundles multi-loader jars) — resolver fixed to
-  prefer loader-matched jars; the pack's worldgen-noise optimizer loads
-  for the first time ever in 1.0.0.
+While the release integrator owned main/server, items 10/11 were
+pre-implemented in git worktrees (static validation only, no boots, no
+main-tree writes) for a post-release integrator to merge — see "Item 10/11
+pre-built branches + post-release merges" below and TODO.md items 10/11
+for the outcome (the provisional
+balance calls made to unblock item 11 — XP formula unchanged, respec
+initially free — are superseded by the actual merge; still open per GitHub
+issue #1). The noisiumed Fabric-jar bug found during this wave is
+transcribed into DESIGN.md's "Release engineering" section.
 
-## Item 11 pre-built — branch ready for post-release merge (2026-07-10 ~03:10 UTC)
+**Still-relevant operational note for any future L3 work**: L3
+join-mechanism research must run against its own `/tmp` server copy (a
+different port than the shipped default, e.g. 25566) with
+`online-mode=false` (test-only profile only, never the shipped default)
+and its own isolated HeadlessMC game dir — explicitly not `~/.minecraft`
+(used by L2) or the repo's `server/`.
 
-- **Branch: `worktree-agent-a77d7c3d4e95059c7`** (2 commits: generator
-  rewrite + regenerated 12×15-node trees; skill_respec.js). Static
-  validation complete: all 61 JSON files parse, every category has
-  exactly 15 nodes / 14 normal edges / 1 exclusive edge between fork
-  entries, zero `epicfight:` attributes anywhere, all SkillsAPI
-  signatures javap-verified (including bytecode confirmation of the
-  orphaned-node gotcha — unlocked skills return UNLOCKED before the
-  exclusion check, so respec MUST lock all 5 path nodes, which it does).
-- Endorsed deviations: /respec uses 12 literal subcommands (no
-  Commands.argument precedent in this codebase to verify unbooted);
-  Skill$State compared via string, not nested-class loading.
-- **Post-release merge checklist** (boot-verify after merging the
-  branch): no "[puffish_skills] Data pack could not be loaded" at boot;
-  in-game exclusive-edge behavior (unlock a0 → b0 EXCLUDED, a-path opens,
-  b-path stays shut); /respec full-path lock + point refund + re-pick;
-  /respec-with-nothing-committed says "nothing to respec" without
-  throwing; L0/L1 suites still green.
+## Item 10/11 pre-built branches + post-release merges (2026-07-10)
 
-## Item 10 pre-built — branch ready for post-release merge (2026-07-10 ~03:25 UTC)
+Items 10/11 were pre-implemented on worktree branches
+(`worktree-agent-a77d7c3d4e95059c7` for item 11, 2 commits;
+`worktree-agent-ae58d0ccfdfb4ce35` for item 10, 3 commits — neither
+worktree deleted, both retained), static-validated only, then merged into
+`main` one at a time with a full L0+L1 boot test between (item 11 first as
+pure additive data, item 10 second). **Full merge account — including the
+real Rhino-scoping bug the item-10 boot test caught and fixed forward
+(commit `2e60738`), exact commit hashes, and post-fix L0/L1 results — is
+transcribed into TODO.md items 10/11; that's the current source, not this
+entry.**
 
-- **Branch: `worktree-agent-ae58d0ccfdfb4ce35`** (3 commits: manifest +
-  lockfile for tiab-universal 6.5.4 + tiabfix; brass_age.toml lock on
-  `tiab:time_in_a_bottle`; tick_accelerator.js with both mechanisms).
-- Ground-truthed: exact refund recipe (3 gold, 2 diamond, 2 lapis, clock,
-  glass bottle); the un_acceleratable tag is replace:false and actively
-  read by the mod; fix addon modId `tiabfix` (its jar-internal version
-  string says 1.0.0 vs Modrinth's 1.3.0 — cosmetic mismatch, both pinned).
-- Two verification wins that shaped the implementation: KubeJS's
-  ItemCraftedKubeEvent is NOT cancellable (confirmed — enforcement voids
-  the stack via count=0 + refunds, exactly the fallback DECISIONS.md
-  anticipated), and NeoForge fires the craft event BEFORE the crafted
-  item reaches the inventory (verified in ResultSlot bytecode), so the
-  live one-per-player scan cannot false-positive on the bottle being
-  crafted.
-- **Post-release merge checklist**: registry-scan runs at tag-gen time
-  with a sane logged count; tagged Create block genuinely refuses
-  acceleration in-game; tiabfix mixins apply + crops/animals accelerate;
-  double-craft (incl. shift-click batch) voids+refunds the second bottle
-  and re-craft after genuine loss works; spawners remain accelerable.
-- Note for merge order: BOTH pre-built branches (items 10 + 11) touch
-  pack/kubejs/server_scripts/ additively and item 10 touches
-  brass_age.toml/manifest — merge each with a boot test between, item
-  order at the post-release integrator's discretion.
+Ground-truthed implementation facts not restated in TODO.md (kept here
+since they exist nowhere else): item 10's exact one-per-player refund
+recipe (3 gold, 2 diamond, 2 lapis, clock, glass bottle); KubeJS's
+`ItemCraftedKubeEvent` confirmed NOT cancellable and NeoForge confirmed to
+fire the craft event *before* the item reaches the inventory (verified in
+`ResultSlot` bytecode), both of which shaped the void+refund enforcement
+design; item 11's endorsed deviations that `/respec` uses 12 literal
+subcommands (no `Commands.argument` precedent in this codebase to verify
+unbooted) and `Skill$State` is compared via string rather than nested-class
+loading.
 
-## Post-release merges (2026-07-10)
-
-Both pre-built branches merged into `main` one at a time with a full
-L0+L1 boot test between, per their post-release merge checklists above.
-Merge order chosen: **item 11 first** (pure additive data + one new
-script, no manifest/lockfile churn), **item 10 second** (manifest/
-lockfile/new-jars, more moving parts) — DECISIONS.md left the order to
-the integrator's discretion, both branches touch
-`pack/kubejs/server_scripts/` additively but on disjoint files, so
-neither ordering risked a conflict.
-
-- **Item 11 merge** (`ec2ca5f`, `--no-ff`, no conflicts): skill-tree
-  overhaul + `/respec`. L0 PASS (78 server mods, 0 KubeJS errors/
-  warnings, no unbaselined WARN/ERROR, clean stop); confirmed boot log
-  shows `[puffish_skills] Data pack \`puffish_skills\` loaded
-  successfully!` (i.e. NOT the failure string the checklist named). L1
-  PASS (17/17, 4 skipped — player-online-only assertions, expected in a
-  console-only run).
-- **Item 10 merge** (`d918f83`, `--no-ff`, no conflicts): Time-in-a-
-  Bottle tick accelerator. First L0 run technically exited PASS but
-  grepping the log per the checklist ("registry-scan runs at tag-gen
-  time with a sane logged count") caught a real, live bug: the scan was
-  throwing `TypeError: redeclaration of var BuiltInRegistries` every
-  single boot and silently falling back to the disclosed static 38-id
-  list — the checklist's real scan never actually ran. Root cause:
-  `tick_accelerator.js`'s `ServerEvents.tags` callback (registry scan +
-  its `while` loop) and its `ItemEvents.crafted` callback (one-per-player
-  enforcement) both declared per-invocation/per-iteration bindings with
-  `const`, hitting the exact installed-Rhino limitation this file's own
-  "Release engineering" Rhino-bugs note already documents and previously
-  fixed in `selftest.js`/`leaderboard.js` — `const` doesn't get fresh
-  scoping across repeat invocations of the same try/catch or loop body on
-  this KubeJS/Rhino build. Fixed forward (commit `2e60738`, same session,
-  not a separate agent) by converting every such `const` to `let` in both
-  callbacks, matching the established codebase workaround. Re-verified:
-  the registry scan now genuinely runs and logs `tagged 173 block(s) into
-  tiab:un_acceleratable out of 3604 blocks scanned (2 spawner id(s)
-  explicitly protected from exclusion)`. Re-ran L0 (PASS, 80 server mods
-  including tiab-neoforge-6.5.4.jar + tiab-entity-fix-1.0.3.jar freshly
-  downloaded) and L1 (PASS, 17/17, 4 skipped) clean after the fix.
-  Confirmed benign: Stellaris `heavy_ingot` WARN present as expected;
-  tiabfix's two mixin WARNs (generic refmap-could-not-be-read dev-env
-  boilerplate seen on every mod in this pack; an Applied-Energistics-2
-  compat mixin harmlessly not finding its target since this pack has no
-  AE2 installed — unrelated to the crop/animal acceleration the fix mod
-  exists for).
-- Both merges verified no stray `java`/`tail -f cmd_fifo` processes
-  before the next boot (no `DirectoryLock` false failures hit this pass).
-- **L2 HeadlessMC client harness checked and found not applicable**: it's
-  a pure mod-set-assembly + launch + crash-detection smoke test (see
-  `scripts/tests/l2_client_smoke.py`) — it doesn't simulate any player
-  action (no bot, no scripted commands/crafting/skill-unlocking), so it
-  cannot exercise either branch's in-game-only checklist items. Per this
-  task's explicit instruction, no new test infrastructure was built to
-  cover this gap.
-- **Needs in-game verification** (could not be checked statically, via
-  boot log, or via L0/L1/L2 — collected here, also filed under TODO.md
-  items 10/11):
-  - Item 11: in-game exclusive-edge behavior (unlock a0 → b0 excluded,
-    a-path opens/b-path shut); `/respec` full-path lock + point refund +
-    re-pick; `/respec` with nothing committed replies "nothing to
-    respec" without throwing.
-  - Item 10: tagged Create block genuinely refuses acceleration in-game;
-    tiabfix mixins actually accelerate crops/animals in play; double-
-    craft (incl. shift-click batch) void+refund and re-craft-after-
-    genuine-loss both work as coded; spawners remain accelerable in
-    practice.
-- Neither branch's worktree was deleted — both retained per instruction.
-
-## Standing implementation notes
-
-- Incidental Stellaris bump rode along with the item 7 resolver run
-  (1.4.24 → 1.4.25) — watch its known heavy_ingot WARN in the next boot.
-- Wave-2 integrator duties queue: fold in item 5 + item 6 agent outputs,
-  boot-test, commit items 4/5/6, transcribe items 9/10/11 from this file
-  into TODO.md, act on food/tick/skill research briefs (spawn
-  implementation agents), add `.gitignore` entry only if checkpoint files
-  ever move into the repo (they currently live in /tmp).
+**L2 HeadlessMC client harness checked and found not applicable** to
+either branch's in-game-only checklist items: it's a pure mod-set-assembly
++ launch + crash-detection smoke test with no bot/scripted-action
+capability, so it structurally cannot exercise unlock/respec/craft
+behavior. Needs-in-game-verification items for both branches now live as
+GitHub issues **#1** (item 11) and **#2** (item 10) — see "GitHub as
+ground truth" below.
 
 ## GitHub as ground truth (2026-07-10, user directive)
 
@@ -580,15 +335,14 @@ vanillaplusplus`, remote `origin`) is now the ground truth for outstanding
 bugs and needs-in-game-verification items, superseding this file's own
 lists for that purpose going forward:
 
-- **Issues supersede the needs-in-game-verification lists.** The "Post-
-  release merges (2026-07-10)" section above's two needs-in-game-
-  verification bullets (item 11's skill-tree/respec checks, item 10's
-  Time-in-a-Bottle checks) now live as GitHub issues **#1** ("Verify item
-  11: skill-tree exclusive fork + /respec") and **#2** ("Verify item 10:
-  Time-in-a-Bottle behaviors"). The prose above is left as historical
-  record (per this file's own convention of not rewriting history) — do
-  not re-derive or duplicate those checklists locally; check the issues.
-  A third verify-in-game issue, **#3** ("Verify: rendering-correctness
+- **Issues supersede the needs-in-game-verification lists.** The "Item
+  10/11 pre-built branches + post-release merges" section above's two
+  needs-in-game-verification items (item 11's skill-tree/respec checks,
+  item 10's Time-in-a-Bottle checks) now live as GitHub issues **#1**
+  ("Verify item 11: skill-tree exclusive fork + /respec") and **#2**
+  ("Verify item 10: Time-in-a-Bottle behaviors"). Do not re-derive or
+  duplicate those checklists locally; check the issues. A third
+  verify-in-game issue, **#3** ("Verify: rendering-correctness
   spot-check"), was also opened, folding in HANDOFF.md's rendering-
   correctness note and TODO.md item 12's identical entry.
 - **Other open bugs/reviews filed as issues too**, mined from this file/
@@ -628,12 +382,11 @@ lists for that purpose going forward:
   stays at its current value for now and gets bumped to `0.1.0` **at
   release-cut time**, after TODO.md item 9 (food overhaul) lands — not
   before, and not as part of this documentation pass. The stale
-  `vanilla-plus-plus-*-1.0.0.mrpack`/`.zip` bundles sitting at the repo
+  `vanilla-plus-plus-*-1.0.0.mrpack`/`.zip` bundles that sat at the repo
   root (both gitignored, untracked build output — confirmed via `git
-  ls-files`) are superseded by this decision and should be deleted and
-  regenerated as `0.1.0` bundles by whichever wave cuts the actual
-  release; they are left in place by this pass since deleting build
-  artifacts is out of scope for a docs-only update.
+  ls-files`) were superseded by this decision and deleted in this same
+  repo-cleanup pass; regenerate `0.1.0` bundles via the release pipeline
+  (HANDOFF.md) when the actual release is cut.
 - **Issue-triage workflow ownership**, restated from the design doc for
   durability: `check_issues.py` runs read-only at the top of every
   wakeup (informational, like reading `TODO.md`); every GitHub *write*

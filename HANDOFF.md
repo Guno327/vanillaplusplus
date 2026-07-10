@@ -1,57 +1,34 @@
 # Handoff
 
-**Status as of this note: RELEASE 1.0.0 SHIPPED, items 10/11 merged
-post-release.** All 8 originally-scoped `TODO.md` items (1-8) plus items
-4/5/6's actual mechanics, the release client-optimization/QoL mod set, the
-L0/L1/L2 test suite, and both release artifacts are implemented, tested,
-committed, and documented in `DESIGN.md`'s "Release engineering" section.
-Items 10 (tick accelerator) and 11 (skill-tree overhaul) were pre-built on
-separate worktree branches and merged into `main` on 2026-07-10, one at a
-time with a full boot test between (`DECISIONS.md`'s dated "Post-release
-merges" section has the full account, including a real Rhino-scoping bug
-the item-10 boot test caught and fixed forward). Item 9 (food overhaul) is
-still fully scoped in `TODO.md`/`DECISIONS.md` but not implemented — see
-"Post-release backlog" below. A handful of item-10/11 checklist items
-require an actual player and could not be verified by this repo's L0/L1/L2
-harnesses (none simulate player actions) — see `TODO.md` items 10/11 and
-`DECISIONS.md`'s post-release-merges section for the historical record of
-those, but **the live checklists now live as GitHub issues, not here** —
-see the next paragraph. Read `TODO.md` before doing anything else — it's
-the authoritative backlog for planned feature work. `DECISIONS.md` at the
-repo root is the durable decision log for everything decided in
-orchestrator-mode
-sessions after the original 8-item planning pass; treat it as trusted
-input alongside `TODO.md`/`DESIGN.md`.
+**Status**: Release 1.0.0 shipped; items 10/11 (tick accelerator,
+skill-tree overhaul) merged post-release on 2026-07-10. TODO.md items 1-8,
+10, 11 are all DONE — TODO.md carries a one-line-per-item pointer into
+DESIGN.md's per-item sections (items 1-8) or DECISIONS.md's dated sections
+(items 10/11, which predate a DESIGN.md transcription pass). Item 9 (food
+overhaul) is the only thing still in progress — its TODO.md section is
+untouched; read that before starting it. `DECISIONS.md` at the repo root
+is the durable decision log for everything decided in orchestrator-mode
+sessions; treat it as trusted input alongside `TODO.md`/`DESIGN.md`.
 
-**GitHub repo + issues are now the ground truth for outstanding bugs and
-in-game verifications** (user directive, 2026-07-10): the project's
-private GitHub repo at `https://github.com/Guno327/vanillaplusplus`
-(remote `origin`) now tracks all open bugs, needs-in-game-verification
-checklists, and open reviews as issues — see DECISIONS.md's "GitHub as
-ground truth (2026-07-10)" section for the full mapping (issues #1-#8 as
-of this writing) and the label state machine. `TODO.md` remains the
-backlog for planned feature work; GitHub issues are for bugs/
-verifications/reviews surfaced after something ships. Also note: the
-next release will be tagged **`v0.1.0`** (beta semantics, supersedes the
-local-only `1.0.0` naming below), cut after TODO.md item 9 lands —
-`pack/VERSION` has not been bumped yet, see DECISIONS.md for the full
-reasoning.
+**GitHub is now ground truth for outstanding bugs and in-game
+verifications** (user directive, 2026-07-10): the project's GitHub repo at
+`https://github.com/Guno327/vanillaplusplus` (remote `origin`) tracks all
+open bugs, needs-in-game-verification checklists, and open reviews as
+issues #1-#8 — see DECISIONS.md's "GitHub as ground truth (2026-07-10)"
+section for the full mapping and label state machine. `TODO.md` remains
+the backlog for planned feature work; GitHub issues are for bugs/
+verifications/reviews surfaced after something ships. The next release is
+tagged **`v0.1.0`** (beta semantics, supersedes the local-only `1.0.0`
+naming used for the pre-GitHub release cut), cut after TODO.md item 9
+lands — `pack/VERSION` has not been bumped yet, see DECISIONS.md's
+"GitHub as ground truth" section for the full reasoning.
 
-## Release 1.0.0
+## Release pipeline
 
-Artifacts (both gitignored build output, regenerate on demand — see
-"Re-running the release pipeline" below):
-- **Client**: `vanilla-plus-plus-client-1.0.0.mrpack` (~250 KB) — import
-  into Prism Launcher.
-- **Server**: `vanilla-plus-plus-server-1.0.0.zip` (~350 MB) — extract,
-  read the bundled `README.md`, accept the EULA yourself (deliberately not
-  pre-accepted), `sh run.sh nogui`.
-
-Both build from `pack/VERSION` (currently `1.0.0`) via
-`scripts/build_mrpack.py` / `scripts/build_server_bundle.py` respectively —
-bump that one file at the next release cut, nowhere else.
-
-### Re-running the release pipeline
+Re-run in order to reproduce a release build (each step exits nonzero on
+failure, safe to chain with `&&`); artifact naming/contents/versioning are
+covered by DESIGN.md's "Bundle design"/"Versioning" sections, not repeated
+here:
 
 ```
 python3 scripts/resolve_mods.py          # manifest.json -> mods.lock.json
@@ -62,187 +39,32 @@ python3 scripts/build_mrpack.py          # client .mrpack
 python3 scripts/build_server_bundle.py   # server .zip
 ```
 
-L0/L1/L2 all exit nonzero on failure — safe to chain with `&&`. L2 needs the
-HeadlessMC research instance at `/tmp/vpp-research/headlessmc/` +
-`/home/ubuntu/.minecraft` (not part of this repo; a fresh environment would
-need to redo that setup — see DESIGN.md's "Release engineering" section for
-the exact working launch invocation, including the two harness-specific
-flags (`sodium.checks.issue2561=false`, `--retries 3`) that took real
-`javap` decompilation to discover).
-
-### What this release's testing does NOT cover (read before assuming it's bug-free)
-
-Rendering correctness (Create contraption/pulley/train visuals, GeckoLib
-animation, Epic Fight combat animation, general UI/inventory layout —
-including whether ImmediatelyFast 1.6.11 actually fixed the Staff-of-Physics
-display bug reported at 1.6.10), a live client join (L3, deliberately
-deferred — see below), multiplayer interaction, and live combat/economy
-balance. See DESIGN.md's "The honest L2/L3 boundary" for the full statement
-— it's restated there so it survives future summarization.
+L2 needs the HeadlessMC research instance at `/tmp/vpp-research/headlessmc/`
++ `/home/ubuntu/.minecraft` (not part of this repo; a fresh environment
+would need to redo that setup — see DESIGN.md's "Release engineering"
+section for the exact working launch invocation, including the two
+harness-specific flags (`sodium.checks.issue2561=false`, `--retries 3`)
+that took real `javap` decompilation to discover).
 
 ## Post-release backlog
 
-*(Note, 2026-07-10: the rendering-correctness spot-check and residual
-Rhino const-in-loop risk items below are also now filed as GitHub issues
-#3 and #8 respectively — see DECISIONS.md's "GitHub as ground truth"
-section. The bullets below are left as-is for history; check the issues
-for current status.)*
-
-- **L3 — live client join test.** Deferred from this release (unproven join
-  mechanism against NeoForge's handshake, highest cost, least proven value
-  of the 4 test layers). If picked up: use a separate test-only
-  `server.properties` profile with `online-mode=false`, never the shipped
-  default.
-- **Item 9** (food overhaul) — fully scoped in `TODO.md`/`DECISIONS.md`, not
-  implemented. Don't start without being told to. (Items 10/11 were merged
-  into `main` on 2026-07-10 — see the status note above.)
-- **Rendering-correctness spot-check** — the L2/L3 boundary above means
-  nobody has actually looked at this pack's GeckoLib entities, Create
-  contraption visuals, or Epic Fight combat animations render correctly.
-  Worth a manual pass before wider release, not blocking this 1.0.0 cut.
-- **Residual Rhino const-in-loop risk** — this release's L1 development
-  found the installed Rhino engine doesn't give `const`/`let` fresh
-  per-iteration scoping inside `for(;;)` loops or try/catch blocks invoked
-  from one (see DESIGN.md's "Release engineering" section for the full
-  finding). Fixed everywhere it was actually hit
-  (`selftest.js`/`leaderboard.js`), but two `for (const x of ...)` for-of
-  forms elsewhere (`economy.js`'s `payCoins`, `selftest.js`'s own coin
-  helper) were left unverified — worth a deliberate audit pass, not an
-  emergency.
+Full detail lives in TODO.md item 12 (L3 live-client-join test, MoreCulling
+long-term watch, `noisiumed`-class resolver-bug re-check) and as GitHub
+issues **#3** (rendering-correctness spot-check) and **#8** (residual Rhino
+const-in-for-of audit in `economy.js`/`selftest.js`) — see DECISIONS.md's
+"GitHub as ground truth" section for the issue mapping. Item 9 (food
+overhaul) is TODO.md's own in-progress item, not a GitHub issue — don't
+start it without being told to.
 
 ## What's done
 
-Everything through four post-launch overhauls, each fully implemented,
-boot-tested, committed, and documented in `DESIGN.md`:
-
-1. **Original 9-phase build** (tier ladder, storage, RPG skills, quests,
-   economy, teams/claims, combat/magic variety, mob scaling/dungeons/space
-   travel, performance/packaging) — `DESIGN.md`'s "Phase plan" section.
-2. **Gear overhaul** (5 parts) — all weapon/tool/armor progression funneled
-   through Silent Gear smithing or boss drops; Epic Fight's 5 weapon types
-   extended across all 10 tiers with a 6-way melee skill split; Ars Nouveau
-   mage armor redirected through Silent Gear; 3 boss-unique weapons.
-3. **Utility overhaul** (6 parts) — fixed a real tool tier-gating bug
-   (harvest_tier tags were never populated); Silent Gear's *native* Paxel
-   gear type (a hand-rolled KubeJS version was built, boot-verified, then
-   discarded once the native one was discovered — see the memory note
-   below); gear utility traits (auto-smelt/AoE/reach/magnet); Building
-   Wands; Sophisticated Backpacks + a separate "Miner's Pouch" line.
-4. **Travel overhaul** (3 parts) — boats/Create Trains/Waystones
-   teleportation, gated by tier via ProgressiveStages locks. Part 2 (air
-   travel) originally shipped as Immersive Aircraft, then revised per user
-   request to **Create Aeronautics** instead, gated via KubeJS recipe
-   patches (`pack/kubejs/server_scripts/travel.js`) that reuse materials
-   already tier-locked elsewhere in the pack, rather than explicit item
-   locks — see DESIGN.md's travel overhaul section for the full ingredient
-   mapping.
-5. **World exploration overhaul** (3 parts) — Terralith (+TerraBlender
-   +Lithostitched) for ~100 new vanilla-block biomes, When Dungeons
-   Arise + Structory + 8 more YUNG's "Better X" mods for structure
-   variety, `scripts/gen_structure_loot.py`-generated reward scaling
-   (currency + tier-trigger materials + Apotheosis gems, scaled by a
-   4-tier structure rarity bucket) across 55 chest loot tables, and
-   tightened `structure_set` spawn spacing for stronghold/woodland
-   mansion/end city (the three structures tied to explicit tier-gate
-   items: End access, totems, elytra). See DESIGN.md's world exploration
-   overhaul section for the full mod list and design rationale.
-6. **TODO.md item 1 (ore veins)** — Create Ore Excavation added; its
-   native Iron/Diamond/Netherite drill ladder mapped onto Andesite/Brass/
-   Precision Age; 3 new vein types (allthemodium/vibranium/unobtainium)
-   added for the late-game meta-material tier, gated behind the Netherite
-   Drill. See DESIGN.md's "Ore veins via Create Ore Excavation" section.
-7. **TODO.md item 2 (endgame automation deepening)** — a curated 5-tier
-   TFMG milestone ladder (Aluminum→Steel→Petrochemical→Electrical→
-   Combustion Age) mapped onto Tiers 5-9; the 3 "infinite" capstones
-   (storage/energy/all-resources) turned out to already exist as
-   fully-functional, recipe-less creative blocks in Create/Refined
-   Storage — new survival recipes added and gated at Jovian Frontier
-   instead of building custom infinite-behavior blocks. One disclosed,
-   unfixed gap: `create:creative_crate` has no technical guard against
-   duplicating a genuinely unique item. See DESIGN.md's "Post-Tier-4
-   endgame automation deepening" section.
-8. **TODO.md item 3 (duplicate-resource consolidation)** — AllTheOres'
-   zinc/aluminum/lead/nickel and Stellaris' steel hard-consolidated onto
-   Create/TFMG canonical items via redirected smelting/crafting/loot-table
-   overrides + `dedup.js` tag cleanup; ATO overworld ore worldgen
-   neutralized (nether/End kept, no canonical source there); closed a real
-   tier-bypass hole on `tfmg:aluminum_ingot`. TFMG-vs-RefinedStorage
-   silicon checked and left alone (genuinely different resources). See
-   DESIGN.md's "Duplicate-resource consolidation audit" section.
-9. **TODO.md item 7 (Create-native chunk loading)** — Create: Power Loader
-   added, two tiers locked at Andesite/Brass Age; running-cost guardrail
-   satisfied natively (force-loading stops when the kinetic network
-   stops); FTB Chunks' own force-loading fully disabled via
-   `pack/config/ftbchunks-world.snbt` (claims untouched). See DESIGN.md's
-   "Block-based chunk loading via Create: Power Loader" section.
-10. **TODO.md item 8 (leaderboards)** — `/leaderboard <wealth|tier|level>
-    [players|teams]` chat command in a new `leaderboard.js`; wealth =
-    coin count + genuinely-reachable Numismatics bank balance; tier =
-    ProgressiveStages stage count; level = summed Pufferfish Skills
-    per-category levels; teams via FTB Teams API, summed/maxed as
-    appropriate. All three mod APIs wrapped with honest "unavailable"
-    fallbacks, never a silent vanilla-XP substitute. See DESIGN.md's
-    "Leaderboards: wealth / tier / level" section.
-11. **TODO.md item 4 (mobility)** — Create Stuff & Additions' native 4-tier
-    jetpack ladder (copper/andesite/brass/netherite) mapped 1:1 onto
-    Andesite/Brass/Precision/Induction Age; a Starforged Age (Tier 5)
-    capstone grants item-free, stage-bound persistent `abilities.mayfly`
-    via `mobility.js`, surviving death by construction since the grant is
-    driven by ProgressiveStages stage membership, not an item/effect. Also
-    closed the `create_nj` duplicate-netherite-jetpack tier-bypass hole
-    wave-1 flagged, folded into `dedup.js`'s item-3 pattern. See DESIGN.md's
-    "Personal mobility: jetpack -> persistent creative flight" section.
-12. **TODO.md item 5 (Curios)** — Artifacts 13.2.1 wired into this pack's
-    existing 4-tier structure-loot rarity buckets as its sole placement
-    path (its own native loot injection silenced entirely); a 48-item
-    curation table (ground-truthed, not the estimated 47); a
-    duplicate-combine upgrade mechanic (`curios_upgrades.js`, 46 recipes)
-    using Curios' own `curios:attribute_modifiers` component since
-    vanilla's never applies in Curios slots. See DESIGN.md's "Curios as a
-    discoverable/upgradeable player-ability system" section.
-13. **TODO.md item 6 (mob variety)** — Creeper Overhaul + Born in Chaos
-    (hostile) + Naturalist (passive fauna), every new mob's loot patched
-    onto this pack's shared canonical drop set (32 entity loot overrides),
-    unique weapons/armor/combat-stat charms stripped, `mob_scaling.js`'s
-    `MONSTER_TYPES` extended with 61 new hostile ids. See DESIGN.md's
-    "Hostile + passive mob variety, limited unique drops" section.
-14. **Release 1.0.0** — 10 client-optimization/QoL mods (sodium,
-    entityculling, immediatelyfast, moreculling, dynamic-fps, clumps, jei,
-    xaeros-minimap, xaeros-world-map, appleskin); a 4-layer test suite (L0
-    boot smoke, L1 `/vpp_selftest`, L2 HeadlessMC client smoke, L3
-    deferred); `pack/VERSION`-driven client `.mrpack` + server `.zip`
-    bundles. Fixed a real, previously-shipping bug found via testing
-    (`noisiumed`'s Fabric-jar mis-resolution) and a Rhino const-in-loop
-    scoping bug in `leaderboard.js`. See DESIGN.md's "Release engineering"
-    section.
-15. **TODO.md item 10 (tick accelerator)** — time-in-a-bottle-universal
-    6.5.4 + its tiabfix companion, gated at Brass Age; `tick_accelerator.js`
-    adds a Create-kinetics registry-scan exclusion (spawners deliberately
-    left accelerable) and hard one-per-player craft enforcement (void +
-    ingredient refund). Merged into `main` 2026-07-10; boot-testing caught
-    and fixed forward a real bug where the registry scan hit this pack's
-    documented installed-Rhino `const`-repeat-invocation limitation and was
-    silently falling back to a static id list every boot — see
-    `DECISIONS.md`'s "Post-release merges" section for the full account.
-    Some checklist items need an actual player and are recorded as
-    needs-in-game-verification in `TODO.md` item 10.
-16. **TODO.md item 11 (skill-tree overhaul)** — all 12 Pufferfish Skills
-    categories reworked into a 5-node shared trunk forking into two
-    hard-exclusive 5-node specialization paths (attribute-modifiers only,
-    no scripted procs); native `exclusive.bidirectional` connection group
-    for the hard exclusivity; new `/respec <category>` command
-    (`skill_respec.js`) locks a full abandoned path via `SkillsAPI`. Merged
-    into `main` 2026-07-10, boot-tested clean (puffish_skills data pack
-    loads successfully). Exclusive-edge/`respec` in-game behavior needs an
-    actual player — recorded as needs-in-game-verification in `TODO.md`
-    item 11.
-
-`DECISIONS.md` at the repo root is the durable decision log for
-orchestrator-mode sessions (operating model, per-item research verdicts,
-items 9/10/11's finalized specs, the full release test/bundling
-architecture, standing implementation notes) — read it alongside
-`TODO.md`/`DESIGN.md`; DESIGN.md's "Release engineering" section is the
-canonical, detailed writeup of everything summarized above.
+Everything is implemented, boot-tested, and committed. `TODO.md` items
+1-8/10/11 each carry their own DONE summary and pointer to the relevant
+`DESIGN.md` section (or, for items 10/11, `DECISIONS.md`'s dated sections
+plus commit hashes, since those two landed after the last DESIGN.md
+transcription pass). `DECISIONS.md`'s "Post-release merges" section has
+the item 10/11 merge history, including a real Rhino-scoping bug the
+item-10 boot test caught and fixed forward.
 
 **Serial-resource ownership still applies** if work resumes in
 orchestrator/subagent mode: exactly one integrator agent owns git, `server/`
