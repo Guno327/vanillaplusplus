@@ -1698,6 +1698,131 @@ disclosed limitation as every prior overhaul) - verified that the script
 loads and every referenced class/method resolves, not that a real
 `/leaderboard` invocation produces correct-looking chat output.
 
+### Personal mobility: jetpack -> persistent creative flight (TODO.md item 4)
+
+Ask: the pack had no personal flight ability at all outside Elytra
+(Precision Age) and Create Aeronautics vehicles (Brass Age+) - a dedicated
+mobility progression, a simple jetpack upgrading over time, culminating in
+true persistent creative-style flight at Starforged Age (Tier 5), standing
+apart from the travel overhaul rather than folded into it.
+
+**Mod choice, verified not guessed (wave-1 scaffolding, folded in here).**
+Create Stuff & Additions 2.1.4.a (`create_sa`) ships exactly 4 native
+chestplate-style jetpacks - confirmed via its own `en_us.json` lang file
+and item model/recipe file presence, not assumed from the mod's name:
+copper/andesite/brass/netherite, mapping 1:1 onto this pack's own
+Andesite/Brass/Precision/Induction Age material ladder. Create: Stuff &
+Netherite Additions 1.2 (`create_nj`) was added alongside it for its
+Netherite Exoskeleton. The runner-up, Create Jetpack, was rejected: hard
+Kotlin-for-Forge dependency, only 2 tiers, and an Elytra-ingredient recipe
+that would have needed KubeJS patches to fit this pack's own material
+ladder - `create_sa`'s native ladder needed none of that.
+
+**Tier locks** (already in place from wave-1, verified present in all four
+files this pass): `andesite_age.toml` locks `create_sa:
+copper_jetpack_chestplate`; `brass_age.toml` locks `create_sa:
+andesite_jetpack_chestplate`; `precision_age.toml` locks `create_sa:
+brass_jetpack_chestplate`; `induction_age.toml` locks **both**
+`create_sa:netherite_jetpack_chestplate` and `create_nj:
+netherite_jetpack_chestplate` (closing a tier-bypass hole the same way
+TODO.md item 3 did for `alltheores:aluminum_ingot` - see that section).
+
+**Chest-slot contention with other gear, accepted not worked around.**
+Jetpacks are chestplates, so they directly compete with Silent Gear
+chestplates, Elytra, and the Ars Nouveau battlemage robes for the same
+equipment slot. This is the identical tradeoff shape vanilla Elytra
+already imposes pack-wide (fly vs. armor value, same choice players already
+make) - documented as a deliberate design consequence, not a bug or a gap
+to script around with a second equipment slot.
+
+**create_nj's netherite jetpack was a genuine duplicate - deduped this
+pass.** Wave-1 flagged it and recorded the call in `DECISIONS.md`:
+`create_nj:netherite_jetpack_chestplate` is a second, independently-
+recipe'd netherite jetpack that fully duplicates `create_sa`'s own native
+one (same chestplate slot, same functional item). Ground-truthed by
+decompiling the installed `create_sna-1.2-neoforge-1.21.1.jar` (create_nj's
+actual jar filename, note the mismatch from the mod id) -
+`data/create_nj/recipe/netherite_jetpack_recipe.json` is a `create:
+mechanical_crafting` recipe (diamond + `create:encased_fan` +
+`create_nj:nether_engine` + netherite ingots -> `create_nj:
+netherite_jetpack_chestplate`). Folded into `dedup.js`'s existing pattern
+(`TODO.md` item 3): rather than a `c:` tag removal (jetpacks share no
+common tag to clean up), a raw datapack override at `pack/kubejs/data/
+create_nj/recipe/netherite_jetpack_recipe.json` keeps create_nj's own
+pattern/ingredients byte-for-byte but redirects `result.id` to
+`create_sa:netherite_jetpack_chestplate` - crafting create_nj's recipe now
+hands the player the canonical item. `create_nj:netherite_jetpack_
+chestplate` becomes unobtainable through normal survival play, but its
+`induction_age.toml` lock stays in place anyway per the recorded decision
+(defense in depth, matching the aluminum precedent - "unobtainable" alone
+was never trusted as a substitute for a real lock elsewhere in this pack).
+`create_nj` stays installed, unaffected, for the Exoskeleton it was always
+also needed for.
+
+**The Starforged Age capstone is deliberately item-free and stage-bound,
+not another wearable.** Recorded decision: true creative-mode-style flight
+- toggleable, no fuel, no duration limit - granted the moment a player
+reaches the `starforged_age` ProgressiveStages stage (Tier 5, the gateway
+out of the overworld/Nether/End loop into space travel), landing well
+before the full Tier 6-9 planet grind, and explicitly *not* tied to a
+Curios trinket (item 5 stays reserved for its own, separate ability
+economy) or item 2's "infinite" endgame capstones (that pairing was
+considered and declined).
+
+Mechanism, in `pack/kubejs/server_scripts/mobility.js`: a straight
+`Player.getAbilities().mayfly` grant/revoke keyed off stage membership, not
+an item/effect/attribute. `mayfly` (not `flying`) is what's set - it makes
+the double-jump-to-fly toggle available the moment it's granted without
+yanking the player into the air, identical to how creative mode's own
+flight toggle behaves. `PlayerEvents.stageAdded('starforged_age', ...)`
+grants it and messages the player; `PlayerEvents.stageRemoved(...)` revokes
+it (skipped if the player's current gamemode already grants flight
+natively, so the revoke path never fights creative/spectator mode);
+`loggedIn`/`respawned` reconcile mayfly against current stage membership on
+every login and respawn, independent of the stage-change events.
+
+**Survives death by construction - the exact risk `TODO.md` item 4
+flagged.** This pack sets `keepInventory: false`, which would trivially
+strip an item-granted or effect-granted "persistent" flight capstone on
+death, undermining the word "persistent." Since the grant here is driven
+entirely by ProgressiveStages stage membership - player-persistent data,
+untouched by inventory clearing or gamerules - the capstone survives death
+without any special-casing: the player still holds `starforged_age` after
+respawning, and the `respawned` handler re-asserts `mayfly` from that stage
+every time, regardless of whether vanilla's own `Abilities` fields would
+have carried across on their own.
+
+**API surface re-verified against the installed jar, not assumed from
+memory** (full trail in the script's own header comment): KubeJS 2101.7.2's
+`PlayerEvents.STAGE_ADDED`/`STAGE_REMOVED` are `TargetedEventHandler
+<String>` firing a `StageChangedEvent` with `.player`/`.stage`; `Player.
+getAbilities()` returns a plain `net.minecraft.world.entity.player.
+Abilities` data class with public `mayfly`/`flying`/`instabuild` fields and
+no setters for them (confirmed via `javap` - direct field assignment from
+Rhino is the only way in, and it works); `ServerPlayer.
+onUpdateAbilities()` is a separate override from the base `Player` method
+and is what actually sends the client sync packet, so it's called
+explicitly rather than relying on the field mutation alone to reach the
+client.
+
+**Boot-tested clean**: `create_sa`/`create_nj` both load with no
+`ModLoadingException`, all four jetpack tier locks resolve, `mobility.js`
+and the re-pointed `create_nj` recipe override both loaded with zero
+KubeJS script errors and zero recipe-parse failures (checked specifically
+- `netherite_jetpack_recipe` does not appear in any `Failed to parse`
+warning line).
+
+**Two disclosed boot-only unknowns** (documented inline in `mobility.js`,
+can't be resolved without a connected client): (1) this script only
+re-asserts `mayfly` on login/respawn/stage-change, not every tick - if some
+other system ever silently clears a player's `mayfly` flag mid-session,
+the fix won't land until their next login/respawn/stage change; left this
+way deliberately since a per-tick check across every online player is a
+real cost for something that should almost never need to fire. (2) whether
+the client-side flight toggle "feels" the change instantly the same tick
+`stageAdded` fires mid-session, or needs a reconnect/respawn to pick it up,
+isn't verifiable without an actual client attached.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.

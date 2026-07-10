@@ -87,3 +87,27 @@ ServerEvents.tags('item', event => {
     event.remove('c:ores/steel', 'stellaris:deepslate_steel_ore')
     event.remove('c:ores/steel', 'stellaris:moon_steel_ore')
 })
+
+// --- TODO.md item 4 wave-1 finding, folded into this pattern at wave 2:
+// create_nj (Create: Stuff & Netherite Additions) ships its own SECOND
+// netherite jetpack (create_nj:netherite_jetpack_chestplate) that fully
+// duplicates create_sa:netherite_jetpack_chestplate (Create Stuff &
+// Additions' native top rung of this pack's copper->andesite->brass->
+// netherite jetpack ladder) - same chestplate slot, same functional item,
+// different recipe. Unlike the metal dedups above, there's no shared c:
+// tag to clean up here (jetpacks aren't tagged together), so the redirect
+// is a pure recipe-output override: pack/kubejs/data/create_nj/recipe/
+// netherite_jetpack_recipe.json keeps create_nj's own mechanical_crafting
+// pattern/ingredients (diamond + create:encased_fan + create_nj:
+// nether_engine + netherite_ingot, verified byte-for-byte against the
+// installed create_sna-1.2-neoforge-1.21.1.jar's data/create_nj/recipe/
+// netherite_jetpack_recipe.json) but changes result.id to
+// create_sa:netherite_jetpack_chestplate - crafting the create_nj recipe
+// now hands the player the canonical item instead of a duplicate one.
+// create_nj:netherite_jetpack_chestplate itself becomes unobtainable
+// through normal survival play (no recipe produces it, nothing drops it),
+// but per the recorded decision its induction_age.toml tier lock stays in
+// place anyway (defense in depth, matching this pack's existing practice
+// of not trusting "unobtainable" alone to close a tier-bypass hole - see
+// the aluminum precedent above). create_nj stays installed and unaffected
+// for its other reason for being here: the Netherite Exoskeleton.

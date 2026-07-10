@@ -1,0 +1,28 @@
+{
+  "type": "create:mechanical_crafting",
+  "category": "misc",
+  "pattern": [
+    "25252",
+    "32423",
+    " 252 "
+  ],
+  "key": {
+    "2": {
+      "item": "minecraft:diamond"
+    },
+    "3": {
+      "item": "create:encased_fan"
+    },
+    "4": {
+      "item": "create_nj:nether_engine"
+    },
+    "5": {
+      "item": "minecraft:netherite_ingot"
+    }
+  },
+  "result": {
+    "id": "create_sa:netherite_jetpack_chestplate",
+    "count": 1
+  },
+  "accept_mirrored": true
+}
