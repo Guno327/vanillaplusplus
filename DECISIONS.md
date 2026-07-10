@@ -559,3 +559,95 @@ restated there:
   `backport-*-to-release-26.05` branches existing too implying 25.11 is the
   current numbered stable release) by fetching and grepping the real
   `pkgs/top-level/all-packages.nix` from that branch.
+
+## Bug-triage wave 1 — GitHub issues #4/#6/#7/#8 (2026-07-10)
+
+Worked the bug-triage queue end to end (needs-triage -> triaged -> [fix-
+in-progress -> fix-pushed | closed as benign/accepted] for each), per
+`HANDOFF.md`'s boot methodology and this file's "GitHub as ground truth"
+label state machine. Every root cause below was re-derived against the
+actually-installed jars/scripts under `.tools/jdk-21.0.11+10/bin`
+(`jar`/`javap`), never assumed from the issue text or prior narrative —
+two of the four turned out to need real correction to what was
+previously on record.
+
+- **#6 (tiabfix version string) — CLOSED, confirmed benign, no code
+  change.** `server/mods/tiab-entity-fix-1.0.3.jar`'s sha1/sha512/
+  filesize match `mods.lock.json`'s pin exactly; its own `neoforge.mods.
+  toml` really does say `version = "1.0.0"` (cosmetic bug in the
+  author's build). Modrinth's own changelog API confirms 1.3.0 = "All
+  crashes have been fixed" vs 1.0.0 "Initial Release" — the pinned jar
+  is the improved one despite the stale internal string. Neither `tiab`
+  nor `tiabfix`'s own toml references tiabfix's version in any
+  dependency range, and no update-checker mod exists in this pack — zero
+  functional or dependency-resolution consequence either way.
+- **#4 (Stellaris `heavy_ingot` WARN) — CLOSED, FIXED (previously
+  mischaracterized as benign-cosmetic noise; ground truth found a real,
+  narrow gameplay effect).** `tfmg_stellaris_compat`'s own loot-modifier
+  JSON still references `stellaris:heavy_ingot`, an item renamed
+  upstream to `stellaris:heavy_metal_ingot` (confirmed absent/present
+  respectively in the actually-installed `stellaris-1.21-neoforge-
+  1.4.25.jar`). The stale key wasn't just log noise: `stellaris:pumpjack`'s
+  own loot table drops 2x `heavy_metal_ingot` on break, and because the
+  compat mod's replacement list never matched the old id, that drop was
+  never being converted to `tfmg:aluminum_nugget` like every sibling
+  entry in the same list already is. Fixed via a KubeJS datapack override
+  at `pack/kubejs/data/tfmg_stellaris_compat/loot_modifiers/
+  replace_stellaris_loot.json` (same override mechanism already used
+  elsewhere in this pack) correcting the one stale key. Removed the now-
+  permanently-dead `stellaris:heavy_ingot` pattern from `scripts/tests/
+  l0_boot_smoke.sh`'s known-noise baseline and from this file's own
+  boot-noise list above — L0 re-run confirms the WARN is gone entirely,
+  replaced by the mod's own INFO log showing the corrected mapping.
+  Commit `976105c`.
+- **#8 (Rhino `const` audit) — CLOSED, FIXED, and the bug's own
+  documented mechanism corrected.** Ground-truthed the installed Rhino
+  engine directly (`server/mods/rhino-2101.2.7-build.85.jar`) with a
+  standalone Java harness against its own `Context`/`Function` API
+  rather than trusting this repo's prior "no fresh scoping across repeat
+  invocations" narrative. **Corrected finding**: the actual trigger is
+  any `const`/`let` declared directly inside a `try { }` block body
+  (throws `TypeError: redeclaration of const/var X` on the very first
+  call, not just repeat calls); `catch (e) { }` blocks are unaffected;
+  plain and destructuring `for (const x of ...)` for-of loops are safe
+  even under genuine repeated invocation through the same callback
+  object, with or without a further `const` in the loop body. This
+  clears `economy.js`'s `payCoins` and `selftest.js`'s `stPayCoins`
+  (this issue's two named targets) as confirmed-safe, no change needed.
+  Auditing every `try {` in `pack/kubejs/**/*.js` against the corrected
+  criterion found one real, previously-undiscovered, currently-live bug:
+  `skill_respec.js`'s `respecCategory()` (backs `/respec`, item 11's
+  skill trees) had `const` declared directly in its outer try and a
+  nested per-node try — meaning **every `/respec` call would have thrown
+  on its first statement and always reported "Respec failed"**, directly
+  threatening GitHub issue #1's own in-game `/respec` verification.
+  Converted to `let` throughout, matching this codebase's established
+  workaround; verified both via the same Rhino harness (before: fails on
+  call 1; after: 3 repeated calls succeed) and a clean L0+L1 boot. A full
+  in-game `/respec` exercise still needs issue #1's live player. Commit
+  `653a024`.
+- **#7 (creative_crate unique-item duplication) — CLOSED, accepted
+  risk, re-confirmed rather than newly resolved.** Confirmed
+  `create:creative_crate` really is survival-craftable in this pack
+  (deliberately — `pack/kubejs/data/create/recipe/creative_crate.json` +
+  `tier9_jovian_frontier.toml`'s final-tier gate), so this is real, not
+  hypothetical. Decompiled the actual `create-1.21.1-6.0.10.jar`
+  (`CreativeCrateBlockEntity`/`FilteringBehaviour`) and confirmed by full
+  bytecode inspection — not just "unconfirmed" as the original
+  implementation note hedged — that setting a crate's filter fires zero
+  NeoForge events, so no KubeJS-level intercept is possible. Scoped a
+  Java-mixin fix (the only remaining technical option, `tiabfix`-style)
+  and judged it not warranted this pass: this codebase has no existing
+  registry of "genuinely unique" item ids to check against, and the
+  closest candidates (the 3 Phase-7 boss-unique weapons) are themselves
+  repeatable weighted loot-table drops, not hard-capped-at-one rewards,
+  which blurs whether they even qualify for the "one-of-a-kind forever"
+  exemption this issue invokes. No code change; closed re-affirming the
+  exploit-risk disclosure already on record in `DESIGN.md`'s "Resource
+  infinity" section, now with definitive (rather than hedged) evidence
+  that no engine-level hook exists.
+
+All fixes boot-tested (L0, plus L1 for #8) before push; full narrative,
+evidence, and per-issue Rhino-harness reproduction details are in each
+issue's own closing comment on GitHub and in this session's checkpoint
+log (`/tmp/vpp-agent-checkpoints/bug-triage-wave1.md`).
