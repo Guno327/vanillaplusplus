@@ -1,13 +1,12 @@
 # Handoff
 
-**Status**: Release 1.0.0 shipped; items 10/11 (tick accelerator,
-skill-tree overhaul) merged post-release on 2026-07-10. TODO.md items 1-8,
-10, 11 are all DONE — TODO.md carries a one-line-per-item pointer into
-DESIGN.md's per-item sections (items 1-8) or DECISIONS.md's dated sections
-(items 10/11, which predate a DESIGN.md transcription pass). Item 9 (food
-overhaul) is the only thing still in progress — its TODO.md section is
-untouched; read that before starting it. `DECISIONS.md` at the repo root
-is the durable decision log for everything decided in orchestrator-mode
+**Status**: `v0.1.0` (beta) shipped as this project's first GitHub release,
+2026-07-10, after TODO.md item 9 (food overhaul) landed and closed out the
+last in-progress item. TODO.md items 1-11 are all DONE — TODO.md carries a
+one-line-per-item pointer into DESIGN.md's per-item sections (items 1-9) or
+DECISIONS.md's dated sections (items 10/11, which predate a DESIGN.md
+transcription pass). `pack/VERSION` is `0.1.0`. `DECISIONS.md` at the repo
+root is the durable decision log for everything decided in orchestrator-mode
 sessions; treat it as trusted input alongside `TODO.md`/`DESIGN.md`.
 
 **GitHub is now ground truth for outstanding bugs and in-game
@@ -17,11 +16,10 @@ open bugs, needs-in-game-verification checklists, and open reviews as
 issues #1-#8 — see DECISIONS.md's "GitHub as ground truth (2026-07-10)"
 section for the full mapping and label state machine. `TODO.md` remains
 the backlog for planned feature work; GitHub issues are for bugs/
-verifications/reviews surfaced after something ships. The next release is
-tagged **`v0.1.0`** (beta semantics, supersedes the local-only `1.0.0`
-naming used for the pre-GitHub release cut), cut after TODO.md item 9
-lands — `pack/VERSION` has not been bumped yet, see DECISIONS.md's
-"GitHub as ground truth" section for the full reasoning.
+verifications/reviews surfaced after something ships. `v0.1.0` is
+deliberately beta semantics (this pack has real, disclosed unverified-
+in-game gaps) — see the GitHub release itself for the full test-status/
+verification-wanted summary posted at cut time.
 
 ## Release pipeline
 
@@ -52,14 +50,16 @@ Full detail lives in TODO.md item 12 (L3 live-client-join test, MoreCulling
 long-term watch, `noisiumed`-class resolver-bug re-check) and as GitHub
 issues **#3** (rendering-correctness spot-check) and **#8** (residual Rhino
 const-in-for-of audit in `economy.js`/`selftest.js`) — see DECISIONS.md's
-"GitHub as ground truth" section for the issue mapping. Item 9 (food
-overhaul) is TODO.md's own in-progress item, not a GitHub issue — don't
-start it without being told to.
+"GitHub as ground truth" section for the issue mapping. TODO.md item 9
+(food overhaul) landed as part of the `v0.1.0` cut — its own needs-in-game-
+verification items (diet-hearts persistence, CCK automation, Terralith
+wild-crop density, SoL-Onion Food Book UI) are noted in its DESIGN.md
+section but not yet filed as GitHub issues.
 
 ## What's done
 
 Everything is implemented, boot-tested, and committed. `TODO.md` items
-1-8/10/11 each carry their own DONE summary and pointer to the relevant
+1-11 each carry their own DONE summary and pointer to the relevant
 `DESIGN.md` section (or, for items 10/11, `DECISIONS.md`'s dated sections
 plus commit hashes, since those two landed after the last DESIGN.md
 transcription pass). `DECISIONS.md`'s "Post-release merges" section has
