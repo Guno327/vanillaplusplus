@@ -1,0 +1,34 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": true,
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "allthemodium:unobtainium_vibranium_alloy_ingot"
+    },
+    "B": {
+      "item": "refinedstorage:64k_storage_block"
+    },
+    "C": {
+      "item": "create:brass_casing"
+    },
+    "m": {
+      "item": "create:precision_mechanism"
+    },
+    "s": {
+      "item": "tfmg:steel_mechanism"
+    },
+    "e": {
+      "item": "create:electron_tube"
+    }
+  },
+  "pattern": [
+    "AsA",
+    "mBm",
+    "CeC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "refinedstorage:creative_storage_block"
+  }
+}

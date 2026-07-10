@@ -27,11 +27,39 @@ locked = [
     # ingredient to naturally gate it - reserved as the final tier's
     # capstone reward for the "Miner's Pouch" bulk-storage line.
     "id:sophisticatedbackpacks:stack_upgrade_omega_tier",
+
+    # TODO.md item 2: TFMG "Combustion Age" milestone - the mod's own
+    # engine parts, the final rung of the 5-tier TFMG automation ladder
+    # started at Starforged Age. See DESIGN.md's endgame automation
+    # section.
+    "id:tfmg:engine_cylinder",
+    "id:tfmg:diesel_engine_cylinder",
 ]
 always_unlocked = []
 
 [blocks]
-locked = []
+locked = [
+    "id:tfmg:engine_controller",
+    "id:tfmg:engine_gearbox",
+
+    # TODO.md item 2: the three "infinite" capstones - the true final-tier
+    # reward, each requiring a deep TFMG+Create+this-tier's-own-alloy
+    # crafting chain (new recipes added this pass: pack/kubejs/data/
+    # refinedstorage/recipe/creative_storage_block.json + .../
+    # creative_fluid_storage_block.json, pack/kubejs/data/create/recipe/
+    # creative_motor.json + creative_crate.json). All four are Refined
+    # Storage's/Create's own pre-existing, fully-functional "creative
+    # mode" blocks (genuinely infinite capacity/generation/replication,
+    # not a custom reimplementation) that ship with zero survival recipe
+    # by default - this pass adds the recipe and gates it here, rather
+    # than building new infinite-behavior blocks from scratch. See
+    # DESIGN.md for the full rationale and the disclosed exploit-risk
+    # caveat on the Creative Crate.
+    "id:refinedstorage:creative_storage_block",
+    "id:refinedstorage:creative_fluid_storage_block",
+    "id:create:creative_motor",
+    "id:create:creative_crate",
+]
 always_unlocked = []
 
 [dimensions]

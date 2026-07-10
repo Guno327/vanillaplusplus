@@ -35,6 +35,17 @@ locked = [
     # Thread slots of the 3 robes) - see andesite_age.toml's sorcerer_robes
     # comment for why the robe item itself is what's tier-locked.
     "id:ars_nouveau:battlemage_robes",
+
+    # TODO.md item 2: TFMG "Aluminum Age" milestone - the first of five
+    # named automation milestones paired with Tiers 5-9 (mirroring how
+    # Tiers 0-4 each pair a Create milestone with their stage). TFMG was
+    # installed since Phase 8 purely as a Stellaris compat dependency and
+    # had never actually been used for anything until this pass - see
+    # DESIGN.md's endgame automation section for the full curated list
+    # (a representative subset of TFMG's ~800-entry registry, not an
+    # exhaustive audit, same "spot-checked, disclosed" precedent as
+    # Phase 9's recipe-gating audit).
+    "id:tfmg:aluminum_ingot",
 ]
 always_unlocked = []
 
@@ -42,6 +53,10 @@ always_unlocked = []
 locked = [
     "id:stellaris:rocket_launch_pad",
     "id:stellaris:rocket_station",
+
+    "id:tfmg:bauxite",
+    "id:tfmg:aluminum_frame",
+    "id:tfmg:air_intake",
 ]
 always_unlocked = []
 

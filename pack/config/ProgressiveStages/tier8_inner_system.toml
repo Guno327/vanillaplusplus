@@ -20,7 +20,15 @@ locked = []
 always_unlocked = []
 
 [blocks]
-locked = []
+# TODO.md item 2: TFMG "Electrical Age" milestone - the mod's own power
+# grid (a distinct energy type from Create's kinetic power/FE, bridged by
+# its own Converter block), see DESIGN.md's endgame automation section.
+locked = [
+    "id:tfmg:electric_motor",
+    "id:tfmg:accumulator",
+    "id:tfmg:converter",
+    "id:tfmg:copper_cable_hub",
+]
 always_unlocked = []
 
 [dimensions]

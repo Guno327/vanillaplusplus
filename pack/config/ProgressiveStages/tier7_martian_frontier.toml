@@ -13,11 +13,19 @@ unlock_message = "&c&lMartian Frontier Unlocked! &r&7Mars awaits."
 dependency = "lunar_frontier"
 
 [items]
-locked = []
+# TODO.md item 2: TFMG "Petrochemical Age" milestone - crude oil refining
+# into usable fuels, see DESIGN.md's endgame automation section.
+locked = [
+    "id:tfmg:crude_oil_bucket",
+    "id:tfmg:diesel_bucket",
+]
 always_unlocked = []
 
 [blocks]
-locked = []
+locked = [
+    "id:tfmg:cast_iron_chemical_vat",
+    "id:tfmg:fireclay",
+]
 always_unlocked = []
 
 [dimensions]

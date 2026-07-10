@@ -1,0 +1,34 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": true,
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "allthemodium:unobtainium_vibranium_alloy_ingot"
+    },
+    "B": {
+      "item": "refinedstorage:4096b_fluid_storage_block"
+    },
+    "C": {
+      "item": "create:brass_casing"
+    },
+    "m": {
+      "item": "create:precision_mechanism"
+    },
+    "p": {
+      "item": "tfmg:aluminum_fluid_tank"
+    },
+    "e": {
+      "item": "create:electron_tube"
+    }
+  },
+  "pattern": [
+    "ApA",
+    "mBm",
+    "CeC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "refinedstorage:creative_fluid_storage_block"
+  }
+}

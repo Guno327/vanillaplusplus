@@ -23,11 +23,21 @@ dependency = "starforged_age"
 # transitively for the whole shared span.
 locked = [
     "id:allthemodium:unobtainium_ingot",
+
+    # TODO.md item 2: TFMG "Steel Age" milestone - the mod's core
+    # metallurgy chain (coal coke + iron/bauxite processing -> steel),
+    # see DESIGN.md's endgame automation section for the full list.
+    "id:tfmg:steel_ingot",
 ]
 always_unlocked = []
 
 [blocks]
-locked = []
+locked = [
+    "id:tfmg:blast_furnace_hatch",
+    "id:tfmg:coke_oven",
+    "id:tfmg:casting_basin",
+    "id:tfmg:blast_stove",
+]
 always_unlocked = []
 
 [dimensions]

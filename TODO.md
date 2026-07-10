@@ -58,7 +58,23 @@ with tier, and whether this needs its own KubeJS scaling script (mirroring
 `mob_scaling.js`'s dimension+distance+player-tier formula) or can reuse
 config-only tuning from the mod itself.
 
-## 2. Post-Tier-4 endgame automation deepening (TFMG + storage chase + "infinite" capstones)
+## 2. ✅ DONE — Post-Tier-4 endgame automation deepening (TFMG + storage chase + "infinite" capstones)
+
+**Implemented.** See `DESIGN.md`'s "Post-Tier-4 endgame automation
+deepening" section for the full writeup: a curated 5-tier TFMG milestone
+ladder (Aluminum -> Steel -> Petrochemical -> Electrical -> Combustion
+Age) mapped onto Tiers 5-9; the RS storage chase was verified to have no
+native tier above 64k and honestly scoped down rather than inventing one;
+all three "infinite" capstones turned out to already exist as fully-
+functional, recipe-less creative blocks in Create/Refined Storage
+(`create:creative_motor`, `create:creative_crate`, `refinedstorage:
+creative_storage_block`/`creative_fluid_storage_block`) - new survival
+recipes were added and gated at Jovian Frontier rather than building
+custom infinite-behavior blocks from scratch. One real gap disclosed and
+left open: `create:creative_crate` has no technical guard against being
+filtered to duplicate a genuinely unique item, violating this pack's own
+resource-infinity exemption - flagged, not fixed. Boot-tested clean,
+committed. Original scoping notes kept below for reference.
 
 **Ask**: right now Tiers 5-9 (Starforged Age through Jovian Frontier) are
 pure travel gates — each unlocks the next planet's dimension and locks a

@@ -1263,6 +1263,126 @@ deposits in a real explored world, and whether the rarity curve feels
 right, can't be verified here, only that the recipe schema is well-formed
 and the tier-gating chain is correctly wired.
 
+### Post-Tier-4 endgame automation deepening (TODO.md item 2)
+
+Second TODO backlog item. Ask: Tiers 5-9 (Starforged Age through Jovian
+Frontier) were pure travel gates with zero automation progression -
+confirmed by re-reading `tier6_lunar_frontier.toml` through
+`tier9_jovian_frontier.toml` before starting: only item/dimension locks,
+no "Create milestone"-equivalent, and TFMG (Create: The Factory Must
+Grow, installed since Phase 8 purely as a Stellaris compat dependency)
+had never had a single one of its own items referenced anywhere in this
+pack. The user wants Tier 4+ to become the pack's real automation
+endgame, leaning on TFMG, with the Refined Storage capacity chase
+continuing upward and three "infinite" capstones (storage/energy/all-
+resources) as the true final reward.
+
+**TFMG milestone ladder - a curated subset, not an exhaustive audit,
+disclosed as such** (same "spot-checked" precedent Phase 9's recipe-
+gating audit already established for this pack - TFMG's own lang file has
+~800 entries, auditing all of them wasn't attempted). Decompiled the
+installed jar's lang file to pick one real material + a small set of
+signature machine blocks per tier, mirroring how Tiers 0-4's own "Create
+milestone" column names a handful of things, not every item:
+
+| Tier | Name | TFMG milestone | Key locked ids |
+|---|---|---|---|
+| 5 Starforged Age | Aluminum Age | basic smelting/framing | `aluminum_ingot`, `bauxite`, `aluminum_frame`, `air_intake` |
+| 6 Lunar Frontier | Steel Age | the mod's core metallurgy chain | `steel_ingot`, `blast_furnace_hatch`, `coke_oven`, `casting_basin`, `blast_stove` |
+| 7 Martian Frontier | Petrochemical Age | oil refining | `crude_oil_bucket`, `diesel_bucket`, `cast_iron_chemical_vat`, `fireclay` |
+| 8 Inner System | Electrical Age | TFMG's own power grid (a distinct energy type from Create's kinetic/FE, bridged via its own Converter block) | `electric_motor`, `accumulator`, `converter`, `copper_cable_hub` |
+| 9 Jovian Frontier | Combustion Age | engine parts, the ladder's ceiling | `engine_cylinder`, `diesel_engine_cylinder`, `engine_controller`, `engine_gearbox` |
+
+Every id was confirmed to exist in the installed jar's lang file before
+being written into a `.toml` - none guessed from the mod's general
+reputation.
+
+**Storage chase - verified, then honestly scoped down.** Decompiled
+Refined Storage 2.0.9's lang file expecting to find capacity tiers above
+64k to continue the existing 1k->4k->16k->64k pattern; confirmed **no
+such native tier exists** - RS's own storage block/disk ladder stops at
+64k, and the only thing beyond it is a `creative_storage_block`/
+`creative_storage_disk` pair (and fluid equivalents) with **no survival
+crafting recipe at all** - genuinely infinite capacity, shipped by RS's
+own developers, gated only by being creative-menu-only by default. Rather
+than inventing a fictitious "256k"/"1M" intermediate tier (which would
+need a custom item with its own Java-level capacity resolution RS
+doesn't expose to a KubeJS-only patch), the honest design actually
+implemented: the storage chase has no new intermediate rungs across
+Tiers 5-8 (64k stays the practical ceiling through that whole span), and
+the real payoff is unlocking survival access to RS's own already-built
+infinite-capacity block as part of the Jovian Frontier capstone set
+below. Disclosed as a real scope-down from the TODO's original ask, not
+silently dropped.
+
+**The three "infinite" capstones - real infinite behavior, not a KubeJS
+approximation.** The TODO flagged the exact mechanism as open ("does this
+need new KubeJS scripting for a custom infinite FE-generation block").
+Investigated both Create and Refined Storage's own registries first
+rather than assuming custom logic was needed, and found all three already
+exist, fully implemented, in mods already installed:
+- **Infinite storage** -> `refinedstorage:creative_storage_block` +
+  `creative_fluid_storage_block` (confirmed: "Stores an infinite amount
+  of items"/"buckets" per RS's own lang file).
+- **Infinite energy** -> `create:creative_motor` - Create's own
+  "compact, configurable source of Rotational Force" (per Create's
+  ponder tooltip text), chosen over TFMG's own `creative_generator`
+  specifically because it's Create-native, consistent with this pack's
+  standing "engaging with Create should be the sole process by which you
+  automate things" rule, and bridges to FE via the Alternator already
+  installed since Phase 2.
+- **Infinite all-resources** -> `create:creative_crate` - "provides an
+  endless supply of the item specified" per Create's own tooltip, a
+  direct, literal match for the ask.
+
+None of the four had a survival crafting recipe (confirmed by grepping
+each jar for `recipe.*creative` - zero hits in Create, TFMG, or Refined
+Storage). New `create:mechanical_crafting` recipes were added for all
+four (`pack/kubejs/data/refinedstorage/recipe/creative_storage_block.json`
++ `creative_fluid_storage_block.json`, `pack/kubejs/data/create/recipe/
+creative_motor.json` + `creative_crate.json`), each requiring a mix of
+this tier's own capstone material (`allthemodium:
+unobtainium_vibranium_alloy_ingot`), the matching Tier 8 TFMG milestone
+item (electric motor for the energy capstone, chemical vat for the
+resource capstone), `create:precision_mechanism`/`brass_casing`/
+`electron_tube`, and (for the two storage capstones) the previous 64k/
+4096B storage block being consumed as an ingredient - so building the
+final tier genuinely requires having climbed the whole ladder first, not
+just holding the raw materials. All four gated behind `jovian_frontier`
+(the final tier) via ProgressiveStages block locks. No per-player/team
+restriction was built in, per the user's explicit call - whoever crafts
+one owns it, same as every other block in the game.
+
+**Disclosed exploit risk, not resolved this pass**: `create:creative_crate`
+lets a player configure which single item it endlessly supplies. Nothing
+technical stops a player from filtering it to a genuinely unique item
+(a boss-unique weapon, a one-off structure reward) and duplicating that
+specific item type indefinitely - which would directly violate this
+pack's own resource-infinity exemption ("genuinely unique items... stay
+one-of-a-kind forever," established after Phase 2 and reaffirmed in this
+very TODO item's own decision record). Preventing this would need a
+KubeJS event hook intercepting the crate's filter-configuration action
+(not confirmed to exist/be exposed for this block) or a Java-level fix
+outside KubeJS's reach - flagged honestly as an unresolved gap rather
+than either ignored or half-fixed with an unverified workaround.
+
+**Boot-tested clean**: all TFMG milestone locks (23 new locked ids across
+5 tier files) load without a TOML parse error, `ProgressiveStages`
+resolves cleanly (10 stages, 219 tier-tagged items - up by exactly 6 new
+[items]-section entries, [blocks]-section entries tracked separately from
+this particular counter), and all 4 new capstone recipes load with no
+"unknown recipe"/parse warnings tied to their ids (the handful of
+`unknown type: minecraft:empty` warnings present in the log are
+pre-existing, from Stellaris/TFMG/Silent Gear's own bundled recipes, not
+from anything added this pass).
+
+**Disclosed limitation**: as with every prior overhaul, no live client
+means the actual feel of a 5-tier TFMG grind, whether the curated
+milestone item lists are the *right* representative picks out of TFMG's
+~800 total entries, and whether the capstone recipes are correctly
+balanced as "the hardest thing in the game" can't be verified here - only
+that every id is real, every lock loads, and every new recipe resolves.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.

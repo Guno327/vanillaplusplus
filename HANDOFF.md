@@ -53,18 +53,28 @@ boot-tested, committed, and documented in `DESIGN.md`:
    Precision Age; 3 new vein types (allthemodium/vibranium/unobtainium)
    added for the late-game meta-material tier, gated behind the Netherite
    Drill. See DESIGN.md's "Ore veins via Create Ore Excavation" section.
+7. **TODO.md item 2 (endgame automation deepening)** — a curated 5-tier
+   TFMG milestone ladder (Aluminum→Steel→Petrochemical→Electrical→
+   Combustion Age) mapped onto Tiers 5-9; the 3 "infinite" capstones
+   (storage/energy/all-resources) turned out to already exist as
+   fully-functional, recipe-less creative blocks in Create/Refined
+   Storage — new survival recipes added and gated at Jovian Frontier
+   instead of building custom infinite-behavior blocks. One disclosed,
+   unfixed gap: `create:creative_crate` has no technical guard against
+   duplicating a genuinely unique item. See DESIGN.md's "Post-Tier-4
+   endgame automation deepening" section.
 
 ## TODO backlog (in progress)
 
 `TODO.md` at the repo root has 8 user-scoped items from a planning session
-— read it fully before picking up work. Item 1 is done (see above). Items
-2-8 (endgame automation deepening w/ TFMG, duplicate-resource
-consolidation, jetpack→creative flight mobility, discoverable Curios
-abilities, hostile/passive mob variety, Create-native chunk loading,
-wealth/tier/level leaderboards) are fully scoped with recorded decisions
-but not yet started — implement in order unless told otherwise, don't
-re-litigate decisions already recorded in the file, but do still verify
-any named mod against the actually-installed jar before building on it.
+— read it fully before picking up work. Items 1-2 are done (see above).
+Items 3-8 (duplicate-resource consolidation, jetpack→creative flight
+mobility, discoverable Curios abilities, hostile/passive mob variety,
+Create-native chunk loading, wealth/tier/level leaderboards) are fully
+scoped with recorded decisions but not yet started — implement in order
+unless told otherwise, don't re-litigate decisions already recorded in
+the file, but do still verify any named mod against the actually-installed
+jar before building on it.
 
 This is an unattended, self-resuming work session: each wakeup should
 schedule the *next* wakeup (~4 hours out, via `CronCreate` with
