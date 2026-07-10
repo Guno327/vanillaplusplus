@@ -81,15 +81,28 @@ function respecCategory(player, categoryId) {
         return
     }
     try {
-        const rl = RespecResourceLocationClass.fromNamespaceAndPath('puffish_skills', categoryId)
-        const catOpt = RespecSkillsAPIClass.getCategory(rl)
+        // `let`, not `const`, for every binding declared directly inside
+        // this try block (and the nested per-node try below) - this pack's
+        // installed Rhino build (KubeJS 2101.7.2/build.368) throws
+        // "TypeError: redeclaration of const/var X" for a `const`/`let`
+        // declared directly inside a `try { }` body, and ground-truthing
+        // against the actual installed rhino-2101.2.7-build.85.jar (GitHub
+        // issue #8's audit) showed this happens on the very FIRST call, not
+        // just repeat invocations - so every /respec call would have hit
+        // this and always fallen into the outer catch below, telling the
+        // player "Respec failed" unconditionally. Matches the same
+        // installed-Rhino limitation already fixed elsewhere in this
+        // codebase (tick_accelerator.js/selftest.js/leaderboard.js) - see
+        // DESIGN.md's "Release engineering" Rhino-bugs note.
+        let rl = RespecResourceLocationClass.fromNamespaceAndPath('puffish_skills', categoryId)
+        let catOpt = RespecSkillsAPIClass.getCategory(rl)
         if (!catOpt.isPresent()) {
             player.tell(`Unknown skill category: ${categoryId}`)
             return
         }
-        const category = catOpt.get()
+        let category = catOpt.get()
 
-        const path = findCommittedPath(category, player)
+        let path = findCommittedPath(category, player)
         if (!path) {
             player.tell(`You haven't committed to a spec path in ${categoryId} yet - nothing to respec.`)
             return
@@ -99,16 +112,16 @@ function respecCategory(player, categoryId) {
             return // chargeRespecCost is responsible for telling the player why
         }
 
-        const nodeIds = [0, 1, 2, 3, 4].map(i => path + i) // ['a0'..'a4'] or ['b0'..'b4']
+        let nodeIds = [0, 1, 2, 3, 4].map(i => path + i) // ['a0'..'a4'] or ['b0'..'b4']
         let lockedCount = 0
         for (const nodeId of nodeIds) {
             try {
-                const skillOpt = category.getSkill(nodeId)
+                let skillOpt = category.getSkill(nodeId)
                 if (!skillOpt.isPresent()) {
                     console.error(`[vpp respec] ${categoryId}/${nodeId} missing from category config - skipped`)
                     continue
                 }
-                const skill = skillOpt.get()
+                let skill = skillOpt.get()
                 if (String(skill.getState(player)) === 'UNLOCKED') {
                     skill.lock(player)
                     lockedCount++
@@ -118,7 +131,7 @@ function respecCategory(player, categoryId) {
             }
         }
 
-        const pathLabel = path === 'a' ? 'A' : 'B'
+        let pathLabel = path === 'a' ? 'A' : 'B'
         player.tell(`Respec complete: cleared ${lockedCount} node(s) on the ${pathLabel} path of ${categoryId}. Points refunded - both paths are open again.`)
     } catch (e) {
         console.error(`[vpp respec] respec failed for ${player.username} / ${categoryId}: ${e}`)
