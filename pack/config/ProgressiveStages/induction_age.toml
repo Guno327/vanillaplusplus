@@ -70,6 +70,35 @@ locked = [
     "id:waystones:warp_scroll",
     "id:waystones:return_scroll",
     "id:waystones:portal_scroll",
+
+    # TODO.md item 4: personal-mobility progression, rung 4 (final jetpack
+    # rung before the item 4-decided Starforged Age creative-flight
+    # capstone, which is a separate, not-yet-implemented wave-2 item).
+    # GROUND-TRUTH FINDING for wave-2: there are TWO independently
+    # registered "netherite jetpack" chestplate items across the two mods
+    # scaffolded for this progression, not one -
+    #   - create_sa:netherite_jetpack_chestplate (from Create Stuff 'N
+    #     Additions itself, 2.1.4.a) - a smithing_transform recipe:
+    #     create_sa:brass_jetpack_chestplate + minecraft:netherite_ingot +
+    #     create:fluid_tank template. This is the natural fit: it's a
+    #     direct smithing upgrade FROM the brass_jetpack_chestplate locked
+    #     above at precision_age, mirroring vanilla's diamond->netherite
+    #     smithing pattern and this pack's own tier-metal ladder.
+    #   - create_nj:netherite_jetpack_chestplate (from the separate Create
+    #     Stuff & Netherite Additions addon, 1.2) - an unrelated
+    #     create:mechanical_crafting recipe (diamonds + create:encased_fan
+    #     + create_nj:nether_engine + netherite ingots), fully independent
+    #     of the create_sa jetpack ladder.
+    # Both are locked here so neither bypasses this tier - closing exactly
+    # the kind of hole TODO.md item 3's aluminum consolidation closed for
+    # tfmg:aluminum_ingot. Wave-2 (items 4/5/6 implementation) should
+    # decide whether create_nj's copy is a genuine duplicate worth folding
+    # into TODO.md item 3's dedup pattern (create_nj is scaffolded here
+    # primarily for its separate Netherite Exoskeleton item, a different
+    # armor slot, not confirmed redundant) - flagged, not resolved, since
+    # this integration pass is scaffolding only.
+    "id:create_sa:netherite_jetpack_chestplate",
+    "id:create_nj:netherite_jetpack_chestplate",
 ]
 always_unlocked = []
 

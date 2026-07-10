@@ -106,6 +106,17 @@ locked = [
     # native tool ceiling (Iron -> Diamond -> Netherite, a fixed 3-rung
     # ladder) - no further hand-tool tier exists past this.
     "id:createoreexcavation:netherite_drill",
+
+    # TODO.md item 4: personal-mobility progression, rung 3 - Create Stuff
+    # 'N Additions' brass jetpack (steam-fired, this pack's steam/Brass Age
+    # material tier). Also this jetpack line's smithing base: create_sa's
+    # own netherite jetpack upgrades FROM this item (see induction_age.toml
+    # for the full smithing-upgrade note). Chest-slot contention with
+    # Elytra, already locked at this same tier, is an accepted tradeoff per
+    # the orchestrator - Elytra and jetpacks are both "chestplate flight
+    # items" and a player is expected to pick one per outfit, same as any
+    # other armor-slot choice.
+    "id:create_sa:brass_jetpack_chestplate",
 ]
 always_unlocked = []
 

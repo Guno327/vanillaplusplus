@@ -154,6 +154,16 @@ locked = [
     # (continuous Stress draw), per the recorded running-cost decision.
     "id:create_power_loader:empty_andesite_chunk_loader",
     "id:create_power_loader:andesite_chunk_loader",
+
+    # TODO.md item 4: personal-mobility progression, rung 1 - Create Stuff
+    # 'N Additions' copper jetpack (chestplate slot, water-pressure fueled).
+    # Verified via the jar's own en_us.json lang file (item.create_sa.
+    # copper_jetpack_chestplate) - create_sa 2.1.4.a ships exactly 4
+    # chestplate-style jetpacks (copper/andesite/brass/netherite), mirroring
+    # this pack's own tier-metal ladder 1:1. Chest-slot contention with
+    # Elytra (already locked one tier later, at precision_age) is an
+    # accepted tradeoff per the orchestrator - same precedent.
+    "id:create_sa:copper_jetpack_chestplate",
 ]
 always_unlocked = []
 

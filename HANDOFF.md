@@ -63,18 +63,89 @@ boot-tested, committed, and documented in `DESIGN.md`:
    unfixed gap: `create:creative_crate` has no technical guard against
    duplicating a genuinely unique item. See DESIGN.md's "Post-Tier-4
    endgame automation deepening" section.
+8. **TODO.md item 3 (duplicate-resource consolidation)** — AllTheOres'
+   zinc/aluminum/lead/nickel and Stellaris' steel hard-consolidated onto
+   Create/TFMG canonical items via redirected smelting/crafting/loot-table
+   overrides + `dedup.js` tag cleanup; ATO overworld ore worldgen
+   neutralized (nether/End kept, no canonical source there); closed a real
+   tier-bypass hole on `tfmg:aluminum_ingot`. TFMG-vs-RefinedStorage
+   silicon checked and left alone (genuinely different resources). See
+   DESIGN.md's "Duplicate-resource consolidation audit" section.
+9. **TODO.md item 7 (Create-native chunk loading)** — Create: Power Loader
+   added, two tiers locked at Andesite/Brass Age; running-cost guardrail
+   satisfied natively (force-loading stops when the kinetic network
+   stops); FTB Chunks' own force-loading fully disabled via
+   `pack/config/ftbchunks-world.snbt` (claims untouched). See DESIGN.md's
+   "Block-based chunk loading via Create: Power Loader" section.
+10. **TODO.md item 8 (leaderboards)** — `/leaderboard <wealth|tier|level>
+    [players|teams]` chat command in a new `leaderboard.js`; wealth =
+    coin count + genuinely-reachable Numismatics bank balance; tier =
+    ProgressiveStages stage count; level = summed Pufferfish Skills
+    per-category levels; teams via FTB Teams API, summed/maxed as
+    appropriate. All three mod APIs wrapped with honest "unavailable"
+    fallbacks, never a silent vanilla-XP substitute. See DESIGN.md's
+    "Leaderboards: wealth / tier / level" section.
 
 ## TODO backlog (in progress)
 
 `TODO.md` at the repo root has 8 user-scoped items from a planning session
-— read it fully before picking up work. Items 1-2 are done (see above).
-Items 3-8 (duplicate-resource consolidation, jetpack→creative flight
-mobility, discoverable Curios abilities, hostile/passive mob variety,
-Create-native chunk loading, wealth/tier/level leaderboards) are fully
-scoped with recorded decisions but not yet started — implement in order
-unless told otherwise, don't re-litigate decisions already recorded in
-the file, but do still verify any named mod against the actually-installed
-jar before building on it.
+— read it fully before picking up work. Items 1, 2, 3, 7, and 8 are done
+(see above). Items 4, 5, and 6 (jetpack→creative-flight mobility,
+discoverable Curios abilities, hostile/passive mob variety) are
+**scaffolded but not implemented** — see "Wave-2 scaffolding" below for
+exactly what's in place vs. still open. Implement in order unless told
+otherwise, don't re-litigate decisions already recorded in the file, but
+do still verify any named mod against the actually-installed jar before
+building on it.
+
+### Wave-2 scaffolding (mods added, mechanics NOT implemented)
+
+An integrator pass (2026-07-10) added the 7 new mods items 4-6 need to
+`pack/manifest.json`/`pack/mods.lock.json` and boot-tested them in, plus
+added the jetpack tier locks item 4 needs — but did **not** implement any
+of items 4/5/6's actual mechanics (that's still wave-2's job):
+
+- **Item 4 (jetpacks)**: `create-stuff-additions` (mod id `create_sa`,
+  4 native chestplate jetpacks: copper/andesite/brass/netherite) +
+  `create-netherite-additions` (mod id `create_nj`, adds a Netherite
+  Exoskeleton + its own second netherite jetpack). Tier locks added:
+  copper→andesite_age, andesite→brass_age, brass→precision_age,
+  **both** netherite jetpacks (`create_sa:netherite_jetpack_chestplate`
+  AND `create_nj:netherite_jetpack_chestplate`)→induction_age (locking
+  both closes a tier-bypass hole the same way item 3 did for aluminum).
+  **GROUND-TRUTH FINDING for wave-2**: `create_nj`'s netherite jetpack is
+  a duplicate of `create_sa`'s own native one (different recipe, same
+  functional slot) - worth folding into TODO.md item 3's dedup pattern,
+  not confirmed necessary since `create_nj` is also needed for its
+  Exoskeleton. **Still open**: the Starforged Age creative-flight
+  capstone itself (not started - no mod/mechanism chosen yet), and
+  whether any intermediate jetpack rungs need KubeJS-scripted stat
+  changes beyond the mod's own native behavior.
+- **Item 5 (Curios)**: `artifacts` added (zero hard deps, Curios/
+  cloth-config/JEI all soft-detected). **Nothing else done** - loot-table
+  wiring into `scripts/gen_structure_loot.py`'s rarity tiers, the
+  duplicate-combine upgrade mechanic, and the "no tier lock, loot-weight
+  only" balance question are all still fully open.
+- **Item 6 (mob variety)**: `creeper-overhaul` + its required deps
+  `resourceful-config` and `resourceful-lib` (the latter needed at the
+  **class level** - `NoClassDefFoundError` on `ResourcefulRegistries` -
+  even though neither Modrinth's dependency metadata nor the mod's own
+  `neoforge.mods.toml` declares it; found only via an actual boot-test
+  crash, same pattern as this pack's existing geckolib/curios precedent
+  for Ars Nouveau). Plus `borninchaos` (confirmed via its own jar:
+  geckolib is genuinely optional there, Modrinth's metadata is wrong to
+  call it required) and `naturalist` (geckolib 4.9.2 satisfies its
+  `>=4.7` requirement). **Nothing else done** - no loot-table patching to
+  the shared canonical drop set, no `mob_scaling.js` `MONSTER_TYPES`
+  extension, no biome-appropriateness pass against the new Terralith
+  biomes.
+
+All 7 new mods are boot-tested clean as of this pass (third boot test,
+after fixing the resourceful-lib gap above) - they load with no
+`ModLoadingException`/`FATAL` and no new errors beyond one pre-existing-
+pattern non-fatal WARN (`create_nj:netherite_flywheel_recipe` fails to
+parse - a bug in that mod's own bundled recipe JSON, unrelated to
+anything added this pass, doesn't block loading).
 
 This is an unattended, self-resuming work session: each wakeup should
 schedule the *next* wakeup (~4 hours out, via `CronCreate` with
@@ -83,7 +154,42 @@ starting any work, then read this file + `TODO.md`, then continue. Keep
 working through items without stopping at each one's completion — only
 stop if the list is exhausted or capacity runs out mid-task (in which
 case, update this section with exactly what's mid-flight before you can't
-anymore).
+anymore). **Scheduling gotcha learned the hard way**: a one-shot cron
+pinned to the *current* minute has already passed by the time it's
+created and will never fire — always pin it to a future time and sanity-
+check with CronList.
+
+**Orchestrator mode (user directive, 2026-07-10 ~00:05 UTC)**: the main
+session now orchestrates; heavy implementation/research is delegated to
+background subagents on the "sonnet" model via the Agent tool. Division
+of labor: subagents write code/do research but never run git, never boot
+the server, and never touch manifest.json/mods.lock.json/DESIGN.md/
+HANDOFF.md/TODO.md; the orchestrator integrates their output, runs the
+single boot test (one server, one port — boot tests can't run
+concurrently anyway), commits each logical part separately, updates docs,
+and adds any new mods to the manifest itself via resolve_mods.py/
+build_server.py.
+
+**Status as of the integrator pass (2026-07-10, ~00:35-00:47 UTC)**: the
+4 sonnet subagents referenced above (items 3+8 implementation, items 4+5
+and 6+7 research) have all completed and been integrated, boot-tested
+(3 full boot cycles - items 3/7(partial)/8 together, then the completed
+FTB Chunks config, then the 7 wave-2-scaffold mods), and committed. Items
+3, 7, and 8 are now fully done (see "What's done" above). Items 4/5/6 are
+scaffolded only (new mods in the manifest + jetpack tier locks) - see
+"Wave-2 scaffolding" above for the exact boundary of what's in place vs.
+still open.
+
+**Next session should**: pick up items 4/5/6's actual mechanics using the
+scaffolding + research briefs already in place (mods installed, deps
+verified, jetpack items tier-locked) - no further mod-discovery research
+should be needed for the mods already chosen, though item 4's creative-
+flight capstone and item 5's content-mod choice for Curios still need
+mod/mechanism decisions of their own (only `artifacts` was scaffolded per
+the research brief's leading candidate; nothing was scaffolded yet for a
+capstone mechanism). Same orchestrator/subagent division of labor as
+before: subagents write code/do research, the orchestrating session runs
+git/boot-tests/manifest edits/docs.
 
 Full narrative and rationale for every decision lives in `DESIGN.md` —
 that file, not this one, is the source of truth. `instructions.md` has the

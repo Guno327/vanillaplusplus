@@ -168,6 +168,13 @@ locked = [
     # this file's convention.
     "id:create_power_loader:empty_brass_chunk_loader",
     "id:create_power_loader:brass_chunk_loader",
+
+    # TODO.md item 4: personal-mobility progression, rung 2 - Create Stuff
+    # 'N Additions' andesite jetpack (fuel-fired propellers). Chest-slot
+    # contention with Elytra (locked one tier later, at precision_age) is
+    # an accepted tradeoff per the orchestrator, matching the Elytra
+    # precedent already established in this pack.
+    "id:create_sa:andesite_jetpack_chestplate",
 ]
 always_unlocked = []
 
