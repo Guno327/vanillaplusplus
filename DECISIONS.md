@@ -494,6 +494,75 @@ run in isolation:
   brass_age.toml/manifest — merge each with a boot test between, item
   order at the post-release integrator's discretion.
 
+## Post-release merges (2026-07-10)
+
+Both pre-built branches merged into `main` one at a time with a full
+L0+L1 boot test between, per their post-release merge checklists above.
+Merge order chosen: **item 11 first** (pure additive data + one new
+script, no manifest/lockfile churn), **item 10 second** (manifest/
+lockfile/new-jars, more moving parts) — DECISIONS.md left the order to
+the integrator's discretion, both branches touch
+`pack/kubejs/server_scripts/` additively but on disjoint files, so
+neither ordering risked a conflict.
+
+- **Item 11 merge** (`ec2ca5f`, `--no-ff`, no conflicts): skill-tree
+  overhaul + `/respec`. L0 PASS (78 server mods, 0 KubeJS errors/
+  warnings, no unbaselined WARN/ERROR, clean stop); confirmed boot log
+  shows `[puffish_skills] Data pack \`puffish_skills\` loaded
+  successfully!` (i.e. NOT the failure string the checklist named). L1
+  PASS (17/17, 4 skipped — player-online-only assertions, expected in a
+  console-only run).
+- **Item 10 merge** (`d918f83`, `--no-ff`, no conflicts): Time-in-a-
+  Bottle tick accelerator. First L0 run technically exited PASS but
+  grepping the log per the checklist ("registry-scan runs at tag-gen
+  time with a sane logged count") caught a real, live bug: the scan was
+  throwing `TypeError: redeclaration of var BuiltInRegistries` every
+  single boot and silently falling back to the disclosed static 38-id
+  list — the checklist's real scan never actually ran. Root cause:
+  `tick_accelerator.js`'s `ServerEvents.tags` callback (registry scan +
+  its `while` loop) and its `ItemEvents.crafted` callback (one-per-player
+  enforcement) both declared per-invocation/per-iteration bindings with
+  `const`, hitting the exact installed-Rhino limitation this file's own
+  "Release engineering" Rhino-bugs note already documents and previously
+  fixed in `selftest.js`/`leaderboard.js` — `const` doesn't get fresh
+  scoping across repeat invocations of the same try/catch or loop body on
+  this KubeJS/Rhino build. Fixed forward (commit `2e60738`, same session,
+  not a separate agent) by converting every such `const` to `let` in both
+  callbacks, matching the established codebase workaround. Re-verified:
+  the registry scan now genuinely runs and logs `tagged 173 block(s) into
+  tiab:un_acceleratable out of 3604 blocks scanned (2 spawner id(s)
+  explicitly protected from exclusion)`. Re-ran L0 (PASS, 80 server mods
+  including tiab-neoforge-6.5.4.jar + tiab-entity-fix-1.0.3.jar freshly
+  downloaded) and L1 (PASS, 17/17, 4 skipped) clean after the fix.
+  Confirmed benign: Stellaris `heavy_ingot` WARN present as expected;
+  tiabfix's two mixin WARNs (generic refmap-could-not-be-read dev-env
+  boilerplate seen on every mod in this pack; an Applied-Energistics-2
+  compat mixin harmlessly not finding its target since this pack has no
+  AE2 installed — unrelated to the crop/animal acceleration the fix mod
+  exists for).
+- Both merges verified no stray `java`/`tail -f cmd_fifo` processes
+  before the next boot (no `DirectoryLock` false failures hit this pass).
+- **L2 HeadlessMC client harness checked and found not applicable**: it's
+  a pure mod-set-assembly + launch + crash-detection smoke test (see
+  `scripts/tests/l2_client_smoke.py`) — it doesn't simulate any player
+  action (no bot, no scripted commands/crafting/skill-unlocking), so it
+  cannot exercise either branch's in-game-only checklist items. Per this
+  task's explicit instruction, no new test infrastructure was built to
+  cover this gap.
+- **Needs in-game verification** (could not be checked statically, via
+  boot log, or via L0/L1/L2 — collected here, also filed under TODO.md
+  items 10/11):
+  - Item 11: in-game exclusive-edge behavior (unlock a0 → b0 excluded,
+    a-path opens/b-path shut); `/respec` full-path lock + point refund +
+    re-pick; `/respec` with nothing committed replies "nothing to
+    respec" without throwing.
+  - Item 10: tagged Create block genuinely refuses acceleration in-game;
+    tiabfix mixins actually accelerate crops/animals in play; double-
+    craft (incl. shift-click batch) void+refund and re-craft-after-
+    genuine-loss both work as coded; spawners remain accelerable in
+    practice.
+- Neither branch's worktree was deleted — both retained per instruction.
+
 ## Standing implementation notes
 
 - Incidental Stellaris bump rode along with the item 7 resolver run

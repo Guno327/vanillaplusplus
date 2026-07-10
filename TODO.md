@@ -624,7 +624,36 @@ Delight and its ecosystem, fully Create-automatable end to end.
 - Exact bonus-heart milestone curve (how many distinct foods per heart,
   cap) — not pinned down in the decision session.
 
-## 10. NOT STARTED — DEFERRED POST-RELEASE — Tick accelerator (Time in a Bottle)
+## 10. ✅ DONE — Tick accelerator (Time in a Bottle)
+
+**Merged into main 2026-07-10** (post-release integration pass, commits
+`6cc3194`/`cbd18e6` cherry-picked via `--no-ff` merge `d918f83`, plus a
+fix-forward commit `2e60738`). time-in-a-bottle-universal 6.5.4 + tiabfix
+added to manifest/lockfile; `tiab:time_in_a_bottle` locked at Brass Age;
+`tick_accelerator.js` adds the Create-kinetics registry-scan exclusion
+(spawners deliberately left accelerable) and hard one-per-player
+craft enforcement (void + ingredient refund).
+
+Boot-testing found and fixed a real bug: the registry scan's
+`ServerEvents.tags` callback (and the one-per-player `ItemEvents.crafted`
+callback) used `const` for bindings that get re-declared across repeat
+invocations, hitting this pack's documented installed-Rhino limitation
+(`const` doesn't get fresh scoping across repeat try/catch or loop-body
+invocations — see DESIGN.md's Rhino-bugs note) and silently falling back
+to a static 38-id kinetic-block list every boot instead of running the
+real scan. Fixed by converting to `let`, matching the established
+workaround from `selftest.js`/`leaderboard.js`. Post-fix, the registry
+scan genuinely runs and logs a sane count (173 blocks tagged out of 3604
+scanned). L0 + L1 green after the fix.
+
+**Needs in-game verification** (can't be driven by this pack's L0/L1/L2
+harnesses — none of them simulate player actions like crafting or
+right-clicking a block): the tagged Create block actually refuses
+acceleration in-game; tiabfix mixins actually accelerate crops/animals
+in play (mixins load without error, functional effect unconfirmed);
+double-craft (incl. shift-click batch) genuinely voids+refunds the
+second bottle and a re-craft after a genuine loss works; spawners
+remain accelerable in practice.
 
 **Ask**: a classic "Time in a Bottle" item — passive real-time tick accrual,
 right-click a block to spend the stored time as a temporary speed
@@ -671,7 +700,34 @@ multiplier on that block/machine.
   implementation-time verification against the installed KubeJS/ItemEvents
   API, not assumed from the mod's docs.
 
-## 11. NOT STARTED — DEFERRED POST-RELEASE — Skill-tree overhaul (all 12 categories)
+## 11. ✅ DONE — Skill-tree overhaul (all 12 categories)
+
+**Merged into main 2026-07-10** (post-release integration pass, commits
+`6970b2b`/`c64b2f9` via `--no-ff` merge `ec2ca5f`). `gen_skill_tree.py`
+rewritten to emit a 5-node shared trunk forking into two hard-exclusive
+5-node specialization paths per category (15 nodes × 12 categories, all
+attribute-modifier-only, no scripted procs, no `epicfight:` attributes
+anywhere — verified via grep); exclusivity native to puffish_skills via
+an `exclusive.bidirectional` connection group between the two fork-entry
+nodes; new `skill_respec.js` provides `/respec <category>` (12 literal
+subcommands) that locks all 5 nodes of the player's chosen path via
+`SkillsAPI`/`Category`/`Skill.lock`, verified javap-correct against the
+installed jar including the orphaned-node gotcha (unlocked skills report
+UNLOCKED before the exclusion check, so a partial lock would leave stray
+active nodes — this implementation locks the whole path, not just the
+entry node).
+
+Boot-tested clean: no "[puffish_skills] Data pack could not be loaded"
+— log instead shows `Data pack \`puffish_skills\` loaded successfully!`.
+L0 + L1 both green (L1: 17/17 assertions, 4 skipped for player-online-only
+checks).
+
+**Needs in-game verification** (requires an actual player — none of this
+pack's L0/L1/L2 test layers simulate player skill-unlock or command-
+execution actions): in-game exclusive-edge behavior (unlocking a0 excludes
+b0, opening the a-path while the b-path stays shut); `/respec`'s full-path
+lock + point refund + re-pick flow; `/respec` with nothing committed
+replying "nothing to respec" without throwing.
 
 **Ask**: rework Pufferfish Skills' skill trees across all 12 categories (not
 just combat) into a shared-trunk-then-fork shape, with hard-exclusive but

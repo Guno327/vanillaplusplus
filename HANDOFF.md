@@ -1,16 +1,25 @@
 # Handoff
 
-**Status as of this note: RELEASE 1.0.0 SHIPPED.** All 8 originally-scoped
-`TODO.md` items (1-8) plus items 4/5/6's actual mechanics, the release
-client-optimization/QoL mod set, the L0/L1/L2 test suite, and both release
-artifacts are implemented, tested, committed, and documented in `DESIGN.md`'s
-"Release engineering" section. Items 9/10/11 (food overhaul, tick
-accelerator, skill-tree overhaul) are fully scoped in `TODO.md`/`DECISIONS.md`
-but explicitly DEFERRED POST-RELEASE — see "Post-release backlog" below.
-Read `TODO.md` before doing anything else — it's the authoritative backlog.
-`DECISIONS.md` at the repo root is the durable decision log for everything
-decided in orchestrator-mode sessions after the original 8-item planning
-pass; treat it as trusted input alongside `TODO.md`/`DESIGN.md`.
+**Status as of this note: RELEASE 1.0.0 SHIPPED, items 10/11 merged
+post-release.** All 8 originally-scoped `TODO.md` items (1-8) plus items
+4/5/6's actual mechanics, the release client-optimization/QoL mod set, the
+L0/L1/L2 test suite, and both release artifacts are implemented, tested,
+committed, and documented in `DESIGN.md`'s "Release engineering" section.
+Items 10 (tick accelerator) and 11 (skill-tree overhaul) were pre-built on
+separate worktree branches and merged into `main` on 2026-07-10, one at a
+time with a full boot test between (`DECISIONS.md`'s dated "Post-release
+merges" section has the full account, including a real Rhino-scoping bug
+the item-10 boot test caught and fixed forward). Item 9 (food overhaul) is
+still fully scoped in `TODO.md`/`DECISIONS.md` but not implemented — see
+"Post-release backlog" below. A handful of item-10/11 checklist items
+require an actual player and could not be verified by this repo's L0/L1/L2
+harnesses (none simulate player actions) — see `TODO.md` items 10/11 and
+`DECISIONS.md`'s post-release-merges section for the explicit
+needs-in-game-verification lists. Read `TODO.md` before doing anything
+else — it's the authoritative backlog. `DECISIONS.md` at the repo root is
+the durable decision log for everything decided in orchestrator-mode
+sessions after the original 8-item planning pass; treat it as trusted
+input alongside `TODO.md`/`DESIGN.md`.
 
 ## Release 1.0.0
 
@@ -62,9 +71,9 @@ balance. See DESIGN.md's "The honest L2/L3 boundary" for the full statement
   of the 4 test layers). If picked up: use a separate test-only
   `server.properties` profile with `online-mode=false`, never the shipped
   default.
-- **Items 9/10/11** (food overhaul, tick accelerator, skill-tree overhaul) —
-  fully scoped in `TODO.md`/`DECISIONS.md`, not implemented. Don't start
-  without being told to.
+- **Item 9** (food overhaul) — fully scoped in `TODO.md`/`DECISIONS.md`, not
+  implemented. Don't start without being told to. (Items 10/11 were merged
+  into `main` on 2026-07-10 — see the status note above.)
 - **Rendering-correctness spot-check** — the L2/L3 boundary above means
   nobody has actually looked at this pack's GeckoLib entities, Create
   contraption visuals, or Epic Fight combat animations render correctly.
@@ -184,6 +193,27 @@ boot-tested, committed, and documented in `DESIGN.md`:
     (`noisiumed`'s Fabric-jar mis-resolution) and a Rhino const-in-loop
     scoping bug in `leaderboard.js`. See DESIGN.md's "Release engineering"
     section.
+15. **TODO.md item 10 (tick accelerator)** — time-in-a-bottle-universal
+    6.5.4 + its tiabfix companion, gated at Brass Age; `tick_accelerator.js`
+    adds a Create-kinetics registry-scan exclusion (spawners deliberately
+    left accelerable) and hard one-per-player craft enforcement (void +
+    ingredient refund). Merged into `main` 2026-07-10; boot-testing caught
+    and fixed forward a real bug where the registry scan hit this pack's
+    documented installed-Rhino `const`-repeat-invocation limitation and was
+    silently falling back to a static id list every boot — see
+    `DECISIONS.md`'s "Post-release merges" section for the full account.
+    Some checklist items need an actual player and are recorded as
+    needs-in-game-verification in `TODO.md` item 10.
+16. **TODO.md item 11 (skill-tree overhaul)** — all 12 Pufferfish Skills
+    categories reworked into a 5-node shared trunk forking into two
+    hard-exclusive 5-node specialization paths (attribute-modifiers only,
+    no scripted procs); native `exclusive.bidirectional` connection group
+    for the hard exclusivity; new `/respec <category>` command
+    (`skill_respec.js`) locks a full abandoned path via `SkillsAPI`. Merged
+    into `main` 2026-07-10, boot-tested clean (puffish_skills data pack
+    loads successfully). Exclusive-edge/`respec` in-game behavior needs an
+    actual player — recorded as needs-in-game-verification in `TODO.md`
+    item 11.
 
 `DECISIONS.md` at the repo root is the durable decision log for
 orchestrator-mode sessions (operating model, per-item research verdicts,
