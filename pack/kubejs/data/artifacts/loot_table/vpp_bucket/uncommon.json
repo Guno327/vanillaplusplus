@@ -1,0 +1,109 @@
+{
+  "pools": [
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:superstitious_hat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:lucky_scarf",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:cross_necklace",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:panic_necklace",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:shock_pendant",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:flame_pendant",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:thorn_pendant",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:charm_of_sinking",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:obsidian_skull",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:golden_hook",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:withered_bracelet",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:aqua_dashers",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:bunny_hoppers",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:running_shoes",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:steadfast_spikes",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:rooted_boots",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:strider_shoes",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:pickaxe_heater",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:fire_gauntlet",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 14
+        }
+      ]
+    }
+  ]
+}

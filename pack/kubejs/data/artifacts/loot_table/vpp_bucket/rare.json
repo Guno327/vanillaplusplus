@@ -1,0 +1,54 @@
+{
+  "pools": [
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:cloud_in_a_bottle",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:helium_flamingo",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:warp_drive",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:digging_claws",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:feral_claws",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:power_glove",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:vampiric_glove",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:umbrella",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 8
+        }
+      ]
+    }
+  ]
+}

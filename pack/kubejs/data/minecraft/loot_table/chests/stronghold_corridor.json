@@ -269,6 +269,11 @@
           ]
         },
         {
+          "type": "minecraft:loot_table",
+          "value": "artifacts:vpp_bucket/rare",
+          "weight": 2
+        },
+        {
           "type": "minecraft:empty",
           "weight": 6
         }

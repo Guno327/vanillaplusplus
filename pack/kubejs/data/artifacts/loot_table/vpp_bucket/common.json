@@ -1,0 +1,104 @@
+{
+  "pools": [
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:everlasting_beef",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:eternal_steak",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:plastic_drinking_hat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:novelty_drinking_hat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:snorkel",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:night_vision_goggles",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:villager_hat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:cowboy_hat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:anglers_hat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:charm_of_shrinking",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:antidote_vessel",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:universal_attractor",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:onion_ring",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:pocket_piston",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:snowshoes",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:kitty_slippers",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:whoopee_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "artifacts:flippers",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 18
+        }
+      ]
+    }
+  ]
+}
