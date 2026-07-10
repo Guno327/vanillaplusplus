@@ -185,6 +185,39 @@ locked = [
     # way to hold it back to the mid-game automation milestone this tier
     # represents.
     "id:tiab:time_in_a_bottle",
+
+    # TODO.md item 9 (food overhaul): Farmer's Delight's gold/diamond-tier
+    # knives. golden_knife's own recipe uses a plain gold_ingot, which this
+    # pack never locks anywhere else (same situation sophisticatedbackpacks'
+    # gold_backpack was added for above) - explicit lock required, this was
+    # the TODO's own stated requirement ("golden_knife locked at Brass
+    # alongside the diamond knife"). diamond_knife's own recipe uses a
+    # plain minecraft:diamond (already locked above in this same file) -
+    # already naturally gated, explicit lock added anyway for consistency
+    # with this file's own convention (see e.g. wands:diamond_wand above).
+    "id:farmersdelight:golden_knife",
+    "id:farmersdelight:diamond_knife",
+
+    # TODO.md item 9 (food overhaul): ExtraDelight's own spoon material-tier
+    # lineup (data/c/tags/item/spoons.json: wooden/stone/iron/gold/diamond/
+    # netherite). This pack's own real, verified material-tier precedent
+    # (grepped, not assumed - andesite_age.toml's own header comment: "iron
+    # tools/armor locked here... diamond/netherite tier are locked in
+    # brass_age.toml/precision_age.toml, matching those materials' own
+    # locks", plus sophisticatedbackpacks:gold_backpack's own precedent of
+    # locking gold alongside diamond at this same Brass Age tier) is
+    # iron->Andesite, gold/diamond->Brass, netherite->Precision. gold_spoon
+    # (plain c:ingots/gold, gold never locked elsewhere - explicit lock
+    # needed) and diamond_spoon (plain c:gems/diamond, already locked above
+    # in this file - naturally gated, explicit lock added for consistency)
+    # both land here. iron_spoon is locked in andesite_age.toml instead;
+    # netherite_spoon in precision_age.toml (see that file's own comment -
+    # this DEVIATES from the item9 handoff's drafted "netherite->Induction"
+    # assumption, which this pack's real, already-established convention
+    # does not support - every existing netherite-tier item in this pack is
+    # locked at Precision Age, not Induction Age).
+    "id:extradelight:gold_spoon",
+    "id:extradelight:diamond_spoon",
 ]
 always_unlocked = []
 

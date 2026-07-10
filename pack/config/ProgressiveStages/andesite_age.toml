@@ -164,6 +164,20 @@ locked = [
     # Elytra (already locked one tier later, at precision_age) is an
     # accepted tradeoff per the orchestrator - same precedent.
     "id:create_sa:copper_jetpack_chestplate",
+
+    # TODO.md item 9 (food overhaul): ExtraDelight's iron_spoon (plain
+    # c:ingots/iron ingredient) - matches this file's own iron-tier
+    # precedent exactly (see this file's header comment: "Vanilla iron
+    # tools/armor are locked here"). Verified real item id + recipe via the
+    # jar's own data/extradelight/recipe/iron_spoon.json and c:tags/item/
+    # spoons.json (wooden/stone spoons stay unlocked, matching this pack's
+    # existing wood/stone-free convention - see e.g. this file's own
+    # Epic Fight comment: "Wooden/stone/golden tier stay unlocked from
+    # rootborn"). gold/diamond spoon land in brass_age.toml, netherite spoon
+    # in precision_age.toml - see brass_age.toml's comment for the full
+    # mapping and why it deviates from the item9 handoff's drafted
+    # "netherite->Induction" guess.
+    "id:extradelight:iron_spoon",
 ]
 always_unlocked = []
 

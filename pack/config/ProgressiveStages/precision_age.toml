@@ -117,6 +117,44 @@ locked = [
     # items" and a player is expected to pick one per outfit, same as any
     # other armor-slot choice.
     "id:create_sa:brass_jetpack_chestplate",
+
+    # TODO.md item 9 (food overhaul): Farmer's Delight's netherite_knife
+    # (netherite_knife_smithing.json: diamond_knife + netherite_ingot smithing
+    # upgrade - netherite_ingot is already locked above in this same file) -
+    # already naturally gated, explicit lock added anyway for consistency
+    # with this file's own convention (see e.g. createoreexcavation:
+    # netherite_drill above).
+    "id:farmersdelight:netherite_knife",
+
+    # TODO.md item 9 (food overhaul): End's Delight's 4 knife tool items
+    # (dragon_egg_shell_knife, dragon_tooth_knife, end_stone_knife,
+    # purpur_knife - all confirmed real items via the jar's own lang file).
+    # This pack has no existing precedent for gating an "End-derived tool"
+    # specifically (the one candidate, waystones:end_stone_waystone, is
+    # locked at Induction Age only as part of a same-tier batch of ALL
+    # waystone variants regardless of material - not a real precedent), so
+    # this reuses this same file's own `[dimensions] locked =
+    # ["id:minecraft:the_end"]` combined with this file's repeatedly-
+    # demonstrated habit of explicit-locking items that are already
+    # naturally gated by a locked material/dimension (netherite_wand,
+    # diamond_drill, createoreexcavation:drilling_machine, etc. above).
+    # Judgment call, orchestrator-endorsed at integration time.
+    "id:ends_delight:dragon_egg_shell_knife",
+    "id:ends_delight:dragon_tooth_knife",
+    "id:ends_delight:end_stone_knife",
+    "id:ends_delight:purpur_knife",
+
+    # TODO.md item 9 (food overhaul): ExtraDelight's netherite_spoon
+    # (netherite_spoon_smithing.json: diamond_spoon + netherite_ingot
+    # smithing upgrade, mirroring farmersdelight:netherite_knife above) -
+    # already naturally gated by its netherite_ingot ingredient (locked
+    # above in this file); explicit lock added for consistency. This is the
+    # real, verified material-tier precedent for netherite tools in this
+    # pack (every existing netherite-tier item lives in THIS file, not
+    # induction_age.toml) - see brass_age.toml's spoon comment for the full
+    # iron/gold/diamond/netherite mapping and the deviation this represents
+    # from the item9 handoff dir's drafted "netherite->Induction" guess.
+    "id:extradelight:netherite_spoon",
 ]
 always_unlocked = []
 

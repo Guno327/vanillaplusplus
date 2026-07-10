@@ -109,6 +109,7 @@ ConfigTracker/CONFIG.*is not correct\. Correcting
 Static binding violation.*modernfix
 VanillaPackResourcesBuilder.*uses unexpected schema
 BuiltinKubeJSClientPlugin does not load on server side, skipping
+Parsing error loading recipe farmersdelight:integration/silentgear/cutting/netherwood
 '
 
 # Strip ANSI colour codes and log4j prefix, then keep only WARN/ERROR lines.
