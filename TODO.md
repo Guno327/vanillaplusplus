@@ -377,7 +377,23 @@ pile of new unique drop items.
   not decided in this session, but a natural pairing worth considering
   given the timing of both additions.
 
-## 7. Block-based chunk loading (Create-native, replacing FTB Chunks' menu flow)
+## 7. ✅ DONE — Block-based chunk loading (Create-native, replacing FTB Chunks' menu flow)
+
+**Implemented** via Create: Power Loader (verified Create-native match).
+See `DESIGN.md`'s "Block-based chunk loading via Create: Power Loader"
+section for the full writeup: two loader tiers (`andesite`/`brass`,
+matching this mod's own naming to this pack's tier ladder 1:1) locked at
+`andesite_age.toml`/`brass_age.toml`, running-cost guardrail satisfied
+natively by the mod's own design (force-loading stops the instant the
+parent kinetic network stops spinning - no KubeJS scripting needed or
+possible, chunk force-loading is a Java-level hook), independent of FTB
+Chunks' claim system. FTB Chunks' own menu-based force-loading fully
+disabled via `pack/config/ftbchunks-world.snbt` (`max_force_loaded_chunks:
+25 -> 0`, `force_load_mode: "default" -> "never"`) - claims/protection
+untouched. No hard loaded-chunk cap set, per the user's decision leaving
+that specific guardrail open. Boot-tested twice (mod load, then the
+tracked config file's acceptance), committed. Original scoping notes kept
+below for reference.
 
 **Ask**: FTB Chunks (installed since Phase 6 for land claims) already ships
 a native force-loading feature, but it's menu/permission-driven (an FTB

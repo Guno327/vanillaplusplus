@@ -161,6 +161,13 @@ locked = [
     # natural gate at all, locked here as the matching scouting upgrade.
     "id:createoreexcavation:diamond_drill",
     "id:createoreexcavation:vein_atlas",
+
+    # TODO.md item 7: Create: Power Loader's brass-tier chunk loader -
+    # naturally gated already by create:brass_casing + precision_mechanism
+    # in its mechanical_crafting recipe; explicit lock added anyway per
+    # this file's convention.
+    "id:create_power_loader:empty_brass_chunk_loader",
+    "id:create_power_loader:brass_chunk_loader",
 ]
 always_unlocked = []
 

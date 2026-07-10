@@ -144,6 +144,16 @@ locked = [
     # convention for this tier.
     "id:createoreexcavation:drill",
     "id:createoreexcavation:vein_finder",
+
+    # TODO.md item 7: Create: Power Loader's andesite-tier chunk loader.
+    # Its recipe already needs a respawn anchor (crying obsidian, Nether =
+    # Brass Age in this pack), so in practice it's craftable one tier later
+    # than this lock - the lock matches the mod's own andesite naming/
+    # material tier for consistency, and the recipe self-gating is the
+    # stricter of the two. Runs only while spun under real kinetic power
+    # (continuous Stress draw), per the recorded running-cost decision.
+    "id:create_power_loader:empty_andesite_chunk_loader",
+    "id:create_power_loader:andesite_chunk_loader",
 ]
 always_unlocked = []
 

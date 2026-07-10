@@ -1507,6 +1507,101 @@ pre-existing `tfmg_stellaris_compat:replace_stellaris_loot` non-fatal WARN
 itself, unrelated to this consolidation) is present and unchanged from its
 previously-known baseline.
 
+### Block-based chunk loading via Create: Power Loader (TODO.md item 7)
+
+Ask: replace FTB Chunks' menu/permission-driven force-loading (never
+configured in this pack) with an actual placeable, Create-native block,
+independent of FTB Chunks' claim system, tier-gated, with an ongoing
+power/fuel cost.
+
+**Mod choice, verified not guessed.** Modrinth search for a Create-native
+chunk loader turned up `create-power-loader` ("Create: Power Loader") -
+decompiling `data/create_power_loader/` confirmed it's exactly what the
+ask describes: loader blocks that must be spun under real Create
+rotational power and continuously draw Stress to stay active (`config`
+classes expose per-tier `speedMultiplier`/`stressImpact`), with STATIC/
+CONTRAPTION/TRAIN/STATION modes, and zero dependency on FTB Chunks or any
+claim system - it force-loads chunks unconditionally wherever placed and
+spun. Only hard dependency is Create `[6.0.0,)` (installed 6.0.10); JEI is
+optional and not installed, same as this pack's `create-ore-excavation`
+precedent.
+
+**Two tiers, matching this pack's own tier ladder by name, not just by
+mapping onto it.** The mod itself ships loader tiers literally named
+`andesite`/`brass` (its own recipe-material progression happens to mirror
+this pack's Andesite Age -> Brass Age naming), each with an `empty_*` (the
+placed, unspun block) and non-`empty_*` (actively loading) variant:
+- `andesite_age.toml`: `create_power_loader:empty_andesite_chunk_loader` +
+  `andesite_chunk_loader`. Its own crafting recipe already requires a
+  respawn anchor (crying obsidian - a Nether item, Brass Age in this
+  pack), so in practice it's craftable one tier later than this lock
+  suggests; the lock was added anyway to match the mod's own andesite
+  material-tier naming and this file's established "lock explicitly even
+  where a natural gate exists" convention, with the recipe's own
+  self-gating as the stricter of the two in practice.
+- `brass_age.toml`: `create_power_loader:empty_brass_chunk_loader` +
+  `brass_chunk_loader` - naturally gated already via `create:brass_casing`
+  + `precision_mechanism` in its `mechanical_crafting` recipe (both this
+  tier's own milestone materials), explicit lock added for consistency.
+
+**Running-cost guardrail satisfied natively, no KubeJS scripting needed.**
+The user's "ongoing power/fuel cost, not a free always-on toggle" ask is
+met by the mod's own core design, not a bolted-on system: a loader only
+force-loads chunks while its parent kinetic network is actively spinning
+above its configured Stress threshold - stop the network (run out of fuel/
+break the power train) and force-loading stops with it. This is a Java-
+level mod behavior (chunk force-loading is a server-tick hook, not
+something the datapack/KubeJS layer can express, confirmed per this
+project's standing note on the limits of that layer), so no custom
+scripting was written or was possible here; the mod already does exactly
+what was asked.
+
+**Disclosed, left open per the TODO item's own decision record**: no hard
+loaded-chunk cap was set (the user selected tier-gating + running-cost as
+the two guardrails and left a hard cap explicitly open) - if server
+performance from stacked loaders becomes a real problem, the mod's own
+`hard_team_force_limit`-equivalent config (unexplored this pass) would be
+the place to add one later.
+
+**FTB Chunks' own force-loading fully disabled, claims untouched.**
+`server/config/ftbchunks-world.snbt` doesn't exist in a fresh checkout
+(`scripts/build_server.py`'s `config/` mirror deletes and regenerates it
+from the mod's defaults every build) - so the correct sequence was: boot
+once with defaults to get a real, mod-generated file, copy *that* into
+`pack/config/ftbchunks-world.snbt` as the new tracked baseline, then edit
+exactly two keys inside its `force_loading` block:
+- `max_force_loaded_chunks: 25 -> 0` - the decisive cap. This pack never
+  configured the FTB Ranks `ftbchunks.max_force_loaded` override
+  permission, so a hard `0` here means literally nobody can force-load a
+  chunk through FTB Chunks' own menu, full stop.
+- `force_load_mode: "default" -> "never"` - defense-in-depth. `"default"`
+  would let a team keep force-loading chunks offline if they had the
+  `ftbchunks.chunk_load_offline` FTB Ranks permission (also never
+  configured), so this key alone wouldn't have mattered much - `"never"`
+  closes it explicitly anyway rather than relying on an unconfigured
+  permission staying unconfigured forever.
+Every other key (`claiming.*`, `party_limit_mode`, `fake_players`, etc.)
+was left untouched - land claims and protection stay fully functional,
+only the force-loading feature is neutered.
+
+**Boot-tested twice.** First boot (alongside items 3/8) validated the two
+TOML locks parse cleanly and the mod loads with no errors. Second boot,
+after committing the copied-and-edited `ftbchunks-world.snbt` to the
+tracked config, confirmed FTB Chunks accepts the tracked file with zero
+config-correction/parse errors (`grep -i ftbchunks` on the boot log shows
+only the normal mod-load line, no `is not correct. Correcting` warning -
+contrast with the pack's own `progressivestages.toml`, which does show
+that warning on every boot, unrelated to this change and pre-existing).
+
+**Incidental Stellaris 1.4.24 -> 1.4.25 version bump**, rode along in the
+same `resolve_mods.py` run as the power-loader addition (Modrinth serving
+a newer version by the time this was resolved). Confirmed non-disruptive:
+the pre-existing, previously-known non-fatal WARN (`tfmg_stellaris_compat:
+replace_stellaris_loot` failing to decode over `stellaris:heavy_ingot`, a
+bug in the compat mod itself) is present and byte-for-byte unchanged
+across all three boot tests this session - the bump didn't fix or worsen
+it, and didn't introduce any new Stellaris-side warnings.
+
 ## Phase plan
 
 0. ✅ Bootstrap tooling, Create + NeoForge, confirm server boots.
