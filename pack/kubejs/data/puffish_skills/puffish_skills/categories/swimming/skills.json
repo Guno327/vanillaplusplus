@@ -24,29 +24,54 @@
 		"y": 0,
 		"definition": "oxygen+10%"
 	},
-	"n5": {
+	"a0": {
 		"x": 160,
-		"y": 0,
+		"y": -40,
 		"definition": "water_efficiency+8%"
 	},
-	"n6": {
+	"a1": {
 		"x": 192,
-		"y": 0,
+		"y": -40,
+		"definition": "water_efficiency+8%"
+	},
+	"a2": {
+		"x": 224,
+		"y": -40,
+		"definition": "water_efficiency+8%"
+	},
+	"a3": {
+		"x": 256,
+		"y": -40,
+		"definition": "water_efficiency+8%"
+	},
+	"a4": {
+		"x": 288,
+		"y": -40,
+		"definition": "water_efficiency+8%"
+	},
+	"b0": {
+		"x": 160,
+		"y": 40,
 		"definition": "oxygen+10%"
 	},
-	"n7": {
-		"x": 224,
-		"y": 0,
+	"b1": {
+		"x": 192,
+		"y": 40,
 		"definition": "submerged_mining_speed+5%"
 	},
-	"n8": {
-		"x": 256,
-		"y": 0,
-		"definition": "water_efficiency+8%"
+	"b2": {
+		"x": 224,
+		"y": 40,
+		"definition": "oxygen+10%"
 	},
-	"n9": {
+	"b3": {
+		"x": 256,
+		"y": 40,
+		"definition": "submerged_mining_speed+5%"
+	},
+	"b4": {
 		"x": 288,
-		"y": 0,
+		"y": 40,
 		"definition": "oxygen+10%"
 	}
 }
