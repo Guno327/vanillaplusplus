@@ -133,9 +133,6 @@ The L0 boot-smoke layer must treat these as EXPECTED (non-failing), all
 verified non-fatal across 4 clean wave-1 boots — a test that fails on any
 of these is miscalibrated; a test that misses NEW warnings beyond these is
 too loose:
-- `tfmg_stellaris_compat:replace_stellaris_loot` GlobalLootModifier WARN
-  (`stellaris:heavy_ingot` unknown) — upstream version mismatch, unchanged
-  by the Stellaris 1.4.25 bump.
 - `create-netherite-additions` bundled `netherite_flywheel_recipe.json`
   WARN (empty smithing template array) — upstream data bug in that mod.
 - `epicfight` "Error while deserializing datapack for

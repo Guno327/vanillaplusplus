@@ -91,7 +91,6 @@ echo "== L0: diff WARN/ERROR lines against the known-noise baseline =="
 BASELINE_PATTERNS='
 RuntimeDistCleaner.*invalid dist DEDICATED_SERVER
 Error loading class:.*for invalid dist DEDICATED_SERVER
-stellaris:heavy_ingot
 netherite_flywheel_recipe
 Error while deserializing datapack for minecraft:wooden_sword
 Couldn.t load tag c:tools
