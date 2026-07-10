@@ -90,53 +90,27 @@ wrapped with honest "unavailable" fallbacks, never a silent vanilla-XP
 substitute. See DESIGN.md's "Leaderboards: wealth / tier / level" section
 for the full writeup.
 
-## 9. NOT STARTED — DEFERRED POST-RELEASE — Food overhaul (diet variety)
+## 9. ✅ DONE — Food overhaul (diet variety)
 
-**Ask**: a food/diet overhaul rewarding meal variety, built on Farmer's
-Delight and its ecosystem, fully Create-automatable end to end.
-
-**Decisions (finalized, user session 2026-07-10)**:
-- **Diet mechanic: reward variety only** — Spice-of-Life-Carrot style
-  permanent bonus hearts at distinct-foods-eaten milestones. **No**
-  repetition punishment, no food groups — purely additive.
-- **Content: the full Farmer's Delight ecosystem**, orchestrator-adopted
-  after research (verified against NeoForge 1.21.1, not assumed): farmers-
-  delight 1.21.1-1.3.2; create-central-kitchen 2.5.0 (chosen over Slice &
-  Dice — reuses base-Create blocks (Saw/Arm/Blaze Burner) instead of a
-  bespoke automation block, avoids a Kotlin-for-Forge hard dep, converts all
-  75 FD cutting recipes to Saw recipes at runtime) + create-dragons-plus
-  1.11.2 (its required lib); spice-of-life-onion 1.5.6 (the diet-variety
-  mechanic itself) + creativecore (its required lib); appleskin 3.0.9+mc1.21
-  (hunger/saturation UI); ends-delight 2.6.1; extradelight 2.6.6. Rejected:
-  miners-delight, brewin-and-chewin (each drags a new hard library
-  dependency — fails the zero-new-deps bar for optional companions).
-- **Light tier gating**: basic farming/cooking free from Tier 0 (food is
-  survival-critical, shouldn't be gated); advanced stations/meals at
-  Andesite/Brass Age. No new explicit tier locks are expected to be needed
-  — gating should fall out of existing iron/diamond material locks
-  (cooking pot/stove/skillet/iron knife are iron-gated → Andesite; diamond
-  knife → Brass; automation is Brass via Arm/Deployer). One explicit add
-  planned regardless, for this pack's lock-everything-explicitly
-  convention: `farmersdelight:golden_knife` locked at Brass alongside the
-  diamond knife.
-- **Automation bar**: every food chain must be fully Create-automatable
-  end-to-end; any station that can't be driven by Create gets patched, or
-  the gap gets disclosed rather than silently left unautomatable.
-- **SoL-Onion config MUST ship with its `detriments` list empty/disabled**
-  — the mod supports penalties, but the user chose reward-only. This is a
-  config obligation to verify on first boot, not just a code change.
-- Interaction flags for the implementer: FD meals inherit the economy's
-  tier-0 default sell price unless that looks wrong on inspection; foods
-  from Create Stuff & Additions/Naturalist must count toward diet-variety
-  totals, not just base-FD foods.
-
-**Open for the implementing session to resolve**:
-- Boot-check obligations flagged in advance: Terralith wild-crop generation
-  (tag-based, structurally sound per research but unverified live),
-  Central Kitchen's Saw-conversion tool-requirement edge case, and
-  `gen_economy.py` tier-0 pricing for the new foods (keep cheap).
-- Exact bonus-heart milestone curve (how many distinct foods per heart,
-  cap) — not pinned down in the decision session.
+**Implemented.** 7 mods added at phase 20: farmers-delight 1.21.1-1.3.2,
+create-central-kitchen 2.5.0 + create-dragons-plus 1.11.2 (its required
+lib), spice-of-life-onion 1.5.6 + creativecore 2.13.41 (its required lib),
+ends-delight 2.6.1, extradelight 2.6.6 (appleskin already installed at
+phase 18 needed no change). SoL-Onion's `config/solonion.json` (generated,
+not hand-authored, then edited) overrides `resetOnDeath`/
+`trackedFoodDiversityDecay` to `false` and sets an 8-tier MAX_HEALTH-only
+bonus-hearts curve at thresholds `[9, 15, 24, 35, 50, 68, 90, 115]` (+8
+hearts total). 11 knife/spoon tools tier-locked following this pack's real,
+verified material-tier convention (iron→Andesite, gold/diamond→Brass,
+netherite→Precision). `pack/kubejs/server_scripts/food_cck_gap_patch.js`
+closes the only 2 food-producing CCK Saw-automation gaps across all 222
+`farmersdelight:cutting` recipes; `food_selftest.js` adds `/vpp_food_selftest`.
+See DESIGN.md's "Food overhaul: Farmer's Delight ecosystem + diet-variety
+bonus hearts" section for the full writeup, including a real KubeJS/Rhino
+sandbox limit found and fixed (`net.neoforged.fml`/`java.nio`/`java.io` all
+blocked by this pack's installed KubeJS class filter) and a disclosed,
+verified-benign upstream Farmer's Delight recipe-parse bug added to the L0
+boot-noise baseline. L0+L1+`/vpp_food_selftest` all green.
 
 ## 10. ✅ DONE — Tick accelerator (Time in a Bottle)
 

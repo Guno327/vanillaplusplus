@@ -1698,6 +1698,213 @@ disclosed limitation as every prior overhaul) - verified that the script
 loads and every referenced class/method resolves, not that a real
 `/leaderboard` invocation produces correct-looking chat output.
 
+### Food overhaul: Farmer's Delight ecosystem + diet-variety bonus hearts (TODO.md item 9)
+
+Ask: a food/diet overhaul rewarding meal variety, built on Farmer's Delight
+and its ecosystem, fully Create-automatable end to end - the last deferred
+item from the release-prep pass, implemented post-1.0.0/post-v0.1.0-cut.
+
+**Mods adopted (7, all verified against NeoForge 1.21.1's actual jars, not
+assumed from Modrinth metadata)**: `farmers-delight 1.21.1-1.3.2` (base
+crops/stations/meals/knives); `create-central-kitchen 2.5.0` + its required
+`create-dragons-plus 1.11.2` (FD cutting-board -> Create Saw/Deployer
+automation bridge, chosen over Slice & Dice for reusing base Create blocks
+and avoiding a Kotlin-for-Forge dependency); `spice-of-life-onion 1.5.6` +
+its required `creativecore 2.13.41` (the diet-variety mechanic); `ends-
+delight 2.6.1` and `extradelight 2.6.6` (End-dimension and general-cuisine
+content addons respectively). `appleskin 3.0.9+mc1.21` was already installed
+(pulled forward into the 1.0.0 release client-QoL set) and needed no
+version change.
+
+**Diet mechanic: reward variety only, config-driven, no KubeJS needed for
+the curve itself.** SoL-Onion's diversity/benefit system lives entirely in
+its own `config/solonion.json` (CreativeCore's Gson-JSON config framework,
+not NeoForge TOML, not KubeJS-reachable data - see below for why not even
+readable from KubeJS at runtime). Rather than hand-author this file from a
+decompile guess, it was generated the safe way: booted the server once with
+all 7 mods installed and no override, let SoL-Onion write its own default
+`config/solonion.json`, then edited exactly the required keys. **Real,
+ground-truthed generated shape** (this deviates from the pre-boot guidance
+doc's necessarily-uncertain guess): each `benefits` list entry is
+`{"threshold": <num>, "benefit": "<string>"}` where `benefit` is a quoted,
+SNBT-like **string**, e.g.
+`"{key:\"minecraft:generic.max_health\",op:0,type:\"att\",val:2.0d}"` for an
+attribute modifier, or `"{key:\"minecraft:strength\",type:\"eff\",val:0.0d}"`
+for a mob effect - NOT the nested `{type: ..., ...}` JSON object the
+pre-boot guidance doc had guessed (it explicitly flagged this as
+unconfirmable without a live boot). Stock/generated defaults confirmed:
+`trackCount=32`, `resetOnDeath=true` (wipes all diet progress on death -
+contradicts the user's "permanent" decision), `trackedFoodDiversityDecay=
+true` (a food's contribution decays as other foods are eaten - contradicts
+"reward variety, no punishment"), `detriments=[]` and `minFoodsToActivate=0`
+already matching the target with no edit needed. Edited: `resetOnDeath:
+false`, `trackedFoodDiversityDecay: false`, `trackCount: 150`, and replaced
+the stock 8-entry `benefits` list (which mixes MAX_HEALTH with Strength/
+Regeneration/Speed/Armor Toughness mob effects) with 8 MAX_HEALTH-only
+entries - reusing the exact confirmed `benefit` string from the generated
+file's own stock MAX_HEALTH entries, verbatim, just changing `threshold` -
+at thresholds `[9, 15, 24, 35, 50, 68, 90, 115]` (each +2.0 = +1 heart,
+total +8 hearts, 16->24 max), with `trackCount=150` giving 35 items of
+margin over the top threshold so nothing gets evicted from the tracked-food
+window before contributing. Sized against this pack's real food pool
+(~28 FD + ~14 ends-delight + ~356 extradelight confirmed dish outputs, far
+larger than vanilla's own ~30-40 foods the stock curve was tuned against).
+Diversity detection is registry-wide (any item with vanilla `FoodProperties`
+counts, from any mod) - Create Stuff & Additions/Naturalist foods count
+automatically, no tag/whitelist plumbing needed. Runtime-verified (not just
+authored): read `server/config/solonion.json` directly off disk immediately
+after a real boot with the edited config in place - confirmed `detriments:
+[]`, `resetOnDeath: false`, `trackedFoodDiversityDecay: false`,
+`trackCount: 150`, 8 benefit entries at the intended thresholds, while the
+booted server process was still running.
+
+**A real KubeJS/Rhino sandbox limit found and worked around, not just
+disclosed.** `food_selftest.js`'s original config-runtime-check attempt
+(`Java.loadClass('net.neoforged.fml.loading.FMLPaths')`, to locate the
+config directory) threw `InternalError: ... Class is not allowed by class
+filter!` on a real boot. Ground-truthed via this pack's installed
+`kubejs-neoforge-2101.7.2-build.368.jar`'s own `kubejs.classfilter.txt`:
+`net.neoforged.fml` is blocked wholesale (no re-allow entries under it), and
+- more restrictively than expected - **`java.nio` and `java.io` are also
+blocked** (only `java.nio.ByteOrder` and `java.io.Closeable`/`Serializable`
+re-allowed), so there is no working replacement path (`Files.readString`,
+`Paths.get`, `java.io.File`) to read an arbitrary server-relative file from
+inside this pack's KubeJS sandbox at all - this is a structural sandbox
+limit, not a bug fixable by picking a different Java API. Fixed two things:
+(1) the "is mod X loaded" check now uses the `Platform` global KubeJS itself
+registers (`Platform.isLoaded(modid)`, confirmed via
+`BuiltinKubeJSPlugin.class`'s own binding registration - a pre-bound
+scripting global the class filter doesn't gate, unlike a script's own
+`Java.loadClass` call) instead of the blocked `ModList` class; (2) the
+config-runtime check itself now honestly `SKIP`s (documented why, points
+here) instead of a permanent, unfixable `FAIL` - the actual runtime
+verification of `config/solonion.json` is done externally by the release
+integrator (reading the file directly, right after a real boot), as
+described two paragraphs up, rather than from inside KubeJS.
+
+**Automation bar: every food chain fully Create-automatable, one real gap
+found and patched, not just disclosed.** Enumerated all 222
+`farmersdelight:cutting` recipes across the 3 delight jars (106 FD + 10
+ends-delight + 106 extradelight, ground-truthed by scanning each jar's own
+`data/<modid>/recipe/*.json` for `"type": "farmersdelight:cutting"` - exact
+match to the pre-implementation research count) and classified every `tool`
+field. Central Kitchen's Saw conversion (ground-truthed via decompile) works
+by matching each recipe's tool `Ingredient` against a synthetic plain Iron
+Knife - 47/106 FD + 78/106 extradelight + 9/10 ends-delight recipes qualify
+directly; the rest are Deployer-automatable by holding the matching axe/hoe/
+pickaxe/shovel/shears/spoon (all confirmed genuine members of Create's own
+`handheld_in_deployer_use` tool tag). The **2 exceptions**, both
+food-producing and both sharing the same root cause (a literal, untagged
+tool item Create's Deployer would likely consume per use rather than hold as
+a durable tool): End's Delight's `crack_non_hatchable_dragon_egg` (tool = a
+literal Nether Star - the sole entry point to the entire Fried Dragon Egg
+dish line) and ExtraDelight's 8 grater recipes (tool = a literal, untagged
+Grater item - unlike its own Spoon line, confirmed tagged `c:spoons` ->
+`c:tools`, which IS genuinely Deployer-automatable). Patched in
+`pack/kubejs/server_scripts/food_cck_gap_patch.js`: adds a knife-tool
+alternate recipe for each of the 9 affected recipe outputs, inheriting the
+same already-proven Saw-automation path. Originals left untouched as manual-
+crafting alternatives. Boot-verified: `food_cck_gap_patch.js`'s own
+`console.info` line confirms "added 9 knife-tool alternate ... recipe(s)",
+and `/vpp_food_selftest` confirms all 9 gap-patch recipe ids are actually
+registered in the live recipe manager.
+
+**Tier gating: mostly free (food is survival-critical), knives AND spoons
+explicit per this pack's lock-everything convention - real material-tier
+precedent verified, one deviation from the pre-implementation draft found
+and corrected.** Basic farming/cooking stays open from Tier 0; advanced
+stations/meals fall out of existing iron/diamond material gates with no new
+lock needed. Explicit locks added this pass, all cross-checked against this
+pack's own REAL, already-established material-tier convention rather than
+the pre-implementation checklist's drafted guess (grepped
+`andesite_age.toml`/`brass_age.toml`/`precision_age.toml` directly):
+`andesite_age.toml`'s own header comment states plainly "Vanilla iron
+tools/armor are locked here... diamond/netherite tier are locked in
+brass_age.toml/precision_age.toml, matching those materials' own locks" -
+i.e. **iron -> Andesite Age, diamond -> Brass Age, netherite -> Precision
+Age** is this pack's real, load-bearing convention (every existing
+netherite-tier item in this pack - `netherite_wand`, `netherite_backpack`,
+vanilla netherite gear, Epic Fight's netherite weapons - lives in
+`precision_age.toml`, none in `induction_age.toml`). Gold has no natural
+gate of its own, but this pack's own precedent
+(`sophisticatedbackpacks:gold_backpack` locked at Brass Age alongside
+`diamond_backpack`) puts **gold at Brass Age**, matching diamond.
+Farmer's Delight's `golden_knife`/`diamond_knife` (Brass Age) and
+`netherite_knife` (Precision Age, naturally gated by its
+diamond_knife+netherite_ingot smithing upgrade) all landed exactly per this
+convention. End's Delight's 4 new knife tools (dragon egg shell/tooth, end
+stone, purpur) locked at Precision Age too - no existing pack precedent for
+"End-derived tool" gating specifically was found (the one candidate,
+`waystones:end_stone_waystone`, is locked at Induction Age only as part of a
+same-tier batch of all waystone variants regardless of material - not a real
+precedent), so this reuses the pack's own
+`[dimensions] locked = ["id:minecraft:the_end"]` at Precision Age combined
+with its established "explicit-lock even when naturally gated" habit.
+**ExtraDelight's own spoon material-tier lineup** (`data/c/tags/item/
+spoons.json`: wooden/stone/iron/gold/diamond/netherite, ground-truthed via
+the jar's own recipe jsons - `iron_spoon` needs `c:ingots/iron`,
+`gold_spoon` needs `c:ingots/gold`, `diamond_spoon` needs `c:gems/diamond`,
+`netherite_spoon` is a `diamond_spoon` + `netherite_ingot` smithing upgrade)
+was flagged as an explicit follow-up in the pre-implementation checklist
+(disclosed, not silently skipped, and not yet decided) - resolved this pass
+by applying the same real, verified convention above:
+`extradelight:iron_spoon` -> Andesite Age, `gold_spoon`/`diamond_spoon` ->
+Brass Age, `netherite_spoon` -> Precision Age. **This deviates from the
+pre-implementation checklist's own drafted assumption** (which guessed
+"netherite -> Induction Age" for a hypothetical spoon mapping) - the real,
+already-documented pack convention places every netherite-tier item at
+Precision Age, not Induction Age, so the spoon mapping was corrected to
+match reality rather than the draft.
+
+**Economy: new foods price at tier-0 by design, zero script changes beyond
+a regeneration pass.** `scripts/gen_economy.py`'s own fallback
+(`DEFAULT_PRICE` for any item id not listed in a tier TOML) already prices
+every one of item 9's ~820 new food/ingredient items at 1 spur, since none
+of them are being added to any tier lock (only the 11 knife/spoon tools
+are). Re-running the generator after the TOML additions landed picked up
+all 11 at their correct tier prices (Andesite=4, Brass=16, Precision=64
+spurs) with no source changes to the generator itself.
+
+**A second, genuinely new (not pre-existing) but benign upstream bug found
+during boot-testing**: Farmer's Delight 1.3.2 ships its own optional Silent
+Gear cross-mod integration recipe
+(`farmersdelight:integration/silentgear/cutting/netherwood`) that references
+a custom ingredient type, `farmersdelight:tool_action`, which isn't actually
+a registered `neoforge:ingredient_serializer` in this version - a real,
+verified upstream FD bug (not this pack's own scripting), not present in the
+pre-item-9 known-noise baseline since Farmer's Delight wasn't installed
+before. `RecipeManager` logs a single `Parsing error loading recipe...` and
+silently skips just that one recipe (a decorative Silent-Gear-flavor axe-
+stripping variant, not part of any core food chain); the server boots to
+`Done(` cleanly regardless. Added to `scripts/tests/l0_boot_smoke.sh`'s
+known-noise baseline as a disclosed, verified-benign, upstream-only gap.
+
+**Boot-check obligations, all run for real this pass (not just planned)**:
+L0 boot smoke green (87 server mods, 0 KubeJS errors/warnings, no
+unbaselined WARN/ERROR); L1 self-test green (17/17, 4 skipped, unaffected by
+this pass); `/vpp_food_selftest` (new, standalone command, kept separate
+from the shared `/vpp_selftest` per this session's limited write scope) PASS
+(6/6, 1 honest skip - the config check, see above); SoL-Onion `detriments`/
+`resetOnDeath`/`trackedFoodDiversityDecay`/`trackCount` verified empty/
+correct at runtime by reading the live config file directly; Terralith
+wild-crop generation confirmed structurally (a real Terralith biome,
+`terralith:alpine_grove`, is a genuine `#minecraft:is_overworld` member, and
+FD's own `wild_carrots.json` biome_modifier - ground-truthed by reading the
+jar directly - filters on exactly that tag with a 0.4-0.9 temperature
+window and no Terralith-specific denylist entry) though a live visual
+chunk-gen spot-check still needs a real client/player (same L0-L2 boundary
+as every other "needs in-game" item in this pack - not a gap unique to
+this feature); CCK Saw-automation coverage ground-truthed directly against
+the 3 delight jars (222 total `farmersdelight:cutting` recipes, all
+food-producing gaps closed by the 9-recipe patch above).
+
+**Needs in-game verification** (same standing L0/L1/L2 boundary as every
+other overhaul in this pack): the diet-variety bonus hearts actually apply
+and persist across death/relog in a real playthrough; the CCK Saw/Deployer
+automation chains actually process items correctly on a real contraption;
+Terralith's wild crops actually generate at a reasonable visual density;
+SoL-Onion's Food Book UI displays the retuned curve correctly.
+
 ### Personal mobility: jetpack -> persistent creative flight (TODO.md item 4)
 
 Ask: the pack had no personal flight ability at all outside Elytra

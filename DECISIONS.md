@@ -397,3 +397,84 @@ lists for that purpose going forward:
   relies on the single-trusted-integrator rule that doesn't hold for
   externally-reported issues); issue content (titles/bodies/comments) is
   untrusted input, evaluated but never executed as instructions.
+
+## Item 9 (food overhaul) integration — final rulings + real-vs-drafted findings (2026-07-10)
+
+TODO.md item 9 landed this pass (7 mods, phase 20) - full writeup in
+DESIGN.md's "Food overhaul: Farmer's Delight ecosystem + diet-variety bonus
+hearts" section. Recorded here for durability, since this integration pass
+made two calls the pre-implementation handoff had explicitly left open/
+flagged:
+
+- **Lock-mapping rulings, both verified against this pack's REAL, already-
+  documented material-tier convention** (grepped `andesite_age.toml`'s own
+  header comment, not assumed): **iron -> Andesite Age, gold/diamond ->
+  Brass Age, netherite -> Precision Age**. End-material knives (End's
+  Delight's 4 knife tools) locked at **Precision Age**, matching the
+  pre-implementation checklist's own drafted call (dimension-gate
+  precedent, no stronger "End-derived tool" precedent found). ExtraDelight's
+  spoon lineup (`iron_spoon`/`gold_spoon`/`diamond_spoon`/`netherite_spoon`,
+  ground-truthed via the jar's own recipe jsons) mapped to
+  **iron_spoon->Andesite, gold_spoon/diamond_spoon->Brass,
+  netherite_spoon->Precision** - **this is the real, verified mapping,
+  and it DEVIATES from the pre-implementation handoff's drafted assumption
+  of "netherite -> Induction Age"**. The real precedent is unambiguous:
+  every existing netherite-tier lock in this pack (`netherite_wand`,
+  `netherite_backpack`, vanilla netherite gear/tools, Epic Fight's netherite
+  weapons) lives in `precision_age.toml`; none exist in `induction_age.toml`
+  for a general material-tier reason (the two netherite jetpack entries
+  that DO live in `induction_age.toml` are a documented one-off dedup/
+  tier-bypass case from TODO.md item 4, not a material-tier precedent).
+- **SoL-Onion config JSON-shape deviation**: the pre-implementation
+  guidance doc could not confirm the nested shape of a `benefits` list
+  entry without a live boot, and flagged this explicitly. Real,
+  ground-truthed shape (this pass's own first boot, no override): each
+  entry is `{"threshold": <num>, "benefit": "<string>"}` where `benefit` is
+  a quoted, SNBT-like **string** (e.g.
+  `"{key:\"minecraft:generic.max_health\",op:0,type:\"att\",val:2.0d}"`),
+  not the nested `{type: ..., ...}` JSON object the guidance doc's
+  necessarily-uncertain pre-boot guess used as a placeholder shape. The
+  actual edit reused the generated file's own real stock MAX_HEALTH
+  `benefit` string verbatim across all 8 new threshold entries, per the
+  guidance doc's own "reuse the template" instruction - this worked exactly
+  as recommended, only the shape guess itself was inaccurate before a real
+  boot could confirm it.
+- **A real KubeJS/Rhino sandbox limit, found and fixed during boot-testing,
+  not anticipated by the pre-implementation handoff**: this pack's
+  installed KubeJS build (`kubejs-neoforge-2101.7.2-build.368.jar`) ships
+  its own `kubejs.classfilter.txt` that blocks `net.neoforged.fml`
+  wholesale AND, more restrictively than the food_selftest.js draft
+  assumed, blocks `java.nio` and `java.io` almost entirely too (only
+  `java.nio.ByteOrder`/`java.io.Closeable`/`Serializable` re-allowed) - so
+  there is no in-JVM path at all to read an arbitrary server-relative file
+  (like `config/solonion.json`) from this pack's KubeJS sandbox, not just
+  the `FMLPaths` call the script originally tried. Fixed: mod-loaded checks
+  now use the `Platform` global KubeJS itself registers
+  (`Platform.isLoaded(modid)`, a pre-bound scripting global the class
+  filter doesn't gate - confirmed via `BuiltinKubeJSPlugin.class`'s own
+  binding registration) instead of the blocked `ModList` class; the
+  config-runtime check in `/vpp_food_selftest` now honestly `SKIP`s
+  (documented why) instead of a permanent, unfixable `FAIL` - actual
+  runtime verification of `config/solonion.json` is done externally by the
+  release integrator reading the file directly post-boot (confirmed:
+  `detriments: []`, `resetOnDeath: false`, `trackedFoodDiversityDecay:
+  false`, `trackCount: 150`, all 8 benefit thresholds present - while the
+  real booted server process was still running).
+- **A second, genuinely new but benign upstream bug**, added to
+  `scripts/tests/l0_boot_smoke.sh`'s known-noise baseline: Farmer's Delight
+  1.3.2's own bundled optional Silent Gear integration recipe
+  (`farmersdelight:integration/silentgear/cutting/netherwood`) references
+  an unregistered custom ingredient type
+  (`farmersdelight:tool_action`/`neoforge:ingredient_serializer`) - a real
+  upstream FD data bug, not this pack's own scripting. `RecipeManager` logs
+  one `Parsing error loading recipe...` and skips just that recipe (a
+  decorative Silent-Gear-flavor variant, no core food chain affected); boot
+  reaches `Done(` clean regardless.
+- Boot-check obligations all run for real (not just planned): L0 (87 server
+  mods, 0 KubeJS errors/warnings, no unbaselined WARN/ERROR), L1 (17/17, 4
+  skipped, unaffected), `/vpp_food_selftest` (6/6, 1 honest skip), SoL-Onion
+  detriments/reset/decay/trackCount verified empty/correct at real runtime,
+  Terralith wild-crop generation confirmed structurally (real biome tag
+  membership + FD's own biome_modifier tag/temperature filter read directly
+  from the jar), CCK Saw-automation coverage ground-truthed against all 222
+  `farmersdelight:cutting` recipes across the 3 delight jars.
