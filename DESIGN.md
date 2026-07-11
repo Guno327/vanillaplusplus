@@ -302,6 +302,55 @@ teams exist, daily/long-running quest progress would become team-shared
 too. See Phase 6 for how this was actually resolved (moving those two
 chapters off FTB Quests, not just accepting the deviation).
 
+#### Quest-book overhaul: one full chapter per tier (GitHub #10, post-1.0.0)
+
+The single "Tier Progression" chapter above (one gamestage quest per tier,
+6 quests) was replaced wholesale after the admin filed GitHub issue #10
+("Quest Book is Too Minimal"): the book is now **one full chapter per
+ProgressiveStages tier — 10 chapters, 62 quests** — each chapter a 1-to-1
+walkthrough of that tier's real expected progression. Rootborn(4) →
+Andesite Age(9) → Brass Age(11) → Precision Age(8) → Induction Age(8) →
+Starforged Age(6) → Lunar Frontier(3) → Martian Frontier(3) → Inner
+System(4) → Jovian Frontier(6). Every chapter opens on the same
+`gamestage` id the old book used (still a quest-book *view* —
+ProgressiveStages' own triggers grant tiers), walks that tier's verified
+milestones (jetpack rungs, Power Loader tiers, Tom's Storage → Refined
+Storage buildout, Time in a Bottle, the Farmer's Delight knife ladder at
+each knife's real lock tier, Ars Nouveau entry, TFMG's endgame ladder, one
+optional non-blocking Artifacts curio find, one `/leaderboard` flavor
+quest), and closes on whatever item/kill/dimension-entry actually triggers
+the next tier per `triggers.toml`. Where no single trigger item exists the
+capstone follows the design's substitute (Brass Age ends on
+`create:sturdy_sheet`, the material both `refined_radiance`/`shadow_steel`
+feed; the Venus-OR-Mercury trigger is two independent optional quests —
+this FTB Quests version has no native OR between quest completions,
+confirmed by decompiling `Quest`/`Chapter`). The three "infinite"
+capstones (`refinedstorage:creative_storage_block`, `create:creative_motor`,
+`create:creative_crate`) appear only as required *crafting tasks* in the
+final chapter, never as rewards. Rewards are Numismatics coin items
+anchored to `gen_economy.py`'s own tier prices (capped, not extrapolated,
+past Starforged Age — the economy has no pricing signal there) plus
+`puffish_skills` XP across all 12 current categories; tiers 0-5 gate
+quests keep the original book's XP values verbatim. `scripts/gen_quests.py`
+was replaced by the new generator (same filename, same generate-don't-
+hand-type convention); new ids start at 0x20001, disjoint from the old
+book's range. Full design rationale in the issue-10 handoff's
+`DESIGN_SUMMARY.md`.
+
+**Integration cross-check catch worth recording**: the draft book's four
+"craft a pickaxe" quests targeted `minecraft:{stone,iron,diamond,
+netherite}_pickaxe` with `only_from_crafting: true` — but this pack removed
+every vanilla tool recipe in the gear overhaul (`blacksmithing.js`), so all
+four were permanently uncompletable as drafted. Retargeted to
+`silentgear:pickaxe` (the real craftable tool item, confirmed in the
+installed Silent Gear jar). Every other quest item id was cross-checked
+against GitHub #9's 93 sweep-removed recipe outputs: zero collisions.
+Boot-verified: FTB Quests' own log prints "Loaded 1 chapter groups, 10
+chapters, 62 quests" — the exact expected counts (important because this
+mod silently skips unparseable chapter files rather than erroring, per the
+Phase 4 lesson above). Pacing/reward feel and `only_from_crafting` runtime
+crediting still need a live playtest — tracked on the issue.
+
 ### Economy (Phase 5)
 
 `instructions.md` asks for two related but distinct systems: (1) a tracked
@@ -2205,13 +2254,45 @@ bonus-currency-on-kill system vanilla hostiles already get. Passive mobs
 system entirely, consistent with vanilla passive mobs already being excluded
 from it today - no new precedent needed there.
 
-**Flagged for live-play review, not blocking**: 41 of Born in Chaos' 45
-hostiles spawn via a `neoforge:any` biome predicate - everywhere, in every
-dimension, with no biome-appropriateness filtering relative to the ~100 new
-Terralith biomes the world exploration overhaul added. Left as-is rather
-than guessed at without a live world to actually judge "does this feel too
-samey" against - recorded as a candidate for a future spawn-tuning pass if
-it turns out to be a real problem in practice, not treated as a bug now.
+**Spawn retargeting (GitHub #5, Option B — landed post-1.0.0)**: the
+originally-flagged finding — 41 of Born in Chaos' 45 hostiles spawning via
+a `neoforge:any` biome predicate, everywhere, in every dimension — was
+filed as GitHub issue #5, investigated, admin-approved as "Option B"
+(retarget biomes only; keep every mob's jar-shipped weight/minCount/
+maxCount), and implemented as 41 same-path override JSONs under
+`pack/kubejs/data/born_in_chaos_v1/neoforge/biome_modifier/`. The 41 mobs
+are grouped into 12 thematic biome-tag buckets (full per-mob table with
+per-tag justifications in the issue-5 handoff's `bucket-table.md`;
+one-line summary): Boneyard (7 skeleton-kin → desert/badlands), Bog Rot
+(4 rot/carrion → swamp), Deep Waters (3 fish/fisherman → aquatic), Harvest
+Patch (6 pumpkin family → plains/forest), Web & Swarm (3 spiders →
+cave/jungle), Hollow Dark (9 spirits/nightmare/dark → spooky/underground),
+Winter's Court (2 krampus → snowy), Wild Hunt (2 hounds → taiga/hills),
+Frontier Common (2 generic zombies → plains), Lumber Camp
+(zombie_lumberjack → forest), Manor Guard (door_knight →
+`has_structure/woodland_mansion`), Raider Circuit (missioner → outpost/
+village structure tags). Every tag was verified to exist in the installed
+vanilla/NeoForge/Terralith jars, resolves to overworld-only biomes (no
+nether/end leakage for the previously dimension-blind 41), and Terralith's
+additive tag extensions cover its ~100 biomes wherever a shared tag is
+used. The 4 already-curated hostiles (bone_imp/firelight/seared_spirit/
+thornshell_crab) are untouched.
+
+**Format lesson (real bug caught at integration boot, not by static
+validation)**: a JSON HolderSet accepts a biome *tag* only as a single
+top-level string (`"biomes": "#c:is_swamp"`); the list form may contain
+only plain biome ids. The drafted list-of-tag-strings form
+(`["#c:is_desert", "#c:is_badlands"]`) passes `json.load` but fails
+NeoForge's registry codec on every file at once, killing all registry
+loading. Multi-tag buckets use NeoForge's composite holder-set
+`{"type": "neoforge:or", "values": [...]}` instead (types
+`neoforge:any/and/or/not`, verified against the installed
+neoforge-21.1.235-universal.jar). Boot-verified: zero biome_modifier
+errors, and the (pre-fix) failing boot itself proved same-path override
+precedence — the registry's error named the KubeJS data pack, not the
+mod jar, as its source for these ids. Actual spawn-feel ("does the world
+still feel samey", are the deliberately-narrow door_knight/missioner
+buckets findable) still needs a live play session — tracked on the issue.
 
 **Boot-tested clean**: `Creeper Overhaul 4.0.6`, `Born in Chaos 1.7.6`, and
 `Naturalist 1.0.2` (plus `resourcefulconfig`/`resourcefullib`) all load with
@@ -2370,8 +2451,10 @@ startup log, never drove gameplay logic:
 
 **L2 — HeadlessMC client smoke** (`scripts/tests/l2_client_smoke.py`).
 Assembles the *full* client-relevant mod set (every lockfile entry with
-`side != "server"`, 81 mods including all 6 client-optimization mods and 3
-QoL mods added for this release) into a real HeadlessMC 2.9.0 instance
+`side != "server"` — 81 mods at the 1.0.0 cut including all 6
+client-optimization mods and 3 QoL mods added for that release; 92 as of
+the GitHub #11 integration, which added jade + jade-addons-forge on top of
+the item 9/10 food/TiaB waves) into a real HeadlessMC 2.9.0 instance
 (`/home/ubuntu/.minecraft`) and launches it offline, catching client-only
 mixin/dependency crashes the dedicated server structurally can't see
 (`side:client` mods never land in `server/mods` — `build_server.py` has
@@ -2412,6 +2495,29 @@ contingency (its `neoforge.mods.toml` minecraft-version range is literally
 JEI-precedent reasoning already recorded (JEI has the identical range
 pattern and is known-good everywhere on 1.21.1). Kept in the manifest with
 no changes needed.
+
+**Post-1.0.0 client addition — Jade + Jade Addons (GitHub #11)**: the
+admin-requested WAILA-style "what am I looking at" HUD landed as manifest
+phase 21: `jade` 15.10.5+neoforge + `jade-addons-forge` 6.1.0+neoforge
+(modids `jade`/`jadeaddons`), both `side:"both"`. Chosen over WTHIT (new
+hard dep, Bad Packets) and The One Probe (mandatory dual-side install,
+oldest build, weakest Create addon ecosystem); Jade core alone only ships
+a cosmetic Create theme — Jade Addons is the real Create integration,
+hooking Create's own goggle-info API (`IHaveGoggleInformation`) for
+kinetic Stress/Speed tooltips plus contraption item/fluid-storage
+providers, verified by jar decompilation. `side:both` (not client-only)
+because both jars are Modrinth optional/optional and the pack's Tom's
+Storage/Refined Storage spine benefits from server-backed container
+previews — the same standing rule as jei/xaeros/appleskin. No config
+shipped (matches the sodium/immediatelyfast/moreculling/dynamic-fps
+zero-config precedent). Boot-verified on both sides: L0/L1 with both jars
+in `server/mods` (Jade's server log shows plugins loading from Tom's
+Storage/Waystones/Ars Nouveau/Apothic mods — the server install does real
+work), and L2 with both in the client set. Watch-item: jade-addons-forge
+6.1.0 (2025-03-17) is older than jade's cadence; if Create tooltips stop
+rendering in-game, check that staleness first. Actual tooltip rendering
+needs a real client window — the same L2/L3 boundary as everything else
+here.
 
 **L3 — live client join** — deliberately **not implemented** for this
 release. The join mechanism itself is unproven (protocol bots were already

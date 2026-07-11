@@ -725,3 +725,69 @@ when that work lands). Boot log's own sweep line now self-audits:
 ars_nouveau=6 born_in_chaos_v1=16 create_sa=28 minecraft=6 stellaris=5
 tfmg=10 | silentgear recipes still registered: 582`. Fix lands in the
 NEXT release; v0.1.0 still has the bug.
+
+## Integration wave 2 — GitHub #5 (BiC spawn buckets) + #10 (quest book) + #11 (Jade) (2026-07-11)
+
+Folded in three fully-drafted, admin-approved features in one integration
+pass (one integrator, serial resource ownership per the operating model),
+one commit per feature, full canonical test suite green with everything in.
+All three land in the NEXT release — v0.1.0 has none of them.
+
+- **#5 — Born in Chaos spawn retargeting (Option B), commit `8378454`.**
+  41 same-path override JSONs retarget the formerly-`neoforge:any`
+  (spawn-everywhere) BiC hostiles onto 12 thematic biome-tag buckets;
+  weights/counts keep the jar's shipped values, the 4 already-curated mobs
+  untouched. **Real bug found at integration boot, invisible to the
+  drafter's `json.load` validation**: a JSON HolderSet accepts a biome tag
+  only as a single top-level string — the drafted list-of-tag-strings form
+  fails NeoForge's codec on all 41 files at once and kills ALL registry
+  loading (this is precisely the "unparseable drafts" the #9 pass had to
+  exclude to boot). Fixed with NeoForge's composite holder sets
+  (`{"type": "neoforge:or", "values": [...]}` for the 28 multi-tag files,
+  plain tag string for the 13 single-tag ones), ground-truthed against the
+  installed neoforge-21.1.235 jar. Bonus evidence from the failed boot:
+  the registry error named the KubeJS data pack as its source for these
+  ids, proving same-path override precedence over the mod jar. Spawn-feel
+  needs a live session (flagged on the issue). DESIGN.md's mob-variety
+  section updated with the bucket summary.
+- **#10 — quest book overhaul, commit `a5f3a6b`.** 1 chapter/6 quests →
+  10 chapters/62 quests, one full walkthrough chapter per tier; old
+  `tier_progression.snbt` deleted; `scripts/gen_quests.py` replaced by the
+  new generator (same filename, per the handoff checklist). **Integration
+  cross-check catch**: the draft's four vanilla-pickaxe craft quests
+  (`minecraft:stone/iron/diamond/netherite_pickaxe`,
+  `only_from_crafting: true`) targeted recipes `blacksmithing.js` removed
+  in the gear overhaul — permanently uncompletable as drafted; retargeted
+  to `silentgear:pickaxe` (the pack's real craftable tool item). The
+  mandated quest-vs-#9-sweep cross-check found **zero** collisions between
+  quest item targets and the sweep's 93 removed recipe outputs — the
+  pickaxe gap predates the sweep (gear-overhaul era) and was the only
+  craft-target defect. Boot-verified via FTB Quests' own count line
+  ("Loaded 1 chapter groups, 10 chapters, 62 quests") per the checklist's
+  silent-skip warning. Pacing/reward feel needs a live playtest (flagged
+  on the issue). DESIGN.md's quest-system section gained a full subsection.
+- **#11 — Jade + Jade Addons, commit `8e2643e`.** Manifest phase 21,
+  both `side:"both"`; lockfile regenerated via the canonical
+  `resolve_mods.py`; resolved sha512s match the research handoff's
+  download-verified pins exactly (no drift → no stop-and-investigate).
+  Disclosed side effect of the full regen: unpinned `puffish_skills`
+  tracked upstream 0.18.0 → 0.18.1 (the manifest's documented convention);
+  the passing boots ran 0.18.1. No config shipped (zero-config precedent).
+  Server-side value confirmed in the boot log (Jade plugins loading from
+  Tom's Storage/Waystones/Ars Nouveau/Apothic). Watch-item: jade-addons
+  6.1.0 is a 2025-03 build; first suspect if Create tooltips ever break.
+  In-game tooltip check needs a real window (flagged on the issue).
+
+**Full canonical suite, everything in (no scratch variants this time)**:
+L0 boot smoke PASS (89 server mods, 0 KubeJS errors/warnings, no
+unbaselined WARN/ERROR, clean stop; #9 sweep line unchanged at 93 removed
+/ identical per-namespace counts / silentgear 582 — Jade adds no recipes,
+confirmed not assumed). L1 self-test PASS (17/17, 4 console-only skips;
+10036 total recipes). L2 HeadlessMC client smoke PASS with the enlarged
+client set: 92 client-relevant lockfile entries (was 90 — DESIGN.md's L2
+section updated), 116 distinct modids seen incl. jar-in-jar libs, 0 fatal
+FML errors, `mod/jade` and `mod/jadeaddons` both present in the
+resource-reload success marker (16 occurrences each), MoreCulling still
+loading fine, the usual disclosed STB/imageio harness race and nothing
+else. Every server stopped cleanly between boots (echo stop > cmd_fifo,
+no stray java/tail processes).
