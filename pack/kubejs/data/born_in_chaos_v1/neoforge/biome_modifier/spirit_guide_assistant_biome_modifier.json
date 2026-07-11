@@ -1,0 +1,16 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": {
+    "type": "neoforge:or",
+    "values": [
+      "#c:is_spooky",
+      "#c:is_underground"
+    ]
+  },
+  "spawners": {
+    "type": "born_in_chaos_v1:spirit_guide_assistant",
+    "weight": 9,
+    "minCount": 2,
+    "maxCount": 2
+  }
+}

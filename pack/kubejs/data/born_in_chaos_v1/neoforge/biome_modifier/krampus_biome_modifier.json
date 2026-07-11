@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_snowy",
+  "spawners": {
+    "type": "born_in_chaos_v1:krampus",
+    "weight": 2,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

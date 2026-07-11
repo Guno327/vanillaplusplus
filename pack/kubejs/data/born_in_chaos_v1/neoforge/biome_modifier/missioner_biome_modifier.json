@@ -1,0 +1,16 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": {
+    "type": "neoforge:or",
+    "values": [
+      "#minecraft:has_structure/pillager_outpost",
+      "#minecraft:has_structure/village_plains"
+    ]
+  },
+  "spawners": {
+    "type": "born_in_chaos_v1:missioner",
+    "weight": 4,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

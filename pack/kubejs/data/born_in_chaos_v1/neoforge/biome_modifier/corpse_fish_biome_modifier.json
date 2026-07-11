@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_aquatic",
+  "spawners": {
+    "type": "born_in_chaos_v1:corpse_fish",
+    "weight": 7,
+    "minCount": 3,
+    "maxCount": 5
+  }
+}

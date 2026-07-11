@@ -1,0 +1,16 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": {
+    "type": "neoforge:or",
+    "values": [
+      "#c:is_taiga",
+      "#minecraft:is_hill"
+    ]
+  },
+  "spawners": {
+    "type": "born_in_chaos_v1:dread_hound",
+    "weight": 15,
+    "minCount": 3,
+    "maxCount": 5
+  }
+}

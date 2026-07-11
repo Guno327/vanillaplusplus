@@ -1,0 +1,16 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": {
+    "type": "neoforge:or",
+    "values": [
+      "#c:is_spooky",
+      "#c:is_underground"
+    ]
+  },
+  "spawners": {
+    "type": "born_in_chaos_v1:nightmare_stalker",
+    "weight": 4,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}
