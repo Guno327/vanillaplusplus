@@ -651,3 +651,77 @@ All fixes boot-tested (L0, plus L1 for #8) before push; full narrative,
 evidence, and per-issue Rhino-harness reproduction details are in each
 issue's own closing comment on GitHub and in this session's checkpoint
 log (`/tmp/vpp-agent-checkpoints/bug-triage-wave1.md`).
+
+## GitHub #9 — "Some tools are still craftable" — FIXED, systematic sweep (2026-07-11)
+
+Reporter (repo admin) hit Create-adjacent metal tools (aluminum/lead/
+copper) still craftable despite the design spec's "all tools/weapons only
+from Silent Gear". **Root cause**: `blacksmithing.js` and
+`weapon_smithing.js` only ever enumerated vanilla + Allthemodium + Epic
+Fight recipes via hand-typed tier x type cross products — every OTHER mod
+shipping native tool/weapon recipes (TFMG, Create Stuff & Additions,
+Stellaris, AllTheOres, Apotheosis, Apothic Enchanting, Ars Nouveau, Born
+in Chaos, and vanilla's own 1.21 mace) was never touched.
+
+**Fix**: new `pack/kubejs/server_scripts/tool_consolidation_sweep.js` — a
+pattern-based runtime sweep (`event.forEachRecipe`, javap-verified against
+the installed KubeJS jar; first use of that API in this pack) over every
+registered recipe's real output item, with an explicit
+namespace/item-exceptions list and a per-namespace boot-log count, so
+future mod additions stay covered without another hand-typed list.
+Ground-truthed by a static scan of all 87 jars' 9,873 recipe jsons PLUS
+two live boots with temporary per-id logging (the runtime sweep caught
+things the static scan structurally missed, e.g. Create's `results`-list
+schema).
+
+**Removed (93 recipes, boot-verified per-id)**: TFMG aluminum/lead tools
+(10 — the reporter's example; TFMG's steel tools ship upstream-disabled as
+`minecraft:empty` and never registered), Create S&A brass/copper/zinc/
+rose_quartz/experience/blazing tools + Blazing Cleaver + Portable Drill
+(28), Stellaris steel tools (5), AllTheOres ore hammers (5), Apotheosis'
+own stone->iron->golden->diamond tool smithing-upgrade ladder (15 — a
+second missed bypass of the vanilla tool removal), Apothic Enchanting's
+craftable Inert Trident + its infusion into a real `minecraft:trident`
+(2), Ars Nouveau's Enchanter's Sword + Spell Bow/Crossbow + dye variants
+(6 — Part 4 already redirected Ars mage ARMOR through Silent Gear, so its
+weapons were the same oversight class, not an exception), Born in Chaos'
+16 unique named weapons (item 6 stripped these from mob LOOT but left
+their crafting recipes live — the actual hole), vanilla `minecraft:mace`
+(1 — post-dates `blacksmithing.js`'s tier table), and Epic Fight's own
+`minecraft:netherite_<type>_smithing` diamond->netherite upgrades (5 — a
+bypass of `weapon_smithing.js`'s Silent-Gear-gated netherite tier).
+
+**Exceptions ruled and kept** (documented in-script too):
+- **Farmer's Delight / End's Delight knives + ExtraDelight spoons — KEPT.**
+  Item 9 explicitly adopted and tier-locked these as KITCHEN tools for the
+  cutting-board/Saw food-automation chain (Andesite/Brass/Precision Age).
+  Ruling: they are accepted kitchen tools, NOT consolidation targets — the
+  food overhaul's documented design depends on them being craftable.
+  ExtraDelight's gingerbread/sugar-cookie "pickaxes"/"swords" are edible
+  foods (tagged `c:foods/cookie/*`), not tools.
+- **Wands — KEPT**: Ars Nouveau casting/dominion wands are the mage
+  archetype's class mechanic; Building Wands are construction utilities
+  (`wands:netherite_wand` already Precision-locked). Neither is a
+  mining/combat tool in the consolidation sense.
+- **"Drill"/"saw"/"hammer" MACHINES — KEPT**: create:mechanical_drill/saw,
+  createoreexcavation's vein-drill components, stellaris:pumpjack_drill,
+  TFMG's pumpjack-hammer multiblock parts (3 of 4 are placeable blocks) —
+  machine components matched only by name substring. The one genuine
+  handheld among them, `create_sa:portable_drill` (3x3 mining gadget), IS
+  removed via an explicit extra-ids list.
+- **Novelty/non-tools — KEPT**: `create:cardboard_sword` (joke item),
+  `apothic_enchanting:pickaxe_tome`/`bow_tome` (enchanting tomes),
+  ExtraDelight decorative ribbon bows. TiaB is untouched (not a
+  tool/weapon; its own Brass Age gate stands).
+
+**Verification**: L0 boot smoke PASS + L1 self-test PASS — both run via
+scratchpad variants identical to the canonical scripts except for
+excluding a parallel agent's in-progress (currently unparseable) draft
+jsons under `pack/kubejs/data/born_in_chaos_v1/neoforge/biome_modifier/`
+from the synced `server/` copy (those drafts kill registry loading for ANY
+boot and are untracked/outside this fix; canonical L0/L1 must be re-run
+when that work lands). Boot log's own sweep line now self-audits:
+`removed 93 ... alltheores=5 apotheosis=15 apothic_enchanting=2
+ars_nouveau=6 born_in_chaos_v1=16 create_sa=28 minecraft=6 stellaris=5
+tfmg=10 | silentgear recipes still registered: 582`. Fix lands in the
+NEXT release; v0.1.0 still has the bug.
