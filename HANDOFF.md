@@ -1,25 +1,32 @@
 # Handoff
 
-**Status**: `v0.1.0` (beta) shipped as this project's first GitHub release,
-2026-07-10, after TODO.md item 9 (food overhaul) landed and closed out the
-last in-progress item. TODO.md items 1-11 are all DONE — TODO.md carries a
-one-line-per-item pointer into DESIGN.md's per-item sections (items 1-9) or
-DECISIONS.md's dated sections (items 10/11, which predate a DESIGN.md
-transcription pass). `pack/VERSION` is `0.1.0`. `DECISIONS.md` at the repo
-root is the durable decision log for everything decided in orchestrator-mode
-sessions; treat it as trusted input alongside `TODO.md`/`DESIGN.md`.
+**Status**: `v0.1.1` (beta) shipped 2026-07-14, superseding `v0.1.0`
+(2026-07-10). This cut closed out the bug-triage queue (GitHub #4/#6/#7/
+#8/#9 — fixed or confirmed-benign/accepted, including the real `/respec`-
+always-fails bug #8's audit found live in `skill_respec.js`, and the
+93-recipe tool-consolidation sweep for #9) and folded in three admin-
+approved features (#5 Born in Chaos spawn retargeting, #10 quest book
+overhaul to 10 chapters/62 quests, #11 Jade + Jade Addons). Full canonical
+L0/L1/L2 test suite green before the cut (see the `v0.1.1` GitHub release
+body for exact numbers). `pack/VERSION` is `0.1.1`. `DECISIONS.md` at the
+repo root is the durable decision log for everything decided in
+orchestrator-mode sessions; treat it as trusted input alongside
+`TODO.md`/`DESIGN.md`.
 
 **GitHub is now ground truth for outstanding bugs and in-game
 verifications** (user directive, 2026-07-10): the project's GitHub repo at
 `https://github.com/Guno327/vanillaplusplus` (remote `origin`) tracks all
 open bugs, needs-in-game-verification checklists, and open reviews as
-issues #1-#8 — see DECISIONS.md's "GitHub as ground truth (2026-07-10)"
-section for the full mapping and label state machine. `TODO.md` remains
-the backlog for planned feature work; GitHub issues are for bugs/
-verifications/reviews surfaced after something ships. `v0.1.0` is
-deliberately beta semantics (this pack has real, disclosed unverified-
-in-game gaps) — see the GitHub release itself for the full test-status/
-verification-wanted summary posted at cut time.
+issues #1-#11 (#4-#11 closed/resolved as of the `v0.1.1` cut; #1-#3 remain
+open, human-only verify-in-game items — see the `v0.1.1` release's
+"Verification wanted" note, which now flags `/respec` as testable for #1)
+— see DECISIONS.md's "GitHub as ground truth (2026-07-10)" section for the
+full mapping and label state machine. `TODO.md` remains the backlog for
+planned feature work; GitHub issues are for bugs/verifications/reviews
+surfaced after something ships. Both `v0.1.0` and `v0.1.1` are deliberately
+beta semantics (this pack has real, disclosed unverified-in-game gaps) —
+see each GitHub release itself for its own full test-status/verification-
+wanted summary posted at cut time.
 
 ## Release pipeline
 

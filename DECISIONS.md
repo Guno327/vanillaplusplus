@@ -791,3 +791,68 @@ resource-reload success marker (16 occurrences each), MoreCulling still
 loading fine, the usual disclosed STB/imageio harness race and nothing
 else. Every server stopped cleanly between boots (echo stop > cmd_fifo,
 no stray java/tail processes).
+
+## Release v0.1.1 (2026-07-14)
+
+Second beta cut, minted after a full canonical test run on main with
+everything from integration wave 2 already in (GitHub #5/#9/#10/#11 —
+this release's actual content is unchanged from wave 2's own final state;
+this pass's job was test/cut/mint, not new implementation work). Full
+result: L0 boot smoke PASS (89 server mods, 0 KubeJS startup/server script
+errors or warnings, no unbaselined WARN/ERROR, clean stop; tool-
+consolidation sweep line unchanged — 93 removed, silentgear 582; quest
+book `10 chapters, 62 quests`), L1 self-test PASS (`17/17`, 4 console-only
+skips), L2 HeadlessMC client smoke PASS (92 client-relevant lockfile
+entries, 116 distinct modids incl. jar-in-jar libs, 0 fatal FML errors,
+all 10 Stage-A optimization/QoL mods confirmed present by modid, the
+usual disclosed STB/imageio harness race and nothing else).
+
+- `pack/VERSION` bumped `0.1.0` -> `0.1.1`, committed/pushed separately
+  (`1b14920`) from the docs pass per this session's own step ordering.
+- Client `.mrpack` (94 mods, 0.29 MB) and server `.zip` (632 files, 362 MB)
+  bundles built via the canonical `scripts/build_mrpack.py`/
+  `scripts/build_server_bundle.py` — `build_server_bundle.py`'s own
+  `build_server.py` re-sync reported `server/ is up to date` (no mutation
+  vs. the state L0/L1/L2 had just tested), so no L0 re-run was needed
+  before minting.
+- GitHub release `v0.1.1` (id `353820006`, tag at commit `1b14920`,
+  prerelease=true, title "v0.1.1 (beta)") minted via a one-off python3
+  stdlib-`urllib` script (no `gh`/`curl`, per this session's own
+  constraint) — token parsed from `/home/ubuntu/.vpp-git-credentials`
+  (git-credential-store `https://user:token@github.com` form), never
+  printed. Both bundle assets uploaded to `uploads.github.com` and
+  verified via a GET back: exactly 2 assets, sizes matching the local
+  files byte-for-byte (client 304471 bytes, server 379577444 bytes).
+  Release body: what-changed-since-v0.1.0 (bug fixes #4/#6/#7/#8/#9,
+  features #5/#10/#11), full test-status numbers, and a "Verification
+  wanted" note on #1/#2/#3 flagging that `/respec` (fixed by #8) is now
+  actually testable for #1's checklist.
+- `nix/release.json` repinned via `scripts/update_nix_release.py --tag
+  v0.1.1` (run *after* the release existed, per the script's own
+  documented ordering) — downloaded the real uploaded server-zip asset
+  bytes back from the release (379577444 bytes, size-verified against the
+  API's own record) and hashed those canonical bytes: sha256
+  `1f6af8faeb82fc380c5dde6ee0528be78b25c07877acdbef217ff4a1b78f2ce2`.
+  NeoForge version auto-detected unchanged at 21.1.235. Committed/pushed
+  separately (`87c0538`).
+- One short comment posted on each of the three open verify-in-game
+  issues (#1/#2/#3) linking the new release; #1's comment specifically
+  calls out that `/respec` is fixed in this build so its full checklist is
+  now testable end-to-end for the first time. None of the three were
+  closed (human-only in-game verification, unchanged from wave 2).
+- **Environment note for any future session on this machine**: `git` is
+  not on the default shell `PATH` at all in this sandbox; the real binary
+  lives at `/snap/claude-code/43/usr/bin/git` (or whatever the current
+  snap revision is) and its network operations (`push`/`fetch`) additionally
+  need `GIT_EXEC_PATH` pointed at that same revision's `usr/lib/git-core`
+  and `LD_LIBRARY_PATH` including that revision's `usr/lib/x86_64-linux-gnu`
+  (for `libcurl-gnutls.so.4`, which `git-remote-https` dynamically links).
+  Local-only git commands (status/commit/log/diff) work fine without this;
+  only the network-touching subcommands need the full three-variable
+  combo.
+- Stale local `0.1.0` bundles at the repo root
+  (`vanilla-plus-plus-client-0.1.0.mrpack`,
+  `vanilla-plus-plus-server-0.1.0.zip` — both untracked/gitignored build
+  output, confirmed via `git status`) were deleted after the `0.1.1`
+  bundles were built and uploaded; only the `0.1.1` bundles remain at the
+  repo root.
