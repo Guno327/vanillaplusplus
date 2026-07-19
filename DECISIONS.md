@@ -856,3 +856,37 @@ usual disclosed STB/imageio harness race and nothing else).
   output, confirmed via `git status`) were deleted after the `0.1.1`
   bundles were built and uploaded; only the `0.1.1` bundles remain at the
   repo root.
+
+## Migration to the AI Delivery Organization charter (2026-07-19, owner directive)
+
+- Project management moved to `~/ORCHESTRATION.md` (machine-level,
+  deliberately untracked): **CEO** (Fable, wakes on token refresh,
+  discovers projects as `~/*/SPEC.md`, launches PMs) → **PM** (Fable, one
+  per project, sole git/GitHub owner, stateless — reconstructs from
+  SPEC.md + repo + GitHub per charter §3) → **Engineers** (sonnet, scoped
+  tasks in isolated worktrees, never touch git). This supersedes this
+  repo's prior orchestrator-mode operating model AND the session-local
+  standing-loop/start+5h wakeup chain (cancelled; the CEO now provides all
+  wake-ups).
+- `SPEC.md` created at repo root as the charter discovery anchor / PM
+  entry point (summary + pointers; instructions.md/DESIGN.md remain the
+  detailed sources and win on detail).
+- Charter deltas that CHANGE prior conventions here, effective now:
+  (a) **no direct commits to main** — feature branches + PR, merged after
+  CI passes (the migration commit itself is the final direct-to-main
+  commit, made before the branch rule can be satisfied since no CI exists
+  yet); (b) **Conventional Commits**; (c) shared PM git identity
+  `AI Project Manager (Claude) <ai-pm@ghov.net>` in `~/.gitconfig`;
+  (d) tests-first per charter §6 — the existing L0/L1/L2 suites are the
+  harness baseline, per-change failing-tests-first becomes the norm once
+  CI exists.
+- Charter §4 gap: **no CI/CD**. "Infrastructure precedes features" — a
+  GitHub issue tracks bootstrapping GitHub Actions (constraint for the PM:
+  full L0/L1 needs a booted 89-mod server with Modrinth downloads + Java
+  21 — feasible in Actions but heavy; staged approach sensible: JSON/SNBT/
+  manifest/lockfile validation + Rhino-pattern lint first, boot smoke
+  behind a label or nightly).
+- Unchanged by migration: issue label state machine, admin-approval gate
+  for features, verify-in-game issues are human-only, releases only on
+  explicit owner prompt, ground-truth-over-assumption, the boot/test/
+  release runbooks in HANDOFF.md.

@@ -1,5 +1,13 @@
 # Handoff
 
+**Operating model (2026-07-19)**: this project now runs under the
+machine-level AI Delivery Organization charter at `~/ORCHESTRATION.md`
+(CEO → per-project PM → sonnet Engineers; PM is sole git/GitHub owner;
+feature branches + PR only, Conventional Commits, tests-first). Start at
+`SPEC.md` in this repo root, then this file's runbooks. The prior
+orchestrator-mode + standing-loop model described in older DECISIONS.md
+entries is historical context only.
+
 **Status**: `v0.1.1` (beta) shipped 2026-07-14, superseding `v0.1.0`
 (2026-07-10). This cut closed out the bug-triage queue (GitHub #4/#6/#7/
 #8/#9 — fixed or confirmed-benign/accepted, including the real `/respec`-
