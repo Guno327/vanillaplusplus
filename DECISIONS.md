@@ -890,3 +890,44 @@ usual disclosed STB/imageio harness race and nothing else).
   for features, verify-in-game issues are human-only, releases only on
   explicit owner prompt, ground-truth-over-assumption, the boot/test/
   release runbooks in HANDOFF.md.
+
+## QoL wave — GitHub #13 (Gravestone) + #14 (ClientSort) + #16 (Lootr) (2026-07-19)
+
+Three owner-filed, owner-`approved` feature issues, all "add one well-chosen
+mod", landed together as one PR (one commit per mod) after Modrinth-API +
+jar-bytecode ground-truthing by a sonnet Engineer. Full per-mod rationale
+(candidates rejected and why, dependency/side/config analysis, pack-
+interaction findings) lives in each mod's `pack/manifest.json` note — the
+notes are the canonical record this time; highlights only:
+
+- **#16 lootr** (owner-named): zero deps; composes with
+  `gen_structure_loot.py`'s table replacement (instances per-player from the
+  registered table id); decay/refresh off by default = one static roll,
+  matching the bonus-pool design. No config shipped.
+- **#13 gravestone-mod** (henkelmax): over yigd (dead-ended at 1.21.1) /
+  Universal Graves (no neoforge) / Corail (not on Modrinth for neoforge).
+  Permanent-until-broken graves, items only (no XP surface at all).
+  `pack/config/gravestone-server.toml` = bytecode-ground-truthed defaults
+  with `only_owners_can_break=true`.
+- **#14 clientsort**: over Inventory Profiles Next (would add
+  kotlin-for-forge + libipn) and others; its `classPolicies` validation
+  auto-disables sorting per menu class on mismatch — exactly the modded-
+  container (RS/Tom's/Sophisticated) dupe-risk mitigation we needed.
+  `pack/config/clientsort-server.json` = documented defaults with
+  `validationActiveServer=true`.
+- All three at `phase: 22`, `side: both`. Lock diff kept to exactly the 3
+  new entries: `resolve_mods.py`'s re-resolve found 9 unrelated upstream
+  bumps (progressivestages, rhino, placebo, modernfix, c2me-neoforge,
+  sophisticated-core, sophisticated-backpacks, balm, waystones) which were
+  deliberately reverted — version bumps are a separate decision, not a
+  side effect of a feature PR.
+- Tests: L0 PASS (92 server mods, 0 KubeJS errors, no unbaselined
+  WARN/ERROR), L1 PASS (17/17), L2 PASS (95 client mods, 119 modids, 0 FML
+  errors). **L2 harness note**: `/tmp` was wiped since v0.1.1, taking
+  `/tmp/vpp-research/headlessmc/` with it; rebuilt this session by
+  re-downloading headlessmc-launcher 2.9.0 into that exact path
+  (`~/.minecraft` instance survived untouched) — HANDOFF.md's L2 setup
+  pointer remains accurate.
+- In-game behavior (grave placement/recovery, per-player loot rolls,
+  sorting vs modded containers) is a human check: filed as a
+  `verify-in-game` issue at PR time.
