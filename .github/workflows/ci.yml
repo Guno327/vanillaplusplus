@@ -1,0 +1,31 @@
+name: CI (fast)
+
+# Fast-tier CI (GitHub issue #12): pure-static validators over pack/ data
+# plus their unit tests. Python 3.11+ stdlib-only, no pip installs, no
+# network access, no server boot - this is the tier that runs on every PR
+# and every push to main.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  fast-checks:
+    name: Fast-tier static checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run unit tests (scripts/ci/tests)
+        run: python3 -m unittest discover -s scripts/ci/tests -v
+
+      - name: Run all fast-tier checks (scripts/ci/run_all.py)
+        run: python3 scripts/ci/run_all.py
