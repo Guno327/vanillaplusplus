@@ -1505,6 +1505,22 @@
       "side": "both",
       "phase": 21,
       "note": "GitHub issue #11: Create integration companion for jade above - Jade core alone only ships a cosmetic tooltip color theme for Create (assets/jade/jade_themes/create.json), NOT kinetic stress/speed data. Verified via jar extraction: its own neoforge.mods.toml declares exactly one dependency, jade [15.10,) (satisfied by our jade 15.10.5) - no dependency beyond Jade itself. Ships a real CreatePlugin with 11 provider classes; GogglesProvider.class's constant pool references Create's own com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation/IHaveHoveringInformation interfaces directly - the same extension point kinetic block entities (shafts/gearboxes/etc.) use to supply Stress/Speed data to the vanilla Goggles item - so this surfaces genuine kinetic info as a Jade tooltip, not a wearable-item requirement. Also ships ContraptionItemStorageProvider/ContraptionFluidStorageProvider (moving-contraption inventory/tank contents) and BoilerData/FluidTankBlockEntity-aware providers. No Silent Gear or Curios integration exists in either jar (checked, none found) - not a gap, since Silent Gear stats already surface via item tooltips and Curios has no look-at target of its own. WATCH-ITEM: last NeoForge 1.21.1 build is 6.1.0 from 2025-03-17 (older than jade's own release cadence) - its open dependency range on jade tolerates this, and Create's goggle-info API is stable, but confirm no load error at L2 same as any addon pin"
+    },
+    {
+      "slug": "lootr",
+      "project_id": "EltpO5cN",
+      "version_id": "mDyzapFj",
+      "version_number": "1.21.1-1.11.37.122",
+      "filename": "lootr-neoforge-1.21.1-1.11.37.122.jar",
+      "url": "https://cdn.modrinth.com/data/EltpO5cN/versions/mDyzapFj/lootr-neoforge-1.21.1-1.11.37.122.jar",
+      "hashes": {
+        "sha1": "a5dae941acc991df3f0de56bd8367f719824f131",
+        "sha512": "b73036f27ce05864987bd5d3b6264edaf469848b0030ab484eaebdbc19644de515fd87886c3c3b80b8f87f87a87c71de810ec4f2ab481f94824a5e039ff8e752"
+      },
+      "filesize": 992330,
+      "side": "both",
+      "phase": 22,
+      "note": "GitHub issue #16 (owner-named): per-player instanced structure loot - each player gets their own independent roll of a container's contents instead of a shared first-come-first-served chest. Verified via version-metadata API: neoforge-1.21.1-1.11.37.122 has ZERO dependencies (required or otherwise) - a single self-contained jar. Modrinth client_side=required/server_side=required -> side:both (the mechanism is server-authoritative per-player loot generation, but the client needs the mod too for the renamed-container UI/tooltips). Composes cleanly with scripts/gen_structure_loot.py: that script fully replaces vanilla structure loot table JSONs (data/minecraft/loot_table/chests/**.json, appending a pack-specific bonus pool) via KubeJS's raw datapack injection - Lootr operates one layer up, intercepting container-open and generating a per-player instance FROM whichever loot table id is currently registered for that container, so it transparently picks up our modified tables (vanilla pools + bonus pool) with no special-casing needed. Does NOT touch trial chamber Vault blocks (no 'vault' string/class anywhere in the jar) - vanilla's own Vault per-player reward tracking is a separate mechanism from the RandomizableContainerBlockEntity loot-table hook Lootr replaces, so no double-instancing risk there. Config (config/lootr-{server,client}.toml, ground-truthed via bytecode disassembly of ConfigManager.class, no decompiler available in this sandbox): decay_loot_tables/decay_modids/decay_dimensions and refresh_loot_tables/refresh_modids/refresh_dimensions all default to blank/empty, meaning NO decay and NO refresh happen out of the box - a per-player chest opened once stays populated forever until logic elsewhere clears it, exactly the 'reward doesn't get farmed on repeat visits' behavior gen_structure_loot.py's own bonus-pool design already assumes. Left at defaults - no config shipped."
     }
   ]
 }
