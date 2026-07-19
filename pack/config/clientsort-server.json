@@ -1,0 +1,10 @@
+{
+  "options": {
+    "validationActiveServer": true,
+    "validateItemType": true,
+    "validateStackSize": true,
+    "validateStackSizeThreshold": 32,
+    "alwaysLogUnexpectedResults": true,
+    "classPolicies": {}
+  }
+}
