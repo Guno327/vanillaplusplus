@@ -24,11 +24,12 @@
 #    build_server.py", which is not actually true for run.sh/libraries/).
 #    On a fresh Actions checkout there is no server/ directory at all, so
 #    `sh run.sh nogui` inside l0_boot_smoke.sh will almost certainly fail
-#    (command/file not found) the first time this workflow runs. Fixing
-#    this needs a real, grounded NeoForge-install step (exact installer
-#    jar URL/version, --installServer invocation, verifying the resulting
-#    unix_args.txt path) which is out of scope for this pass - flagged
-#    here rather than guessed at.
+#    (command/file not found) the first time this workflow runs.
+#    ADDRESSED (issue #17): the "Install NeoForge dedicated server" step
+#    below now runs the official installer (version parsed from
+#    pack/pack.toml, artifact from maven.neoforged.net's releases repo -
+#    the same host the dev sandbox's manual install used) and verifies
+#    run.sh + unix_args.txt exist before anything else runs.
 #
 # 2. EULA: server/eula.txt is also gitignored and nothing in
 #    build_server.py creates it, so a fresh checkout has none either;
@@ -122,11 +123,36 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install NeoForge dedicated server (issue #17, closes risk 1)
+        # Resolves risk (1) above: server/run.sh + server/libraries/ are
+        # gitignored install artifacts, so a fresh checkout must run the
+        # NeoForge installer itself before l0/l1 can `sh run.sh nogui`.
+        # The version is parsed from pack/pack.toml's [versions].neoforge
+        # (21.1.235 at time of writing) so this step tracks the pack; the
+        # installer URL is maven.neoforged.net's standard releases layout -
+        # the exact same host/artifact the dev sandbox's one-time manual
+        # install used (ground-truthed from server/neoforge-installer.jar.log
+        # there). Sanity-checks that run.sh and the unix_args.txt run.sh
+        # sources both exist afterwards, failing fast with a clear message
+        # rather than letting l0 die on a confusing missing-file error.
+        run: |
+          NEOFORGE_VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pack/pack.toml','rb'))['versions']['neoforge'])")
+          echo "NeoForge version from pack/pack.toml: ${NEOFORGE_VERSION}"
+          mkdir -p server
+          curl -fsSL -o server/neoforge-installer.jar \
+            "https://maven.neoforged.net/releases/net/neoforged/neoforge/${NEOFORGE_VERSION}/neoforge-${NEOFORGE_VERSION}-installer.jar"
+          (cd server && java -jar neoforge-installer.jar --installServer)
+          test -f server/run.sh || { echo "::error::installer did not produce server/run.sh"; exit 1; }
+          test -f "server/libraries/net/neoforged/neoforge/${NEOFORGE_VERSION}/unix_args.txt" \
+            || { echo "::error::installer did not produce unix_args.txt for ${NEOFORGE_VERSION}"; exit 1; }
+
       - name: Pre-accept Minecraft EULA for this CI run
         # See risk (2) above: server/ is gitignored and fresh on every
         # checkout, and nothing in build_server.py manages eula.txt.
         # Running this workflow constitutes accepting
         # https://aka.ms/MinecraftEULA for this ephemeral CI instance only.
+        # Runs after the installer step (the installer never touches
+        # eula.txt, but ordering it here makes that assumption harmless).
         run: |
           mkdir -p server
           printf 'eula=true\n' > server/eula.txt
