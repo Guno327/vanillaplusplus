@@ -1,0 +1,141 @@
+# CI (boot) - GitHub issue #12's "boot tier": actually resolves mods and
+# boots the dedicated server, unlike ci.yml's pure-static fast tier. This is
+# expected to be BEST-EFFORT this iteration - scripts/resolve_mods.py,
+# scripts/tests/l0_boot_smoke.sh, and scripts/tests/l1_selftest.py were
+# written for, and have only ever been run in, a persistent local dev
+# sandbox, and were NOT modified to produce this workflow (per the task
+# that produced this file: static-validation-only work, no script changes).
+# Read those three scripts before touching this file again; below is what
+# was found reading them now, ground-truthed against this repo's actual
+# .gitignore/HANDOFF.md/DECISIONS.md rather than assumed:
+#
+# 1. BIGGEST KNOWN RISK - no NeoForge server installer step exists
+#    anywhere in this repo. scripts/build_server.py (called by both
+#    l0_boot_smoke.sh and l1_selftest.py) only downloads mod jars from
+#    mods.lock.json and syncs config/kubejs/defaultconfigs/jvm-args/
+#    server.properties into server/ - it does NOT run NeoForge's own
+#    installer jar. server/run.sh, server/run.bat, and server/libraries/
+#    (which run.sh depends on) are produced by manually running
+#    `java -jar neoforge-installer.jar --installServer` once, per
+#    scripts/build_server_bundle.py's own end-user instructions and
+#    HANDOFF.md's boot-test walkthrough - and server/ is entirely
+#    gitignored (.gitignore: "server/*.jar", "server/run.sh", etc.,
+#    commented "rebuilt from pack/mods.lock.json via scripts/
+#    build_server.py", which is not actually true for run.sh/libraries/).
+#    On a fresh Actions checkout there is no server/ directory at all, so
+#    `sh run.sh nogui` inside l0_boot_smoke.sh will almost certainly fail
+#    (command/file not found) the first time this workflow runs. Fixing
+#    this needs a real, grounded NeoForge-install step (exact installer
+#    jar URL/version, --installServer invocation, verifying the resulting
+#    unix_args.txt path) which is out of scope for this pass - flagged
+#    here rather than guessed at.
+#
+# 2. EULA: server/eula.txt is also gitignored and nothing in
+#    build_server.py creates it, so a fresh checkout has none either;
+#    NeoForge refuses to boot without `eula=true` in it. Since writing
+#    that file doesn't touch l0/l1's own source, this workflow pre-creates
+#    it below as a best-effort mitigation for risk 1's non-installer gap
+#    (harmless even once a real installer step exists, since neither
+#    script ever touches eula.txt itself).
+#
+# 3. JDK path: l0_boot_smoke.sh and l1_selftest.py both hardcode
+#    `$ROOT/.tools/jdk-21.0.11+10/bin` onto PATH - a local, gitignored,
+#    dev-sandbox-only path that will not exist on a hosted runner.
+#    Prepending a nonexistent directory to PATH is harmless (lookups just
+#    skip it), so `java`/`javap` calls should still resolve to the JDK
+#    setup-java installs below and puts on PATH first - unverified against
+#    an actual run of this workflow, since risk 1 currently blocks getting
+#    that far.
+#
+# 4. Memory: pack/user_jvm_args.txt pins -Xms6G/-Xmx6G for a 94-mod pack.
+#    GitHub-hosted ubuntu-latest standard runners' exact RAM has varied by
+#    generation (historically as low as ~7GB, more recently reported
+#    higher) - unconfirmed for this repo's plan, and even if the heap
+#    itself fits, there's less headroom than the dev sandbox for
+#    JVM-native/off-heap memory and metaspace alongside this many mods.
+#
+# 5. Network/reproducibility: scripts/resolve_mods.py re-resolves every
+#    manifest.json entry against the live Modrinth API (+ CurseForge CDN
+#    for the FTB suite/ato/allthemodium) and OVERWRITES mods.lock.json,
+#    which for any mod without an explicit "pin_version" may drift to
+#    whatever is newest at run time rather than the lockfile ci.yml's
+#    check_lockfile.py just validated - by design the reason this is a
+#    separate, label/schedule-gated tier rather than a PR blocker. Both
+#    resolve_mods.py and build_server.py also need outbound internet
+#    access (Modrinth API + Modrinth/CurseForge CDNs), so transient
+#    network/rate-limit flakiness is expected occasionally.
+#
+# 6. FIFOs: both scripts `mkfifo` a cmd_fifo and drive the server over it
+#    (`tail -f cmd_fifo | ... run.sh nogui`) - this is plain POSIX and
+#    should work unmodified on an ubuntu-latest runner; low risk, called
+#    out only because the task asked FIFO behavior be specifically noted.
+#
+# 7. Runtime budget: resolve_mods.py (~94 sequential Modrinth/CurseForge
+#    lookups) + build_server.py (~94 jar downloads) + a boot/shutdown
+#    cycle (L0's own 240s timeout) + l1_selftest.py repeating the whole
+#    build+boot cycle again for its own run - should fit inside the
+#    90-minute timeout below barring risk 5's network flakiness, but has
+#    not been timed on an actual hosted runner.
+#
+# Given all of the above, this workflow implements exactly the steps the
+# task specified (checkout, Java 21 + Python 3.12, resolve_mods.py,
+# l0_boot_smoke.sh, l1_selftest.py) plus the eula.txt mitigation from (2),
+# and is expected to fail at risk (1) until a real install step is added in
+# a follow-up - that follow-up should start from this comment block.
+
+name: CI (boot)
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly, Sunday 06:00 UTC.
+    - cron: "0 6 * * 0"
+  pull_request:
+    types:
+      - labeled
+      - synchronize
+      - reopened
+
+jobs:
+  boot-test:
+    name: Boot-test the assembled server
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    # workflow_dispatch/schedule always run (no pull_request context to
+    # gate on); pull_request runs only while the run-boot-tests label is
+    # present.
+    if: >-
+      github.event_name != 'pull_request' ||
+      contains(github.event.pull_request.labels.*.name, 'run-boot-tests')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21 (temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pre-accept Minecraft EULA for this CI run
+        # See risk (2) above: server/ is gitignored and fresh on every
+        # checkout, and nothing in build_server.py manages eula.txt.
+        # Running this workflow constitutes accepting
+        # https://aka.ms/MinecraftEULA for this ephemeral CI instance only.
+        run: |
+          mkdir -p server
+          printf 'eula=true\n' > server/eula.txt
+
+      - name: Resolve mods (scripts/resolve_mods.py)
+        run: python3 scripts/resolve_mods.py
+
+      - name: L0 boot smoke test (scripts/tests/l0_boot_smoke.sh)
+        run: sh scripts/tests/l0_boot_smoke.sh
+
+      - name: L1 self-test (scripts/tests/l1_selftest.py)
+        run: python3 scripts/tests/l1_selftest.py
