@@ -36,7 +36,7 @@
 // all server_scripts into one shared Rhino scope (confirmed the hard way:
 // an earlier draft of this file collided with leaderboard.js's own
 // ResourceLocationClass/TIER_IDS/SKILL_CATEGORIES/SkillsAPIClass/
-// NumismaticsClass/FTBTeamsAPIClass names and threw
+// NumismaticsClass/OpenPACServerAPIClass names and threw
 // "TypeError: redeclaration of const" at boot, caught by this same L0/L1
 // boot-test loop).
 
@@ -80,11 +80,11 @@ try {
 } catch (e) {
     console.error('[vpp selftest] Numismatics class failed to load: ' + e)
 }
-let ST_FTBTeamsAPIClass = null
+let ST_OpenPACServerAPIClass = null
 try {
-    ST_FTBTeamsAPIClass = Java.loadClass('dev.ftb.mods.ftbteams.api.FTBTeamsAPI')
+    ST_OpenPACServerAPIClass = Java.loadClass('xaero.pac.common.server.api.OpenPACServerAPI')
 } catch (e) {
-    console.error('[vpp selftest] FTBTeamsAPI class failed to load: ' + e)
+    console.error('[vpp selftest] OpenPACServerAPI class failed to load: ' + e)
 }
 
 function stRl(id) {
@@ -150,11 +150,11 @@ stCheck('Numismatics: bank account/balance reachable for a player', (server, pla
     return { pass: typeof balance === 'number' && balance >= 0, detail: 'balance=' + balance }
 })
 
-stCheck('FTBTeamsAPI: team manager reachable', () => {
-    if (!ST_FTBTeamsAPIClass) return { pass: false, detail: 'FTBTeamsAPI class unavailable' }
-    let manager = ST_FTBTeamsAPIClass.api().getManager()
-    let teams = manager.getTeams()
-    return { pass: teams != null, detail: (teams ? teams.size() : 0) + ' teams' }
+stCheck('OpenPACServerAPI: party manager reachable', server => {
+    if (!ST_OpenPACServerAPIClass) return { pass: false, detail: 'OpenPACServerAPI class unavailable' }
+    let partyManager = ST_OpenPACServerAPIClass.get(server).getPartyManager()
+    let parties = partyManager.getAllStream().toArray()
+    return { pass: parties != null, detail: (parties ? parties.length : 0) + ' parties' }
 })
 
 stCheck('coin items (6 denominations) all resolve to a real item', server => {
@@ -384,6 +384,44 @@ stCheck('progression_stage_bridge: crafted-item trigger grants the stage via pla
             if (slot >= 0) player.getInventory().getItem(slot).setCount(0)
         }
     }
+})
+
+// GitHub #32: FTB Teams + FTB Chunks replaced with Open Parties and Claims
+// (redistribution reasons - #28). progressivestages.toml's team_mode is now
+// "solo" (ProgressiveStages has no native OPAC hook, confirmed via javap -
+// see progression_stage_bridge.js's header comment), so party-wide
+// tier-stage sharing became a KubeJS bridge (psbSyncPartyStages in that same
+// file) instead of ProgressiveStages' own backend. These two checks replace
+// the old "FTBTeamsAPI: team manager reachable" coverage removed above,
+// same two-level shape as the item-trigger checks: (1) the mirrored tier-id
+// list actually loaded into the shared Rhino scope and still matches the
+// canonical list every other file in this pack keeps in sync
+// (ST_TIER_IDS/TIER_IDS), and (2) the real bridge function actually runs
+// against OPAC's live API (OpenPACServerAPI.get(server).getPartyManager()
+// .getAllStream()...) without throwing - a genuine regression guard against
+// an OPAC API-signature change, not just a wiring check. Cannot verify
+// actual cross-player stage propagation here (needs 2+ players in a real
+// party, console-only L1 has no client) - that's a verify-in-game gap,
+// disclosed rather than claimed.
+stCheck('progression_stage_bridge: PSB_PARTY_TIER_IDS loaded and matches the canonical 10 tier ids', () => {
+    if (typeof PSB_PARTY_TIER_IDS === 'undefined' || typeof psbSyncPartyStages !== 'function') {
+        return { pass: false, detail: 'progression_stage_bridge.js did not load into the shared server_scripts scope' }
+    }
+    let mismatches = []
+    if (PSB_PARTY_TIER_IDS.length !== ST_TIER_IDS.length) mismatches.push('length ' + PSB_PARTY_TIER_IDS.length + ' != ' + ST_TIER_IDS.length)
+    for (let i = 0; i < Math.min(PSB_PARTY_TIER_IDS.length, ST_TIER_IDS.length); i++) {
+        if (PSB_PARTY_TIER_IDS[i] !== ST_TIER_IDS[i]) mismatches.push('index ' + i + ': ' + PSB_PARTY_TIER_IDS[i] + ' != ' + ST_TIER_IDS[i])
+    }
+    return { pass: mismatches.length === 0, detail: mismatches.length === 0 ? (PSB_PARTY_TIER_IDS.length + ' ids match ST_TIER_IDS') : mismatches.join('; ') }
+})
+
+stCheck('progression_stage_bridge: psbSyncPartyStages runs against the real OPAC API without throwing (GitHub #32 regression guard)', server => {
+    if (typeof psbSyncPartyStages !== 'function') {
+        return { pass: false, detail: 'progression_stage_bridge.js did not load into the shared server_scripts scope' }
+    }
+    if (!ST_OpenPACServerAPIClass) return { skip: true, detail: 'OpenPACServerAPI class unavailable, nothing to exercise' }
+    let grants = psbSyncPartyStages(server) // throwing is the failure mode under test; 0 grants is expected/fine with no real party formed
+    return { pass: typeof grants === 'number', detail: grants + ' stage grant(s) made (0 expected with no real party formed in this console-only run)' }
 })
 
 // GitHub #33: bespoke quest tracker replacing FTB Quests (pack/kubejs/

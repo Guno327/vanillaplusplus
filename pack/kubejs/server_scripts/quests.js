@@ -2051,17 +2051,26 @@ const QUEST_CHAPTERS = [
 // commands) goes ONLY to the player whose live state the tick scan (or
 // /quest check) actually found satisfying, never broadcast to teammates.
 //
-// PARTY-ID SEAM for GitHub #32 (Open Parties and Claims, replacing FTB Teams
-// - separate, in-progress issue, not yet landed): getProgressKey() below is
-// the ONE function that needs to change once #32 lands - every other
-// function in this file keys exclusively off the string it returns. Ground
-// truth for the FTB-Teams-based lookup used until then: dev.ftb.mods.
-// ftbteams.api.TeamManager.getTeamForPlayer(ServerPlayer) -> Optional<Team>;
-// Team.isPartyTeam()/getId() - confirmed via javap against the installed
-// ftb-teams-neoforge-2101.1.10.jar (FTB Teams stays installed - it's a
-// required dependency of FTB Chunks too, and is not this issue's mod to
-// remove; see scripts/gen_quests.py's own module docstring for the full
-// mod-removal evidence trail).
+// PARTY-ID SEAM for GitHub #32 (Open Parties and Claims, replacing FTB
+// Teams) - LANDED, integrated alongside #33 at merge time. getProgressKey()
+// below was written as the ONE function that seam needed to change - every
+// other function in this file keys exclusively off the string it returns,
+// so this was a one-function edit, not a redesign, exactly as planned.
+// Ground truth for the OPAC-based lookup, confirmed by reading the real
+// interface source (decompiled from the actually-resolved
+// open-parties-and-claims-neoforge-1.21.1-0.27.8.jar's Modrinth-published
+// sources jar, xaero.pac.common.server.parties.party.api package):
+// xaero.pac.common.server.api.OpenPACServerAPI.get(server) -> instance;
+// .getPartyManager() -> IPartyManagerAPI; .getPartyByMember(UUID) ->
+// IServerPartyAPI (@Nullable, null if the player has no party) - a direct
+// player->party lookup, unlike the getAllStream()-based aggregation
+// leaderboard.js's collectTeamEntries()/progression_stage_bridge.js's
+// psbSyncPartyStages use (those iterate every party for a different
+// purpose - building a full leaderboard / syncing every party's members -
+// this just needs one player's own party). IServerPartyAPI.getId() -> UUID
+// is the progress key. OPAC does NOT auto-create a solo party per player
+// the way FTB Teams did, so a solo player's lookup returns null and falls
+// through to the per-player key below, same as before.
 //
 // Task checking: item tasks are a live inventory-count check (same
 // container-scanning shape as leaderboard.js's countCoins(), generalized to
@@ -2086,25 +2095,25 @@ const QUEST_CHAPTERS = [
 const QuestsCompoundTagClass = Java.loadClass('net.minecraft.nbt.CompoundTag')
 const QuestsEntityTypeClass = Java.loadClass('net.minecraft.world.entity.EntityType')
 
-let QuestsFTBTeamsAPIClass = null
+let QuestsOpenPACServerAPIClass = null
 try {
-    QuestsFTBTeamsAPIClass = Java.loadClass('dev.ftb.mods.ftbteams.api.FTBTeamsAPI')
+    QuestsOpenPACServerAPIClass = Java.loadClass('xaero.pac.common.server.api.OpenPACServerAPI')
 } catch (e) {
-    console.error('[vpp quests] FTB Teams API (dev.ftb.mods.ftbteams.api.FTBTeamsAPI) failed to load - quest progress will always be per-player: ' + e)
+    console.error('[vpp quests] Open Parties and Claims API (xaero.pac.common.server.api.OpenPACServerAPI) failed to load - quest progress will always be per-player: ' + e)
 }
 
-// ---- progress-key seam (see header comment - the one function GitHub #32 needs to change) ----
+// ---- progress-key seam (see header comment - the one function GitHub #32 needed to change) ----
 
 function getProgressKey(player) {
-    if (QuestsFTBTeamsAPIClass) {
+    if (QuestsOpenPACServerAPIClass) {
         try {
-            let manager = QuestsFTBTeamsAPIClass.api().getManager()
-            let teamOpt = manager.getTeamForPlayer(player)
-            if (teamOpt.isPresent() && teamOpt.get().isPartyTeam()) {
-                return 'team:' + teamOpt.get().getId()
+            let partyManager = QuestsOpenPACServerAPIClass.get(player.server).getPartyManager()
+            let party = partyManager.getPartyByMember(player.uuid)
+            if (party) {
+                return 'team:' + party.getId()
             }
         } catch (e) {
-            console.error('[vpp quests] team lookup failed for ' + player.username + ', falling back to a per-player key: ' + e)
+            console.error('[vpp quests] party lookup failed for ' + player.username + ', falling back to a per-player key: ' + e)
         }
     }
     return 'player:' + player.uuid

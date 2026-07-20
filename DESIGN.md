@@ -451,28 +451,188 @@ Nether is where RS's Quartz chain comes from, and it unlocks at Brass Age —
 where RS itself unlocks, so there's no dead tier where the dimension is open
 but nothing needs it yet. The End stays gated behind Precision Age as before.
 
-### Team mode + claims (Phase 6)
+### Team mode + claims (Phase 6, revised for GitHub #32)
 
-`progressivestages.toml`'s `team_mode` is now `"ftb_teams"` (was `"solo"`
-since Phase 1) — tier stages, and the Tier Progression FTB Quests chapter
-that reads them via `gamestage` tasks, now share across a real FTB Teams
-party rather than each player progressing independently. This is a config
-flip only; ProgressiveStages' own backend does the actual party-wide stage
-sharing (confirmed registered as FTB Library's stage provider since
-Phase 4), so FTB Quests' `gamestage` task correctly reflects party progress
-by checking any one member — no `team_stage: true` needed on the task
-itself. **Not independently verifiable in this sandbox** (no in-game client
-to actually form a party and check a second member's view — see the
-Verification section).
+**Superseded 2026-07-20 (GitHub #32).** This section originally described
+FTB Teams (parties) + FTB Chunks (claims), reusing FTB Quests' own
+team/party system end to end. Owner directive: drop both (CurseForge-
+exclusive, no redistribution permission — #28) in favor of **Open Parties
+and Claims** (OPAC, Modrinth slug `open-parties-and-claims`, LGPL-3.0-only,
+NeoForge 1.21.1, one mod covering both parties and chunk claims). The
+original FTB-Teams-based design is kept below, struck through in spirit but
+left legible, since `git log`/DECISIONS.md still reference it; everything
+after "**GitHub #32 — what actually shipped**" is current.
 
-**Claims: FTB Chunks.** All three of its required dependencies
-(Architectury API, FTB Library, FTB Teams) were already installed since
-Phase 4, so this reuses the exact same party/team system as the quest
-sharing above, rather than introducing a second, parallel claims-specific
-party concept (several Modrinth-native alternatives exist — Open Parties
-and Claims among them — but they'd mean running two independent
-party/team systems side by side for no benefit). Same CurseForge-CDN
-resolution path as the rest of the FTB suite (still not on Modrinth).
+Original (superseded) text: `progressivestages.toml`'s `team_mode` was
+`"ftb_teams"` (was `"solo"` since Phase 1) — tier stages, and the Tier
+Progression FTB Quests chapter that reads them via `gamestage` tasks,
+shared across a real FTB Teams party rather than each player progressing
+independently, via ProgressiveStages' own backend (confirmed registered as
+FTB Library's stage provider since Phase 4). Claims: FTB Chunks reused that
+exact same party/team system, all three of its required dependencies
+(Architectury API, FTB Library, FTB Teams) already installed since Phase 4.
+
+**GitHub #32 — what actually shipped.**
+
+*Mod swap.* `pack/manifest.json`: `ftb-teams` and `ftb-chunks` entries
+removed; `open-parties-and-claims` added (Modrinth-hosted, no
+`"source": "curseforge"` needed, resolved the same way as any other
+Modrinth mod via `scripts/resolve_mods.py`). `ftb-library` and `ftb-quests`
+are untouched — FTB Quests (the Tier Progression preset-track chapter) is
+out of this issue's scope, see the open blocker below.
+
+*API ground-truthed via javap, not assumed* (project standing rule) —
+downloaded the actual resolved jar
+(`open-parties-and-claims-neoforge-1.21.1-0.27.8.jar`, plus its
+Modrinth-published sources jar for cross-reading), `javap`'d the real class
+signatures rather than guessing off FTB Teams' shape:
+- `xaero.pac.common.server.api.OpenPACServerAPI.get(server)` → the entry
+  point instance (static, takes a real `net.minecraft.server.MinecraftServer`
+  — confirmed `player.server`/KubeJS's `MinecraftServerKJS` satisfies this
+  directly, same as every other vanilla-API call this pack's KubeJS scripts
+  already make with it).
+- `.getPartyManager()` → `IPartyManagerAPI`; `.getAllStream()` →
+  `Stream<IServerPartyAPI>`, every party actually formed via `/party create`.
+  **Real behavior difference from FTB Teams, confirmed by reading
+  `PlayerLogInPartyAssigner.java` in the sources jar**: OPAC does NOT
+  auto-create a personal solo party for every player the way FTB Teams did
+  — a player with no party simply has none and is invisible to
+  `/leaderboard <metric> teams`, where FTB Teams would have shown them as
+  their own one-member team. Disclosed, not fixed — no functional
+  requirement asked for solo players to show up under "teams".
+- `IServerPartyAPI.getMemberInfoStream()` → `Stream<IPartyMemberAPI>`.
+  Confirmed via `Party.java`'s `getTypedMemberInfoStream()`
+  (`Stream.concat(Stream.of(owner), memberInfo.values().stream())`) that
+  this DOES include the party owner — one call still gets everyone, same
+  shape as FTB Teams' `Team.getMembers()`.
+  `IPartyMemberAPI.getUUID()` → `UUID` (via `IPartyPlayerInfoAPI`).
+- `IServerPartyAPI.getDefaultName()` → `String`. Confirmed via `Party.java`:
+  `String.format("%s's Party", owner.getUsername())` — OPAC parties have no
+  settable custom name, unlike FTB Teams' short name; this is the closest
+  display-name equivalent and what `/leaderboard <metric> teams` shows.
+
+*Ported*: `pack/kubejs/server_scripts/leaderboard.js`'s `collectTeamEntries()`
+and `pack/kubejs/server_scripts/selftest.js`'s FTBTeamsAPI reachability
+check, both mechanically re-pointed at the OPAC calls above — the
+wealth/tier/level aggregation logic itself (sum for wealth/level, max for
+tier) is unchanged. Both files' header comments carry the full
+before/after API mapping.
+
+*Claims config equivalent to `ftbchunks-world.snbt`.* OPAC's server config
+(`ServerConfig.java`, generated to `config/openpartiesandclaims-server.toml`
+— confirmed via `javap`: `MOD_ID = "openpartiesandclaims"`,
+`registerServerConfig` → `ModConfig.Type.SERVER`, same naming convention
+this pack's own `gravestone-server.toml` already uses) has a directly
+equivalent claims/force-load knob set (`maxPlayerClaims`,
+`maxPlayerClaimForceloads`, `claimBonusPerPartyMember`,
+`forceloadBonusPerPartyMember`, protection exception lists, etc.) — so yes,
+an equivalent exists and was used, not left undocumented. Followed this
+pack's own established methodology exactly (previously used for
+`ftbchunks-world.snbt` itself and for `gravestone-server.toml`): booted
+once with defaults to get the mod's own real generated file, copied that
+into `pack/config/openpartiesandclaims-server.toml` as the new tracked
+baseline, then edited two keys to replicate the *exact* same "force-loading
+disabled, claims/protection untouched" decision TODO.md item 7 already made
+for FTB Chunks (Create: Power Loader is this pack's own tier-gated,
+running-cost-gated chunk loader — OPAC's/FTB Chunks' menu-based
+force-loading is redundant with it either way): `maxPlayerClaimForceloads`
+10 → 0 (the decisive cap — this pack never configures the permission
+override, `maxPlayerClaimForceloadsPermission`, so 0 means nobody can
+force-load through OPAC's own command, full stop) and
+`forceloadBonusPerPartyMember` 2 → 0 (defense-in-depth, moot today since
+`partyOwnedClaims` is `false` by default and untouched, but would silently
+reopen a forceload path if that were ever flipped on later). Boot-tested
+twice (defaults, then the edited file). The edited file DOES trigger a
+"Configuration file ... is not correct. Correcting" WARN on boot — but so
+does `gravestone-server.toml` (untouched by this change) and
+`progressivestages.toml`, confirmed by checking the boot log from BEFORE
+this change existed as a tracked file at all: this is this pack's
+pre-existing, harmless `build_server.py`-resync-vs-live-`ModConfigSpec`
+quirk (already disclosed for `progressivestages.toml` prior to this
+change), not a rejection of the edited values — verified by reading the
+values back out of the corrected file post-boot: `maxPlayerClaimForceloads
+= 0`, `forceloadBonusPerPartyMember = 0`, `forceloadBonusForPartyOwner = 0`,
+exactly as tracked. `pack/config/ftbchunks-world.snbt` deleted (FTB Chunks
+is gone; OPAC's own config fully replaces its role).
+
+*Party-wide tier-stage sharing has NO native OPAC equivalent — this is a
+real regression risk, closed with a KubeJS bridge, not silently dropped.*
+`progressivestages.toml`'s `team_mode` was `"ftb_teams"` specifically
+because ProgressiveStages' own backend did the actual party-wide stage
+sharing. **Ground-truthed via `javap` against the actually-resolved
+`progressivestages` jar — both the previously-pinned `2.1` and the `3.0.1`
+`resolve_mods.py` incidentally picked up this same session (see the
+version-bump note below) are byte-identical here**:
+`com.enviouse.progressivestages.common.team.TeamProvider` only implements
+`SoloIntegration` and `ReflectiveFTBTeamsIntegration` (reflection against
+FTB Teams' own API); no `xaero.pac` class or string appears anywhere in
+either jar, and `StageConfig.isFtbTeamsMode()`/`isSoloMode()` only ever
+compare `teamMode` against the literal strings `"ftb_teams"`/`"solo"` — no
+third option. So `team_mode` is now `"solo"`
+(`[integration.ftbteams].enabled` also flipped `true` → `false`, so
+ProgressiveStages stops probing for FTB Teams' classes at all), and
+`pack/kubejs/server_scripts/progression_stage_bridge.js` gained
+`psbSyncPartyStages` — every 20 ticks (same cadence as that file's
+pre-existing item-trigger scan), for every OPAC party with 2+ *online*
+members, computes the union of the 10 canonical tier stage ids any online
+member holds and grants any missing ones to every other online member.
+Only ever adds stages (never revokes on leaving a party — same permanence
+model as every other stage grant in this pack); idempotent; a player who
+joins a party with further-along members catches up within ~1 second, no
+relog required (same self-healing shape as the pre-existing item-trigger
+bridge). **Boot-test-verified working against the real OPAC API**: the
+selftest check `psbSyncPartyStages runs against the real OPAC API without
+throwing` passed against the actually-installed jar (0 grants, since no
+real party existed in that console-only run — see Verification). What's
+*not* verified: actual cross-player propagation, which needs two real
+players in a real party (verify-in-game gap, disclosed).
+
+**BLOCKER (found by actually booting the server) — RESOLVED at integration
+time, option (a) below.** With `ftb-teams` genuinely removed from
+`mods.lock.json`, the server failed to load entirely:
+`ftb-quests-neoforge-2101.1.27.jar`'s own `neoforge.mods.toml` declared a
+hard `type = "required"` dependency on `ftbteams` (enforced by NeoForge's
+mod loader itself, not something KubeJS/OPAC integration could route
+around — FTB Quests' savedata is fundamentally team-keyed, this is
+architectural, not a soft/optional integration a newer release would drop).
+#32's own text scoped only `ftb-teams`+`ftb-chunks`, treating the Tier
+Progression FTB Quests chapter's parallel FTB-suite/redistribution problem
+as sibling work (#28's text: "the quest-system work in the sibling
+issue") — so #32 as literally scoped could not complete while FTB Quests
+stayed installed. Three options were identified: (a) sequence #32 after the
+sibling FTB Quests migration lands, (b) keep `ftb-teams` installed as inert
+dead weight (defeats the redistribution goal), or (c) fold the FTB Quests
+migration into this same PR. **What actually happened**: #33 (the bespoke
+quest system, see below) merged to `main` first, independently, removing
+`ftb-quests` entirely — so by the time this branch was integrated, option
+(a) was already satisfied without anyone having to choose it. Merging #32
+onto post-#33 `main` also surfaced that `ftb-library` (kept installed by
+#33 specifically because `ftb-teams`/`ftb-chunks` still needed it) had lost
+its last two consumers and was removed too — the entire FTB suite is now
+out of the pack. `pack/kubejs/server_scripts/quests.js`'s `getProgressKey()`
+seam (documented in #33's own generator, `scripts/gen_quests.py`) was
+updated at the same time to call OPAC's `getPartyByMember(UUID)` instead of
+`FTBTeamsAPI`, completing the one-function edit both issues' authors
+anticipated. Everything in this section was boot-verified with `ftb-teams`
+temporarily restored during #32's own development, *and* re-verified after
+this integration merge (see Verification section) with the FTB suite
+genuinely absent.
+
+**Incidental version bumps, not requested by #32, disclosed per this
+pack's own precedent** (an earlier Stellaris 1.4.24→1.4.25 bump rode along
+with an unrelated `resolve_mods.py` run and was "confirmed non-disruptive"
+via boot-test diff rather than silently accepted — same standard applied
+here): re-running `resolve_mods.py` for this change picked up newer
+Modrinth releases for several already-pinned mods with no `pin_version`
+set, including `progressivestages` `2.1` → `3.0.1` (re-verified the
+team_mode finding above against the actual `3.0.1` jar, not just the
+previously-pinned `2.1`), `rhino`, `placebo`, the full Apotheosis chain
+(`apothic-attributes`/`apothic-spawners`/`apothic-enchanting`/`apotheosis`),
+`modernfix`, `c2me-neoforge`, `sophisticated-core`/`sophisticated-backpacks`,
+`balm`, and `waystones`. Boot-tested (see Verification) with all of these
+at their newly-resolved versions; zero new errors/warnings attributable to
+any of them beyond the one pre-existing, unrelated Stellaris/TFMG WARN this
+pack's boot logs already carry.
 
 **Real limitation resolved, not just documented — dailies/milestones moved
 out of FTB Quests.** Phase 4 flagged an open issue: FTB Quests tracks *all*
