@@ -422,6 +422,8 @@ stCheck('progression_stage_bridge: psbSyncPartyStages runs against the real OPAC
     if (!ST_OpenPACServerAPIClass) return { skip: true, detail: 'OpenPACServerAPI class unavailable, nothing to exercise' }
     let grants = psbSyncPartyStages(server) // throwing is the failure mode under test; 0 grants is expected/fine with no real party formed
     return { pass: typeof grants === 'number', detail: grants + ' stage grant(s) made (0 expected with no real party formed in this console-only run)' }
+})
+
 // GitHub #33: bespoke quest tracker replacing FTB Quests (pack/kubejs/
 // server_scripts/quests.js). NOTE: this repo's existing selftest.js had NO
 // coverage at all for the two earlier Phase-6 KubeJS-only quest-style

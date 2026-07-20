@@ -587,38 +587,36 @@ real party existed in that console-only run — see Verification). What's
 *not* verified: actual cross-player propagation, which needs two real
 players in a real party (verify-in-game gap, disclosed).
 
-**OPEN BLOCKER for the PM, found by actually booting the server, not
-guessed**: with `ftb-teams` genuinely removed from `mods.lock.json`,
-**the server fails to load entirely** —
-`ftb-quests-neoforge-2101.1.27.jar`'s own `neoforge.mods.toml` declares a
-hard `type = "required"` dependency on `ftbteams` (`versionRange =
-"[2101.1.9,)"`), enforced by NeoForge's mod loader itself, not something
-KubeJS/OPAC integration can route around. Confirmed this isn't
-version-specific: FTB Quests' savedata is fundamentally team-keyed (every
-quest file is owned by a team, not a player) — this is architectural, not
-a soft/optional integration that a newer FTB Quests release would drop
-(spot-checked via web search; FTB's own dependency listings show FTB Teams
-as a first-class FTB Quests dependency across releases). GitHub #32's own
-text scopes only `ftb-teams`+`ftb-chunks`, treating the Tier Progression
-FTB Quests chapter's parallel FTB-suite/redistribution problem as sibling
-work (#28's text: "the quest-system work in the sibling issue") — but that
-means #32 as literally scoped **cannot be completed while FTB Quests stays
-installed**: `mods.lock.json` cannot simultaneously satisfy "no
-`mediafilez.forgecdn.net` references for `ftb-teams`" and "FTB Quests
-boots." This PR ships the manifest/lock/KubeJS/config side of #32 exactly
-as asked, but L0 boot smoke will fail against that exact state until the
-PM decides one of: (a) sequence #32 after the sibling FTB Quests migration
-lands, (b) accept keeping `ftb-teams` installed a while longer as inert
-dead weight (defeats #32's redistribution goal, so probably not this), or
-(c) fold the FTB Quests Tier Progression migration into this same PR
-(same shape of decision DESIGN.md's Phase 6 already needed explicit owner
-sign-off for once before, when Lifetime Achievements/Daily Bounties were
-pulled out of FTB Quests for a similar per-player-vs-team-keyed conflict —
-see that section below). Everything else in this PR (leaderboard/selftest
-API port, the stage-sharing bridge, the OPAC config) was boot-verified with
-`ftb-teams` temporarily restored in the local test environment only, to
-isolate this one known, disclosed blocker from everything else's
-correctness.
+**BLOCKER (found by actually booting the server) — RESOLVED at integration
+time, option (a) below.** With `ftb-teams` genuinely removed from
+`mods.lock.json`, the server failed to load entirely:
+`ftb-quests-neoforge-2101.1.27.jar`'s own `neoforge.mods.toml` declared a
+hard `type = "required"` dependency on `ftbteams` (enforced by NeoForge's
+mod loader itself, not something KubeJS/OPAC integration could route
+around — FTB Quests' savedata is fundamentally team-keyed, this is
+architectural, not a soft/optional integration a newer release would drop).
+#32's own text scoped only `ftb-teams`+`ftb-chunks`, treating the Tier
+Progression FTB Quests chapter's parallel FTB-suite/redistribution problem
+as sibling work (#28's text: "the quest-system work in the sibling
+issue") — so #32 as literally scoped could not complete while FTB Quests
+stayed installed. Three options were identified: (a) sequence #32 after the
+sibling FTB Quests migration lands, (b) keep `ftb-teams` installed as inert
+dead weight (defeats the redistribution goal), or (c) fold the FTB Quests
+migration into this same PR. **What actually happened**: #33 (the bespoke
+quest system, see below) merged to `main` first, independently, removing
+`ftb-quests` entirely — so by the time this branch was integrated, option
+(a) was already satisfied without anyone having to choose it. Merging #32
+onto post-#33 `main` also surfaced that `ftb-library` (kept installed by
+#33 specifically because `ftb-teams`/`ftb-chunks` still needed it) had lost
+its last two consumers and was removed too — the entire FTB suite is now
+out of the pack. `pack/kubejs/server_scripts/quests.js`'s `getProgressKey()`
+seam (documented in #33's own generator, `scripts/gen_quests.py`) was
+updated at the same time to call OPAC's `getPartyByMember(UUID)` instead of
+`FTBTeamsAPI`, completing the one-function edit both issues' authors
+anticipated. Everything in this section was boot-verified with `ftb-teams`
+temporarily restored during #32's own development, *and* re-verified after
+this integration merge (see Verification section) with the FTB suite
+genuinely absent.
 
 **Incidental version bumps, not requested by #32, disclosed per this
 pack's own precedent** (an earlier Stellaris 1.4.24→1.4.25 bump rode along
