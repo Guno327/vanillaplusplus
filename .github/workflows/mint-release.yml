@@ -1,0 +1,433 @@
+name: Mint Release
+
+# GitHub issue #27, "Async Way to Mint Release" (owner-approved feature).
+# A `workflow_dispatch`-only workflow that mints a new GitHub Release from
+# whatever commit of `main` is current *at the moment someone runs it* -
+# no scheduling, no auto-trigger on push. Owner's own framing (verbatim,
+# from the issue): "a GitHub action that can be initiated arbitrarily to
+# mint a release ... from the current state of main ... main must remain
+# fully functional at all times ... run CI, then create release
+# artifacts and publish them with a compiled list of changes."
+#
+# Inputs:
+#   bump        - major | minor | patch (required, no default - the
+#                 person cutting the release must consciously pick one;
+#                 see scripts/ci/next_version.py for the actual SemVer
+#                 math, unit-tested under scripts/ci/tests/).
+#   prerelease  - boolean, DEFAULTS TO TRUE. Every release this project
+#                 has ever cut (v0.1.0, v0.1.1, v0.2.0 - see SPEC.md /
+#                 HANDOFF.md) has been a disclosed beta prerelease, so
+#                 "prerelease" is the safe default here, not "release".
+#                 Whoever cuts an actual 1.0.0 GA needs to consciously
+#                 flip this to false.
+#
+# ---------------------------------------------------------------------
+# Pipeline shape (jobs below, in dependency order):
+#   1. compute-version  - scripts/ci/next_version.py against every real
+#                          `vX.Y.Z` git tag in this repo + `bump`. Fails
+#                          fast (before burning ~an hour of CI-tier
+#                          compute) on a bad input. Also hard-guards that
+#                          this workflow is actually running against
+#                          `refs/heads/main` - dispatching it against any
+#                          other branch is refused outright, since the
+#                          issue's own requirement is "from the current
+#                          state of main", never a feature branch.
+#   2. fast-tier         - `ci.yml` run as a reusable workflow
+#                          (`workflow_call`, added to that file for this
+#                          issue) - unit tests + all static checks,
+#                          exactly as it runs on every PR/push to main.
+#   3. boot-tier         - `boot.yml` run as a reusable workflow (same
+#                          `workflow_call` mechanism, added to that file
+#                          for this issue) - L0 boot smoke + L1 selftest,
+#                          i.e. an actual resolved-mods dedicated-server
+#                          boot + `/vpp_selftest` run. Read boot.yml's own
+#                          header before touching this again - it
+#                          documents several hard-won, non-obvious hosted-
+#                          runner setup steps (the NeoForge dedicated-
+#                          server installer, issue #17; eula.txt
+#                          pre-acceptance; JDK/PATH quirks) this workflow
+#                          inherits for free by reusing that file rather
+#                          than re-deriving them.
+#   4. mint-release       - needs (2) and (3) both green. Builds both
+#                          release artifacts, cuts the GitHub Release,
+#                          repins nix/release.json, explicitly fires the
+#                          Modrinth publish workflow, and opens an
+#                          automated PR to sync pack/VERSION + the
+#                          just-written nix/release.json back onto main.
+#
+# L2 (HeadlessMC client smoke, `scripts/tests/l2_client_smoke.py`)
+# DELIBERATELY DOES NOT RUN HERE. Per HANDOFF.md's "Release pipeline"
+# section it needs a persistent HeadlessMC research instance at
+# /tmp/vpp-research/headlessmc/ plus /home/ubuntu/.minecraft that are
+# local-dev-sandbox-only and were never set up on (or intended for)
+# hosted Actions runners. The minted release's own notes disclose this
+# explicitly (see the "Append test-status disclosure" step below) rather
+# than silently omitting it - same "honest L2/L3 boundary" DESIGN.md
+# already documents for every prior manually-cut release.
+#
+# ---------------------------------------------------------------------
+# WHY pack/VERSION IS NEVER COMMITTED BY main's OWN HISTORY BEFORE A
+# RELEASE (the "how does the new version get into the artifacts" problem)
+#
+# scripts/build_mrpack.py and scripts/build_server_bundle.py both read
+# pack/VERSION at import time and bake it into both the artifact
+# filenames and (for the client) modrinth.index.json's versionId
+# (DESIGN.md's "Versioning" section: "pack/VERSION is the single source
+# of truth"). But this repo's own rule is main only changes via PR
+# (HANDOFF.md/DECISIONS.md's operating model) - this workflow must NEVER
+# push a version-bump commit straight to main before building, and
+# doesn't need to: it simply overwrites pack/VERSION on disk in the
+# ephemeral runner's own checkout (`echo "$VERSION" > pack/VERSION`,
+# see the "Write computed version" step) immediately after computing the
+# next version and before the two build scripts run. That file write
+# only ever exists in this one runner's throwaway workspace - it is
+# never `git add`ed or committed at that point, so main's own
+# pack/VERSION (still the *previous* release's number) is completely
+# unaffected. The *actual* bump onto main happens afterward, and only
+# via a real PR (see the "Open post-release sync PR" step) - by the time
+# that PR merges, `main`'s pack/VERSION agrees with the release that was
+# already cut from the commit before it, which is the correct causality
+# (the release is the source of truth for what shipped; the repo's
+# pack/VERSION is a record of it, not the other way around).
+#
+# ---------------------------------------------------------------------
+# KNOWN GITHUB LIMITATION #1 - GITHUB_TOKEN-authored events don't
+# trigger other workflows, and why this matters for Modrinth publishing
+#
+# `publish-modrinth.yml` (untouched by this change, do not duplicate its
+# job here) listens for `release: published`. GitHub Actions has a
+# documented restriction: "When you use the repository's GITHUB_TOKEN to
+# perform tasks, events triggered by the GITHUB_TOKEN ... will not
+# create a new workflow run. This prevents you from accidentally
+# creating recursive workflow runs." `gh release create` in the
+# "Create the GitHub release" step below runs with the default
+# GITHUB_TOKEN, so the `release: published` event it fires would NOT
+# start publish-modrinth.yml on its own - the release would exist but
+# never reach Modrinth.
+#
+# Two conventional fixes exist: (a) a separate PAT/fine-grained-token
+# secret with `contents:write`, used only for the release-creation call,
+# whose non-GITHUB_TOKEN identity lets its events trigger other
+# workflows normally, or (b) explicitly invoke the downstream workflow
+# instead of relying on its event trigger at all. This workflow uses
+# (b): the same documented restriction explicitly EXEMPTS
+# `workflow_dispatch`/`repository_dispatch` - i.e. the default
+# GITHUB_TOKEN *can* start another workflow via the workflow_dispatch
+# API/`gh workflow run`, it just can't do so *implicitly* via a
+# side-effect event. publish-modrinth.yml already declares a
+# `workflow_dispatch` trigger with exactly the input this needs
+# (`tag`, optional, defaults to latest) - added for a different reason
+# originally (re-publishing an old release), but it fits this use
+# perfectly. So the "Trigger Modrinth publish explicitly" step below
+# just runs `gh workflow run publish-modrinth.yml -f tag=vX.Y.Z`. Chosen
+# over option (a) because it needs zero new secrets, zero owner setup,
+# and can never silently stop working if a PAT expires/gets revoked -
+# the tradeoff is it depends on publish-modrinth.yml's `tag` input
+# continuing to exist, which is a much smaller, self-contained risk
+# (verified present by reading that file before writing this one) than
+# an unmonitored token's expiry. Needs `permissions: actions: write` on
+# this job (declared below) - `gh workflow run` is an "Actions" API
+# write, not a "contents" one.
+#
+# ---------------------------------------------------------------------
+# KNOWN GITHUB LIMITATION #2 - the same restriction blocks CI on the
+# automated post-release sync PR
+#
+# The "Open post-release sync PR" step below also runs under the default
+# GITHUB_TOKEN (deliberately - see limitation #1's reasoning for why a
+# second PAT isn't worth it here either). By the identical restriction,
+# opening that PR does NOT fire ci.yml's/boot.yml's own `pull_request`
+# triggers, so the bot PR would sit with no CI status at all unless
+# something else runs it. Mitigation: this workflow explicitly runs
+# `gh workflow run ci.yml --ref <branch>` right after opening the PR
+# (ci.yml gained a bare `workflow_dispatch` trigger for exactly this,
+# same exemption as limitation #1). boot-tier is deliberately NOT
+# re-triggered against the PR branch: that PR only ever contains a
+# version-string bump (pack/VERSION) and a machine-generated JSON repin
+# (nix/release.json, written by scripts/update_nix_release.py, itself
+# already exercised earlier in this same job) - no pack/mod/script
+# content changes at all - and the actual release content those two
+# files describe was already fully boot-tested (fast-tier + boot-tier,
+# both required by `needs:` below) against the exact commit this release
+# was cut from. Re-running a ~30-90 minute dedicated-server boot cycle
+# against a diff that cannot affect boot behavior would be pure cost, no
+# signal. A human (or later automation) still has to actually review and
+# merge this PR - this workflow never pushes to main directly, matching
+# the repo's standing "main only changes via PR" rule.
+#
+# ---------------------------------------------------------------------
+# OTHER NOTES
+#
+# - `concurrency` below serializes mint-release runs so two people (or
+#   one person double-clicking "Run workflow") can't race each other
+#   into computing/publishing overlapping version numbers.
+# - The "Install NeoForge dedicated server" step reuses
+#   .github/actions/install-neoforge-server/ - the exact same composite
+#   action boot.yml's own boot-tier now calls (extracted from boot.yml
+#   for this issue, see that file's header). This job needs it too, for
+#   a different reason than boot-testing: it runs on its own fresh
+#   runner (a separate job from boot-tier), and build_server_bundle.py's
+#   output zip has to actually contain real libraries/run.sh, which only
+#   the installer produces - boot-tier's own installed copy lives on a
+#   different, already-torn-down runner and isn't reachable here.
+# - `gh release create ... --target "$GITHUB_SHA"` pins the release to
+#   the exact commit this run's `needs:` gates were tested against, not
+#   "whatever main's tip happens to be by the time this step runs" -
+#   closes a (small, unlikely) TOCTOU gap if someone pushes to main
+#   while this workflow is mid-flight.
+# - NOT VERIFIED FROM INSIDE A WORKTREE/SANDBOX (no way to run real
+#   Actions infrastructure from here): actual wall-clock runtime of the
+#   combined fast+boot+build pipeline on a hosted runner; whether this
+#   repo/org has "Allow GitHub Actions to create pull requests" enabled
+#   (Settings > Actions > General - if disabled, the `gh pr create` step
+#   fails loudly with a clear API error, not silently); whether
+#   `actions: write` on GITHUB_TOKEN is sufficient in this repo's actual
+#   permission configuration for `gh workflow run` (default permissive
+#   repo settings allow it; a repo/org that's tightened the *default*
+#   workflow permissions below what's declared in this file's own
+#   `permissions:` block would need that declared block honored, which
+#   is exactly what explicit per-job `permissions:` is for - all boot.yml
+#   / ci.yml's own risk-disclosure precedent this header follows).
+# - This YAML file itself is CI plumbing, not testable business logic
+#   (charter §6) - the one piece of genuinely nontrivial logic this
+#   issue needed (next-version-from-tag-plus-bump SemVer arithmetic) was
+#   pulled out into scripts/ci/next_version.py precisely so it could be
+#   unit-tested (scripts/ci/tests/test_next_version.py, stdlib-only,
+#   same conventions as every other scripts/ci/ check) instead of living
+#   as untestable shell/YAML math.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "SemVer part to bump from the latest vX.Y.Z tag"
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+        required: true
+      prerelease:
+        description: >-
+          Mark the GitHub Release as a prerelease. Defaults to true:
+          every release this project has shipped so far (v0.1.0, v0.1.1,
+          v0.2.0) has been a disclosed beta prerelease - see SPEC.md.
+        type: boolean
+        required: true
+        default: true
+
+concurrency:
+  group: mint-release
+  cancel-in-progress: false
+
+jobs:
+  compute-version:
+    name: Compute next version + guard ref
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Guard - only mint from main
+        # The issue's own requirement is minting "from the current state
+        # of main"; workflow_dispatch lets anyone pick an arbitrary
+        # branch/ref to run against in the UI/API, so this is enforced
+        # here rather than trusted.
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "::error::mint-release.yml must be dispatched against main (got '${{ github.ref }}'). Refusing to mint a release from a non-main ref."
+            exit 1
+          fi
+
+      - name: Checkout (full tag history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compute next version (scripts/ci/next_version.py)
+        id: version
+        run: |
+          set -euo pipefail
+          NEXT="$(python3 scripts/ci/next_version.py --bump "${{ github.event.inputs.bump }}")"
+          echo "Latest tag bumped by '${{ github.event.inputs.bump }}' -> ${NEXT} (tag v${NEXT})"
+          echo "version=${NEXT}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${NEXT}" >> "$GITHUB_OUTPUT"
+
+  fast-tier:
+    name: Fast-tier static checks (ci.yml, reused)
+    needs: compute-version
+    uses: ./.github/workflows/ci.yml
+
+  boot-tier:
+    name: Boot-tier - L0 boot smoke + L1 selftest (boot.yml, reused)
+    needs: compute-version
+    uses: ./.github/workflows/boot.yml
+
+  mint-release:
+    name: Build artifacts, mint release, repin nix, trigger Modrinth, open sync PR
+    needs:
+      - compute-version
+      - fast-tier
+      - boot-tier
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      # scripts/update_nix_release.py looks for GITHUB_TOKEN/
+      # VPP_GITHUB_TOKEN specifically (falls back to `gh auth token`,
+      # which GH_TOKEN alone would also satisfy, but setting this
+      # directly avoids depending on that subprocess fallback at all).
+      GITHUB_TOKEN: ${{ github.token }}
+      VERSION: ${{ needs.compute-version.outputs.version }}
+      TAG: ${{ needs.compute-version.outputs.tag }}
+    steps:
+      - name: Checkout main at the tested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Java 21 (temurin)
+        # Not needed to build the artifacts themselves (both build
+        # scripts are pure Python), but the NeoForge installer step
+        # below (java -jar neoforge-installer.jar) needs a JDK on PATH.
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Write computed version into pack/VERSION (workspace-only, NOT committed)
+        # See this file's header ("WHY pack/VERSION IS NEVER COMMITTED
+        # ...") for the full reasoning. This overwrite only ever exists
+        # in this ephemeral runner's own checkout.
+        run: |
+          echo "${VERSION}" > pack/VERSION
+          echo "pack/VERSION (this runner only) now reads:"
+          cat pack/VERSION
+
+      - name: Resolve mods (scripts/resolve_mods.py)
+        run: python3 scripts/resolve_mods.py
+
+      - name: Install NeoForge dedicated server (shared composite action)
+        uses: ./.github/actions/install-neoforge-server
+
+      - name: Build client .mrpack (scripts/build_mrpack.py)
+        run: python3 scripts/build_mrpack.py
+
+      - name: Build server bundle .zip (scripts/build_server_bundle.py)
+        run: python3 scripts/build_server_bundle.py
+
+      - name: Create the GitHub release
+        run: |
+          set -euo pipefail
+          CLIENT_ASSET="vanilla-plus-plus-client-${VERSION}.mrpack"
+          SERVER_ASSET="vanilla-plus-plus-server-${VERSION}.zip"
+          test -f "$CLIENT_ASSET" || { echo "::error::expected build output $CLIENT_ASSET not found"; exit 1; }
+          test -f "$SERVER_ASSET" || { echo "::error::expected build output $SERVER_ASSET not found"; exit 1; }
+          if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+            gh release create "$TAG" "$CLIENT_ASSET" "$SERVER_ASSET" \
+              --title "$TAG" \
+              --target "${{ github.sha }}" \
+              --generate-notes \
+              --prerelease
+          else
+            gh release create "$TAG" "$CLIENT_ASSET" "$SERVER_ASSET" \
+              --title "$TAG" \
+              --target "${{ github.sha }}" \
+              --generate-notes
+          fi
+
+      - name: Append test-status disclosure to release notes
+        # gh's --generate-notes covers "compiled list of changes based on
+        # commits/merges since last release" (issue #27's own wording -
+        # GitHub's generate-notes API diffs against the previous
+        # release's tag automatically). This step appends the
+        # test-status disclosure the issue also asked for, without
+        # clobbering the generated changelog: read the notes gh already
+        # wrote, append a fixed section, write the combined body back.
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" --json body -q .body > /tmp/release-notes.md
+          {
+            echo ""
+            echo "## Test status (this mint)"
+            echo ""
+            echo "- **Fast tier** (\`ci.yml\`, run as part of this mint): unit tests"
+            echo "  (\`scripts/ci/tests\`) + all static checks (\`scripts/ci/run_all.py\`)."
+            echo "  PASSED (required before this release was built - see this run's"
+            echo "  own \`fast-tier\` job)."
+            echo "- **Boot tier** (\`boot.yml\`, run as part of this mint): L0 boot smoke"
+            echo "  + L1 selftest - an actual resolved-mods dedicated-server boot plus a"
+            echo "  live \`/vpp_selftest\` run. PASSED (required before this release was"
+            echo "  built - see this run's own \`boot-tier\` job)."
+            echo "- **L2 HeadlessMC client smoke** (\`scripts/tests/l2_client_smoke.py\`)"
+            echo "  did **NOT** run as part of this release. It is local-dev-sandbox-only"
+            echo "  per HANDOFF.md's \"Release pipeline\" section (needs a persistent"
+            echo "  HeadlessMC research instance + a local \`~/.minecraft\`, neither of"
+            echo "  which exist on a hosted Actions runner). Rendering correctness, a"
+            echo "  live client join (L3), and multiplayer interaction remain unverified"
+            echo "  by this pipeline - see DESIGN.md's \"Release engineering\" section"
+            echo "  for the full L0-L3 boundary this project discloses on every release."
+          } >> /tmp/release-notes.md
+          gh release edit "$TAG" --notes-file /tmp/release-notes.md
+
+      - name: Repin nix/release.json (scripts/update_nix_release.py)
+        # Must run after the release actually exists (it reads the
+        # release back via the API - see that script's own docstring),
+        # which is exactly where we are in this job now.
+        run: python3 scripts/update_nix_release.py --tag "$TAG"
+
+      - name: Trigger Modrinth publish explicitly
+        # See this file's header, "KNOWN GITHUB LIMITATION #1": the
+        # `release: published` event the previous step just fired will
+        # NOT auto-start publish-modrinth.yml, because it was created
+        # with the default GITHUB_TOKEN. publish-modrinth.yml is
+        # intentionally left untouched (it already has exactly the
+        # `workflow_dispatch` input this needs); this just calls it.
+        run: gh workflow run publish-modrinth.yml --ref main -f tag="$TAG"
+
+      - name: Open post-release sync PR (pack/VERSION + nix/release.json)
+        # See this file's header, "KNOWN GITHUB LIMITATION #2". Never
+        # pushes to main directly - opens a normal PR, same as any other
+        # contributor would, for a human (or later automation) to merge.
+        run: |
+          set -euo pipefail
+          BRANCH="chore/post-release-${TAG}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add pack/VERSION nix/release.json
+          if git diff --cached --quiet; then
+            echo "pack/VERSION and nix/release.json already match ${TAG} - nothing to sync, skipping PR."
+            exit 0
+          fi
+          git commit -m "chore: sync pack/VERSION + nix/release.json for ${TAG}
+
+          Automated post-release sync opened by mint-release.yml
+          (GitHub issue #27) after minting ${TAG}."
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "chore: post-release sync for ${TAG}" \
+            --base main \
+            --head "$BRANCH" \
+            --body "Automated post-release sync opened by \`mint-release.yml\` after minting [${TAG}](https://github.com/${{ github.repository }}/releases/tag/${TAG}).
+
+          - Bumps \`pack/VERSION\` to \`${VERSION}\`.
+          - Repins \`nix/release.json\` to \`${TAG}\`'s actual server-bundle asset (sha256 + size), via \`scripts/update_nix_release.py\`.
+
+          **Known limitation**: this PR was opened with the default \`GITHUB_TOKEN\`, so GitHub Actions will NOT auto-trigger this repo's \`pull_request\`-scoped CI workflows (\`ci.yml\`/\`boot.yml\`) on it - see \`mint-release.yml\`'s header for why. Mitigation: this workflow explicitly ran \`gh workflow run ci.yml --ref ${BRANCH}\` right after opening this PR (check that run's status separately - it will not show as this PR's own status check, only as a standalone Actions run against this branch). Boot-tier was deliberately not re-run against this branch: it only changes a version string + a machine-generated JSON repin, and the release content those describe was already fully boot-tested against the exact commit ${TAG} was cut from."
+          gh workflow run ci.yml --ref "$BRANCH"

@@ -1,0 +1,46 @@
+name: Install NeoForge dedicated server
+description: >
+  Runs the official NeoForge dedicated-server installer against this
+  repo's pack/pack.toml-pinned NeoForge version, producing server/run.sh
+  + server/libraries/ (both gitignored install artifacts - see
+  .github/workflows/boot.yml's header comment for the full history:
+  GitHub issue #17 added this step after discovering neither
+  scripts/build_server.py nor anything else in this repo runs the
+  installer itself, so a fresh checkout has no way to `sh run.sh` or ship
+  a server bundle without it).
+
+  Extracted out of boot.yml into this composite action for GitHub issue
+  #27 ("Async Way to Mint Release"): mint-release.yml's build job needs
+  the exact same installer output (its server bundle zip has to actually
+  contain libraries/run.sh) but runs on a separate, fresh runner from
+  boot.yml's own boot-test job - there is no filesystem to share between
+  two independent jobs. Rather than copy-pasting boot.yml's ~20 lines of
+  hard-won installer/sanity-check bash into a second workflow (and now
+  having two copies to keep in sync on the next NeoForge bump or Actions
+  quirk), both workflows call this one composite action instead.
+
+  Requires Python 3 and a JDK (21) already on PATH - callers must run
+  actions/setup-python and actions/setup-java themselves first; this
+  action does not set either up itself so it stays a pure "install the
+  server" step, not a runtime-provisioning one.
+outputs:
+  neoforge-version:
+    description: "The NeoForge version parsed from pack/pack.toml (e.g. 21.1.235)."
+    value: ${{ steps.install.outputs.neoforge_version }}
+runs:
+  using: composite
+  steps:
+    - id: install
+      shell: bash
+      run: |
+        set -euo pipefail
+        NEOFORGE_VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pack/pack.toml','rb'))['versions']['neoforge'])")
+        echo "NeoForge version from pack/pack.toml: ${NEOFORGE_VERSION}"
+        echo "neoforge_version=${NEOFORGE_VERSION}" >> "$GITHUB_OUTPUT"
+        mkdir -p server
+        curl -fsSL -o server/neoforge-installer.jar \
+          "https://maven.neoforged.net/releases/net/neoforged/neoforge/${NEOFORGE_VERSION}/neoforge-${NEOFORGE_VERSION}-installer.jar"
+        (cd server && java -jar neoforge-installer.jar --installServer)
+        test -f server/run.sh || { echo "::error::installer did not produce server/run.sh"; exit 1; }
+        test -f "server/libraries/net/neoforged/neoforge/${NEOFORGE_VERSION}/unix_args.txt" \
+          || { echo "::error::installer did not produce unix_args.txt for ${NEOFORGE_VERSION}"; exit 1; }

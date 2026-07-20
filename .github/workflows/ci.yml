@@ -4,8 +4,22 @@ name: CI (fast)
 # plus their unit tests. Python 3.11+ stdlib-only, no pip installs, no
 # network access, no server boot - this is the tier that runs on every PR
 # and every push to main.
+#
+# ISSUE #27 UPDATE (2026-07-20, "Async Way to Mint Release"): added
+# `workflow_call` so mint-release.yml can run this exact tier as a
+# reusable workflow (`jobs.<id>.uses: ./.github/workflows/ci.yml`)
+# instead of re-declaring its two run steps a second time. Also added a
+# bare `workflow_dispatch` so mint-release.yml's own automated
+# post-release PR (which opens with the default GITHUB_TOKEN and
+# therefore does NOT auto-trigger this file's own `pull_request` trigger
+# - a known GitHub Actions limitation, see mint-release.yml's header) can
+# explicitly kick this tier off against that PR's branch as its
+# mitigation, via `gh workflow run ci.yml --ref <branch>`. Neither
+# addition changes this workflow's own PR/push behavior at all.
 
 on:
+  workflow_dispatch:
+  workflow_call:
   pull_request:
   push:
     branches:

@@ -83,11 +83,33 @@
 # l0_boot_smoke.sh, l1_selftest.py) plus the eula.txt mitigation from (2),
 # and is expected to fail at risk (1) until a real install step is added in
 # a follow-up - that follow-up should start from this comment block.
+#
+# ISSUE #27 UPDATE (2026-07-20, "Async Way to Mint Release"): risk (1)'s
+# installer step was extracted verbatim into
+# .github/actions/install-neoforge-server/ (a composite action) so
+# mint-release.yml's build job - which needs the same installer output on
+# a separate runner, to zip real libraries/run.sh into the release's
+# server bundle - can reuse it instead of copy-pasting this workflow's
+# bash a second time. Also added a `workflow_call` trigger below so
+# mint-release.yml can run this entire boot tier as-is (checkout through
+# l1_selftest.py) as one of its release-gating CI tiers, again without
+# duplicating any of this file's steps.
 
 name: CI (boot)
 
 on:
   workflow_dispatch:
+  workflow_call:
+    # ISSUE #27 (2026-07-20): lets mint-release.yml run this exact boot
+    # tier as a reusable workflow (`jobs.<id>.uses: ./.github/workflows/
+    # boot.yml`) instead of duplicating its steps. No inputs/secrets
+    # needed - this workflow has never required either. The job's own
+    # `if:` condition below still evaluates correctly when called this
+    # way: `github.event_name` is "workflow_call" in a called run, which
+    # is not "pull_request", so the job always runs (matching
+    # workflow_dispatch/schedule's existing "always run" behavior) rather
+    # than looking for a label that can't exist outside a pull_request
+    # event.
   schedule:
     # Weekly, Sunday 06:00 UTC.
     - cron: "0 6 * * 0"
@@ -135,16 +157,15 @@ jobs:
         # there). Sanity-checks that run.sh and the unix_args.txt run.sh
         # sources both exist afterwards, failing fast with a clear message
         # rather than letting l0 die on a confusing missing-file error.
-        run: |
-          NEOFORGE_VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pack/pack.toml','rb'))['versions']['neoforge'])")
-          echo "NeoForge version from pack/pack.toml: ${NEOFORGE_VERSION}"
-          mkdir -p server
-          curl -fsSL -o server/neoforge-installer.jar \
-            "https://maven.neoforged.net/releases/net/neoforged/neoforge/${NEOFORGE_VERSION}/neoforge-${NEOFORGE_VERSION}-installer.jar"
-          (cd server && java -jar neoforge-installer.jar --installServer)
-          test -f server/run.sh || { echo "::error::installer did not produce server/run.sh"; exit 1; }
-          test -f "server/libraries/net/neoforged/neoforge/${NEOFORGE_VERSION}/unix_args.txt" \
-            || { echo "::error::installer did not produce unix_args.txt for ${NEOFORGE_VERSION}"; exit 1; }
+        #
+        # ISSUE #27 UPDATE (2026-07-20): this step's logic moved into
+        # .github/actions/install-neoforge-server/action.yml unchanged, so
+        # mint-release.yml (which needs the identical installer output on
+        # a separate runner, to actually zip libraries/run.sh into the
+        # release's server bundle) can call it too instead of a second
+        # copy-pasted copy of this bash. Behavior here is identical to
+        # before the extraction - see that action's own header for why.
+        uses: ./.github/actions/install-neoforge-server
 
       - name: Pre-accept Minecraft EULA for this CI run
         # See risk (2) above: server/ is gitignored and fresh on every
