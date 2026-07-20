@@ -2,7 +2,8 @@
 	"n0": {
 		"x": 0,
 		"y": 0,
-		"definition": "sprint_speed+3%"
+		"definition": "sprint_speed+3%",
+		"root": true
 	},
 	"n1": {
 		"x": 32,

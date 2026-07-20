@@ -93,6 +93,23 @@ def gen_category(cat_id, title, icon_item, background, experience_expr, sources,
     skills = {}
     for i, node_id in enumerate(trunk_ids):
         skills[node_id] = {"x": i * 32, "y": 0, "definition": trunk[i]}
+        # n0 (the trunk's first node) MUST carry "root": true - verified via
+        # javap against net.puffish.skillsmod.config.skill.SkillConfig.parse
+        # (installed puffish_skills-0.18.1-1.21-neoforge.jar): the "root"
+        # JSON field defaults to false (Optional<Boolean>.orElse(false))
+        # when omitted, and net.puffish.skillsmod.server.data.CategoryData.
+        # getSkillState only ever returns AVAILABLE/AFFORDABLE for a node
+        # that is EITHER (a) connected via a `normal` edge to an already-
+        # UNLOCKED neighbor, OR (b) isRoot() true - there is no other entry
+        # point into a tree. Every prior generated category omitted "root"
+        # entirely (issue #24: "have plenty of skill points but am unable to
+        # allocate them" - reproduced across all 12 categories, not just
+        # one), so with unlockedSkills starting empty for every player, every
+        # node in every category permanently evaluated to LOCKED regardless
+        # of points held. Only n0 needs it (one root per category; the tree
+        # is a single connected component from there via `normal` edges).
+        if i == 0:
+            skills[node_id]["root"] = True
     for i, node_id in enumerate(a_ids):
         skills[node_id] = {"x": (5 + i) * 32, "y": -40, "definition": path_a[i]}
     for i, node_id in enumerate(b_ids):
