@@ -2,17 +2,15 @@ name: Publish to Modrinth
 
 # Pushes the client .mrpack from a GitHub Release to Modrinth.
 #
-# PAUSED (#28, 2026-07-20): the automatic `release: published` trigger is
-# disabled below. FTB Library/Teams/Quests/Chunks are CurseForge-only and
-# we do not have permission to redistribute them; they can only be
-# excluded from a Modrinth version, not embedded or referenced by their
-# original URL (Modrinth's upload API rejects non-cdn.modrinth.com download
-# hosts outright). Excluding them leaves quests/teams/chunk-claims
-# non-functional, which isn't an acceptable Modrinth listing either, so
-# publishing stays paused until that's resolved (permission from the FTB
-# team, or those mods dropped/replaced in the pack). Re-enable the
-# `release:` trigger below once that's settled; workflow_dispatch still
-# works for a manual, deliberate run in the meantime.
+# RESUMED (#28, 2026-07-20): was paused because FTB Library/Teams/Quests/
+# Chunks were CurseForge-only mods we had no redistribution permission for,
+# and Modrinth's upload API rejects any non-cdn.modrinth.com download host
+# outright - excluding them left quests/teams/chunk-claims non-functional,
+# which wasn't an acceptable Modrinth listing either. Resolved by removing
+# the entire FTB suite from the pack (#32: FTB Teams/Chunks -> Open Parties
+# and Claims; #33: FTB Quests -> a bespoke KubeJS quest tracker; FTB
+# Library dropped once those were its only remaining consumers) - nothing
+# in the pack is redistribution-restricted anymore.
 #
 # Requires two things only the owner can provide (tracked on #28):
 #   - vars.MODRINTH_PROJECT_ID  — the Modrinth project's slug/ID (not
@@ -20,8 +18,8 @@ name: Publish to Modrinth
 #   - secrets.MODRINTH_TOKEN    — a Modrinth PAT with version-write scope
 
 on:
-  # release:
-  #   types: [published]
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       tag:
