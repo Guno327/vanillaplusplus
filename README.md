@@ -97,17 +97,21 @@ What's in the zip: `mods/`, `config/`, `kubejs/`, `defaultconfigs/`,
 This repo ships a flake (`flake.nix` + `nix/module.nix`) with a NixOS
 module (`nixosModules.default`) for running the dedicated server as a
 systemd service. As of #28, it **defaults to a real declarative fetch of
-the server bundle from Modrinth's own CDN** (`nix/release.json`'s
-`modrinth` pin, verified via `pkgs.fetchurl`'s `sha512` check at
-evaluation time) — never from this repo's working tree or a "latest"
-impure fetch. A manually downloaded GitHub release zip is still supported
-as an explicit override (see step 2 below) for a custom/older/different
-build.
+the server bundle straight from its GitHub release asset**
+(`nix/release.json`'s `repo`/`tag`/`assetName`/`sha256`, verified via
+`pkgs.fetchurl`'s `sha256` check at evaluation time) — never from this
+repo's working tree or a "latest" impure fetch. This repo is public, so
+that asset URL needs no credentials to fetch. (A Modrinth CDN fetch was
+tried first, but Modrinth's own project-review process stalled the
+`modrinth` pin this repo's release script also writes — see
+`DECISIONS.md`'s dated entry.) A manually downloaded release zip is still
+supported as an explicit override (see step 2 below) for a
+custom/older/different build.
 
 > **Validation status, stated plainly**: `nix` could not be installed in
 > this project's own sandboxed development environment (no root, `/nix`
 > cannot be created — a single-user install was attempted and failed at
-> exactly that step), and this remained true when #28's Modrinth-fetch
+> exactly that step), and this remained true when #28's GitHub-fetch
 > default was added. The flake and module were written and carefully
 > reviewed by hand and cross-checked against real nixpkgs source
 > (`pkgs/build-support/fetchurl/default.nix`/`builder.sh`,
@@ -120,11 +124,12 @@ build.
 > on it. See `DECISIONS.md`'s dated entries for the full writeup of what
 > was verified vs. assumed.
 
-### 1. Referencing this private repo as a flake input
+### 1. Referencing this repo as a flake input
 
-`vanillaplusplus` is a private GitHub repo, so your own system flake needs
-credentials just to fetch *this flake* (separate from the server-archive
-question below). Two options:
+`vanillaplusplus` is now a **public** GitHub repo, so `{ inputs.vanillaplusplus.url = "github:Guno327/vanillaplusplus"; }`
+works with no credentials at all — skip straight to step 3. The
+token/SSH options below are only relevant if you fork this to a private
+repo of your own (separate from the server-archive question below):
 
 - **git+https with a token** (matches this repo's own tooling convention):
   ```nix
@@ -159,9 +164,9 @@ the recommended token shape either way.
 ### 2. The server bundle (nothing to do by default)
 
 `services.vanillaplusplus.serverArchive` defaults to a `pkgs.fetchurl`
-derivation pulling the pinned release's server bundle straight from
-Modrinth's own CDN (`nix/release.json`'s `modrinth.serverAssetUrl`) — Nix
-fetches and verifies it (against the pinned `sha512`) itself as part of
+derivation pulling the pinned release's server bundle straight from its
+GitHub release asset (`nix/release.json`'s `repo`/`tag`/`assetName`) — Nix
+fetches and verifies it (against the pinned `sha256`) itself as part of
 evaluating the fixed-output derivation, the same way any other pinned
 dependency in a flake works. There's nothing to download by hand for the
 common case; just leave `serverArchive` unset (see step 3).
@@ -173,14 +178,16 @@ save it somewhere on the NixOS host, e.g.
 `/root/vanilla-plus-plus-server-0.1.0.zip`, then set `serverArchive` to
 that path. The module still checks whatever `serverArchive` resolves to
 against `nix/release.json`'s pinned sha256 on every sync, warning (not
-failing) on a mismatch — for the Modrinth default this is redundant with
-Nix's own build-time verification; for a manual override it's the only
-check you get.
+failing) on a mismatch — for the default this is redundant with Nix's own
+build-time verification; for a manual override it's the only check you
+get.
 
 (This used to be a required manual step, back when the only fetchable
 release asset lived on this — then-private — GitHub repo, with no stable
-unauthenticated URL to fetch it from inside a Nix derivation. See
-`DECISIONS.md`'s dated entries for that history.)
+unauthenticated URL to fetch it from inside a Nix derivation. A Modrinth
+CDN fetch was tried as the fix for that, but Modrinth's own project-review
+process stalled that pin — see `DECISIONS.md`'s dated entries for the
+full history.)
 
 ### 3. Enable the module
 
@@ -287,7 +294,7 @@ automation ever publishes a release on its own.
 |---|---|
 | `pack/` | The modpack source of truth: manifest, mod lockfile, config, kubejs scripts, `VERSION` |
 | `scripts/` | Build/release tooling (`build_mrpack.py`, `build_server_bundle.py`, `resolve_mods.py`, generators), `update_nix_release.py` (repins `nix/release.json` to the latest minted release), and the L0/L1/L2 test suites under `scripts/tests/` |
-| `flake.nix`, `nix/` | The NixOS flake/module for running the dedicated server (see "Running on NixOS" above) — `nix/module.nix` is the module, `nix/release.json` pins the current release's version/hash, including the Modrinth CDN URL `serverArchive` fetches from by default |
+| `flake.nix`, `nix/` | The NixOS flake/module for running the dedicated server (see "Running on NixOS" above) — `nix/module.nix` is the module, `nix/release.json` pins the current release's version/hash, including the GitHub release asset URL `serverArchive` fetches from by default |
 | `server/` | Generated, local-only dev server (synced from `pack/` by `scripts/build_server.py`) — not part of the repo's shipped content |
 | `DESIGN.md` | The canonical design doc — full rationale for every system, mod choice, and tier |
 | `TODO.md` | The feature backlog, one section per item, with implementation status |
