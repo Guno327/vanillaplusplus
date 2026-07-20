@@ -1,5 +1,5 @@
 // TODO.md item 8: /leaderboard chat command - wealth / tier / level, for
-// individual players and FTB Teams teams. Plain chat output (player.tell),
+// individual players and party-based teams. Plain chat output (player.tell),
 // same command-registration pattern economy.js/dailies.js already use -
 // no GUI, no physical block/item.
 //
@@ -44,25 +44,46 @@
 // categories/. Level = sum of per-category levels (Pufferfish Skills has
 // no single "overall level" concept - it's per-category).
 //
-// TEAMS: dev.ftb.mods.ftbteams.api.FTBTeamsAPI.api().getManager() ->
-// TeamManager; .getTeams() -> Collection<Team>; Team.getMembers() ->
-// Set<UUID>; Team.getShortName() -> String. All confirmed via javap
-// against ftb-teams-neoforge-2101.1.10.jar. DESIGN.md's "Team mode +
-// claims (Phase 6)" section confirms progressivestages.toml's
-// `team_mode = "ftb_teams"` means ProgressiveStages' own backend already
-// shares tier stages party-wide - so player.stages.has(id) on ANY online
-// team member already reflects the whole team's tier (not read via
-// FTBTeamsAPI's separate TeamStagesHelper, which is a different stage
-// store used by FTB Quests' team_stage feature and not confirmed to be
-// the same backing data ProgressiveStages writes to - using the
-// already-proven player.stages path instead, per this project's
-// ground-truth rule). Team tier = max across whichever members we can
-// read a value for (online live, offline cached) as a safety net, even
-// though it should normally already be identical for every member.
-// Team wealth/level = sum of member wealth/level (own decision, stated
-// per TODO.md's open question - these aren't natively team-pooled so sum
-// is the most natural aggregate for "how rich/skilled is this team as a
-// whole", matching how a shared team storage/XP pool would read).
+// TEAMS (GitHub #32 - ported off FTB Teams to Open Parties and Claims,
+// FTB Teams/Chunks dropped for redistribution reasons, see #28): OPAC's
+// real API, confirmed via javap against the actually-resolved
+// open-parties-and-claims-neoforge-1.21.1-0.27.8.jar (+ its Modrinth-
+// published sources jar, cross-read for clarity) -
+// xaero.pac.common.server.api.OpenPACServerAPI.get(server) -> instance;
+// .getPartyManager() -> IPartyManagerAPI; .getAllStream() ->
+// Stream<IServerPartyAPI> (every party on the server - confirmed by
+// reading PlayerLogInPartyAssigner.java in the sources jar that, unlike
+// FTB Teams, OPAC does NOT auto-create a personal solo party for every
+// player, so this stream only contains parties players actually formed
+// via /party create - solo players simply have no party and won't appear
+// under "teams" at all, a real behavior difference from FTB Teams worth
+// knowing about, not just a renamed API). IServerPartyAPI.
+// getMemberInfoStream() -> Stream<IPartyMemberAPI> (confirmed via
+// Party.java's getTypedMemberInfoStream(): `Stream.concat(Stream.of(owner),
+// memberInfo.values().stream())` - this DOES include the owner, so no
+// separate getOwner() call is needed, same "one call gets everyone" shape
+// FTB Teams' Team.getMembers() had). IPartyMemberAPI.getUUID() -> UUID
+// (IPartyPlayerInfoAPI's method, IPartyMemberAPI extends it).
+// IServerPartyAPI.getDefaultName() -> String (confirmed via Party.java:
+// `String.format("%s's Party", owner.getUsername())` - OPAC parties have
+// no settable custom name unlike FTB Teams' short name, so this is the
+// closest display-name equivalent and what's shown below).
+// Team tier/wealth/level aggregation logic itself is unchanged from the
+// FTB Teams version - team_mode's party-wide *stage* sharing is now a
+// KubeJS bridge instead of ProgressiveStages' own backend (see
+// progression_stage_bridge.js's psbSyncPartyStages - progressivestages
+// 2.1/3.0.1's TeamProvider only ships SoloIntegration/
+// ReflectiveFTBTeamsIntegration, confirmed via javap, no OPAC hook exists
+// natively), so player.stages.has(id) on an online party member still
+// reflects the party's collective tier within about a second of any
+// member's stage grant, same practical effect as before. Team tier = max
+// across whichever members we can read a value for (online live, offline
+// cached) as a safety net, even though it should normally already be
+// identical for every member. Team wealth/level = sum of member
+// wealth/level (own decision, stated per TODO.md's open question - these
+// aren't natively team-pooled so sum is the most natural aggregate for
+// "how rich/skilled is this team as a whole", matching how a shared team
+// storage/XP pool would read).
 //
 // CACHING: offline players/team-members can't have their tier/level read
 // live (player.stages.has() and SkillsAPI.getCategory(...).getExperience()
@@ -121,11 +142,11 @@ try {
     console.error('[vpp leaderboard] Numismatics bank API (dev.ithundxr.createnumismatics.Numismatics) failed to load - wealth will be coin-count only: ' + e)
 }
 
-let FTBTeamsAPIClass = null
+let OpenPACServerAPIClass = null
 try {
-    FTBTeamsAPIClass = Java.loadClass('dev.ftb.mods.ftbteams.api.FTBTeamsAPI')
+    OpenPACServerAPIClass = Java.loadClass('xaero.pac.common.server.api.OpenPACServerAPI')
 } catch (e) {
-    console.error('[vpp leaderboard] FTB Teams API (dev.ftb.mods.ftbteams.api.FTBTeamsAPI) failed to load - teams mode will report unavailable: ' + e)
+    console.error('[vpp leaderboard] Open Parties and Claims API (xaero.pac.common.server.api.OpenPACServerAPI) failed to load - teams mode will report unavailable: ' + e)
 }
 
 // ---- persistent cache helpers ----
@@ -247,26 +268,26 @@ function collectPlayerEntries(server, metric, computeFn) {
 }
 
 function collectTeamEntries(server, metric, computeFn) {
-    if (!FTBTeamsAPIClass) return null
-    let manager
+    if (!OpenPACServerAPIClass) return null
+    let partyManager
     try {
-        manager = FTBTeamsAPIClass.api().getManager()
+        partyManager = OpenPACServerAPIClass.get(server).getPartyManager()
     } catch (e) {
-        console.error('[vpp leaderboard] FTB Teams manager read failed: ' + e)
+        console.error('[vpp leaderboard] Open Parties and Claims party manager read failed: ' + e)
         return null
     }
     let cache = getMetricCache(server, metric)
-    let teams = manager.getTeams().toArray()
+    let teams = partyManager.getAllStream().toArray()
     let results = []
     for (let i = 0; i < teams.length; i++) {
         let team = teams[i]
-        let members = team.getMembers().toArray()
+        let members = team.getMemberInfoStream().toArray() // IPartyMemberAPI[], includes the owner (see header comment)
         let total = 0
         let best = 0
         let bestExtra = null
         let hasData = false
         for (let j = 0; j < members.length; j++) {
-            let uuid = members[j]
+            let uuid = members[j].getUUID()
             let onlinePlayer = server.getPlayerList().getPlayer(uuid)
             let value, extra
             if (onlinePlayer) {
@@ -294,7 +315,7 @@ function collectTeamEntries(server, metric, computeFn) {
             }
         }
         results.push({
-            name: team.getShortName(),
+            name: team.getDefaultName(), // "<owner>'s Party" - OPAC parties have no settable custom name (see header comment)
             value: metric === 'tier' ? best : total,
             extra: metric === 'tier' ? bestExtra : null,
             memberCount: members.length,
@@ -348,13 +369,13 @@ ServerEvents.commandRegistry(event => {
                 player.tell(unavailableMessage)
                 return 0
             }
-            if (!FTBTeamsAPIClass) {
-                player.tell('Teams leaderboard unavailable: FTB Teams API (dev.ftb.mods.ftbteams.api.FTBTeamsAPI) could not be loaded on this server.')
+            if (!OpenPACServerAPIClass) {
+                player.tell('Teams leaderboard unavailable: Open Parties and Claims API (xaero.pac.common.server.api.OpenPACServerAPI) could not be loaded on this server.')
                 return 0
             }
             let entries = collectTeamEntries(player.server, name, computeFn)
             if (entries === null) {
-                player.tell('Teams leaderboard unavailable: could not read the FTB Teams manager.')
+                player.tell('Teams leaderboard unavailable: could not read the Open Parties and Claims party manager.')
                 return 0
             }
             sendTop10(player, `${titleCase(name)} Leaderboard - Teams`, entries, formatTeamLine)

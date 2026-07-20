@@ -91,6 +91,112 @@ const PSB_ITEM_STAGE_TRIGGERS = [
     { stage: 'precision_age', items: ['create:refined_radiance', 'create:shadow_steel'] },
 ]
 
+// GitHub #32: FTB Teams + FTB Chunks dropped (CurseForge-exclusive, no
+// redistribution permission - #28) in favor of Open Parties and Claims
+// (Modrinth, LGPL-3.0). Under FTB Teams, progressivestages.toml's
+// `team_mode = "ftb_teams"` meant ProgressiveStages' OWN backend shared one
+// canonical per-team stage store - player.stages.has(id) on any online team
+// member already reflected the whole team, no KubeJS involved (see
+// leaderboard.js's TEAMS header comment for the pre-#32 mechanism).
+// ProgressiveStages has NO equivalent native OPAC hook - confirmed via javap
+// against the actually-resolved progressivestages jar (both the previously-
+// pinned 2.1 and the 3.0.1 resolve_mods.py picked up this session):
+// com.enviouse.progressivestages.common.team.TeamProvider only implements
+// SoloIntegration and ReflectiveFTBTeamsIntegration (reflection against FTB
+// Teams' own API, guarded by config/StageConfig.isFtbTeamsIntegrationEnabled()
+// -> ftb_teams/solo are the only two literal teamMode strings the mod's
+// StageConfig.isFtbTeamsMode()/isSoloMode() ever compare against) - no
+// xaero.pac class or string appears anywhere in either jar. So
+// progressivestages.toml now sets `team_mode = "solo"` and this file takes
+// over party-wide tier-stage sharing as a KubeJS-level bridge, same spirit
+// as the crafted-item workaround above but syncing between party members
+// instead of granting from an inventory scan.
+//
+// Ground-truthed OPAC API (javap against open-parties-and-claims-neoforge-
+// 1.21.1-0.27.8.jar, cross-checked against its Modrinth-published sources
+// jar for clarity - see manifest.json's note for the exact confirmed
+// signatures): xaero.pac.common.server.api.OpenPACServerAPI.get(server) ->
+// instance; .getPartyManager() -> IPartyManagerAPI; .getAllStream() ->
+// Stream<IServerPartyAPI> (every party actually formed via /party create -
+// confirmed via PlayerLogInPartyAssigner.java in the sources jar that OPAC,
+// unlike FTB Teams, does NOT auto-create a personal solo party for every
+// player, so solo players simply never appear here and are correctly
+// skipped). IServerPartyAPI.getMemberInfoStream() -> Stream<IPartyMemberAPI>
+// (confirmed via Party.java's getTypedMemberInfoStream() - includes the
+// owner, Stream.concat(Stream.of(owner), memberInfo.values().stream())).
+// IPartyMemberAPI.getUUID() -> UUID.
+//
+// Mirrors leaderboard.js's/selftest.js's own TIER_IDS/ST_TIER_IDS constant
+// (same "duplicate + keep in sync" trade-off already accepted twice in this
+// pack, restated in each file's own header) rather than importing across
+// server_scripts files, which KubeJS's shared Rhino scope makes unnecessary
+// anyway but this project's existing files don't rely on for constants.
+const PSB_PARTY_TIER_IDS = [
+    'rootborn', 'andesite_age', 'brass_age', 'precision_age', 'induction_age',
+    'starforged_age', 'lunar_frontier', 'martian_frontier', 'inner_system', 'jovian_frontier',
+]
+
+let PSB_OpenPACServerAPIClass = null
+try {
+    PSB_OpenPACServerAPIClass = Java.loadClass('xaero.pac.common.server.api.OpenPACServerAPI')
+} catch (e) {
+    console.error('[vpp progression_stage_bridge] Open Parties and Claims API (xaero.pac.common.server.api.OpenPACServerAPI) failed to load - party-wide tier-stage sharing will be unavailable: ' + e)
+}
+
+// Plain top-level function (not buried in the tick closure), same reasoning
+// as psbApplyItemStageTriggers above - lets selftest.js call it directly and
+// deterministically. For every OPAC party with 2+ ONLINE members (nothing to
+// sync with 0 or 1 - offline members have no live ServerPlayer to read/write
+// player.stages on, the same fundamental limitation every other player.stages
+// consumer in this pack already has), computes the union of
+// PSB_PARTY_TIER_IDS every online member currently holds and grants any
+// missing ones to every other online member. Only ever ADDS stages, never
+// removes - a player who leaves a party keeps whatever tier stages they
+// already picked up, same permanence model as every other stage grant in
+// this pack (item-trigger stages, tier quest stages themselves - none of
+// them are revocable). Idempotent (player.stages.add() on an already-held
+// stage is a no-op) and safe to call every tick, though it only runs on the
+// same 20-tick cadence as the item-trigger scan above to match. Returns the
+// number of individual stage grants actually made this call, for the
+// selftest round-trip below.
+function psbSyncPartyStages(server) {
+    if (!PSB_OpenPACServerAPIClass) return 0
+    let partyManager
+    try {
+        partyManager = PSB_OpenPACServerAPIClass.get(server).getPartyManager()
+    } catch (e) {
+        console.error('[vpp progression_stage_bridge] Open Parties and Claims party manager read failed: ' + e)
+        return 0
+    }
+    let grants = 0
+    let parties = partyManager.getAllStream().toArray()
+    for (let i = 0; i < parties.length; i++) {
+        let members = parties[i].getMemberInfoStream().toArray() // IPartyMemberAPI[], includes the owner
+        let onlinePlayers = []
+        let unionStages = {}
+        for (let j = 0; j < members.length; j++) {
+            let sp = server.getPlayerList().getPlayer(members[j].getUUID())
+            if (!sp) continue
+            onlinePlayers.push(sp)
+            for (let k = 0; k < PSB_PARTY_TIER_IDS.length; k++) {
+                if (sp.stages.has(PSB_PARTY_TIER_IDS[k])) unionStages[PSB_PARTY_TIER_IDS[k]] = true
+            }
+        }
+        if (onlinePlayers.length < 2) continue // nobody else online to sync with
+        let unionIds = Object.keys(unionStages)
+        for (let j = 0; j < onlinePlayers.length; j++) {
+            let sp = onlinePlayers[j]
+            for (let k = 0; k < unionIds.length; k++) {
+                if (!sp.stages.has(unionIds[k])) {
+                    sp.stages.add(unionIds[k])
+                    grants++
+                }
+            }
+        }
+    }
+    return grants
+}
+
 // Plain top-level function (not buried in the tick closure) so selftest.js
 // can call it directly and deterministically instead of waiting on the
 // real tick loop. Idempotent and a no-op per trigger once the player (or,
@@ -129,5 +235,11 @@ ServerEvents.tick(event => {
         } catch (e) {
             console.error('[vpp progression_stage_bridge] tick scan failed for ' + player.username + ': ' + e)
         }
+    }
+
+    try {
+        psbSyncPartyStages(event.server)
+    } catch (e) {
+        console.error('[vpp progression_stage_bridge] party-wide tier-stage sync failed: ' + e)
     }
 })

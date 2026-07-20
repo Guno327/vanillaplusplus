@@ -7,10 +7,22 @@
 	#Team mode: "ftb_teams" (requires FTB Teams mod) or "solo" (each player is their own team)
 	#If "ftb_teams", stages are shared across team members
 	#If "solo", each player has independent progression
-	#Phase 6: flipped to "ftb_teams" now that FTB Teams (installed since Phase 4)
-	#is actually being used for parties - tier stages (and the Tier Progression
-	#FTB Quests chapter that reads them) now share across a party, as required.
-	team_mode = "ftb_teams"
+	#GitHub #32: FTB Teams was dropped (CurseForge-exclusive, no redistribution
+	#permission - #28) in favor of Open Parties and Claims (Modrinth, LGPL-3.0).
+	#ProgressiveStages 2.1/3.0.1 has NO native OPAC support - confirmed via javap
+	#against the actually-installed jar: com.enviouse.progressivestages.common.
+	#team.TeamProvider only ships SoloIntegration/ReflectiveFTBTeamsIntegration,
+	#and this config's own teamMode string is only ever compared against the
+	#literals "ftb_teams"/"solo" (StageConfig.isFtbTeamsMode()/isSoloMode()).
+	#"ftb_teams" would now be a silent no-op (FTB Teams isn't installed, so
+	#ReflectiveFTBTeamsIntegration's own reflection just fails and it falls back
+	#to solo behavior anyway) - set to "solo" explicitly instead of relying on
+	#that fallback. Party-wide tier-stage sharing is now implemented as a KubeJS
+	#bridge instead: pack/kubejs/server_scripts/progression_stage_bridge.js's
+	#psbSyncPartyStages, reading party membership from OPAC's real API
+	#(xaero.pac.common.server.api.OpenPACServerAPI) every 20 ticks. See
+	#DESIGN.md's "Team mode + claims (Phase 6)" section.
+	team_mode = "solo"
 	#Enable debug logging for stage checks, lock queries, and team operations
 	debug_logging = false
 	#Enable linear progression (auto-grant dependency stages)
@@ -402,7 +414,12 @@
 		#If true and FTB Teams is installed, stages are shared across team members
 		#If false or FTB Teams is not installed, falls back to solo mode automatically
 		#Disabling this prevents ProgressiveStages from loading FTB Teams classes entirely
-		enabled = true
+		#GitHub #32: FTB Teams is no longer part of this pack (see [general].team_mode
+		#above) - disabled explicitly rather than relying on the automatic solo
+		#fallback, since ProgressiveStages' own ReflectiveFTBTeamsIntegration would
+		#otherwise still probe for FTB Teams' classes via reflection on every boot
+		#for a mod that will never be installed again.
+		enabled = false
 
 	[integration.ftbquests]
 		#Enable FTB Quests integration
