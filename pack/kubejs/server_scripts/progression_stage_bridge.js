@@ -84,6 +84,22 @@
 // ST_TIER_IDS; KubeJS's Rhino sandbox has no low-risk way to reach
 // ProgressiveStages' own NightConfig-based TOML loader, which is exactly
 // the code path already proven insufficiently reactive here).
+//
+// GitHub #33 AUDIT (does this file need FTB Library present?): the two
+// "ftblibrary.integration.stages.StageHelper" / "FTB Quests' gamestage task
+// type" references above are historical bug-analysis narrative only (why
+// the #23 regression happened in the FIRST PLACE, back when FTB Quests
+// still owned that task type) - no code below this comment block ever
+// loads or calls an FTB Library/FTB Quests class. The actual fix
+// (psbApplyItemStageTriggers/the tick handler) only ever touches
+// player.stages (KubeJS's own ProgressiveStages binding) and
+// player.inventory.find() - both already independent of FTB Library, since
+// the whole point of this file's fix was routing around FTB Quests/FTB
+// Library entirely. Confirmed safe to remove ftb-quests from the pack
+// (done as part of #33) with zero changes needed here. (ftb-library itself
+// stays installed regardless - see scripts/gen_quests.py's own module
+// docstring for why: it's still a required, not optional, dependency of
+// FTB Teams and FTB Chunks, both still in the pack.)
 const PSB_ITEM_STAGE_TRIGGERS = [
     { stage: 'andesite_age', items: ['create:andesite_alloy'] },
     { stage: 'brass_age', items: ['create:brass_ingot'] },

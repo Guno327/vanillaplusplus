@@ -1,87 +1,88 @@
 #!/usr/bin/env python3
-"""Fast-tier CI check: FTB Quests integrity over
-pack/config/ftbquests/quests/.
+"""Fast-tier CI check: quest-book structural integrity over
+pack/kubejs/server_scripts/quests.js.
 
-Ground-truthed against the actual tree (pack/config/ftbquests/quests/) and
-scripts/gen_quests.py (the generator that produces it) before writing this
-check:
+REWRITTEN for GitHub issue #33 (bespoke quest system replacing FTB Quests -
+see scripts/gen_quests.py's own module docstring for the full design
+rationale). The quest book no longer lives in
+pack/config/ftbquests/quests/ as FTB Quests SNBT; it's generated straight
+into a single KubeJS server script as a `const QUEST_CHAPTERS = [...]`
+JSON-shaped JS literal followed by the runtime tracker code. This checker
+now parses that literal (Python's json.JSONDecoder.raw_decode(), which
+reads exactly one JSON value starting at a given offset and hands back
+where it ended - no need for a bespoke SNBT-grammar parser the old format
+required, since json.dumps() output is always valid, unambiguous JSON) and
+validates the same structural invariants the old checker did, adjusted for
+the new shape:
 
-  - Chapter files live at pack/config/ftbquests/quests/chapters/*.snbt. Each
-    is a single compound with: "id" (the chapter's own id), "filename",
-    "quests" (list of quest objects), "quest_links" (list, empty in this
-    repo), plus cosmetic fields (order_index, icon, ...).
-  - Each quest object has "id", optionally "dependencies" (a list of OTHER
-    QUEST ids - never task/reward ids), "tasks" (list of task objects, each
-    with its own "id"), and "rewards" (list of reward objects, each with
-    its own "id").
-  - IMPORTANT: task/reward objects frequently carry a nested "item": {"id":
-    "some:item", "count": N} (and icons carry "icon": {"id": ...}) - these
-    "id" fields are ITEM/BLOCK ids, a completely different namespace from
-    quest/chapter/task/reward ids, and must NOT be checked for uniqueness
-    or used to satisfy a dependency reference. This check only ever reads
-    "id" from the specific structural positions listed above (chapter
-    itself; each entry of "quests"; each entry of a quest's "tasks"; each
-    entry of a quest's "rewards"; each entry of a chapter's "quest_links"),
-    never from "item"/"icon" sub-objects.
-  - pack/config/ftbquests/quests/chapter_groups.snbt in this repo is
-    `{"chapter_groups": []}` - empty, so it references no chapters. If it's
-    ever populated, FTB Quests' own convention is for group entries to list
-    chapter ids under a "chapters" key; this check honors that if present
-    (see _chapter_ids_referenced_by_groups below) but there is currently
-    nothing to ground-truth that shape against in this repo.
-  - There is no pack/config/ftbquests/quests/reward_tables/ (or similar)
-    directory in this repo, so reward-table ids are not currently exercised
-    by real data; the check still scans such a directory generically if one
-    ever appears (each file's own top-level "id" is registered into the
-    same global id namespace), documented here since it's untested against
-    real data.
+  - pack/kubejs/server_scripts/quests.js must exist and contain a
+    `const QUEST_CHAPTERS = ` assignment whose value parses as a JSON list.
+  - Each chapter: a dict with "id" (string) and "quests" (list).
+  - Each quest: a dict with "id" (string), "tasks" (list), "rewards" (list),
+    and "dependencies" (list of OTHER QUEST ids - never task/reward ids,
+    same namespace rule the old checker enforced, still relevant since
+    dependencies are quest-id strings that must resolve).
+  - Each task: a dict with "type" in TASK_TYPES ("item", "kill", "dimension",
+    "gamestage", "checkmark" - see scripts/gen_quests.py's task builders).
+  - Each reward: a dict with "type" in REWARD_TYPES ("item", "xp",
+    "command", "gamestage", "toast" - see scripts/gen_quests.py's reward
+    builders; "currency" deliberately excluded, same rationale as before -
+    Numismatics currency is always granted as literal coin items).
 
-Uses validate_snbt.parse_snbt() (from #2) rather than a second parser, per
-the issue's instruction to build this on top of that parser.
+WHAT CHANGED FROM THE OLD SNBT-ERA CHECKER, and why:
+  - Tasks/rewards no longer carry their own "id" field at all - the old
+    FTB-Quests-era id scheme (every task/reward needing a globally-unique
+    hex id) doesn't apply to a plain JS data literal with no SNBT
+    id-uniqueness constraint to satisfy. Uniqueness is therefore now
+    checked over chapter ids and quest ids only (still the two namespaces
+    that matter: dependencies resolve against quest ids, and quest->chapter
+    membership is implicit in nesting rather than a filename lookup).
+  - "item"/"icon" sub-object "id" fields (e.g. a task's "item": "some:id")
+    are plain strings now, not nested {"id":..., "count":...} compounds -
+    still never fed into the id-uniqueness registry, for the same reason
+    the old checker excluded them (different namespace entirely).
+  - chapter_groups.snbt / quest_links (FTB-Quests-specific GUI concepts)
+    have no equivalent in this format and are not checked - there is
+    nothing there to be inconsistent with anymore.
 
 Usage: python3 scripts/ci/check_quests.py [root]
-Exit code: 0 if the quest tree is internally consistent, 1 otherwise.
+Exit code: 0 if the quest book is internally consistent, 1 otherwise.
 """
+import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from validate_snbt import SNBTError, parse_snbt  # noqa: E402
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
+QUESTS_JS_REL = Path("pack") / "kubejs" / "server_scripts" / "quests.js"
+ASSIGNMENT_MARKER = "const QUEST_CHAPTERS = "
 
-def _quests_root(root):
-    return root / "pack" / "config" / "ftbquests" / "quests"
-
-
-def _load(path):
-    return parse_snbt(Path(path).read_text(encoding="utf-8"))
+TASK_TYPES = {"item", "kill", "dimension", "gamestage", "checkmark"}
+REWARD_TYPES = {"item", "xp", "command", "gamestage", "toast"}
 
 
-def _register(ids_registry, id_value, kind, source_file, errors):
-    if not isinstance(id_value, str) or not id_value:
-        errors.append(f"{source_file}: {kind} has a missing/empty 'id'")
-        return
-    ids_registry.setdefault(id_value, []).append((kind, source_file))
+class QuestsJsError(Exception):
+    pass
 
 
-def _chapter_ids_referenced_by_groups(chapter_groups_data):
-    """FTB Quests chapter_groups.snbt convention: {"chapter_groups": [{"id":
-    ..., "chapters": ["<chapter id>", ...]}, ...]}. Returns the set of
-    chapter ids referenced this way (empty if the file references none, as
-    is currently the case in this repo)."""
-    referenced = set()
-    groups = chapter_groups_data.get("chapter_groups", [])
-    if not isinstance(groups, list):
-        return referenced
-    for group in groups:
-        if not isinstance(group, dict):
-            continue
-        for cid in group.get("chapters", []) or []:
-            if isinstance(cid, str):
-                referenced.add(cid)
-    return referenced
+def _extract_quest_chapters(text):
+    """Find `const QUEST_CHAPTERS = ` and parse exactly the JSON value that
+    follows it (via json.JSONDecoder.raw_decode, which parses one value
+    starting at an offset and returns how far it read - robust to whatever
+    trailing code/whitespace follows, unlike a naive regex on the whole
+    rest of the file). Raises QuestsJsError with a human-readable message
+    on any failure."""
+    idx = text.find(ASSIGNMENT_MARKER)
+    if idx == -1:
+        raise QuestsJsError(f"could not find {ASSIGNMENT_MARKER!r} assignment")
+    start = idx + len(ASSIGNMENT_MARKER)
+    try:
+        value, _end = json.JSONDecoder().raw_decode(text, start)
+    except json.JSONDecodeError as e:
+        raise QuestsJsError(f"QUEST_CHAPTERS value did not parse as JSON: {e}")
+    if not isinstance(value, list):
+        raise QuestsJsError("QUEST_CHAPTERS did not parse to a JSON list")
+    return value
 
 
 def check_quests(root):
@@ -90,126 +91,105 @@ def check_quests(root):
     errors = []
     stats = {"chapters": 0, "quests": 0, "tasks": 0, "rewards": 0, "ids": 0, "dependencies": 0}
 
-    quests_root = _quests_root(root)
-    if not quests_root.is_dir():
-        return ([f"quests directory not found: {quests_root}"], stats)
+    quests_js = root / QUESTS_JS_REL
+    if not quests_js.is_file():
+        return ([f"quests script not found: {quests_js}"], stats)
 
-    chapters_dir = quests_root / "chapters"
-    chapter_files = sorted(chapters_dir.glob("*.snbt")) if chapters_dir.is_dir() else []
-    if not chapter_files:
-        errors.append(f"no chapter *.snbt files found under {chapters_dir}")
+    text = quests_js.read_text(encoding="utf-8")
+    try:
+        chapters = _extract_quest_chapters(text)
+    except QuestsJsError as e:
+        return ([f"{QUESTS_JS_REL}: {e}"], stats)
 
-    ids_registry = {}  # id -> [(kind, source_file), ...]
+    ids_registry = {}  # id -> [(kind, chapter_id_context), ...]
     quest_ids = set()
-    dependency_refs = []  # (dep_id, source_file, quest_id)
-    chapter_ids = set()
-    chapter_filenames = {}  # filename (stem) -> chapter id, for chapter_groups cross-check
+    dependency_refs = []  # (dep_id, quest_id)
 
-    for path in chapter_files:
-        rel = str(path.relative_to(root)) if _is_relative(path, root) else str(path)
-        try:
-            data = _load(path)
-        except SNBTError as e:
-            errors.append(f"{rel}: SNBT parse error: {e}")
-            continue
-        if not isinstance(data, dict):
-            errors.append(f"{rel}: chapter file did not parse to a compound")
+    def register(id_value, kind, context):
+        if not isinstance(id_value, str) or not id_value:
+            errors.append(f"{context}: {kind} has a missing/empty 'id'")
+            return
+        ids_registry.setdefault(id_value, []).append((kind, context))
+
+    for chapter in chapters:
+        if not isinstance(chapter, dict):
+            errors.append("a QUEST_CHAPTERS entry is not an object")
             continue
 
-        chapter_id = data.get("id")
-        _register(ids_registry, chapter_id, "chapter", rel, errors)
+        chapter_id = chapter.get("id")
+        register(chapter_id, "chapter", f"chapter {chapter_id!r}")
         if isinstance(chapter_id, str):
-            chapter_ids.add(chapter_id)
             stats["chapters"] += 1
-            chapter_filenames[data.get("filename", path.stem)] = chapter_id
 
-        for quest in data.get("quests", []) or []:
+        quests = chapter.get("quests")
+        if not isinstance(quests, list):
+            errors.append(f"chapter {chapter_id!r}: 'quests' is not a list")
+            continue
+
+        for quest in quests:
             if not isinstance(quest, dict):
-                errors.append(f"{rel}: a 'quests' entry is not a compound")
+                errors.append(f"chapter {chapter_id!r}: a 'quests' entry is not an object")
                 continue
             qid = quest.get("id")
-            _register(ids_registry, qid, "quest", rel, errors)
+            register(qid, "quest", f"quest {qid!r} (chapter {chapter_id!r})")
             if isinstance(qid, str):
                 quest_ids.add(qid)
                 stats["quests"] += 1
 
-            for task in quest.get("tasks", []) or []:
-                if not isinstance(task, dict):
-                    errors.append(f"{rel}: quest {qid!r} has a non-compound task entry")
-                    continue
-                _register(ids_registry, task.get("id"), "task", rel, errors)
-                stats["tasks"] += 1
+            tasks = quest.get("tasks")
+            if not isinstance(tasks, list):
+                errors.append(f"quest {qid!r}: 'tasks' is not a list")
+            else:
+                if len(tasks) == 0:
+                    errors.append(f"quest {qid!r}: has zero tasks (every quest needs >= 1)")
+                for task in tasks:
+                    if not isinstance(task, dict):
+                        errors.append(f"quest {qid!r}: a task entry is not an object")
+                        continue
+                    ttype = task.get("type")
+                    if ttype not in TASK_TYPES:
+                        errors.append(f"quest {qid!r}: task has unknown type {ttype!r} (expected one of {sorted(TASK_TYPES)})")
+                    stats["tasks"] += 1
 
-            for reward in quest.get("rewards", []) or []:
-                if not isinstance(reward, dict):
-                    errors.append(f"{rel}: quest {qid!r} has a non-compound reward entry")
-                    continue
-                _register(ids_registry, reward.get("id"), "reward", rel, errors)
-                stats["rewards"] += 1
+            rewards = quest.get("rewards")
+            if not isinstance(rewards, list):
+                errors.append(f"quest {qid!r}: 'rewards' is not a list")
+            else:
+                for reward in rewards:
+                    if not isinstance(reward, dict):
+                        errors.append(f"quest {qid!r}: a reward entry is not an object")
+                        continue
+                    rtype = reward.get("type")
+                    if rtype not in REWARD_TYPES:
+                        errors.append(f"quest {qid!r}: reward has unknown type {rtype!r} (expected one of {sorted(REWARD_TYPES)})")
+                    if rtype == "currency":
+                        errors.append(f"quest {qid!r}: reward uses the deliberately-excluded 'currency' type - coins must be granted as literal items")
+                    stats["rewards"] += 1
 
-            for dep in quest.get("dependencies", []) or []:
-                if isinstance(dep, str):
-                    dependency_refs.append((dep, rel, qid))
-                    stats["dependencies"] += 1
-                else:
-                    errors.append(f"{rel}: quest {qid!r} has a non-string dependency entry {dep!r}")
+            deps = quest.get("dependencies", [])
+            if not isinstance(deps, list):
+                errors.append(f"quest {qid!r}: 'dependencies' is not a list")
+            else:
+                for dep in deps:
+                    if isinstance(dep, str):
+                        dependency_refs.append((dep, qid))
+                        stats["dependencies"] += 1
+                    else:
+                        errors.append(f"quest {qid!r}: has a non-string dependency entry {dep!r}")
 
-        for ql in data.get("quest_links", []) or []:
-            if isinstance(ql, dict) and "id" in ql:
-                _register(ids_registry, ql.get("id"), "quest_link", rel, errors)
-
-    # Reward tables, if this repo ever gains a directory of them (see
-    # module docstring - currently ungrounded, no real data exists).
-    reward_tables_dir = quests_root / "reward_tables"
-    if reward_tables_dir.is_dir():
-        for path in sorted(reward_tables_dir.glob("*.snbt")):
-            rel = str(path.relative_to(root))
-            try:
-                data = _load(path)
-            except SNBTError as e:
-                errors.append(f"{rel}: SNBT parse error: {e}")
-                continue
-            if isinstance(data, dict):
-                _register(ids_registry, data.get("id"), "reward_table", rel, errors)
-
-    # 1. Duplicate ids across the whole tree.
+    # 1. Duplicate ids across chapters/quests.
     for id_value, occurrences in sorted(ids_registry.items()):
         if len(occurrences) > 1:
-            locations = ", ".join(f"{kind} in {src}" for kind, src in occurrences)
+            locations = ", ".join(f"{kind} ({ctx})" for kind, ctx in occurrences)
             errors.append(f"duplicate id {id_value!r} used by {len(occurrences)} entries: {locations}")
     stats["ids"] = len(ids_registry)
 
     # 2. Dangling dependency references (dependencies point at quest ids).
-    for dep_id, rel, qid in dependency_refs:
+    for dep_id, qid in dependency_refs:
         if dep_id not in quest_ids:
-            errors.append(
-                f"{rel}: quest {qid!r} depends on {dep_id!r}, which is not the id of any quest")
-
-    # 3. chapter_groups.snbt cross-check, if it references chapters.
-    chapter_groups_path = quests_root / "chapter_groups.snbt"
-    if chapter_groups_path.is_file():
-        rel = str(chapter_groups_path.relative_to(root))
-        try:
-            cg_data = _load(chapter_groups_path)
-        except SNBTError as e:
-            errors.append(f"{rel}: SNBT parse error: {e}")
-            cg_data = {}
-        if isinstance(cg_data, dict):
-            referenced = _chapter_ids_referenced_by_groups(cg_data)
-            for cid in sorted(referenced):
-                if cid not in chapter_ids:
-                    errors.append(
-                        f"{rel}: references chapter id {cid!r}, which no chapter file declares")
+            errors.append(f"quest {qid!r} depends on {dep_id!r}, which is not the id of any quest")
 
     return errors, stats
-
-
-def _is_relative(path, root):
-    try:
-        path.relative_to(root)
-        return True
-    except ValueError:
-        return False
 
 
 def main(argv=None):
