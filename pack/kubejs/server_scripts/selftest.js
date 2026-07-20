@@ -55,6 +55,13 @@ const ST_COIN_ITEM_IDS = [
 const ST_SAMPLE_ARTIFACT_UPGRADE_RECIPE = 'vanillaplusplus:artifact_upgrade/umbrella'
 const ST_EXPECTED_ARTIFACT_UPGRADE_RECIPE_COUNT = 46
 const ST_ARTIFACTS_MASTER_TAG_MIN_SIZE = 48
+// storage.js patches these two down to iron-tier for Andesite Age (see
+// pack/kubejs/server_scripts/storage.js header) - a minecraft:comparator
+// here would need Nether quartz and soft-lock the dumb storage quest
+// (issue #25), so this asserts the fix stays in place.
+// NOTE: storage.js REMOVES the stock toms_storage:* recipe ids and re-adds
+// the patched recipes under vanillaplusplus:*_early_tier ids - query those.
+const ST_STORAGE_EARLY_TIER_RECIPE_IDS = ['vanillaplusplus:inventory_connector_early_tier', 'vanillaplusplus:storage_terminal_early_tier']
 
 const ST_ResourceLocationClass = Java.loadClass('net.minecraft.resources.ResourceLocation')
 const ST_RegistriesClass = Java.loadClass('net.minecraft.core.registries.Registries')
@@ -190,6 +197,29 @@ stCheck('recipe count: vanillaplusplus:artifact_upgrade/* == 46', server => {
 stCheck('sample recipe resolves: ' + ST_SAMPLE_ARTIFACT_UPGRADE_RECIPE, server => {
     let opt = server.getRecipeManager().byKey(stRl(ST_SAMPLE_ARTIFACT_UPGRADE_RECIPE))
     return { pass: opt.isPresent(), detail: opt.isPresent() ? 'found' : 'not found' }
+})
+
+stCheck('storage.js early-tier patch: inventory_connector/storage_terminal resolve and use no comparator', server => {
+    // NOTE: found empirically in L1 - Rhino cannot call Ingredient's own
+    // members here (TypeError "Cannot find function getItems" /
+    // "...kjs$getStackArray" despite both being public at runtime): KubeJS's
+    // class shutter hides net.minecraft.world.item.crafting.Ingredient, so
+    // Rhino only exposes members of its visible supertypes (Object +
+    // java.util.function.Predicate). Predicate#test(ItemStack) is therefore
+    // the one reliable probe: ask each ingredient whether it would accept a
+    // comparator.
+    let comparatorStack = Item.of('minecraft:comparator')
+    let bad = []
+    for (let i = 0; i < ST_STORAGE_EARLY_TIER_RECIPE_IDS.length; i++) {
+        let id = ST_STORAGE_EARLY_TIER_RECIPE_IDS[i]
+        let opt = server.getRecipeManager().byKey(stRl(id))
+        if (!opt.isPresent()) { bad.push(id + ':missing'); continue }
+        let ingredients = opt.get().value().getIngredients().toArray()
+        for (let j = 0; j < ingredients.length; j++) {
+            if (ingredients[j].test(comparatorStack)) bad.push(id + ':accepts-comparator')
+        }
+    }
+    return { pass: bad.length === 0, detail: bad.length === 0 ? 'both resolve, no comparator' : bad.join(',') }
 })
 
 stCheck('Artifacts master tag (artifacts:artifacts) has >= 48 items', server => {
