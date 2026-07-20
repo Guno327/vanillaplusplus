@@ -1,0 +1,71 @@
+name: Publish to Modrinth
+
+# Pushes the client .mrpack from a GitHub Release to Modrinth. Runs
+# automatically when a release is published — HANDOFF.md's release
+# pipeline already only cuts a release on explicit owner prompt, so this
+# adds no new owner-facing step to the existing flow. Also runnable by
+# hand (workflow_dispatch) to backfill a past release.
+#
+# Requires two things only the owner can provide (see repo issue for the
+# publish-to-modrinth work item):
+#   - vars.MODRINTH_PROJECT_ID  — the Modrinth project's slug/ID (not
+#     secret; a GitHub Actions repo *variable*)
+#   - secrets.MODRINTH_TOKEN    — a Modrinth PAT with version-write scope
+# Until both are set, this workflow will run but the publish step fails.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to (re-)publish, e.g. v0.1.1. Defaults to the latest release."
+        required: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve target release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${{ github.event.inputs.tag }}"
+          if [ -z "$tag" ]; then
+            tag="${{ github.event.release.tag_name }}"
+          fi
+          if [ -z "$tag" ]; then
+            tag="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 1 --json tagName -q '.[0].tagName')"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+          prerelease="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isPrerelease -q .isPrerelease)"
+          if [ "$prerelease" = "true" ]; then
+            echo "version_type=beta" >> "$GITHUB_OUTPUT"
+          else
+            echo "version_type=release" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download the release's .mrpack + changelog
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh release download "${{ steps.release.outputs.tag }}" --repo "$GITHUB_REPOSITORY" --pattern '*.mrpack' --dir dist
+          gh release view "${{ steps.release.outputs.tag }}" --repo "$GITHUB_REPOSITORY" --json body -q .body > dist/CHANGELOG.md
+
+      - name: Publish to Modrinth
+        uses: Kir-Antipov/mc-publish@v3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          files: dist/*.mrpack
+          name: Vanilla++ ${{ steps.release.outputs.tag }}
+          version: ${{ steps.release.outputs.version }}
+          version-type: ${{ steps.release.outputs.version_type }}
+          loaders: neoforge
+          game-versions: 1.21.1
+          changelog-file: dist/CHANGELOG.md
