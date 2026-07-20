@@ -28,6 +28,14 @@ Checks performed:
      "hashes"."sha512".
   3. For every slug present in both files, "side" and "phase" must match
      between manifest and lock.
+  4. No slug appears more than once within manifest.json (a real bug found
+     the hard way, 2026-07-20: a merge-conflict resolution duplicated the
+     architectury-api entry - {slug: entry} dict-building silently
+     collapsed it before this check existed, so the duplicate went
+     undetected by checks 1-3 above (both files still had matching slug
+     *sets*) until L0's boot smoke test caught a server/mods jar-count
+     mismatch downstream. resolve_mods.py's own {slug: info} accumulation
+     has the identical blind spot, so mods.lock.json is checked here too.
 
 Usage: python3 scripts/ci/check_lockfile.py [root]
 Exit code: 0 if consistent, 1 otherwise.
@@ -50,6 +58,14 @@ def check_lockfile(manifest, lock):
 
     manifest_mods = manifest.get("mods", [])
     lock_mods = lock.get("mods", [])
+
+    for label, mods in (("manifest.json", manifest_mods), ("mods.lock.json", lock_mods)):
+        seen = {}
+        for m in mods:
+            seen[m["slug"]] = seen.get(m["slug"], 0) + 1
+        for slug, count in sorted(seen.items()):
+            if count > 1:
+                errors.append(f"slug {slug!r} appears {count} times in {label} (should be listed once)")
 
     manifest_by_slug = {m["slug"]: m for m in manifest_mods}
     lock_by_slug = {m["slug"]: m for m in lock_mods}
