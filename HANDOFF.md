@@ -26,14 +26,22 @@ orchestrator-mode sessions; treat it as trusted input alongside
 `TODO.md`/`DESIGN.md`.
 
 **Post-v0.2.0 (2026-07-20, later the same day)**: #43 merged — the NixOS
-module now defaults to a declarative `pkgs.fetchurl` of the server bundle
+module defaulted to a declarative `pkgs.fetchurl` of the server bundle
 from Modrinth's CDN via a `modrinth` pin in `nix/release.json`, falling
-back to the manual-zip path while that pin is absent. The pin *is* absent:
-the Modrinth project is still in draft (public API 404s), so generating it
-is blocked on owner action — issue **#44** (`needs-owner`: submit project
-for review + delete the stale FTB-embedding v0.1.1 draft version); once
-done, run `scripts/update_nix_release.py --modrinth-only`, commit, and
-close #28. #45 merged — `mint-release.yml` (#27): dispatch-anytime release
+back to the manual-zip path while that pin is absent (it was: the
+Modrinth project was still in draft, public API 404s). Owner then asked
+to switch the default off Modrinth entirely rather than wait on its
+review timeline — ground-truthed that `Guno327/vanillaplusplus` is now a
+**public** repo (ran `gh repo view`) and that a plain unauthenticated
+`HEAD` request to the GitHub release asset URL returns `200` with the
+correct byte size, so `serverArchive` now defaults to `pkgs.fetchurl`
+straight from `nix/release.json`'s repo/tag/assetName/sha256 instead —
+unconditionally available for every release, no `modrinth` pin needed.
+See `DECISIONS.md`'s dated entry for the full writeup. Issue **#44**
+(`needs-owner`) is downgraded: submitting the Modrinth project for review
+no longer unblocks anything Nix-deployment-related, but its item 2
+(delete the stale FTB-embedding v0.1.1 draft version before the project
+goes public) still stands on its own. #45 merged — `mint-release.yml` (#27): dispatch-anytime release
 minting from main (bump input + prerelease default true; gates on ci.yml +
 boot.yml via `workflow_call`; workspace-only `pack/VERSION` write; release
 + notes + nix repin + explicit Modrinth dispatch + automated sync PR).

@@ -3,13 +3,14 @@
     Vanilla++ dedicated server -- a NixOS module (primary deliverable) plus
     an optional standalone unpack helper, never deployed from this repo's
     working tree. As of #28, the server bundle is fetched declaratively
-    from Modrinth's own CDN by default (nix/release.json's `modrinth` pin,
-    verified via pkgs.fetchurl's sha512 check) -- a manually downloaded
-    GitHub release zip remains supported as an explicit override for a
-    custom/older/different build. See README.md's "Running on NixOS"
-    section for host setup and DECISIONS.md for the full history (this
-    used to be the only option, back when there was no stable
-    unauthenticated URL to fetch the bundle from at all).
+    straight from its GitHub release asset by default (nix/release.json's
+    repo/tag/assetName/sha256, verified via pkgs.fetchurl's sha256 check)
+    -- a manually downloaded release zip remains supported as an explicit
+    override for a custom/older/different build. A Modrinth CDN fetch was
+    tried first but depends on the Modrinth project's own review status,
+    which stalled; GitHub's asset URL only became usable unauthenticated
+    once this repo went public (see DECISIONS.md for the full history).
+    See README.md's "Running on NixOS" section for host setup.
   '';
 
   inputs = {

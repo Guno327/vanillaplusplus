@@ -60,11 +60,14 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   (dispatch-anytime release minting from main, #27),
   `publish-modrinth.yml` (Modrinth publish on release / dispatch).
 - Open: `verify-in-game` issues #1–#3 and #19 (owner-only hand
-  verification), and #44 `needs-owner` (submit the Modrinth project for
-  review + delete the stale FTB-embedding v0.1.1 draft — unblocks the
-  `modrinth` pin in `nix/release.json` and closes #28).
-- Deployment: NixOS module in `flake.nix` + `nix/`. Post-#43 it defaults
-  to a declarative `pkgs.fetchurl` of the server bundle from Modrinth's
-  CDN once `nix/release.json` carries a `modrinth` pin (blocked on #44);
-  until then it falls back to the manually-downloaded release zip
-  (README "Running on NixOS").
+  verification), and #44 `needs-owner` (delete the stale FTB-embedding
+  v0.1.1 draft version on Modrinth before the project goes public — no
+  longer blocks the Nix deployment default, see below).
+- Deployment: NixOS module in `flake.nix` + `nix/`. Defaults to a
+  declarative `pkgs.fetchurl` straight from the pinned release's GitHub
+  asset (`nix/release.json`'s repo/tag/assetName/sha256, unconditionally
+  present) — switched off the Modrinth-CDN default from #43 the same day,
+  once the repo went public made an unauthenticated GitHub fetch possible
+  again and removed the dependency on Modrinth's own review timeline. A
+  manually-downloaded release zip remains a supported override (README
+  "Running on NixOS").

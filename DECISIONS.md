@@ -931,3 +931,41 @@ notes are the canonical record this time; highlights only:
 - In-game behavior (grave placement/recovery, per-player loot rolls,
   sorting vs modded containers) is a human check: filed as a
   `verify-in-game` issue at PR time.
+
+## NixOS module's default server-archive fetch switched from Modrinth to GitHub (2026-07-20, owner directive)
+
+PR #43 (part of #28) shipped `serverArchive`'s default as a `pkgs.fetchurl`
+pull from `nix/release.json`'s `modrinth` pin. Confirmed live, same day:
+the `v0.2.0` Modrinth version published successfully but the **project**
+itself was still in draft/unpublished review status, so the public API
+404s for everything under it (not a timing issue polling could fix) —
+`modrinth` was absent from `nix/release.json`, and `serverArchive` fell
+back to its pre-#28 required-manual-option behavior. Owner submitted the
+project for review the same day; still 404ing as of this entry.
+
+Owner asked to switch the default to fetch straight from GitHub instead,
+to stop depending on Modrinth's review timeline. Ground-truthed before
+implementing (this project's standing rule): `gh repo view` shows
+`Guno327/vanillaplusplus` is now **public** (was private when the original
+Modrinth pivot happened — see the 2026-07-10 NixOS entry above, which
+researched and deliberately shelved a `netrcPhase`-based authenticated
+`fetchurl` for exactly this then-private-repo case), and a live
+unauthenticated `HEAD` request to
+`https://github.com/Guno327/vanillaplusplus/releases/download/v0.2.0/vanilla-plus-plus-server-0.2.0.zip`
+returned `200` with the correct 380423937-byte `Content-Length`. So the
+original blocker that justified the Modrinth detour no longer exists.
+
+**Change**: `nix/module.nix`'s `githubServerArchive` (renamed from
+`modrinthServerArchive`) now builds the release-asset URL directly from
+`nix/release.json`'s already-present `repo`/`tag`/`assetName`, verified via
+`pkgs.fetchurl`'s `sha256` check against the already-present `sha256`
+field (SRI-formatted, accepted by `fetchurl` as-is — no `modrinth` pin
+needed at all). This is unconditionally available for every release
+(those fields are never optional, unlike `modrinth`), so `serverArchive`'s
+type dropped `nullOr` and the corresponding "resolved to null" assertion
+was removed as unreachable. `flake.nix` and README.md's "Running on
+NixOS" section (including its now-stale "private repo" framing in step 1)
+updated to match. The Modrinth publish workflow/pin itself
+(`publish-modrinth.yml`, `update_nix_release.py`'s `--modrinth-only`) is
+untouched — still useful for the Modrinth *listing* players can install
+from, just no longer what this module defaults to.
