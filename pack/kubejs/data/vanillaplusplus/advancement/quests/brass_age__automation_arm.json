@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "create:mechanical_arm",
+      "count": 1
+    },
+    "title": "First Automation",
+    "description": "Craft a Mechanical Arm - Create's own first crafting-automation block, feeding Refined Storage's Importer/Exporter.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/brass_age__enter"
+}

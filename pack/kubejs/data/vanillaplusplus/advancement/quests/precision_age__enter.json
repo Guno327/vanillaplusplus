@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "create:sturdy_sheet",
+      "count": 1
+    },
+    "title": "Enter the Precision Age",
+    "description": "Create's own endgame alloys are done. Netherite gear and The End are open.",
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/brass_age__master_alloy"
+}

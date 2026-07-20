@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "minecraft:netherite_pickaxe",
+      "count": 1
+    },
+    "title": "Netherite Gear",
+    "description": "Craft another Silent Gear pickaxe with Precision Age's material - the tool-tier milestone for this age.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/precision_age__enter"
+}

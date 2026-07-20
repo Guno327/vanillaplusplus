@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "refinedstorage:autocrafting_upgrade",
+      "count": 1
+    },
+    "title": "Native Autocrafting",
+    "description": "Craft an Autocrafting Upgrade - Refined Storage's own pattern-based autocrafter, no more Mechanical Arm needed for storage automation.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/induction_age__enter"
+}

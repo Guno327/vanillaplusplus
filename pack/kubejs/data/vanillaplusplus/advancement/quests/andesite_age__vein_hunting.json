@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "createoreexcavation:vein_finder",
+      "count": 1
+    },
+    "title": "Vein Hunting",
+    "description": "Craft a Vein Finder (Create Ore Excavation) - the entry-level scouting tool for this pack's ore-vein system.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/andesite_age__enter"
+}

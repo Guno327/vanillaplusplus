@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "waystones:waystone",
+      "count": 1
+    },
+    "title": "Teleportation",
+    "description": "Craft a Waystone - intra-world teleportation, gated all the way to this tier on purpose.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/induction_age__enter"
+}

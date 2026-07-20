@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "create:creative_motor",
+      "count": 1
+    },
+    "title": "Infinite Energy",
+    "description": "Craft a Create Creative Motor - a genuinely endless source of Rotational Force, bridged to FE the same way every earlier power step in this pack has been.",
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/jovian_frontier__combustion_age"
+}

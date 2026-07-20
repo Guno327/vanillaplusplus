@@ -17,6 +17,7 @@ def _minimal_valid_pack(root):
     pack = Path(root) / "pack"
     (pack / "config").mkdir(parents=True)
     (pack / "kubejs" / "server_scripts").mkdir(parents=True)
+    (pack / "kubejs" / "data" / "vanillaplusplus" / "advancement" / "quests").mkdir(parents=True)
 
     manifest = {"minecraft": "1.21.1", "loader": "neoforge",
                 "mods": [{"slug": "create", "side": "both", "phase": 0}]}
@@ -36,6 +37,16 @@ def _minimal_valid_pack(root):
         encoding="utf-8")
     (pack / "kubejs" / "server_scripts" / "clean.js").write_text(
         "try {\n    let x = 1\n} catch (e) {}\n", encoding="utf-8")
+    # GitHub #36: one advancement file per quest, matching quests.js above.
+    advancement = {
+        "criteria": {"impossible": {"trigger": "minecraft:impossible"}},
+        "requirements": [["impossible"]],
+        "display": {"icon": {"id": "minecraft:stone", "count": 1}, "title": "Q1",
+                     "description": "d", "frame": "task",
+                     "background": "minecraft:textures/gui/advancements/backgrounds/stone.png"},
+    }
+    (pack / "kubejs" / "data" / "vanillaplusplus" / "advancement" / "quests" / "q1.json").write_text(
+        json.dumps(advancement), encoding="utf-8")
     return pack
 
 

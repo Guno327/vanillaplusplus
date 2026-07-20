@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "allthemodium:allthemodium_ingot",
+      "count": 1
+    },
+    "title": "Allthemodium",
+    "description": "Smelt an Allthemodium Ingot - this pack's own post-netherite Silent Gear material floor, carrying gear progression into the space tiers.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/induction_age__enter"
+}

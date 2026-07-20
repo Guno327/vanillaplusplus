@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "create:sturdy_sheet",
+      "count": 1
+    },
+    "title": "The Master Alloy",
+    "description": "Craft a Sturdy Sheet from Refined Radiance or Shadow Steel - Create's own top-tier alloy, and the door to Precision Age.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/brass_age__diamond_gear"
+}

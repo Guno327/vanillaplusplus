@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "numismatics:sun",
+      "count": 1
+    },
+    "title": "Check Your Rank (optional)",
+    "description": "Run /leaderboard wealth, /leaderboard tier, or /leaderboard level to see how you and your team stack up.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/starforged_age__enter"
+}

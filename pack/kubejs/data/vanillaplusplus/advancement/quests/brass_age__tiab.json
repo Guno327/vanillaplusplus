@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "tiab:time_in_a_bottle",
+      "count": 1
+    },
+    "title": "Time in a Bottle",
+    "description": "Craft the Time in a Bottle tick accelerator - one per player, and it won't speed up spawners.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/brass_age__enter"
+}

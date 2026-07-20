@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "refinedstorage:wireless_grid",
+      "count": 1
+    },
+    "title": "Cut the Cables",
+    "description": "Craft a Wireless Grid - manage your Refined Storage network from anywhere in range.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/precision_age__enter"
+}

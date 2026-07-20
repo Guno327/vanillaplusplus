@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "minecraft:end_crystal",
+      "count": 1
+    },
+    "title": "Enter the Jovian Frontier",
+    "description": "The inner system is conquered. Jupiter - the current edge of Stellaris' explorable system - is the final frontier.",
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/inner_system__electrical_age"
+}

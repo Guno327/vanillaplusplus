@@ -2260,6 +2260,31 @@ function notifyTeammates(server, progressKey, completer, quest) {
     }
 }
 
+// ---- GitHub #36: vanilla advancement tree, granted via command (the
+// advancements themselves use a minecraft:impossible criterion - see
+// scripts/gen_quests.py's write_advancements() - so this command is the
+// ONLY way any of them are ever granted). Re-granting an already-held
+// advancement is a harmless vanilla no-op, so none of the call sites below
+// need to check possession first. ----
+
+function grantAdvancement(player, questId) {
+    try {
+        player.server.runCommandSilent(`advancement grant ${player.username} only vanillaplusplus:quests/${questId}`)
+    } catch (e) {
+        console.error('[vpp quests] advancement grant failed for ' + player.username + ' on quest ' + questId + ': ' + e)
+    }
+}
+
+// The advancement is a visual mirror of team-shared PROGRESS (same sharing
+// model as quest completion itself), not of per-player REWARDS - granted to
+// every online teammate, not just whichever player's live state actually
+// satisfied the task.
+function grantAdvancementToTeam(server, progressKey, quest) {
+    for (const p of server.players) {
+        if (getProgressKey(p) === progressKey) grantAdvancement(p, quest.id)
+    }
+}
+
 function completeQuest(server, player, progressKey, quest) {
     for (let i = 0; i < quest.tasks.length; i++) {
         let task = quest.tasks[i]
@@ -2269,7 +2294,27 @@ function completeQuest(server, player, progressKey, quest) {
     grantRewards(player, quest)
     player.tell(`Quest complete: ${quest.title}`)
     notifyTeammates(server, progressKey, player, quest)
+    grantAdvancementToTeam(server, progressKey, quest)
 }
+
+// Catch-up sync on login: a player who joins a party mid-progress, or just
+// reconnects, gets every already-completed team quest's advancement
+// granted silently - no reward re-grant (rewards were already handled at
+// original completion time), no chat spam, just the visual layer catching
+// up. Same event hook leaderboard.js already uses for loggedOut.
+PlayerEvents.loggedIn(event => {
+    let player = event.player
+    if (!player || !player.server) return
+    try {
+        let server = player.server
+        let progressKey = getProgressKey(player)
+        for (const questId of Object.keys(QUEST_BY_ID)) {
+            if (isQuestComplete(server, progressKey, questId)) grantAdvancement(player, questId)
+        }
+    } catch (e) {
+        console.error('[vpp quests] login advancement catch-up failed for ' + player.username + ': ' + e)
+    }
+})
 
 // ---- tick scan ----
 

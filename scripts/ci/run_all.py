@@ -21,6 +21,7 @@ CHECKS = [
     "check_lockfile.py",
     "lint_rhino.py",
     "check_quests.py",
+    "check_advancements.py",
 ]
 
 

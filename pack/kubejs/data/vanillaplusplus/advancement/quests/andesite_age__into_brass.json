@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "create:brass_ingot",
+      "count": 1
+    },
+    "title": "Into the Brass Age",
+    "description": "Craft or pick up a Brass Ingot - Create's mid-game alloy, and the trigger for Brass Age.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/andesite_age__iron_tools"
+}

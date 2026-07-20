@@ -112,10 +112,29 @@ quests.js's own header comment for the runtime side of each):
     has no map GUI to place them on.
 """
 import json
+import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent  # repo root
 OUT_FILE = ROOT / "pack" / "kubejs" / "server_scripts" / "quests.js"
+ADVANCEMENTS_DIR = ROOT / "pack" / "kubejs" / "data" / "vanillaplusplus" / "advancement" / "quests"
+
+# GitHub #36: vanilla advancement tree as a free, no-new-mod GUI layer over
+# the KubeJS quest tracker above - see this module's own advancement-writing
+# code near main() for the full design rationale (ground-truthed against the
+# real vanilla 1.21.1 client jar's own data/minecraft/advancement/*.json,
+# not guessed: parent/criteria/display schema, the minecraft:impossible
+# command-only-grant trick, and the display.background root-tab
+# requirement). "challenge" frame for the four hardest, latest-gated quests;
+# "goal" for every tier-gate quest (gamestage task); "task" for everything
+# else - matches FTB Quests' own visual vocabulary this book used to use.
+CHALLENGE_QUEST_IDS = {
+    "jovian_frontier__storage_infinity",
+    "jovian_frontier__energy_infinity",
+    "jovian_frontier__resource_infinity",
+    "jovian_frontier__journeys_end",
+}
+ADVANCEMENT_ROOT_BACKGROUND = "minecraft:textures/gui/advancements/backgrounds/stone.png"
 
 
 # ---------------------------------------------------------------------------
@@ -1149,6 +1168,31 @@ function notifyTeammates(server, progressKey, completer, quest) {
     }
 }
 
+// ---- GitHub #36: vanilla advancement tree, granted via command (the
+// advancements themselves use a minecraft:impossible criterion - see
+// scripts/gen_quests.py's write_advancements() - so this command is the
+// ONLY way any of them are ever granted). Re-granting an already-held
+// advancement is a harmless vanilla no-op, so none of the call sites below
+// need to check possession first. ----
+
+function grantAdvancement(player, questId) {
+    try {
+        player.server.runCommandSilent(`advancement grant ${player.username} only vanillaplusplus:quests/${questId}`)
+    } catch (e) {
+        console.error('[vpp quests] advancement grant failed for ' + player.username + ' on quest ' + questId + ': ' + e)
+    }
+}
+
+// The advancement is a visual mirror of team-shared PROGRESS (same sharing
+// model as quest completion itself), not of per-player REWARDS - granted to
+// every online teammate, not just whichever player's live state actually
+// satisfied the task.
+function grantAdvancementToTeam(server, progressKey, quest) {
+    for (const p of server.players) {
+        if (getProgressKey(p) === progressKey) grantAdvancement(p, quest.id)
+    }
+}
+
 function completeQuest(server, player, progressKey, quest) {
     for (let i = 0; i < quest.tasks.length; i++) {
         let task = quest.tasks[i]
@@ -1158,7 +1202,27 @@ function completeQuest(server, player, progressKey, quest) {
     grantRewards(player, quest)
     player.tell(`Quest complete: ${quest.title}`)
     notifyTeammates(server, progressKey, player, quest)
+    grantAdvancementToTeam(server, progressKey, quest)
 }
+
+// Catch-up sync on login: a player who joins a party mid-progress, or just
+// reconnects, gets every already-completed team quest's advancement
+// granted silently - no reward re-grant (rewards were already handled at
+// original completion time), no chat spam, just the visual layer catching
+// up. Same event hook leaderboard.js already uses for loggedOut.
+PlayerEvents.loggedIn(event => {
+    let player = event.player
+    if (!player || !player.server) return
+    try {
+        let server = player.server
+        let progressKey = getProgressKey(player)
+        for (const questId of Object.keys(QUEST_BY_ID)) {
+            if (isQuestComplete(server, progressKey, questId)) grantAdvancement(player, questId)
+        }
+    } catch (e) {
+        console.error('[vpp quests] login advancement catch-up failed for ' + player.username + ': ' + e)
+    }
+})
 
 // ---- tick scan ----
 
@@ -1337,6 +1401,62 @@ ServerEvents.commandRegistry(event => {
 """.strip("\n")
 
 
+# ---------------------------------------------------------------------------
+# GitHub #36: vanilla advancement generation. One JSON file per quest under
+# pack/kubejs/data/vanillaplusplus/advancement/quests/, built from the exact same
+# quest dicts quests.js is generated from - the two can never drift out of
+# sync since there is only one source of truth (the CHAPTER_DEFS/builder
+# functions above).
+# ---------------------------------------------------------------------------
+def advancement_frame(quest):
+    if quest["id"] in CHALLENGE_QUEST_IDS:
+        return "challenge"
+    if any(t["type"] == "gamestage" for t in quest["tasks"]):
+        return "goal"
+    return "task"
+
+
+def build_advancement(quest, is_root):
+    display = {
+        "icon": {"id": quest["icon"], "count": 1},
+        "title": quest["title"],
+        "description": " ".join(quest["desc"]),
+        "frame": advancement_frame(quest),
+        "show_toast": True,
+        "announce_to_chat": False,
+    }
+    if is_root:
+        display["background"] = ADVANCEMENT_ROOT_BACKGROUND
+    advancement = {
+        "criteria": {"impossible": {"trigger": "minecraft:impossible"}},
+        "requirements": [["impossible"]],
+        "display": display,
+    }
+    if not is_root:
+        # Vanilla advancements are single-parent trees, not DAGs - a quest
+        # with multiple dependencies only gets one tree edge drawn (its
+        # first listed dependency); the real multi-dependency AND-gate for
+        # when the quest actually completes is entirely quests.js's own
+        # dependenciesSatisfied(), unaffected by this simplification.
+        advancement["parent"] = "vanillaplusplus:quests/" + quest["dependencies"][0]
+    return advancement
+
+
+def write_advancements(chapters):
+    if ADVANCEMENTS_DIR.exists():
+        shutil.rmtree(ADVANCEMENTS_DIR)
+    ADVANCEMENTS_DIR.mkdir(parents=True)
+    count = 0
+    for chapter in chapters:
+        for quest in chapter["quests"]:
+            is_root = len(quest["dependencies"]) == 0
+            advancement = build_advancement(quest, is_root)
+            out = ADVANCEMENTS_DIR / f"{quest['id']}.json"
+            out.write_text(json.dumps(advancement, indent=2) + "\n")
+            count += 1
+    return count
+
+
 def main():
     chapters = []
     for i, (chapter_id, title, subtitle, builder, chap_icon) in enumerate(CHAPTER_DEFS):
@@ -1359,6 +1479,9 @@ def main():
 
     OUT_FILE.write_text("\n".join(lines) + "\n")
     print(f"wrote {OUT_FILE} ({len(chapters)} chapters, {total_quests} quests, {total_deps} dependency edges)")
+
+    advancement_count = write_advancements(chapters)
+    print(f"wrote {advancement_count} advancement file(s) to {ADVANCEMENTS_DIR}")
 
 
 if __name__ == "__main__":

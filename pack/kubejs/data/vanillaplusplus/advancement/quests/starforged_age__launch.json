@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "stellaris:rocket",
+      "count": 1
+    },
+    "title": "Liftoff",
+    "description": "Launch your rocket and reach Earth orbit - the real trigger for Lunar Frontier.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/starforged_age__rocket_parts"
+}

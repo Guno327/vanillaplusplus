@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "ars_nouveau:wand",
+      "count": 1
+    },
+    "title": "The Mage's Path",
+    "description": "Craft an Ars Nouveau wand - the entry point into this pack's spell-crafting magic system.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/andesite_age__enter"
+}

@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "create:creative_crate",
+      "count": 1
+    },
+    "title": "Infinite Resources",
+    "description": "Craft a Create Creative Crate - an endless supply of any one item you configure. This is the hardest, latest-gated craft in the entire pack for a reason - guard it accordingly.",
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/jovian_frontier__combustion_age"
+}

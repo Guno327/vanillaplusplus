@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "tfmg:converter",
+      "count": 1
+    },
+    "title": "The Electrical Age",
+    "description": "Craft a TFMG Converter - bridges TFMG's own power grid into Create/FE, rung 4 of the endgame automation ladder.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/inner_system__enter"
+}

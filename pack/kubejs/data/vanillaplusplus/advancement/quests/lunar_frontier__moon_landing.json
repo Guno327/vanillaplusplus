@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "minecraft:end_crystal",
+      "count": 1
+    },
+    "title": "One Small Step",
+    "description": "Travel to the Moon - the real trigger for Martian Frontier.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/lunar_frontier__steel_age"
+}
