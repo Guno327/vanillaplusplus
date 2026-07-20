@@ -8,16 +8,20 @@ feature branches + PR only, Conventional Commits, tests-first). Start at
 orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
-**Status**: `v0.1.1` (beta) shipped 2026-07-14, superseding `v0.1.0`
-(2026-07-10). This cut closed out the bug-triage queue (GitHub #4/#6/#7/
-#8/#9 — fixed or confirmed-benign/accepted, including the real `/respec`-
-always-fails bug #8's audit found live in `skill_respec.js`, and the
-93-recipe tool-consolidation sweep for #9) and folded in three admin-
-approved features (#5 Born in Chaos spawn retargeting, #10 quest book
-overhaul to 10 chapters/62 quests, #11 Jade + Jade Addons). Full canonical
-L0/L1/L2 test suite green before the cut (see the `v0.1.1` GitHub release
-body for exact numbers). `pack/VERSION` is `0.1.1`. `DECISIONS.md` at the
-repo root is the durable decision log for everything decided in
+**Status**: `v0.2.0` (beta) shipped 2026-07-20, superseding `v0.1.1`
+(2026-07-14). This cut removed the entire FTB suite (FTB Teams/Chunks/
+Quests/Library) — CurseForge-exclusive mods this project has no
+redistribution permission for (#28) — replacing FTB Teams + FTB Chunks
+with Open Parties and Claims (#32, Modrinth-hosted, LGPL-3.0) and FTB
+Quests with a bespoke KubeJS quest tracker (#33), plus a vanilla
+advancement tree as a free GUI layer over it (#36). Also folds in the QoL
+wave (Lootr/Gravestone/ClientSort, #13/#14/#16) and a real bug fix (#24,
+the entire RPG skill-point system was unallocatable in every category).
+Full canonical L0/L1/L2 test suite green before the cut (see the `v0.2.0`
+GitHub release body for exact numbers). `pack/VERSION` is `0.2.0`.
+Modrinth publishing (paused since the FTB redistribution issue) resumed
+alongside this cut — see `publish-modrinth.yml` and #28. `DECISIONS.md` at
+the repo root is the durable decision log for everything decided in
 orchestrator-mode sessions; treat it as trusted input alongside
 `TODO.md`/`DESIGN.md`.
 
