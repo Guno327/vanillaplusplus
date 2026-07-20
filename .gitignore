@@ -9,6 +9,10 @@ vanilla-plus-plus-server-*.zip
 # Python bytecode cache
 __pycache__/
 
+# Non-Modrinth mod jars cached/bundled by scripts/build_mrpack.py
+# (embedded into the .mrpack's overrides/mods/, not tracked as source)
+pack/mods/*.jar
+
 # Server runtime (rebuilt from pack/mods.lock.json via scripts/build_server.py)
 server/mods/
 server/libraries/
