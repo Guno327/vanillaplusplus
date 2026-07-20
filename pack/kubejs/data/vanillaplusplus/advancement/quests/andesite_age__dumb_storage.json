@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "toms_storage:inventory_connector",
+      "count": 1
+    },
+    "title": "Dumb Storage",
+    "description": "Craft a Tom's Storage Inventory Connector - link your chests into one browsable network. No power, no autocrafting yet.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/andesite_age__enter"
+}

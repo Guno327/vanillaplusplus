@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "create_power_loader:andesite_chunk_loader",
+      "count": 1
+    },
+    "title": "Andesite Chunk Loader",
+    "description": "Craft the Andesite Chunk Loader (Create: Power Loader). It only force-loads chunks while spun under real kinetic power.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/andesite_age__enter"
+}

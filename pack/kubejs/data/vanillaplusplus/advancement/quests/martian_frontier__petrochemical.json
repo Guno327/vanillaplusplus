@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "tfmg:diesel_bucket",
+      "count": 1
+    },
+    "title": "The Petrochemical Age",
+    "description": "Refine a bucket of Diesel (TFMG) - rung 3 of the endgame automation ladder.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/martian_frontier__enter"
+}

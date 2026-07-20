@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "create_sa:netherite_jetpack_chestplate",
+      "count": 1
+    },
+    "title": "Netherite Jetpack",
+    "description": "Craft the Netherite Jetpack - the final rung before Starforged Age grants true persistent flight outright.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/induction_age__enter"
+}

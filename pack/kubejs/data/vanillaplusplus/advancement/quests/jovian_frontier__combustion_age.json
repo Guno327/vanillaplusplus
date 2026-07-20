@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "tfmg:engine_cylinder",
+      "count": 1
+    },
+    "title": "The Combustion Age",
+    "description": "Craft a TFMG Engine Cylinder - the final rung of the endgame automation ladder.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/jovian_frontier__enter"
+}

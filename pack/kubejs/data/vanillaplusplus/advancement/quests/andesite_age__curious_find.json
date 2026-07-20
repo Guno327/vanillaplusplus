@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "artifacts:umbrella",
+      "count": 1
+    },
+    "title": "A Curious Find (optional)",
+    "description": "Find any Artifacts curio - they're pure exploration payoffs with no tier lock, hidden in structure loot at every rarity tier. This one just confirms you've found the umbrella.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/andesite_age__enter"
+}

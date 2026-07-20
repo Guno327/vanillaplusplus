@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "create:andesite_alloy",
+      "count": 1
+    },
+    "title": "Enter the Andesite Age",
+    "description": "Iron tools and Create's own machinery are open. This chapter is your Andesite Age checklist.",
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/rootborn__gather_andesite"
+}

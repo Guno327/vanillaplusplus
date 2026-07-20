@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "refinedstorage:creative_storage_block",
+      "count": 1
+    },
+    "title": "Infinite Storage",
+    "description": "Craft a Refined Storage Creative Storage Block - genuinely infinite item capacity, the true ceiling of the storage chase started back at Andesite Age.",
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/jovian_frontier__combustion_age"
+}

@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "display": {
+    "icon": {
+      "id": "minecraft:magma_block",
+      "count": 1
+    },
+    "title": "Swift Planet (optional)",
+    "description": "Travel to Mercury - either inner planet triggers Jovian Frontier, so this and Venus are both optional.",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "parent": "vanillaplusplus:quests/inner_system__electrical_age"
+}
