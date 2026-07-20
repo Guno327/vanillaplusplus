@@ -164,11 +164,11 @@ DESIGN.md's "Release engineering" section for full context on each).
   looks at an actual rendered frame (Create visuals, GeckoLib animation,
   Epic Fight combat, ImmediatelyFast/Staff-of-Physics). See the issue,
   not this bullet, for current status.
-- **Residual Rhino const-in-loop scoping risk** — now GitHub issue **#8**.
-  Fixed everywhere it was actually hit this release (`selftest.js`,
-  `leaderboard.js`); two `for (const x of ...)` forms elsewhere
-  (`economy.js`'s `payCoins`, `selftest.js`'s own coin helper) remain
-  unverified. See the issue, not this bullet, for current status.
+- **Residual Rhino const-in-loop scoping risk** — GitHub issue **#8**,
+  now CLOSED (2026-07-19): full-codebase audit against the corrected
+  criterion; `payCoins`/`stPayCoins` confirmed safe by design, a real
+  latent `/respec` bug found+fixed in `skill_respec.js` (commit
+  `653a024`), all other `try` blocks confirmed clean.
 - **MoreCulling long-term watch.** Its `neoforge.mods.toml` minecraft-
   version range is literally `[1.21,1.21.1)`, textually excluding exact
   1.21.1 — it loaded fine in this release's L2 HeadlessMC smoke test (not
@@ -177,6 +177,8 @@ DESIGN.md's "Release engineering" section for full context on each).
   `scripts/tests/l2_client_smoke.py` after any MoreCulling version bump;
   its own built-in contingency (drop from manifest/lockfile, not
   pin/patch) already fires automatically if it ever does fail to load.
+  *(2026-07-20 check: fresh `resolve_mods.py` run resolved every mod
+  `[unchanged]`, so no bump has occurred and no action is due.)*
 - **`noisiumed`-class resolver bugs in other mods.** `resolve_mods.py`'s
   `pick_file()` was fixed this release after discovering `noisiumed` had
   silently shipped a non-functional Fabric jar since Phase 9 (Modrinth's
@@ -186,4 +188,6 @@ DESIGN.md's "Release engineering" section for full context on each).
   resolver once and diffing `mods.lock.json` after any future manifest
   change, in case another mod has the same latent issue that just hasn't
   been noticed yet (only `noisiumed` was affected as of this release, per
-  a full lockfile diff this session).
+  a full lockfile diff this session). *(2026-07-20 re-check while closing
+  GitHub #21: full re-resolve produced zero file changes — no other mod
+  has surfaced the issue.)*
