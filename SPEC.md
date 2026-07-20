@@ -48,10 +48,23 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   Release pipeline runbook in `HANDOFF.md`; each mint must repin
   `nix/release.json` (`scripts/update_nix_release.py`).
 
-## Current status (2026-07-19)
+## Current status (2026-07-20)
 
-- v0.1.1 shipped: all 11 feature items + issue wave fixes (#4–#11 closed).
-- Open: issues #1–#3 (`verify-in-game`, owner-only hand verification).
-- No CI yet — charter §4 infrastructure gap, tracked as a GitHub issue.
-- Deployment: NixOS module in `flake.nix` + `nix/` (deploys from a
-  locally-downloaded release zip; README "Running on NixOS").
+- v0.2.0 shipped (beta/prerelease): FTB suite fully removed for
+  redistribution-permission reasons (#28) — Open Parties and Claims for
+  teams/claims (#32), bespoke KubeJS quest tracker + advancement GUI
+  (#33/#36) — plus the QoL wave (#13/#14/#16) and the skill-point
+  allocation fix (#24). `pack/VERSION` is `0.2.0`.
+- CI exists: `ci.yml` (fast tier, every PR/push to main), `boot.yml`
+  (L0+L1 boot tier, weekly + dispatch), `mint-release.yml`
+  (dispatch-anytime release minting from main, #27),
+  `publish-modrinth.yml` (Modrinth publish on release / dispatch).
+- Open: `verify-in-game` issues #1–#3 and #19 (owner-only hand
+  verification), and #44 `needs-owner` (submit the Modrinth project for
+  review + delete the stale FTB-embedding v0.1.1 draft — unblocks the
+  `modrinth` pin in `nix/release.json` and closes #28).
+- Deployment: NixOS module in `flake.nix` + `nix/`. Post-#43 it defaults
+  to a declarative `pkgs.fetchurl` of the server bundle from Modrinth's
+  CDN once `nix/release.json` carries a `modrinth` pin (blocked on #44);
+  until then it falls back to the manually-downloaded release zip
+  (README "Running on NixOS").

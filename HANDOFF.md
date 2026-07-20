@@ -25,6 +25,25 @@ the repo root is the durable decision log for everything decided in
 orchestrator-mode sessions; treat it as trusted input alongside
 `TODO.md`/`DESIGN.md`.
 
+**Post-v0.2.0 (2026-07-20, later the same day)**: #43 merged — the NixOS
+module now defaults to a declarative `pkgs.fetchurl` of the server bundle
+from Modrinth's CDN via a `modrinth` pin in `nix/release.json`, falling
+back to the manual-zip path while that pin is absent. The pin *is* absent:
+the Modrinth project is still in draft (public API 404s), so generating it
+is blocked on owner action — issue **#44** (`needs-owner`: submit project
+for review + delete the stale FTB-embedding v0.1.1 draft version); once
+done, run `scripts/update_nix_release.py --modrinth-only`, commit, and
+close #28. #45 merged — `mint-release.yml` (#27): dispatch-anytime release
+minting from main (bump input + prerelease default true; gates on ci.yml +
+boot.yml via `workflow_call`; workspace-only `pack/VERSION` write; release
++ notes + nix repin + explicit Modrinth dispatch + automated sync PR).
+First live mint may need the "Allow GitHub Actions to create and approve
+pull requests" repo setting (couldn't be verified via PAT — 403). #23
+closed: the crafted-item stage-trigger fix DID ship in v0.2.0 (rode in via
+the #33 lineage; v0.2.0's blob matches main's). #21 closed: all 9 drifted
+mods were already bumped to latest during #35's re-resolve and shipped
+through the full v0.2.0 gate.
+
 **GitHub is now ground truth for outstanding bugs and in-game
 verifications** (user directive, 2026-07-10): the project's GitHub repo at
 `https://github.com/Guno327/vanillaplusplus` (remote `origin`) tracks all
