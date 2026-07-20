@@ -96,22 +96,29 @@ What's in the zip: `mods/`, `config/`, `kubejs/`, `defaultconfigs/`,
 
 This repo ships a flake (`flake.nix` + `nix/module.nix`) with a NixOS
 module (`nixosModules.default`) for running the dedicated server as a
-systemd service. It deploys from a **manually downloaded release asset**,
-never from this repo's working tree or a "latest" impure fetch.
+systemd service. As of #28, it **defaults to a real declarative fetch of
+the server bundle from Modrinth's own CDN** (`nix/release.json`'s
+`modrinth` pin, verified via `pkgs.fetchurl`'s `sha512` check at
+evaluation time) — never from this repo's working tree or a "latest"
+impure fetch. A manually downloaded GitHub release zip is still supported
+as an explicit override (see step 2 below) for a custom/older/different
+build.
 
 > **Validation status, stated plainly**: `nix` could not be installed in
 > this project's own sandboxed development environment (no root, `/nix`
 > cannot be created — a single-user install was attempted and failed at
-> exactly that step). The flake and module were written and carefully
+> exactly that step), and this remained true when #28's Modrinth-fetch
+> default was added. The flake and module were written and carefully
 > reviewed by hand and cross-checked against real nixpkgs source
 > (`pkgs/build-support/fetchurl/default.nix`/`builder.sh`,
 > `lib/types.nix`, `pkgs/top-level/all-packages.nix` for `jdk21_headless`
 > on the pinned `nixos-25.11` branch), but **`nix flake check` / `nix
-> build` / `nixos-rebuild` have not actually been run against them.**
-> Treat this as reviewed-but-untested and sanity-check the evaluation
-> (`nix flake check`, then a `nixos-rebuild build-vm` or similar) on your
-> own machine before relying on it. See `DECISIONS.md`'s dated entry for
-> the full writeup of what was verified vs. assumed.
+> build` / `nixos-rebuild` have not actually been run against them,
+> `pkgs.fetchurl` default included.** Treat this as reviewed-but-untested
+> and sanity-check the evaluation (`nix flake check`, then a
+> `nixos-rebuild build-vm` or similar) on your own machine before relying
+> on it. See `DECISIONS.md`'s dated entries for the full writeup of what
+> was verified vs. assumed.
 
 ### 1. Referencing this private repo as a flake input
 
@@ -149,25 +156,31 @@ A **fine-grained PAT scoped read-only to this one repo** (Contents:
 read-only is enough for both fetching the flake and reading releases) is
 the recommended token shape either way.
 
-### 2. Download the release archive
+### 2. The server bundle (nothing to do by default)
 
-Grab `vanilla-plus-plus-server-*.zip` from the
-[releases page](https://github.com/Guno327/vanillaplusplus/releases)
-(currently pinned at version recorded in `nix/release.json`) and save it
-somewhere on the NixOS host, e.g. `/root/vanilla-plus-plus-server-0.1.0.zip`.
+`services.vanillaplusplus.serverArchive` defaults to a `pkgs.fetchurl`
+derivation pulling the pinned release's server bundle straight from
+Modrinth's own CDN (`nix/release.json`'s `modrinth.serverAssetUrl`) — Nix
+fetches and verifies it (against the pinned `sha512`) itself as part of
+evaluating the fixed-output derivation, the same way any other pinned
+dependency in a flake works. There's nothing to download by hand for the
+common case; just leave `serverArchive` unset (see step 3).
 
-This is deliberately a manual step. An automated, authenticated fetch of a
-private repo's release asset from inside a Nix derivation was researched
-(nixpkgs' `fetchurl` supports a `netrcPhase`/`netrcImpureEnvVars`
-mechanism specifically for this, verified against real nixpkgs source —
-see `DECISIONS.md`) but could not be verified end-to-end in this project's
-own validation environment (no working `nix` to actually run the fetch
-through), so it isn't shipped as a real option here — better a manual
-step than an untested "automatic" one. `services.vanillaplusplus.serverArchive`
-is the supported path instead, and the module checks the archive's
-sha256 against `nix/release.json`'s pinned hash on every sync, warning
-(not failing) on a mismatch, so you'll always know whether what you
-downloaded matches the currently-pinned release.
+Override it if you want a **different/custom/older build** instead:
+grab `vanilla-plus-plus-server-*.zip` from the
+[releases page](https://github.com/Guno327/vanillaplusplus/releases) and
+save it somewhere on the NixOS host, e.g.
+`/root/vanilla-plus-plus-server-0.1.0.zip`, then set `serverArchive` to
+that path. The module still checks whatever `serverArchive` resolves to
+against `nix/release.json`'s pinned sha256 on every sync, warning (not
+failing) on a mismatch — for the Modrinth default this is redundant with
+Nix's own build-time verification; for a manual override it's the only
+check you get.
+
+(This used to be a required manual step, back when the only fetchable
+release asset lived on this — then-private — GitHub repo, with no stable
+unauthenticated URL to fetch it from inside a Nix derivation. See
+`DECISIONS.md`'s dated entries for that history.)
 
 ### 3. Enable the module
 
@@ -184,7 +197,10 @@ downloaded matches the currently-pinned release.
           services.vanillaplusplus = {
             enable = true;
             eula = true; # https://aka.ms/MinecraftEULA -- must be explicit
-            serverArchive = "/root/vanilla-plus-plus-server-0.1.0.zip";
+            # serverArchive not set: defaults to fetching the pinned
+            # release from Modrinth (see step 2). Uncomment to override
+            # with a manually downloaded build instead:
+            # serverArchive = "/root/vanilla-plus-plus-server-0.1.0.zip";
             openFirewall = true;
             # jvmOpts defaults to the shipped -Xms6G/-Xmx6G + Aikar's flags --
             # override only if you need different memory/GC tuning.
@@ -206,7 +222,7 @@ downloaded matches the currently-pinned release.
 |---|---|---|
 | `enable` | `false` | |
 | `eula` | `false` | Must be set `true` explicitly (assertion) — mirrors the bundle's own EULA refusal and upstream `services.minecraft-server.eula`. |
-| `serverArchive` | `null` (required) | Path to the manually downloaded release zip — plain string to avoid a ~380MB Nix-store copy, or a path literal if you don't mind one. |
+| `serverArchive` | `pkgs.fetchurl` from the pinned Modrinth release | Override with a manually downloaded release zip's path for a custom/older/different build — plain string to avoid a ~380MB Nix-store copy, or a path literal if you don't mind one. |
 | `jvmOpts` | shipped `-Xms6G -Xmx6G` + Aikar's flags, verbatim | Written to `user_jvm_args.txt` fresh on every start. |
 | `dataDir` | `/var/lib/vanillaplusplus` | Holds `world/`, `logs/`, `server.properties`, `eula.txt`, and the synced bundle. |
 | `openFirewall` | `false` | Opens `port` in `networking.firewall`. |
@@ -214,12 +230,18 @@ downloaded matches the currently-pinned release.
 | `user` / `group` | `vanillaplusplus` | Static (not `DynamicUser` — a poor fit for a large, must-persist `dataDir`). |
 | `serverProperties` | `{}` | Attrset merged onto the shipped `server.properties`, non-destructively (nix-declared keys win, everything else — including your own manual edits in `dataDir` — survives upgrades). |
 
-Upgrading: download the new release zip, point `serverArchive` at it (a
-new path, or the same path with new contents — either works, detection is
-by file size+mtime), `nixos-rebuild switch`, restart the service. `world/`,
-`logs/`, `crash-reports/`, and your `server.properties`/`eula.txt` are
-never touched by the sync; only `mods/`, `config/`, `kubejs/`,
-`defaultconfigs/`, `libraries/`, `run.sh`, `run.bat` get refreshed.
+Upgrading (default/Modrinth path): update your flake input to a newer
+commit of this repo (`nix flake update vanillaplusplus` or equivalent —
+`nix/release.json`'s pin moves with the repo, not with anything on your
+host), `nixos-rebuild switch`, restart the service — the new
+`pkgs.fetchurl` derivation is fetched automatically. Upgrading with a
+manual `serverArchive` override: download the new release zip, point
+`serverArchive` at it (a new path, or the same path with new contents —
+either works, detection is by file size+mtime), `nixos-rebuild switch`,
+restart. Either way, `world/`, `logs/`, `crash-reports/`, and your
+`server.properties`/`eula.txt` are never touched by the sync; only
+`mods/`, `config/`, `kubejs/`, `defaultconfigs/`, `libraries/`, `run.sh`,
+`run.bat` get refreshed.
 Stopping is done by writing `stop` to a fifo (the same mechanism this
 project's own dev boot-testing uses for a clean shutdown, see
 `HANDOFF.md`), not a bare `SIGTERM`/`SIGKILL`, to avoid a stale `world/`
@@ -265,7 +287,7 @@ automation ever publishes a release on its own.
 |---|---|
 | `pack/` | The modpack source of truth: manifest, mod lockfile, config, kubejs scripts, `VERSION` |
 | `scripts/` | Build/release tooling (`build_mrpack.py`, `build_server_bundle.py`, `resolve_mods.py`, generators), `update_nix_release.py` (repins `nix/release.json` to the latest minted release), and the L0/L1/L2 test suites under `scripts/tests/` |
-| `flake.nix`, `nix/` | The NixOS flake/module for running the dedicated server (see "Running on NixOS" above) — `nix/module.nix` is the module, `nix/release.json` pins the current release's version/hash for the module's manually-downloaded `serverArchive` to verify against |
+| `flake.nix`, `nix/` | The NixOS flake/module for running the dedicated server (see "Running on NixOS" above) — `nix/module.nix` is the module, `nix/release.json` pins the current release's version/hash, including the Modrinth CDN URL `serverArchive` fetches from by default |
 | `server/` | Generated, local-only dev server (synced from `pack/` by `scripts/build_server.py`) — not part of the repo's shipped content |
 | `DESIGN.md` | The canonical design doc — full rationale for every system, mod choice, and tier |
 | `TODO.md` | The feature backlog, one section per item, with implementation status |

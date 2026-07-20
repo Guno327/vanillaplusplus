@@ -45,6 +45,29 @@ let
   expectedSha256Hex = release.sha256Hex or null;
   expectedTag = release.tag or release.version or "unknown";
 
+  # #28: the server bundle is now also published to Modrinth (a stable,
+  # public, unauthenticated CDN URL - see .github/workflows/publish-
+  # modrinth.yml and scripts/update_nix_release.py, which populates
+  # release.modrinth from Modrinth's own API after each release). When
+  # present, this is a REAL declarative fetch (pkgs.fetchurl, a
+  # fixed-output derivation Nix verifies against the pinned sha512 itself
+  # at build time and refuses to proceed on mismatch) -- a strictly
+  # stronger guarantee than the old runtime sha256-check-that-only-warns
+  # against a manually downloaded file. `release.modrinth` is absent if
+  # scripts/update_nix_release.py ran before the async Modrinth publish
+  # workflow finished, or before the project was taken out of Modrinth's
+  # own draft/review status (see that script's own comments) -- in either
+  # case this is null and `serverArchive` falls back to being a required
+  # manual option, exactly the pre-#28 behavior.
+  modrinthServerArchive =
+    if release ? modrinth then
+      pkgs.fetchurl {
+        url = release.modrinth.serverAssetUrl;
+        sha512 = release.modrinth.serverAssetSha512;
+      }
+    else
+      null;
+
   propType = lib.types.oneOf [
     lib.types.str
     lib.types.bool
@@ -60,14 +83,13 @@ let
     in
     lib.concatStringsSep "\n" lines;
 
-  # Unzips + syncs services.vanillaplusplus.serverArchive (a manually
-  # downloaded release zip -- see README's "Running on NixOS" section: this
-  # is the project's PRIMARY, verified deployment mechanism, chosen over an
-  # automated authenticated fetch because there is no way to verify a
-  # purely-declarative private-repo asset fetch end-to-end in this
-  # project's own validation environment; see DECISIONS.md) into dataDir,
-  # preserving world/, logs/, crash-reports/, server.properties, and
-  # eula.txt across upgrades. Unzips into an isolated /tmp staging dir
+  # Unzips + syncs services.vanillaplusplus.serverArchive (defaults to a
+  # pkgs.fetchurl-fetched Nix store path from Modrinth, see
+  # modrinthServerArchive above; may instead be a manually downloaded
+  # release zip if the operator overrode it -- see README's "Running on
+  # NixOS" section) into dataDir, preserving world/, logs/,
+  # crash-reports/, server.properties, and eula.txt across upgrades.
+  # Unzips into an isolated /tmp staging dir
   # (PrivateTmp=true means this never collides with anything, and it's
   # never left inside dataDir where it could confuse the rsync
   # source/destination relationship) rather than through a Nix-store
@@ -239,36 +261,42 @@ in
 
     serverArchive = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
-      default = null;
+      default = modrinthServerArchive;
+      defaultText = lib.literalExpression ''
+        # a pkgs.fetchurl derivation pulling the pinned release's server
+        # bundle from Modrinth's CDN (release.modrinth in nix/release.json)
+        pkgs.fetchurl { url = "https://cdn.modrinth.com/..."; sha512 = "..."; }
+      '';
       example = "/root/vanilla-plus-plus-server-0.1.0.zip";
       description = ''
-        **Required.** Path to a manually downloaded Vanilla++ server
-        release zip (from
-        https://github.com/Guno327/vanillaplusplus/releases -- grab the
-        `vanilla-plus-plus-server-*.zip` asset, currently pinned at
-        version ${release.version} per `nix/release.json`).
+        Path to a Vanilla++ server release zip. **Defaults to a real,
+        declarative `pkgs.fetchurl` fetch from Modrinth's own CDN**
+        (`nix/release.json`'s `modrinth.serverAssetUrl`, currently pinned
+        at version ${release.version}) -- Nix verifies the download
+        against the pinned `sha512` itself as part of evaluating this
+        fixed-output derivation and refuses to proceed on a mismatch, no
+        separate runtime check needed for the default path.
 
-        This is the project's primary deployment mechanism, by design: an
-        automated authenticated fetch of a private repo's release asset
-        was researched (nixpkgs `fetchurl`'s `netrcPhase` mechanism) but
-        could not be verified end-to-end in this project's own validation
-        environment, so it isn't shipped here -- see README.md's "Running
-        on NixOS" section and this repo's DECISIONS.md for the full
-        writeup. Downloading the zip by hand and pointing this option at
-        it sidesteps the private-repo-fetch problem entirely.
+        Override this (a manually downloaded
+        `vanilla-plus-plus-server-*.zip` from
+        https://github.com/Guno327/vanillaplusplus/releases, or any other
+        build) if you want a different/custom/older bundle than what's
+        currently pinned -- give it a **plain string path** if you don't
+        want that build copied into the Nix store (stays a live reference
+        to wherever it is on disk), or a **Nix path literal** (e.g.
+        `./vanilla-plus-plus-server-0.1.0.zip`) if you're fine with that
+        store copy. The module unzips whatever this resolves to itself at
+        service-start time (not at build time), and additionally checks
+        it against `nix/release.json`'s pinned sha256 on every (re)sync,
+        logging a warning (not a failure) on a mismatch -- this
+        runtime check is now mostly relevant to the override path, since
+        the Modrinth default is already verified at build time.
 
-        Give this a **plain string path** (e.g. the `example` above) if
-        you don't want the ~380MB zip copied into the Nix store (it stays
-        a live reference to wherever it is on disk); give it a **Nix path
-        literal** (e.g. `./vanilla-plus-plus-server-0.1.0.zip`) if you're
-        fine with -- or want -- that store copy. Either way, the module
-        unzips it itself at service-start time (not at build time), so
-        the archive is read fresh from wherever this option points.
-
-        The module checks this file's sha256 against `nix/release.json`'s
-        pinned hash on every (re-)sync and logs a warning (not a failure)
-        on a mismatch -- pointing this at an older/newer/custom build is
-        supported, you'll just get a heads-up either way.
+        `null` only if `nix/release.json` has no `modrinth` pin yet (the
+        async Modrinth publish for the current release hasn't finished,
+        or the Modrinth project is still in draft -- see
+        `scripts/update_nix_release.py`'s own comments) -- in that case
+        this option reverts to being **required**, same as before #28.
       '';
     };
 
@@ -375,13 +403,17 @@ in
       {
         assertion = cfg.serverArchive != null;
         message = ''
-          services.vanillaplusplus.serverArchive must be set to the path of
-          a manually downloaded Vanilla++ server release zip. Download
+          services.vanillaplusplus.serverArchive resolved to null. This
+          only happens when nix/release.json has no `modrinth` pin yet
+          (the async Modrinth publish for the pinned release hasn't
+          finished, or the Modrinth project is still in draft/unpublished
+          status -- re-run `scripts/update_nix_release.py --modrinth-only`
+          once that's resolved) -- in the meantime, set serverArchive
+          yourself to the path of a manually downloaded
           vanilla-plus-plus-server-*.zip from
           https://github.com/Guno327/vanillaplusplus/releases (currently
-          pinned at version ${release.version} per nix/release.json) and
-          set this option to its path -- see README.md's "Running on
-          NixOS" section.
+          pinned at version ${release.version} per nix/release.json) --
+          see README.md's "Running on NixOS" section.
         '';
       }
     ];

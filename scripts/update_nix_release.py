@@ -4,16 +4,17 @@
 This is the last step of the release pipeline (HANDOFF.md's "Release
 pipeline" section) as of the NixOS flake/module addition: every time a
 release is cut, this script must run afterward so nix/release.json stays
-current. The NixOS module's primary deployment path is a MANUALLY
-downloaded release zip (`services.vanillaplusplus.serverArchive` -- see
-README.md's "Running on NixOS" section for why: there's no verified,
-purely-declarative way to auto-fetch a private repo's release asset from
-within a Nix derivation in this project's validation environment, so we
-don't ship that as a real mechanism). nix/release.json's job now is purely
-informational/verification: it records which release is "current" and
-that release's real sha256, so (a) operators know what to download, and
-(b) the module's sync script can warn (not fail) if the archive an
-operator points it at doesn't match the pinned hash.
+current.
+
+GitHub Actions section: the NixOS module's `serverArchive` option now
+DEFAULTS to fetching the server bundle from Modrinth's own CDN (a stable,
+public, unauthenticated URL - see nix/module.nix and #28's Modrinth
+work), so this script also queries Modrinth's public API (no auth needed)
+for the version matching this release and records its file's CDN URL +
+hash. The GitHub-side asset info (assetId/assetApiUrl/sha256) is still
+recorded too - it's what the module's mismatch-check warns against when
+an operator points `serverArchive` at a manual/custom build, same as
+before this change.
 
 What it does:
 1. Resolves a release via the GitHub API - by default the *latest*
@@ -26,20 +27,33 @@ What it does:
    Accept: application/octet-stream asset-API endpoint), confirms the
    size matches the API's reported size, and hashes it - the canonical
    bytes are what got uploaded, never the local working tree.
-4. Writes nix/release.json with the new tag/version/assetId/assetApiUrl/
-   size/sha256 (SRI form)/sha256Hex (plain hex, what the module's sync
-   script compares an operator-provided archive against).
+4. Queries Modrinth's public API for the version whose version_number
+   matches this release, and within it the file matching the same
+   asset name, for its CDN url + sha512 (retries briefly - the Modrinth
+   publish workflow that uploads it runs asynchronously off the same
+   GitHub release and may not have finished yet; non-fatal if it never
+   shows up, this step is just skipped with a warning and can be re-run
+   alone later via --modrinth-only).
+5. Writes nix/release.json with the new tag/version/assetId/assetApiUrl/
+   size/sha256 (SRI form)/sha256Hex (plain hex) plus, if found, a
+   `modrinth` object (projectId/versionId/serverAssetUrl/serverAssetSha512)
+   that nix/module.nix's default `serverArchive` fetchurl actually uses.
 
-Auth: needs a GitHub token with at least read access to this private
-repo's releases. Resolution order:
+Auth: needs a GitHub token with at least read access to this repo's
+releases (the repo is public, so this is mostly about rate limits, not
+privacy). Resolution order:
   1. --token argument
   2. GITHUB_TOKEN / VPP_GITHUB_TOKEN environment variable
   3. `gh auth token` (if the gh CLI is installed and logged in)
-Never hardcode a token in this file or print one it reads.
+Never hardcode a token in this file or print one it reads. Modrinth's API
+needs no auth at all - it's a public read.
 
 Usage:
   python3 scripts/update_nix_release.py                # latest release
   python3 scripts/update_nix_release.py --tag v0.1.0   # a specific tag
+  python3 scripts/update_nix_release.py --modrinth-only --tag v0.2.0
+    # re-run just the Modrinth lookup against an already-written
+    # nix/release.json, once the async publish workflow has finished
 """
 import argparse
 import base64
@@ -48,6 +62,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 import zipfile
@@ -59,6 +74,14 @@ REPO = "Guno327/vanillaplusplus"
 API = "https://api.github.com"
 ASSET_PREFIX = "vanilla-plus-plus-server-"
 ASSET_SUFFIX = ".zip"
+
+# This project's own Modrinth project (see .github/workflows/publish-
+# modrinth.yml / #28) - not a secret, same constant shape as e.g.
+# scripts/build_mrpack.py's NEOFORGE_VERSION.
+MODRINTH_PROJECT_ID = "Yw2p2yPA"
+MODRINTH_API = "https://api.modrinth.com/v2"
+MODRINTH_POLL_ATTEMPTS = 6
+MODRINTH_POLL_DELAY_S = 5
 
 
 def get_token(cli_token: str | None) -> str:
@@ -147,6 +170,74 @@ def detect_neoforge_version(zip_path: Path) -> str | None:
     return None
 
 
+def fetch_modrinth_server_file(version: str, asset_name: str) -> dict | None:
+    """Looks up this project's Modrinth version matching `version`
+    (e.g. "0.2.0") and returns {"versionId", "url", "sha512"} for the file
+    named `asset_name` within it, or None if not found after polling
+    (the async publish workflow may not have finished yet - non-fatal)."""
+    req = urllib.request.Request(
+        f"{MODRINTH_API}/project/{MODRINTH_PROJECT_ID}/version",
+        headers={"User-Agent": "vpp-update-nix-release"},
+    )
+    for attempt in range(1, MODRINTH_POLL_ATTEMPTS + 1):
+        try:
+            with urllib.request.urlopen(req) as r:
+                versions = json.load(r)
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                # Two real causes collapse to the same 404 here: the
+                # version genuinely doesn't exist yet (publish workflow
+                # still running - polling helps), or the Modrinth PROJECT
+                # itself is still in draft/unpublished status (its public
+                # API is 404 for everything, versions included, no matter
+                # how long you wait - polling never helps, only the owner
+                # submitting the project for review does). Ground-truthed
+                # 2026-07-20: GET /project/{id} alone 404s the same way
+                # while still in draft.
+                versions = []
+            else:
+                print(f"warning: Modrinth API error looking up versions: HTTP {e.code}", file=sys.stderr)
+                versions = []
+        except urllib.error.URLError as e:
+            print(f"warning: Modrinth API unreachable: {e}", file=sys.stderr)
+            versions = []
+
+        match = next((v for v in versions if v.get("version_number") == version), None)
+        if match:
+            file_match = next((f for f in match.get("files", []) if f.get("filename") == asset_name), None)
+            if file_match:
+                return {
+                    "versionId": match["id"],
+                    "url": file_match["url"],
+                    "sha512": file_match["hashes"]["sha512"],
+                }
+            print(
+                f"warning: found Modrinth version {version!r} but it has no file named {asset_name!r} "
+                f"(has: {[f.get('filename') for f in match.get('files', [])]})",
+                file=sys.stderr,
+            )
+            return None
+
+        if attempt < MODRINTH_POLL_ATTEMPTS:
+            print(
+                f"Modrinth version {version!r} not visible yet (attempt {attempt}/{MODRINTH_POLL_ATTEMPTS}) "
+                f"- the publish-modrinth.yml workflow may still be running, retrying in {MODRINTH_POLL_DELAY_S}s..."
+            )
+            time.sleep(MODRINTH_POLL_DELAY_S)
+
+    print(
+        f"warning: Modrinth version {version!r} still not found after polling - "
+        "nix/release.json's `modrinth` fields will be omitted. Either the "
+        "publish-modrinth.yml workflow run for this release hasn't finished yet "
+        "(re-run with --modrinth-only once it has), or the Modrinth project itself "
+        f"({MODRINTH_PROJECT_ID}) is still in draft/unpublished status, in which case "
+        "polling will never succeed - the project needs to be submitted for review on "
+        "modrinth.com first (owner-only action).",
+        file=sys.stderr,
+    )
+    return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--tag", default=None, help="release tag to pin (default: latest)")
@@ -156,7 +247,27 @@ def main() -> None:
         default="/tmp/vpp-nix-release-scratch",
         help="scratch dir for the downloaded asset (default: /tmp/vpp-nix-release-scratch)",
     )
+    ap.add_argument(
+        "--modrinth-only",
+        action="store_true",
+        help="skip the GitHub download/hash pass and only (re-)fetch the Modrinth `modrinth` "
+             "fields into the existing nix/release.json - use once the async publish workflow "
+             "has actually finished, if the main run above warned it hadn't yet",
+    )
     args = ap.parse_args()
+
+    if args.modrinth_only:
+        if not RELEASE_JSON.exists():
+            print(f"error: {RELEASE_JSON} does not exist yet - run without --modrinth-only first", file=sys.stderr)
+            sys.exit(1)
+        data = json.loads(RELEASE_JSON.read_text())
+        modrinth = fetch_modrinth_server_file(data["version"], data["assetName"])
+        if modrinth is None:
+            sys.exit(1)
+        data["modrinth"] = {"projectId": MODRINTH_PROJECT_ID, **modrinth}
+        RELEASE_JSON.write_text(json.dumps(data, indent=2) + "\n")
+        print(f"wrote {RELEASE_JSON} (modrinth fields only)")
+        return
 
     token = get_token(args.token)
 
@@ -214,14 +325,24 @@ def main() -> None:
     else:
         print(f"detected NeoForge version: {neoforge_version}")
 
+    print(f"== looking up Modrinth version {version!r} (project {MODRINTH_PROJECT_ID}) ==")
+    modrinth = fetch_modrinth_server_file(version, asset["name"])
+
     data = {
         "_comment": (
-            "Informational pin of the current minted GitHub release, for the NixOS "
-            "module's manually-downloaded serverArchive path to verify against (warns, "
-            "doesn't fail, on a mismatch -- custom/local bundles are supported). "
-            "Regenerated by scripts/update_nix_release.py at every release cut (see "
-            "HANDOFF.md's release pipeline) -- do not hand-edit except for emergencies, "
-            "and re-run the script afterward to confirm the hash still matches."
+            "Pin of the current minted release's server bundle. nix/module.nix's "
+            "serverArchive option defaults to fetching `modrinth.serverAssetUrl` (a "
+            "stable, public, unauthenticated Modrinth CDN URL) via pkgs.fetchurl, "
+            "verified against `modrinth.serverAssetSha512` at evaluation time - a real "
+            "declarative fetch, not a runtime check. The top-level assetId/assetApiUrl/"
+            "sha256 fields are the GitHub side of the same release, kept as the "
+            "informational reference the module's sync script warns (doesn't fail) "
+            "against if an operator points serverArchive at a manual/custom build "
+            "instead. Regenerated by scripts/update_nix_release.py at every release cut "
+            "(see HANDOFF.md's release pipeline) -- do not hand-edit except for "
+            "emergencies, and re-run the script afterward to confirm the hash still "
+            "matches. If `modrinth` is missing, the async publish-modrinth.yml workflow "
+            "hadn't finished when this was generated - re-run with --modrinth-only."
         ),
         "repo": REPO,
         "tag": tag,
@@ -235,9 +356,18 @@ def main() -> None:
     }
     if neoforge_version is not None:
         data["neoforgeVersion"] = neoforge_version
+    if modrinth is not None:
+        data["modrinth"] = {"projectId": MODRINTH_PROJECT_ID, **modrinth}
     RELEASE_JSON.write_text(json.dumps(data, indent=2) + "\n")
     print(f"wrote {RELEASE_JSON}")
-    print("Next: git add nix/release.json && commit -- the flake now resolves this pinned release.")
+    if modrinth is None:
+        print(
+            "Next: re-run `python3 scripts/update_nix_release.py --modrinth-only --tag "
+            f"{tag}` once the publish-modrinth.yml workflow run for this release has "
+            "finished, then git add nix/release.json && commit."
+        )
+    else:
+        print("Next: git add nix/release.json && commit -- the flake now resolves this pinned release.")
 
 
 if __name__ == "__main__":
