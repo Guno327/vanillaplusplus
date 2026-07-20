@@ -1,6 +1,7 @@
 name: Publish to Modrinth
 
-# Pushes the client .mrpack from a GitHub Release to Modrinth.
+# Pushes the client .mrpack AND the server .zip from a GitHub Release to
+# Modrinth, as two files on the same version.
 #
 # RESUMED (#28, 2026-07-20): was paused because FTB Library/Teams/Quests/
 # Chunks were CurseForge-only mods we had no redistribution permission for,
@@ -11,6 +12,17 @@ name: Publish to Modrinth
 # and Claims; #33: FTB Quests -> a bespoke KubeJS quest tracker; FTB
 # Library dropped once those were its only remaining consumers) - nothing
 # in the pack is redistribution-restricted anymore.
+#
+# SERVER BUNDLE ADDED (#28, same day): the NixOS module
+# (nix/module.nix) now defaults to fetching the dedicated-server bundle
+# from Modrinth's own CDN (a stable, public, unauthenticated URL) instead
+# of requiring a manually downloaded GitHub release asset - see
+# scripts/update_nix_release.py, which reads the file back from Modrinth's
+# API after this workflow runs. `files:` below lists the .mrpack first so
+# it stays the version's primary/default-download file (mc-publish has no
+# explicit primary-file control beyond match order); the server .zip is
+# just a second file attached to the same version, not a separate
+# modpack/project entry.
 #
 # Requires two things only the owner can provide (tracked on #28):
 #   - vars.MODRINTH_PROJECT_ID  — the Modrinth project's slug/ID (not
@@ -52,13 +64,14 @@ jobs:
             echo "version_type=release" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Download the release's .mrpack + changelog
+      - name: Download the release's .mrpack + server .zip + changelog
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p dist
           gh release download "${{ steps.release.outputs.tag }}" --repo "$GITHUB_REPOSITORY" --pattern '*.mrpack' --dir dist
+          gh release download "${{ steps.release.outputs.tag }}" --repo "$GITHUB_REPOSITORY" --pattern '*.zip' --dir dist
           gh release view "${{ steps.release.outputs.tag }}" --repo "$GITHUB_REPOSITORY" --json body -q .body > dist/CHANGELOG.md
 
       - name: Publish to Modrinth
@@ -66,7 +79,9 @@ jobs:
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          files: dist/*.mrpack
+          files: |
+            dist/*.mrpack
+            dist/*.zip
           name: Vanilla++ ${{ steps.release.outputs.tag }}
           version: ${{ steps.release.outputs.version }}
           version-type: ${{ steps.release.outputs.version_type }}
