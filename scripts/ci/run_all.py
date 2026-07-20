@@ -22,6 +22,7 @@ CHECKS = [
     "lint_rhino.py",
     "check_quests.py",
     "check_advancements.py",
+    "check_skill_trees.py",
 ]
 
 

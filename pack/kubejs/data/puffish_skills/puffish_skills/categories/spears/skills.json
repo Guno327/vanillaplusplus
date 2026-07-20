@@ -2,7 +2,8 @@
 	"n0": {
 		"x": 0,
 		"y": 0,
-		"definition": "reach+0.5"
+		"definition": "reach+0.5",
+		"root": true
 	},
 	"n1": {
 		"x": 32,

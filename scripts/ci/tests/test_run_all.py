@@ -47,6 +47,17 @@ def _minimal_valid_pack(root):
     }
     (pack / "kubejs" / "data" / "vanillaplusplus" / "advancement" / "quests" / "q1.json").write_text(
         json.dumps(advancement), encoding="utf-8")
+
+    # GitHub #24: one minimal, valid puffish_skills category (config.json +
+    # category.json with starting_points, one definition, one root skill).
+    skills_root = pack / "kubejs" / "data" / "puffish_skills" / "puffish_skills"
+    cat_dir = skills_root / "categories" / "cat1"
+    cat_dir.mkdir(parents=True)
+    (skills_root / "config.json").write_text(json.dumps({"categories": ["cat1"]}), encoding="utf-8")
+    (cat_dir / "category.json").write_text(json.dumps({"starting_points": 1}), encoding="utf-8")
+    (cat_dir / "definitions.json").write_text(json.dumps({"def1": {}}), encoding="utf-8")
+    (cat_dir / "skills.json").write_text(
+        json.dumps({"skill1": {"x": 0, "y": 0, "definition": "def1", "root": True}}), encoding="utf-8")
     return pack
 
 

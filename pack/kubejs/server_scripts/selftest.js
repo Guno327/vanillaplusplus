@@ -133,13 +133,63 @@ stCheck('SkillsAPI: 12 skill categories all present', () => {
     return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 12 present' : 'missing: ' + missing.join(',') }
 })
 
-stCheck('SkillsAPI: swords category has an Experience/level source', () => {
+stCheck('SkillsAPI: all 12 skill categories have an Experience/level source (points wiring)', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
-    let catRl = ST_ResourceLocationClass.fromNamespaceAndPath('puffish_skills', 'swords')
-    let catOpt = ST_SkillsAPIClass.getCategory(catRl)
-    if (!catOpt.isPresent()) return { pass: false, detail: 'swords category missing' }
-    let expOpt = catOpt.get().getExperience()
-    return { pass: expOpt.isPresent(), detail: expOpt.isPresent() ? 'ok' : 'no Experience for swords category' }
+    let missing = []
+    for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
+        let catRl = ST_ResourceLocationClass.fromNamespaceAndPath('puffish_skills', ST_SKILL_CATEGORIES[i])
+        let catOpt = ST_SkillsAPIClass.getCategory(catRl)
+        if (!catOpt.isPresent()) { missing.push(ST_SKILL_CATEGORIES[i] + '(category missing)'); continue }
+        if (!catOpt.get().getExperience().isPresent()) missing.push(ST_SKILL_CATEGORIES[i])
+    }
+    return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 12 wired' : 'missing Experience: ' + missing.join(',') }
+})
+
+// issue #24 ("plenty of skill points but unable to allocate them") ground-
+// truthed root cause: every one of the 12 categories' skills.json had ZERO
+// nodes with "root": true (scripts/gen_skill_tree.py never set it). Per
+// javap against the installed puffish_skills-0.18.1-1.21-neoforge.jar,
+// net.puffish.skillsmod.server.data.CategoryData.getSkillState only reaches
+// AVAILABLE/AFFORDABLE (clickable) via a root node or a `normal` edge from
+// an already-unlocked node - with unlockedSkills starting empty for every
+// player and zero roots, every node in every category was permanently
+// LOCKED regardless of points held. Fixed in scripts/gen_skill_tree.py
+// (n0 now carries "root": true) + regenerated pack/kubejs/data/
+// puffish_skills/puffish_skills/categories/*/skills.json.
+//
+// This exact invariant ("at least one root node per category") is NOT
+// re-checked here at L1: the public net.puffish.skillsmod.api surface only
+// exposes per-node unlock STATE via Skill#getState(ServerPlayer), which
+// needs a real connected player - this command runs over cmd_fifo with no
+// attached ServerPlayer (see this file's own header comment), so that check
+// would always SKIP under the L1 harness and never actually catch a
+// regression. There is also no way to read the raw skills.json "root" field
+// from KubeJS/Rhino directly - java.io/java.nio are hard-blocked by this
+// pack's installed KubeJS's own kubejs.classfilter.txt (ground-truthed the
+// same way food_selftest.js's config/solonion.json check documents; see
+// that file's comment for the extraction). The static, always-reliable,
+// pre-boot check for this invariant lives instead in
+// scripts/ci/check_skill_trees.py (run via scripts/ci/run_all.py) - it
+// parses skills.json directly and asserts every category has >=1 root node
+// plus that every "definition" reference resolves, catching this bug class
+// (and the silent-node-drop variant) well before a boot is ever attempted.
+// What L1 CAN and does check here instead: that every category's skill
+// node count survived config parsing intact (15/15) - a bad "definition"
+// reference doesn't fail the datapack load, it silently drops just that
+// node (net.puffish.skillsmod.config.skill.SkillConfig.parse), which would
+// show up here as a category with fewer than 15 skills reachable through
+// the API.
+stCheck('SkillsAPI: all 12 skill categories retained their full 15-node skill count after parsing', () => {
+    if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
+    let bad = []
+    for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
+        let catRl = ST_ResourceLocationClass.fromNamespaceAndPath('puffish_skills', ST_SKILL_CATEGORIES[i])
+        let catOpt = ST_SkillsAPIClass.getCategory(catRl)
+        if (!catOpt.isPresent()) { bad.push(ST_SKILL_CATEGORIES[i] + '(category missing)'); continue }
+        let count = catOpt.get().streamSkills().toArray().length
+        if (count !== 15) bad.push(ST_SKILL_CATEGORIES[i] + '=' + count)
+    }
+    return { pass: bad.length === 0, detail: bad.length === 0 ? 'all 12 have 15/15 nodes' : 'bad counts: ' + bad.join(',') }
 })
 
 stCheck('Numismatics: bank account/balance reachable for a player', (server, player) => {
