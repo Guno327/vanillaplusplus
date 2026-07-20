@@ -386,6 +386,137 @@ stCheck('progression_stage_bridge: crafted-item trigger grants the stage via pla
     }
 })
 
+// GitHub #33: bespoke quest tracker replacing FTB Quests (pack/kubejs/
+// server_scripts/quests.js). NOTE: this repo's existing selftest.js had NO
+// coverage at all for the two earlier Phase-6 KubeJS-only quest-style
+// systems (achievements.js/dailies.js - grepped this file for "achiev"/
+// "dailies"/"bounty" before writing these, found nothing) despite the task
+// that produced this file asking for "the same rigor as achievements.js's
+// existing selftest coverage" - there is no such coverage to match, so
+// these checks instead follow this file's own general house style (guarded
+// player checks, boot-level wiring checks, a real regression-guard round
+// trip that restores what it touched) - the same shape as the
+// progression_stage_bridge checks directly above.
+stCheck('quests: QUEST_CHAPTERS loaded with 10 chapters / 62 quests / 87 dependencies', () => {
+    if (typeof QUEST_CHAPTERS === 'undefined') {
+        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
+    }
+    let chapters = QUEST_CHAPTERS.length
+    let quests = 0
+    let deps = 0
+    for (let i = 0; i < QUEST_CHAPTERS.length; i++) {
+        quests += QUEST_CHAPTERS[i].quests.length
+        for (let j = 0; j < QUEST_CHAPTERS[i].quests.length; j++) {
+            deps += QUEST_CHAPTERS[i].quests[j].dependencies.length
+        }
+    }
+    let ok = chapters === 10 && quests === 62 && deps === 87
+    return { pass: ok, detail: `chapters=${chapters} quests=${quests} deps=${deps}` }
+})
+
+stCheck('quests: progress-storage round trip on a synthetic id (no real quest touched)', server => {
+    if (typeof markQuestComplete !== 'function' || typeof isQuestComplete !== 'function'
+        || typeof questsEnsureCompound !== 'function' || typeof QUESTS_PROGRESS_ROOT_KEY === 'undefined') {
+        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
+    }
+    let key = 'vpp_selftest_probe_team'
+    let qid = 'vpp_selftest_probe_quest'
+    let before = isQuestComplete(server, key, qid)
+    markQuestComplete(server, key, qid)
+    let after = isQuestComplete(server, key, qid)
+    // Clean up: this key/id pair is synthetic and never appears in
+    // QUEST_CHAPTERS, but remove it anyway so nothing lingers in
+    // persistentData across repeated selftest runs.
+    let root = questsEnsureCompound(server.persistentData, QUESTS_PROGRESS_ROOT_KEY)
+    if (root.contains(key, 10)) root.remove(key)
+    return { pass: !before && after, detail: 'before=' + before + ' after=' + after }
+})
+
+stCheck('quests: getProgressKey resolves for a live player without throwing', (server, player) => {
+    if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
+    if (typeof getProgressKey !== 'function') {
+        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
+    }
+    let key = getProgressKey(player)
+    return { pass: typeof key === 'string' && key.length > 0, detail: 'key=' + key }
+})
+
+stCheck('quests: checkTask resolves item/kill/dimension/gamestage task types without throwing', (server, player) => {
+    if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
+    if (typeof checkTask !== 'function') {
+        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
+    }
+    checkTask(player, { type: 'item', item: 'minecraft:stone', count: 1 })
+    checkTask(player, { type: 'kill', entity: 'minecraft:zombie', count: 1 })
+    checkTask(player, { type: 'dimension', dimension: 'minecraft:overworld' })
+    checkTask(player, { type: 'gamestage', stage: 'rootborn' })
+    return { pass: true, detail: 'ok' }
+})
+
+stCheck('quests command node is registered, with all 10 chapter subcommands', server => {
+    let root = server.getCommands().getDispatcher().getRoot()
+    let children = root.getChildren().toArray()
+    let questsNode = null
+    for (let i = 0; i < children.length; i++) {
+        if (String(children[i].getName()) === 'quests') { questsNode = children[i]; break }
+    }
+    if (!questsNode) return { pass: false, detail: 'quests command missing' }
+    let subChildren = questsNode.getChildren().toArray()
+    let names = []
+    for (let i = 0; i < subChildren.length; i++) names.push(String(subChildren[i].getName()))
+    let missing = []
+    for (let i = 0; i < QUEST_CHAPTERS.length; i++) {
+        if (names.indexOf(QUEST_CHAPTERS[i].id) < 0) missing.push(QUEST_CHAPTERS[i].id)
+    }
+    return { pass: missing.length === 0, detail: missing.length === 0 ? (names.length + ' chapter subcommands present') : ('missing: ' + missing.join(',')) }
+})
+
+stCheck('quest check node is registered, with all checkmark-quest subcommands', server => {
+    let root = server.getCommands().getDispatcher().getRoot()
+    let children = root.getChildren().toArray()
+    let questNode = null
+    for (let i = 0; i < children.length; i++) {
+        if (String(children[i].getName()) === 'quest') { questNode = children[i]; break }
+    }
+    if (!questNode) return { pass: false, detail: 'quest command missing' }
+    let questChildren = questNode.getChildren().toArray()
+    let checkNode = null
+    for (let i = 0; i < questChildren.length; i++) {
+        if (String(questChildren[i].getName()) === 'check') { checkNode = questChildren[i]; break }
+    }
+    if (!checkNode) return { pass: false, detail: 'quest check subcommand missing' }
+    let idChildren = checkNode.getChildren().toArray()
+    let names = []
+    for (let i = 0; i < idChildren.length; i++) names.push(String(idChildren[i].getName()))
+    let missing = []
+    for (let i = 0; i < CHECKMARK_QUEST_IDS.length; i++) {
+        if (names.indexOf(CHECKMARK_QUEST_IDS[i]) < 0) missing.push(CHECKMARK_QUEST_IDS[i])
+    }
+    return { pass: missing.length === 0 && CHECKMARK_QUEST_IDS.length === 4, detail: missing.length === 0 ? (names.length + ' checkmark subcommands present, expected 4') : ('missing: ' + missing.join(',')) }
+})
+
+// Real end-to-end round trip through runCheckmarkCheck() - same
+// disclosed-real-side-effect precedent as the economy sell round-trip
+// check above (that one permanently pays out real coins; this one
+// permanently grants the "Welcome to Vanilla++" quest's real +10 mining
+// XP reward the first time this runs for a given player/team - both are
+// small, disclosed, and the only way to prove the actual completion path
+// works end to end rather than just its individual pieces in isolation).
+stCheck('quests: checkmark completion round-trip via runCheckmarkCheck (rootborn__welcome)', (server, player) => {
+    if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
+    if (typeof runCheckmarkCheck !== 'function' || typeof CHECKMARK_QUEST_IDS === 'undefined' || CHECKMARK_QUEST_IDS.length === 0) {
+        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
+    }
+    let qid = CHECKMARK_QUEST_IDS[0] // 'rootborn__welcome' - no dependencies, always eligible
+    let progressKey = getProgressKey(player)
+    if (isQuestComplete(server, progressKey, qid)) {
+        return { skip: true, detail: qid + ' already complete for this player/team - nothing safe to probe without a duplicate grant' }
+    }
+    runCheckmarkCheck(player, qid)
+    let ok = isQuestComplete(server, progressKey, qid)
+    return { pass: ok, detail: ok ? (qid + ' completed and recorded (real, permanent - see check header comment)') : (qid + ' did not record as complete') }
+})
+
 // ---- helpers ----
 
 function stCountCoinValue(player) {

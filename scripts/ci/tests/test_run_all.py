@@ -17,8 +17,6 @@ def _minimal_valid_pack(root):
     pack = Path(root) / "pack"
     (pack / "config").mkdir(parents=True)
     (pack / "kubejs" / "server_scripts").mkdir(parents=True)
-    quests = pack / "config" / "ftbquests" / "quests" / "chapters"
-    quests.mkdir(parents=True)
 
     manifest = {"minecraft": "1.21.1", "loader": "neoforge",
                 "mods": [{"slug": "create", "side": "both", "phase": 0}]}
@@ -30,10 +28,12 @@ def _minimal_valid_pack(root):
     (pack / "mods.lock.json").write_text(json.dumps(lock), encoding="utf-8")
 
     (pack / "config" / "sample.json").write_text('{"a": 1}', encoding="utf-8")
-    (pack / "config" / "ftbquests" / "quests" / "chapter_groups.snbt").write_text(
-        '{"chapter_groups": []}', encoding="utf-8")
-    (quests / "one.snbt").write_text(
-        '{"id": "c1", "quests": [{"id": "q1", "tasks": [], "rewards": []}]}', encoding="utf-8")
+    # GitHub #33: the quest book lives in pack/kubejs/server_scripts/quests.js
+    # now (a `const QUEST_CHAPTERS = [...]` JSON literal), not FTB Quests SNBT.
+    (pack / "kubejs" / "server_scripts" / "quests.js").write_text(
+        'const QUEST_CHAPTERS = [{"id": "c1", "quests": '
+        '[{"id": "q1", "tasks": [{"type": "checkmark"}], "rewards": [], "dependencies": []}]}]\n',
+        encoding="utf-8")
     (pack / "kubejs" / "server_scripts" / "clean.js").write_text(
         "try {\n    let x = 1\n} catch (e) {}\n", encoding="utf-8")
     return pack

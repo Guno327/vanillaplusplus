@@ -1,168 +1,197 @@
 #!/usr/bin/env python3
-"""GitHub issue #10 ("Quest Book is Too Minimal") - full rewrite of
-pack/config/ftbquests/quests/ from the current one-chapter/one-quest-per-tier
-book into ONE FULL CHAPTER PER TIER (10 tiers, rootborn -> jovian_frontier),
-each chapter a 1-to-1 walkthrough of that tier's REAL progression steps
-(verified against pack/config/ProgressiveStages/*.toml, DESIGN.md, and
-TODO.md - every item id used below appears in one of those files already, so
-none are guessed).
+"""GitHub issue #33 ("Replace FTB Quests with a bespoke quest system") -
+full rewrite of the quest book generator: was pack/config/ftbquests/quests/
+(FTB Quests SNBT), now pack/kubejs/server_scripts/quests.js (plain KubeJS).
 
-Format/serializer ground truth: copied verbatim from the installed
-scripts/gen_quests.py (same repo, same pack) - see that file's own docstring
-for the full FTB Quests 2101.1.27 (MC 1.21.1, pre-JSON5-rewrite) SNBT grammar
-research trail. Re-verified independently this pass by decompiling the
-installed ftb-quests-neoforge-2101.1.27.jar's TaskTypes/RewardTypes/*Task/
-*Reward classes (task ids: item/custom/xp/dimension/stat/kill/location/
-checkmark/advancement/observation/biome/structure/gamestage/fluid; reward ids:
-item/choice/all_table/random/command/custom/xp/xp_levels/advancement/toast/
-gamestage/currency). ItemTask fields: item{id,count}, count, consume_items,
-only_from_crafting. KillTask: entity, value. DimensionTask: dimension.
-CheckmarkTask: no extra fields needed.
+WHY: FTB Quests (2101.1.27) is CurseForge-exclusive - this project has no
+redistribution permission for it (see DESIGN.md's Phase 4 section for the
+original CurseForge-CDN resolution workaround, which was always a stopgap,
+not a rights grant). Scale of the existing content is preserved exactly:
+10 chapters, 62 quests, ~87 dependency edges - see scripts/ci/check_quests.py
+for the counts this generator is expected to reproduce. Every chapter/quest/
+task/reward/dependency below is a verbatim carry-over of the previous
+scripts/gen_quests.py's actual content (item ids, entity ids, dimension ids,
+xp/spur amounts, dependency wiring) - only the OUTPUT FORMAT changed, from
+FTB Quests' SNBT grammar to a plain JS data table + a hand-written KubeJS
+runtime that ticks/tracks/rewards it directly. See DESIGN.md's "Quest
+system (Phase 4)" and "Quest-book overhaul" sections, and this repo's
+pack/manifest.json ftb-quests entry note ("Tier Progression preset-track
+chapter"), for the design history this book is replacing.
 
-Deliberately NOT using the "currency" reward type - it requires a registered
-FTB currency provider (FTB Money/Ranks bridge), which this pack never
-installed; Numismatics currency is instead granted as literal coin ITEMS
-(numismatics:spur/bevel/sprocket/cog/crown/sun), matching economy.js's own
-established "coins are plain items" convention exactly.
+PRECEDENT this generator follows (same shape as the two chapters Phase 6
+already moved out of FTB Quests for an unrelated reason - see
+scripts/gen_achievements.py's own docstring): a Python generator writes a
+KubeJS server script that ticks (ServerEvents.tick), tracks progress in
+persistentData, and grants rewards directly via command execution / KubeJS
+bindings, plus a player.tell() chat notification. No GUI, no separate mod
+dependency - chat commands only (/quests, /quests <chapter>, /quest check
+<id>), matching this pack's established leaderboard.js/economy.js/
+dailies.js UX convention.
 
-Reward-budget policy (see DESIGN_SUMMARY.md for the full rationale):
-- Spur amounts are anchored to scripts/gen_economy.py's own TIER_PRICE table
-  for tiers this pack's real economy actually prices (rootborn..starforged_age:
-  1/4/16/64/256/1024). gen_economy.py has NO pricing signal past starforged_age
-  (anything not tier-priced there falls back to 1 spur) - rather than invent a
-  fictitious continued-doubling economy for tiers 6-9 that the real /sell
-  command could never match (a real "unbalanced exploit" per instructions.md's
-  own ask), late-game gate-quest rewards are capped just above the starforged
-  ceiling with modest, disclosed, hand-picked bumps (1024/1152/1280/1408/1536),
-  not another doubling.
-- Every "enter <tier>" gate quest reward reuses the ORIGINAL single-chapter
-  book's own skill-xp table for tiers 0-5 verbatim (mining 40->emitted as the
-  Rootborn chapter's own capstone.../ mining 80/building 150/swords 300/
-  bows 600/swimming 1200) so this rewrite doesn't silently re-balance rewards
-  players may already be relying on; tiers 6-9 continue the same +300 cadence
-  (1500/1800/2100/2400) as a disclosed, non-canonical extrapolation.
-- Intra-tier walkthrough quests get ~1/4 of that tier's gate-quest spur value
-  and a smaller, roughly-halved xp amount - "meaningful but not overpowered."
-- No quest ever rewards a creative/duplication-risk item. create:creative_crate
-  (and the other 3 "infinite" capstones) appear ONLY as required TASKS in the
-  Jovian Frontier capstone quests, never as a reward - satisfies the explicit
-  "don't hand it out early" instruction by not handing it out at all; the
-  player must build it themselves, at the one tier it's gated to.
+TEAM-SHARED PROGRESS, PER-PLAYER REWARDS (instructions.md line 41: "Players
+should share progress (but not rewards) for preset track quests"). This
+book IS the preset track (DESIGN.md's "Tier Progression" chapter, later
+expanded 1 chapter/tier), so quest COMPLETION state is stored keyed by
+team/party id (see quests.js's getProgressKey() - falls back to a per-player
+key for solo players) so any teammate satisfying a quest's tasks marks it
+done for the whole team (unlocking dependents for everyone) - but the
+REWARD grant (items/xp/commands) goes ONLY to the player whose live state
+actually satisfied the task at the moment the tick scan (or /quest check)
+fired, never broadcast to the rest of the team. This is a literal
+requirement, not a judgment call - flagged here because it's easy to
+misread "team-shared" as "team-shared rewards too" (the opposite of what
+was asked), and because Phase 4's own FTB-Quests-era open issue (DESIGN.md)
+was about exactly this per-progress-type granularity problem.
+
+PARTY-ID SEAM (GitHub #32, in progress in a separate worktree at the time
+of writing, not yet merged): party ids currently come from FTB Teams
+(dev.ftb.mods.ftbteams.api.FTBTeamsAPI - already installed, hard dependency
+of FTB Teams/FTB Chunks, ground-truthed unaffected by this issue's mod
+removal, see below). #32 is replacing FTB Teams with Open Parties and
+Claims for the whole pack's party/claims system. quests.js's
+getProgressKey() is written as the ONE function that seam needs to change -
+every other function in the file keys exclusively off the string it
+returns, so integrating #32 later is a one-function edit, not a redesign.
+Not blocked on #32 landing; ground truth is FTB Teams' own installed jar
+(dev.ftb.mods.ftbteams.api.TeamManager.getTeamForPlayer(ServerPlayer) ->
+Optional<Team>; Team.isPartyTeam()/getId() - confirmed via javap against
+ftb-teams-neoforge-2101.1.10.jar).
+
+MOD REMOVAL - ftb-quests ONLY, NOT ftb-library (deviation from the issue's
+literal "remove ftb-quests and ftb-library" instruction, ground-truthed,
+not guessed): decompiling every installed mod's own META-INF/
+neoforge.mods.toml (jar xf + read, PATH=.../jdk-21.0.11+10/bin) shows
+ftb-teams-neoforge-2101.1.10.jar AND ftb-chunks-neoforge-2101.1.20.jar both
+declare a "required" (not optional) dependency on ftblibrary >=2101.1.30.
+Both of those mods stay installed (FTB Teams backs this file's own
+progress-sharing seam above and ProgressiveStages' tier-stage sharing;
+FTB Chunks is the pack's claims system and is entirely out of this issue's
+scope) - removing ftb-library out from under them would hard-crash the
+server at mod-loading time, not just leave the quest book broken.
+ProgressiveStages' own dependency on ftbquests (progressivestages-2.1.jar's
+neoforge.mods.toml) IS declared optional, so removing ftb-quests alone is
+safe. See pack/manifest.json's ftb-library entry (its own note literally
+says "required by FTB Teams and FTB Quests" - now stale in the "and FTB
+Quests" half, updated alongside this change) and this issue's own PM-facing
+summary for the full evidence trail.
+
+REWARD-BUDGET POLICY carried over verbatim from the previous generator
+(same anchoring to gen_economy.py's TIER_PRICE table, same late-game
+disclosed-non-canonical extrapolation past Starforged Age, same "never
+reward a creative/duplication-risk item" rule for the three Jovian
+capstones) - see the GATE_SPURS/GATE_XP/SIDE_SPURS/SIDE_XP tables below for
+the actual numbers, unchanged from the SNBT-era version.
+
+DELIBERATE CONTENT-FIDELITY SIMPLIFICATIONS (disclosed, not silent - see
+quests.js's own header comment for the runtime side of each):
+  - only_from_crafting is preserved as descriptive metadata on item tasks
+    (shown in /quests <chapter> output) but is NOT enforced as "must have
+    been freshly crafted, not already held" the way FTB Quests' own
+    crafting-event tracker did - the runtime checks "does the player
+    currently hold >= N of this item", full stop. This mirrors an argument
+    already made and boot-verified in this exact codebase
+    (progression_stage_bridge.js's GitHub #23 fix: "does the player
+    currently HOLD the item is a strictly more robust trigger condition
+    than did we catch the one specific acquisition event") rather than
+    inventing a new crafting-event hook this port has no way to boot-test.
+  - Reward types item/xp are the only ones any of the 62 quests actually
+    use (verbatim carry-over from the SNBT-era content - it never used
+    FTB Quests' "gamestage" or "toast" reward types either). quests.js's
+    runtime still implements "command" (arbitrary, {p}-templated, same
+    convention FTB Quests itself used), "gamestage" (player.stages.add),
+    and "toast" reward types for completeness/future content, since the
+    issue text lists them as supported reward types - they're simply
+    unexercised by this book's actual 62 quests, exactly as before.
+  - Numeric hex quest/task/reward ids (FTB Quests' own id scheme) are
+    replaced with human-readable string ids ("<chapter>__<slug>", e.g.
+    "rootborn__welcome") - there is no SNBT id-uniqueness constraint to
+    satisfy anymore, and readable ids make quests.js's generated data
+    directly greppable/debuggable.
+  - GUI grid (x, y) quest-map coordinates are dropped entirely - this port
+    has no map GUI to place them on.
 """
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent  # repo root
-QUESTS_DIR = ROOT / "pack" / "config" / "ftbquests" / "quests"
+OUT_FILE = ROOT / "pack" / "kubejs" / "server_scripts" / "quests.js"
 
 
 # ---------------------------------------------------------------------------
-# Minimal SNBT serializer - identical grammar/behavior to the installed
-# scripts/gen_quests.py (always double-quotes strings/keys, never emits type
-# suffixes; both always-safe per FTBLibrary's SNBTParser.java + Minecraft's
-# NumericTag cross-coercion on read).
+# Task builders - dict shape consumed directly by quests.js's checkTask().
 # ---------------------------------------------------------------------------
-def _snbt_string(s):
-    escaped = s.replace("\\", "\\\\").replace('"', '\\"')
-    return f'"{escaped}"'
-
-
-def snbt(value):
-    if isinstance(value, bool):
-        return "true" if value else "false"
-    if isinstance(value, (int, float)):
-        return repr(value) if isinstance(value, float) else str(value)
-    if isinstance(value, str):
-        return _snbt_string(value)
-    if isinstance(value, list):
-        return "[" + ", ".join(snbt(v) for v in value) + "]"
-    if isinstance(value, dict):
-        return "{" + ", ".join(f"{_snbt_string(k)}: {snbt(v)}" for k, v in value.items()) + "}"
-    raise TypeError(f"unsupported SNBT value: {value!r}")
-
-
-# ---------------------------------------------------------------------------
-# ID allocation + translation collection. Start well above the OLD chapter's
-# own id range (0x10000-0x10019) so both books' ids never collide if the old
-# file is ever left in place transiently during integration.
-# ---------------------------------------------------------------------------
-_next_id = [0x20000]
-
-
-def new_id():
-    _next_id[0] += 1
-    return _next_id[0]
-
-
-def hexid(n):
-    return "%016X" % n
-
-
-translations = {}
-
-
-def set_title(obj_type, oid, text):
-    translations[f"{obj_type}.{hexid(oid)}.title"] = text
-
-
-def set_quest_desc(oid, lines):
-    translations[f"quest.{hexid(oid)}.quest_desc"] = lines
-
-
-def set_chapter_subtitle(oid, lines):
-    translations[f"chapter.{hexid(oid)}.chapter_subtitle"] = lines
-
-
-def item_stack(item_id, count=1):
-    return {"id": item_id, "count": count}
-
-
-# ---------------------------------------------------------------------------
-# Task builders
-# ---------------------------------------------------------------------------
-def stage_task(stage_id):
-    return "gamestage", {"stage": stage_id}
-
-
 def item_task(item_id, count=1, consume_items=True, only_from_crafting=False):
-    d = {"item": item_stack(item_id, 1), "count": count}
-    if not consume_items:
-        d["consume_items"] = False
-    if only_from_crafting:
-        d["only_from_crafting"] = True
-    return "item", d
+    return {
+        "type": "item",
+        "item": item_id,
+        "count": count,
+        "consume": consume_items,
+        "onlyFromCrafting": only_from_crafting,
+    }
 
 
 def kill_task(entity_id, value=1):
-    return "kill", {"entity": entity_id, "value": value}
+    return {"type": "kill", "entity": entity_id, "count": value}
 
 
 def dimension_task(dimension_id):
-    return "dimension", {"dimension": dimension_id}
+    return {"type": "dimension", "dimension": dimension_id}
+
+
+def stage_task(stage_id):
+    return {"type": "gamestage", "stage": stage_id}
 
 
 def checkmark_task():
-    return "checkmark", {}
+    return {"type": "checkmark"}
 
 
 # ---------------------------------------------------------------------------
-# Reward builders
+# Reward builders - dict shape consumed directly by quests.js's applyReward().
 # ---------------------------------------------------------------------------
 def item_reward(item_id, count=1):
-    return "item", {"item": item_stack(item_id, count)}
+    return {"type": "item", "item": item_id, "count": count}
 
 
 def skill_xp_reward(category, amount):
-    """See scripts/gen_quests.py's own skill_xp_reward() docstring for the
-    full command-path research trail (net.puffish.skillsmod.commands.
-    ExperienceCommand is a direct child of the "puffish_skills" root, NOT
-    nested under "skills" - a real bug this exact command string already
-    fixed once in this pack). permission_level 2 required (Commands.
-    LEVEL_GAMEMASTERS) since the reward runs as the claiming player otherwise."""
-    return "command", {
-        "command": f"puffish_skills experience add {{p}} {category} {amount}",
-        "permission_level": 2,
-        "silent": True,
-    }
+    """puffish_skills XP reward. Previously an FTB Quests "command" reward
+    templating `puffish_skills experience add {p} <category> <amount>`
+    with permission_level 2 (FTB Quests ran reward commands AS the claiming
+    player, needing the permission bump - net.puffish.skillsmod.commands.
+    ExperienceCommand, confirmed via javap in the original SNBT-era
+    generator). quests.js instead calls player.server.runCommandSilent(...)
+    directly from the server's own command source (already full-permission,
+    same proven pattern as achievements.js/dailies.js's identical
+    puffish_skills calls) - no permission_level field needed, so this
+    reward is now first-class "xp" rather than a disguised "command"."""
+    return {"type": "xp", "category": category, "amount": amount}
+
+
+def command_reward(command, silent=True):
+    """Arbitrary command reward, {p} templated to the granting player's
+    username at grant time (same convention FTB Quests itself used for its
+    own command rewards). Unused by this book's actual 62 quests (verbatim
+    carry-over from the SNBT-era content, which never used this either) -
+    kept for parity with the issue's listed reward-type surface."""
+    return {"type": "command", "command": command, "silent": silent}
+
+
+def gamestage_reward(stage_id):
+    """Grants a ProgressiveStages stage directly via player.stages.add().
+    Unused by this book's actual 62 quests, same as command_reward() above -
+    every gate quest deliberately does NOT grant tiers this way (see the
+    build_* functions below): ProgressiveStages' own triggers do that, and
+    this chapter is a read-only quest-book VIEW of tier progress, matching
+    the original SNBT-era design intent verbatim."""
+    return {"type": "gamestage", "stage": stage_id}
+
+
+def toast_reward(message):
+    """A distinguished chat announcement (no toast-popup GUI exists in a
+    chat-command-only redesign - see quests.js's applyReward() for how this
+    renders). Unused by this book's actual 62 quests, same as the two
+    reward builders above."""
+    return {"type": "toast", "message": message}
 
 
 # Coin denominations in spurs, largest first - copied verbatim from
@@ -179,10 +208,15 @@ COINS = [
 
 
 def spur_rewards(total_spurs):
-    """Break a spur total into the largest-denomination coin ITEM rewards that
-    fit, exactly mirroring economy.js's own payCoins() greedy algorithm - so a
-    quest reward of e.g. 1024 spurs shows up as a single Sun coin, not 1024
-    individual Spur items."""
+    """Break a spur total into the largest-denomination coin ITEM rewards
+    that fit, exactly mirroring economy.js's own payCoins() greedy algorithm
+    (and quests.js's own copy of the same algorithm) - a quest reward of
+    e.g. 1024 spurs shows up as a single Sun coin, not 1024 individual Spur
+    items. Deliberately never a "currency" reward type - Numismatics
+    currency has always been granted as literal coin ITEMS in this pack,
+    matching economy.js's own established convention (there is no
+    registered FTB-style currency provider to hand this off to, and none is
+    needed - see the SNBT-era generator's own now-removed note on this)."""
     rewards = []
     remaining = total_spurs
     for item_id, value in COINS:
@@ -194,62 +228,41 @@ def spur_rewards(total_spurs):
 
 
 # ---------------------------------------------------------------------------
-# Quest/chapter builders (copied from scripts/gen_quests.py, extended with an
-# optional "hide_deps" passthrough left unused - kept 1:1 with the proven
-# original so this generator's core plumbing carries zero new risk).
+# Quest/chapter builders.
 # ---------------------------------------------------------------------------
-def make_quest(quests_list, x, y, title, tasks, rewards, dependencies=None,
-               desc=None, quest_icon=None):
-    qid = new_id()
-    set_title("quest", qid, title)
-    if desc:
-        set_quest_desc(qid, desc)
-
-    q = {"id": hexid(qid), "x": float(x), "y": float(y)}
-    if quest_icon:
-        q["icon"] = item_stack(quest_icon)
-    if dependencies:
-        q["dependencies"] = [hexid(d) for d in dependencies]
-
-    q["tasks"] = []
-    for ttype, tdata in tasks:
-        tid = new_id()
-        q["tasks"].append({"id": hexid(tid), "type": ttype, **tdata})
-
-    q["rewards"] = []
-    for rtype, rdata in rewards:
-        rid = new_id()
-        q["rewards"].append({"id": hexid(rid), "type": rtype, **rdata})
-
+def make_quest(quests_list, chapter_id, slug, title, tasks, rewards,
+                dependencies=None, desc=None, quest_icon=None):
+    qid = f"{chapter_id}__{slug}"
+    q = {
+        "id": qid,
+        "title": title,
+        "desc": list(desc) if desc else [],
+        "icon": quest_icon,
+        "dependencies": list(dependencies) if dependencies else [],
+        "tasks": tasks,
+        "rewards": rewards,
+    }
     quests_list.append(q)
     return qid
 
 
-def make_chapter(filename, title, subtitle_lines, quests_builder_fn, order_index,
+def make_chapter(chapter_id, title, subtitle_lines, quests_builder_fn, order_index,
                   chapter_icon=None):
-    cid = new_id()
-    set_title("chapter", cid, title)
-    if subtitle_lines:
-        set_chapter_subtitle(cid, subtitle_lines)
-
     quests = []
-    quests_builder_fn(quests)
-
-    chapter = {
-        "id": hexid(cid),
-        "filename": filename,
-        "order_index": order_index,
-        "default_quest_shape": "",
+    quests_builder_fn(quests, chapter_id)
+    return {
+        "id": chapter_id,
+        "title": title,
+        "subtitle": list(subtitle_lines) if subtitle_lines else [],
+        "icon": chapter_icon,
+        "order": order_index,
         "quests": quests,
-        "quest_links": [],
     }
-    if chapter_icon:
-        chapter["icon"] = item_stack(chapter_icon)
-    return chapter
 
 
 # ---------------------------------------------------------------------------
-# Reward-budget tables (see module docstring for the full anchoring rationale)
+# Reward-budget tables (see module docstring for the full anchoring
+# rationale) - unchanged from the SNBT-era generator.
 # ---------------------------------------------------------------------------
 # index: 0 rootborn, 1 andesite, 2 brass, 3 precision, 4 induction, 5 starforged,
 #        6 lunar, 7 martian, 8 inner_system, 9 jovian
@@ -261,18 +274,14 @@ SIDE_XP =    [10, 30, 50, 90, 150, 100, 150, 180, 200, 250]
 
 
 # ===========================================================================
-# Chapter 0 - Rootborn (starter chapter). Trivial by design (Tier 0 has no
-# locks at all - rootborn.toml's own header: "wood, stone, and a furnace"),
-# but still a real 1-to-1 walkthrough: get a stone tool, survive one fight,
-# then push into Create's own material chain (andesite_alloy is the literal
-# andesite_age trigger per triggers.toml).
+# Chapter 0 - Rootborn (starter chapter).
 # ===========================================================================
 ROOTBORN_Q = {}
 
 
-def build_rootborn(quests):
+def build_rootborn(quests, cid):
     welcome = make_quest(
-        quests, 0, 0, "Welcome to Vanilla++",
+        quests, cid, "welcome", "Welcome to Vanilla++",
         desc=["Punch some trees, then check this book after every tier-up - "
               "each chapter is a checklist for that tier's real progression."],
         tasks=[checkmark_task()],
@@ -280,7 +289,7 @@ def build_rootborn(quests):
         quest_icon="minecraft:crafting_table",
     )
     stone_age = make_quest(
-        quests, 2, -1, "Stone Age",
+        quests, cid, "stone_age", "Stone Age",
         desc=["Craft your first pickaxe through Silent Gear (any material) - "
               "the first real tool upgrade."],
         tasks=[item_task("silentgear:pickaxe", only_from_crafting=True)],
@@ -289,7 +298,7 @@ def build_rootborn(quests):
         quest_icon="minecraft:stone_pickaxe",
     )
     first_hunt = make_quest(
-        quests, 2, 1, "First Blood",
+        quests, cid, "first_hunt", "First Blood",
         desc=["Kill a zombie. Combat matters from here on - Swords XP feeds "
               "directly into the RPG skill tree."],
         tasks=[kill_task("minecraft:zombie", 1)],
@@ -298,7 +307,7 @@ def build_rootborn(quests):
         quest_icon="minecraft:iron_sword",
     )
     gather_andesite = make_quest(
-        quests, 4, 0, "Into Create's Material Chain",
+        quests, cid, "gather_andesite", "Into Create's Material Chain",
         desc=["Craft or pick up Andesite Alloy - Create's own entry material, "
               "and the trigger for Andesite Age."],
         tasks=[item_task("create:andesite_alloy", only_from_crafting=True)],
@@ -310,18 +319,14 @@ def build_rootborn(quests):
 
 
 # ===========================================================================
-# Chapter 1 - Andesite Age (Tier 1). Real content per andesite_age.toml +
-# DESIGN.md: iron tools/armor, Tom's Storage "dumb storage", Ars Nouveau
-# wand entry, jetpack rung 1, Power Loader rung 1, Ore Excavation entry kit,
-# an optional Artifacts curio find (item 5 - deliberately NOT gated/required,
-# a pure exploration bonus), then push into Brass Age via create:brass_ingot.
+# Chapter 1 - Andesite Age (Tier 1).
 # ===========================================================================
 ANDESITE_Q = {}
 
 
-def build_andesite(quests):
+def build_andesite(quests, cid):
     enter = make_quest(
-        quests, 0, 0, "Enter the Andesite Age",
+        quests, cid, "enter", "Enter the Andesite Age",
         desc=["Iron tools and Create's own machinery are open. This chapter "
               "is your Andesite Age checklist."],
         tasks=[stage_task("andesite_age")],
@@ -330,7 +335,7 @@ def build_andesite(quests):
         quest_icon="create:andesite_alloy",
     )
     iron_tools = make_quest(
-        quests, 2, -2, "Iron Tools",
+        quests, cid, "iron_tools", "Iron Tools",
         desc=["Craft another Silent Gear pickaxe with this tier's material - "
               "the real mining-speed upgrade this tier unlocks."],
         tasks=[item_task("silentgear:pickaxe", only_from_crafting=True)],
@@ -338,7 +343,7 @@ def build_andesite(quests):
         dependencies=[enter], quest_icon="minecraft:iron_pickaxe",
     )
     dumb_storage = make_quest(
-        quests, 2, -1, "Dumb Storage",
+        quests, cid, "dumb_storage", "Dumb Storage",
         desc=["Craft a Tom's Storage Inventory Connector - link your chests "
               "into one browsable network. No power, no autocrafting yet."],
         tasks=[item_task("toms_storage:inventory_connector", only_from_crafting=True)],
@@ -346,7 +351,7 @@ def build_andesite(quests):
         dependencies=[enter], quest_icon="toms_storage:inventory_connector",
     )
     jetpack_1 = make_quest(
-        quests, 2, 0, "Copper Jetpack",
+        quests, cid, "jetpack_1", "Copper Jetpack",
         desc=["Craft the Copper Jetpack - the first rung of the personal "
               "mobility ladder (Create Stuff & Additions)."],
         tasks=[item_task("create_sa:copper_jetpack_chestplate", only_from_crafting=True)],
@@ -354,7 +359,7 @@ def build_andesite(quests):
         dependencies=[enter], quest_icon="create_sa:copper_jetpack_chestplate",
     )
     chunk_loader_1 = make_quest(
-        quests, 2, 1, "Andesite Chunk Loader",
+        quests, cid, "chunk_loader_1", "Andesite Chunk Loader",
         desc=["Craft the Andesite Chunk Loader (Create: Power Loader). It "
               "only force-loads chunks while spun under real kinetic power."],
         tasks=[item_task("create_power_loader:andesite_chunk_loader", only_from_crafting=True)],
@@ -362,7 +367,7 @@ def build_andesite(quests):
         dependencies=[enter], quest_icon="create_power_loader:andesite_chunk_loader",
     )
     vein_hunting = make_quest(
-        quests, 2, 2, "Vein Hunting",
+        quests, cid, "vein_hunting", "Vein Hunting",
         desc=["Craft a Vein Finder (Create Ore Excavation) - the entry-level "
               "scouting tool for this pack's ore-vein system."],
         tasks=[item_task("createoreexcavation:vein_finder", only_from_crafting=True)],
@@ -370,15 +375,15 @@ def build_andesite(quests):
         dependencies=[enter], quest_icon="createoreexcavation:vein_finder",
     )
     ars_wand = make_quest(
-        quests, 2, 3, "The Mage's Path",
+        quests, cid, "ars_wand", "The Mage's Path",
         desc=["Craft an Ars Nouveau wand - the entry point into this pack's "
               "spell-crafting magic system."],
         tasks=[item_task("ars_nouveau:wand", only_from_crafting=True)],
         rewards=[skill_xp_reward("magic", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
         dependencies=[enter], quest_icon="ars_nouveau:wand",
     )
-    curious_find = make_quest(
-        quests, 2, 4, "A Curious Find (optional)",
+    make_quest(
+        quests, cid, "curious_find", "A Curious Find (optional)",
         desc=["Find any Artifacts curio - they're pure exploration payoffs "
               "with no tier lock, hidden in structure loot at every rarity "
               "tier. This one just confirms you've found the umbrella."],
@@ -387,7 +392,7 @@ def build_andesite(quests):
         dependencies=[enter], quest_icon="artifacts:umbrella",
     )
     into_brass = make_quest(
-        quests, 4, 0, "Into the Brass Age",
+        quests, cid, "into_brass", "Into the Brass Age",
         desc=["Craft or pick up a Brass Ingot - Create's mid-game alloy, and "
               "the trigger for Brass Age."],
         tasks=[item_task("create:brass_ingot", only_from_crafting=True)],
@@ -399,18 +404,14 @@ def build_andesite(quests):
 
 
 # ===========================================================================
-# Chapter 2 - Brass Age (Tier 2). Real automation begins: diamond gear, the
-# Refined Storage network + its Create Crafts & Additions Alternator power
-# bridge, the Mechanical Arm as first crafting automation, jetpack rung 2,
-# Power Loader rung 2, Time in a Bottle (item 10), Create's own Trains, then
-# push into Precision Age via create:sturdy_sheet.
+# Chapter 2 - Brass Age (Tier 2).
 # ===========================================================================
 BRASS_Q = {}
 
 
-def build_brass(quests):
+def build_brass(quests, cid):
     enter = make_quest(
-        quests, 0, 0, "Enter the Brass Age",
+        quests, cid, "enter", "Enter the Brass Age",
         desc=["Automation begins in earnest. Diamond gear, the Nether, and a "
               "real powered storage network are all open now."],
         tasks=[stage_task("brass_age")],
@@ -419,7 +420,7 @@ def build_brass(quests):
         quest_icon="create:brass_ingot",
     )
     diamond_gear = make_quest(
-        quests, 2, -3, "Diamond Gear",
+        quests, cid, "diamond_gear", "Diamond Gear",
         desc=["Craft another Silent Gear pickaxe with Brass Age's material - "
               "the tool-tier milestone for this age."],
         tasks=[item_task("silentgear:pickaxe", only_from_crafting=True)],
@@ -427,7 +428,7 @@ def build_brass(quests):
         dependencies=[enter], quest_icon="minecraft:diamond_pickaxe",
     )
     real_network = make_quest(
-        quests, 2, -2, "A Real Network",
+        quests, cid, "real_network", "A Real Network",
         desc=["Craft a Refined Storage Controller - the heart of the powered "
               "network that replaces Tom's Storage from here on."],
         tasks=[item_task("refinedstorage:controller", only_from_crafting=True)],
@@ -435,7 +436,7 @@ def build_brass(quests):
         dependencies=[enter], quest_icon="refinedstorage:controller",
     )
     alternator = make_quest(
-        quests, 2, -1, "Power the Network",
+        quests, cid, "alternator", "Power the Network",
         desc=["Craft a Create Crafts & Additions Alternator - turns Create's "
               "own rotational power into the FE that runs Refined Storage."],
         tasks=[item_task("createaddition:alternator", only_from_crafting=True)],
@@ -443,7 +444,7 @@ def build_brass(quests):
         dependencies=[enter], quest_icon="createaddition:alternator",
     )
     automation_arm = make_quest(
-        quests, 2, 0, "First Automation",
+        quests, cid, "automation_arm", "First Automation",
         desc=["Craft a Mechanical Arm - Create's own first crafting-automation "
               "block, feeding Refined Storage's Importer/Exporter."],
         tasks=[item_task("create:mechanical_arm", only_from_crafting=True)],
@@ -451,7 +452,7 @@ def build_brass(quests):
         dependencies=[enter], quest_icon="create:mechanical_arm",
     )
     jetpack_2 = make_quest(
-        quests, 2, 1, "Andesite Jetpack",
+        quests, cid, "jetpack_2", "Andesite Jetpack",
         desc=["Craft the Andesite Jetpack - fuel-fired propellers, rung 2 of "
               "the mobility ladder."],
         tasks=[item_task("create_sa:andesite_jetpack_chestplate", only_from_crafting=True)],
@@ -459,7 +460,7 @@ def build_brass(quests):
         dependencies=[enter], quest_icon="create_sa:andesite_jetpack_chestplate",
     )
     chunk_loader_2 = make_quest(
-        quests, 2, 2, "Brass Chunk Loader",
+        quests, cid, "chunk_loader_2", "Brass Chunk Loader",
         desc=["Craft the Brass Chunk Loader - the second and final Power "
               "Loader rung."],
         tasks=[item_task("create_power_loader:brass_chunk_loader", only_from_crafting=True)],
@@ -467,7 +468,7 @@ def build_brass(quests):
         dependencies=[enter], quest_icon="create_power_loader:brass_chunk_loader",
     )
     tiab = make_quest(
-        quests, 2, 3, "Time in a Bottle",
+        quests, cid, "tiab", "Time in a Bottle",
         desc=["Craft the Time in a Bottle tick accelerator - one per player, "
               "and it won't speed up spawners."],
         tasks=[item_task("tiab:time_in_a_bottle", only_from_crafting=True)],
@@ -475,7 +476,7 @@ def build_brass(quests):
         dependencies=[enter], quest_icon="tiab:time_in_a_bottle",
     )
     trains = make_quest(
-        quests, 2, 4, "Train Control",
+        quests, cid, "trains", "Train Control",
         desc=["Craft a Track Station - Create's own Trains are a full Brass "
               "Age package now."],
         tasks=[item_task("create:track_station", only_from_crafting=True)],
@@ -483,7 +484,7 @@ def build_brass(quests):
         dependencies=[enter], quest_icon="create:track_station",
     )
     diet_upgrade = make_quest(
-        quests, 2, 5, "Sharper Knives",
+        quests, cid, "diet_upgrade", "Sharper Knives",
         desc=["Craft a Farmer's Delight diamond knife - this is the real "
               "tier this pack's food-diet knife line reaches Brass Age "
               "(gold/diamond both unlock here; iron was Andesite Age, "
@@ -493,7 +494,7 @@ def build_brass(quests):
         dependencies=[enter], quest_icon="farmersdelight:diamond_knife",
     )
     master_alloy = make_quest(
-        quests, 4, 0, "The Master Alloy",
+        quests, cid, "master_alloy", "The Master Alloy",
         desc=["Craft a Sturdy Sheet from Refined Radiance or Shadow Steel - "
               "Create's own top-tier alloy, and the door to Precision Age."],
         tasks=[item_task("create:sturdy_sheet", only_from_crafting=True)],
@@ -506,17 +507,14 @@ def build_brass(quests):
 
 
 # ===========================================================================
-# Chapter 3 - Precision Age (Tier 3). Netherite gear, wireless RS devices,
-# jetpack rung 3, Elytra (found, not crafted), Farmer's Delight diamond knife
-# (item 9), the Ore Excavation ceiling drill, then push into Induction Age
-# via the netherite ingot pickup (this pack's own temporary Induction trigger).
+# Chapter 3 - Precision Age (Tier 3).
 # ===========================================================================
 PRECISION_Q = {}
 
 
-def build_precision(quests):
+def build_precision(quests, cid):
     enter = make_quest(
-        quests, 0, 0, "Enter the Precision Age",
+        quests, cid, "enter", "Enter the Precision Age",
         desc=["Create's own endgame alloys are done. Netherite gear and The "
               "End are open."],
         tasks=[stage_task("precision_age")],
@@ -525,7 +523,7 @@ def build_precision(quests):
         quest_icon="create:sturdy_sheet",
     )
     netherite_gear = make_quest(
-        quests, 2, -2, "Netherite Gear",
+        quests, cid, "netherite_gear", "Netherite Gear",
         desc=["Craft another Silent Gear pickaxe with Precision Age's material - "
               "the tool-tier milestone for this age."],
         tasks=[item_task("silentgear:pickaxe", only_from_crafting=True)],
@@ -533,7 +531,7 @@ def build_precision(quests):
         dependencies=[enter], quest_icon="minecraft:netherite_pickaxe",
     )
     wireless = make_quest(
-        quests, 2, -1, "Cut the Cables",
+        quests, cid, "wireless", "Cut the Cables",
         desc=["Craft a Wireless Grid - manage your Refined Storage network "
               "from anywhere in range."],
         tasks=[item_task("refinedstorage:wireless_grid", only_from_crafting=True)],
@@ -541,7 +539,7 @@ def build_precision(quests):
         dependencies=[enter], quest_icon="refinedstorage:wireless_grid",
     )
     jetpack_3 = make_quest(
-        quests, 2, 0, "Brass Jetpack",
+        quests, cid, "jetpack_3", "Brass Jetpack",
         desc=["Craft the Brass Jetpack - steam-fired, rung 3 of the mobility "
               "ladder, and the base item the Induction Age netherite jetpack "
               "smiths from."],
@@ -550,7 +548,7 @@ def build_precision(quests):
         dependencies=[enter], quest_icon="create_sa:brass_jetpack_chestplate",
     )
     elytra = make_quest(
-        quests, 2, 1, "Wings",
+        quests, cid, "elytra", "Wings",
         desc=["Find an Elytra in an End City - it's not craftable, just "
               "gated behind reaching this tier and finding one."],
         tasks=[item_task("minecraft:elytra", consume_items=False, only_from_crafting=False)],
@@ -558,7 +556,7 @@ def build_precision(quests):
         dependencies=[enter], quest_icon="minecraft:elytra",
     )
     diet_upgrade = make_quest(
-        quests, 2, 2, "The Netherite Knife",
+        quests, cid, "diet_upgrade", "The Netherite Knife",
         desc=["Craft a Farmer's Delight netherite knife (a smithing upgrade "
               "from the diamond knife) - the ceiling of this pack's food-"
               "diet knife line, keeping your bonus-hearts diet variety topped "
@@ -568,7 +566,7 @@ def build_precision(quests):
         dependencies=[enter], quest_icon="farmersdelight:netherite_knife",
     )
     vein_ceiling = make_quest(
-        quests, 2, 3, "The Netherite Drill",
+        quests, cid, "vein_ceiling", "The Netherite Drill",
         desc=["Craft the Netherite Drill - Create Ore Excavation's own tool "
               "ceiling, and what it takes to pull allthemodium/vibranium/"
               "unobtainium out of the ground."],
@@ -577,7 +575,7 @@ def build_precision(quests):
         dependencies=[enter], quest_icon="createoreexcavation:netherite_drill",
     )
     final_ingot = make_quest(
-        quests, 4, 0, "The Final Ingot",
+        quests, cid, "final_ingot", "The Final Ingot",
         desc=["Craft or pick up a Netherite Ingot - the temporary trigger for "
               "Induction Age, until a real narrative trigger replaces it."],
         tasks=[item_task("minecraft:netherite_ingot", only_from_crafting=True)],
@@ -589,17 +587,14 @@ def build_precision(quests):
 
 
 # ===========================================================================
-# Chapter 4 - Induction Age (Tier 4). The Refined Storage ceiling (64k +
-# native autocrafting), the final jetpack rung, Waystones teleportation,
-# Create Aeronautics' top tier, the Silent Gear Allthemodium material floor,
-# then the REAL trigger for Starforged Age: killing the Ender Dragon.
+# Chapter 4 - Induction Age (Tier 4).
 # ===========================================================================
 INDUCTION_Q = {}
 
 
-def build_induction(quests):
+def build_induction(quests, cid):
     enter = make_quest(
-        quests, 0, 0, "Enter the Induction Age",
+        quests, cid, "enter", "Enter the Induction Age",
         desc=["Full storage-network automation: 64k capacity and native "
               "pattern-based autocrafting are online."],
         tasks=[stage_task("induction_age")],
@@ -608,7 +603,7 @@ def build_induction(quests):
         quest_icon="minecraft:netherite_ingot",
     )
     autocrafting = make_quest(
-        quests, 2, -2, "Native Autocrafting",
+        quests, cid, "autocrafting", "Native Autocrafting",
         desc=["Craft an Autocrafting Upgrade - Refined Storage's own "
               "pattern-based autocrafter, no more Mechanical Arm needed for "
               "storage automation."],
@@ -617,7 +612,7 @@ def build_induction(quests):
         dependencies=[enter], quest_icon="refinedstorage:autocrafting_upgrade",
     )
     storage_ceiling = make_quest(
-        quests, 2, -1, "64k Storage",
+        quests, cid, "storage_ceiling", "64k Storage",
         desc=["Craft a 64k Storage Part - the ceiling of this pack's Refined "
               "Storage capacity chase (until the Jovian Frontier capstone)."],
         tasks=[item_task("refinedstorage:64k_storage_part", only_from_crafting=True)],
@@ -625,7 +620,7 @@ def build_induction(quests):
         dependencies=[enter], quest_icon="refinedstorage:64k_storage_part",
     )
     jetpack_ceiling = make_quest(
-        quests, 2, 0, "Netherite Jetpack",
+        quests, cid, "jetpack_ceiling", "Netherite Jetpack",
         desc=["Craft the Netherite Jetpack - the final rung before "
               "Starforged Age grants true persistent flight outright."],
         tasks=[item_task("create_sa:netherite_jetpack_chestplate", only_from_crafting=True)],
@@ -633,7 +628,7 @@ def build_induction(quests):
         dependencies=[enter], quest_icon="create_sa:netherite_jetpack_chestplate",
     )
     teleport = make_quest(
-        quests, 2, 1, "Teleportation",
+        quests, cid, "teleport", "Teleportation",
         desc=["Craft a Waystone - intra-world teleportation, gated all the "
               "way to this tier on purpose."],
         tasks=[item_task("waystones:waystone", only_from_crafting=True)],
@@ -641,7 +636,7 @@ def build_induction(quests):
         dependencies=[enter], quest_icon="waystones:waystone",
     )
     steam_flight = make_quest(
-        quests, 2, 2, "Steam-Powered Flight",
+        quests, cid, "steam_flight", "Steam-Powered Flight",
         desc=["Craft a Steam Vent (Create Aeronautics) - the passive, "
               "industrial-scale heat source for sustained airship lift."],
         tasks=[item_task("aeronautics:steam_vent", only_from_crafting=True)],
@@ -649,7 +644,7 @@ def build_induction(quests):
         dependencies=[enter], quest_icon="aeronautics:steam_vent",
     )
     gear_ceiling = make_quest(
-        quests, 2, 3, "Allthemodium",
+        quests, cid, "gear_ceiling", "Allthemodium",
         desc=["Smelt an Allthemodium Ingot - this pack's own post-netherite "
               "Silent Gear material floor, carrying gear progression into "
               "the space tiers."],
@@ -658,7 +653,7 @@ def build_induction(quests):
         dependencies=[enter], quest_icon="allthemodium:allthemodium_ingot",
     )
     dragon = make_quest(
-        quests, 4, 0, "Conquer the End",
+        quests, cid, "dragon", "Conquer the End",
         desc=["Kill the Ender Dragon. The overworld, Nether, and End are "
               "done - this is the real trigger for Starforged Age."],
         tasks=[kill_task("minecraft:ender_dragon", 1)],
@@ -671,17 +666,14 @@ def build_induction(quests):
 
 
 # ===========================================================================
-# Chapter 5 - Starforged Age (Tier 5). The space-travel gateway: persistent
-# creative flight (stage-granted, nothing to craft - acknowledged with a
-# checkmark), the first TFMG milestone (Aluminum Age), rocket parts, then
-# launching into Earth orbit - the real trigger for Lunar Frontier.
+# Chapter 5 - Starforged Age (Tier 5).
 # ===========================================================================
 STARFORGED_Q = {}
 
 
-def build_starforged(quests):
+def build_starforged(quests, cid):
     enter = make_quest(
-        quests, 0, 0, "Enter the Starforged Age",
+        quests, cid, "enter", "Enter the Starforged Age",
         desc=["The overworld, Nether, and End are conquered. Space travel "
               "begins - and you can now toggle persistent flight outright."],
         tasks=[stage_task("starforged_age")],
@@ -689,8 +681,8 @@ def build_starforged(quests):
         dependencies=[INDUCTION_Q["dragon"]],
         quest_icon="minecraft:nether_star",
     )
-    flight_ack = make_quest(
-        quests, 2, -1, "True Flight",
+    make_quest(
+        quests, cid, "flight_ack", "True Flight",
         desc=["Double-tap jump to toggle flight - it's granted the instant "
               "you reached this tier, no item or fuel required, and it "
               "survives death."],
@@ -698,8 +690,8 @@ def build_starforged(quests):
         rewards=[skill_xp_reward("running", SIDE_XP[5])],
         dependencies=[enter], quest_icon="minecraft:elytra",
     )
-    leaderboard_check = make_quest(
-        quests, 2, 0, "Check Your Rank (optional)",
+    make_quest(
+        quests, cid, "leaderboard_check", "Check Your Rank (optional)",
         desc=["Run /leaderboard wealth, /leaderboard tier, or /leaderboard "
               "level to see how you and your team stack up."],
         tasks=[checkmark_task()],
@@ -707,7 +699,7 @@ def build_starforged(quests):
         dependencies=[enter], quest_icon="numismatics:sun",
     )
     aluminum_age = make_quest(
-        quests, 2, 1, "The Aluminum Age",
+        quests, cid, "aluminum_age", "The Aluminum Age",
         desc=["Smelt a TFMG Aluminum Ingot - the first rung of the endgame "
               "automation ladder that carries all the way to Jupiter."],
         tasks=[item_task("tfmg:aluminum_ingot", only_from_crafting=True)],
@@ -715,7 +707,7 @@ def build_starforged(quests):
         dependencies=[enter], quest_icon="tfmg:aluminum_ingot",
     )
     rocket_parts = make_quest(
-        quests, 2, 2, "Rocket Parts",
+        quests, cid, "rocket_parts", "Rocket Parts",
         desc=["Craft a Rocket Engine (Stellaris) - one of the core "
               "components of your first rocket."],
         tasks=[item_task("stellaris:rocket_engine", only_from_crafting=True)],
@@ -723,7 +715,7 @@ def build_starforged(quests):
         dependencies=[aluminum_age], quest_icon="stellaris:rocket_engine",
     )
     launch = make_quest(
-        quests, 4, 0, "Liftoff",
+        quests, cid, "launch", "Liftoff",
         desc=["Launch your rocket and reach Earth orbit - the real trigger "
               "for Lunar Frontier."],
         tasks=[dimension_task("stellaris:earth_orbit")],
@@ -735,16 +727,14 @@ def build_starforged(quests):
 
 
 # ===========================================================================
-# Chapter 6 - Lunar Frontier (Tier 6). First space tier: the shared
-# Unobtainium Silent Gear floor, TFMG's Steel Age milestone, then landing on
-# the Moon (the real trigger for Martian Frontier).
+# Chapter 6 - Lunar Frontier (Tier 6).
 # ===========================================================================
 LUNAR_Q = {}
 
 
-def build_lunar(quests):
+def build_lunar(quests, cid):
     enter = make_quest(
-        quests, 0, 0, "Enter the Lunar Frontier",
+        quests, cid, "enter", "Enter the Lunar Frontier",
         desc=["You've reached orbit. The Moon is next."],
         tasks=[stage_task("lunar_frontier")],
         rewards=[skill_xp_reward("mining", GATE_XP[6]), item_reward("allthemodium:unobtainium_ingot")],
@@ -752,7 +742,7 @@ def build_lunar(quests):
         quest_icon="stellaris:rocket",
     )
     steel_age = make_quest(
-        quests, 2, 0, "The Steel Age",
+        quests, cid, "steel_age", "The Steel Age",
         desc=["Smelt a TFMG Steel Ingot - the mod's own core metallurgy "
               "chain, rung 2 of the endgame automation ladder."],
         tasks=[item_task("tfmg:steel_ingot", only_from_crafting=True)],
@@ -760,7 +750,7 @@ def build_lunar(quests):
         dependencies=[enter], quest_icon="tfmg:steel_ingot",
     )
     moon_landing = make_quest(
-        quests, 4, 0, "One Small Step",
+        quests, cid, "moon_landing", "One Small Step",
         desc=["Travel to the Moon - the real trigger for Martian Frontier."],
         tasks=[dimension_task("stellaris:moon")],
         rewards=[*spur_rewards(GATE_SPURS[6]), skill_xp_reward("running", GATE_XP[6])],
@@ -770,15 +760,14 @@ def build_lunar(quests):
 
 
 # ===========================================================================
-# Chapter 7 - Martian Frontier (Tier 7). TFMG's Petrochemical Age milestone,
-# then landing on Mars (the real trigger for Inner System).
+# Chapter 7 - Martian Frontier (Tier 7).
 # ===========================================================================
 MARTIAN_Q = {}
 
 
-def build_martian(quests):
+def build_martian(quests, cid):
     enter = make_quest(
-        quests, 0, 0, "Enter the Martian Frontier",
+        quests, cid, "enter", "Enter the Martian Frontier",
         desc=["The Moon is conquered. Mars is next."],
         tasks=[stage_task("martian_frontier")],
         rewards=[skill_xp_reward("mining", GATE_XP[7]), item_reward("tfmg:diesel_bucket")],
@@ -786,7 +775,7 @@ def build_martian(quests):
         quest_icon="minecraft:redstone",
     )
     petrochemical = make_quest(
-        quests, 2, 0, "The Petrochemical Age",
+        quests, cid, "petrochemical", "The Petrochemical Age",
         desc=["Refine a bucket of Diesel (TFMG) - rung 3 of the endgame "
               "automation ladder."],
         tasks=[item_task("tfmg:diesel_bucket", only_from_crafting=True)],
@@ -794,7 +783,7 @@ def build_martian(quests):
         dependencies=[enter], quest_icon="tfmg:diesel_bucket",
     )
     mars_landing = make_quest(
-        quests, 4, 0, "Red Planet",
+        quests, cid, "mars_landing", "Red Planet",
         desc=["Travel to Mars - the real trigger for Inner System."],
         tasks=[dimension_task("stellaris:mars")],
         rewards=[*spur_rewards(GATE_SPURS[7]), skill_xp_reward("running", GATE_XP[7])],
@@ -804,17 +793,14 @@ def build_martian(quests):
 
 
 # ===========================================================================
-# Chapter 8 - Inner System (Tier 8). TFMG's Electrical Age milestone, then
-# two OPTIONAL parallel landings (Venus / Mercury - either alone triggers
-# Jovian Frontier per triggers.toml, so neither is a required dependency of
-# the next chapter's gate quest).
+# Chapter 8 - Inner System (Tier 8).
 # ===========================================================================
 INNER_Q = {}
 
 
-def build_inner(quests):
+def build_inner(quests, cid):
     enter = make_quest(
-        quests, 0, 0, "Enter the Inner System",
+        quests, cid, "enter", "Enter the Inner System",
         desc=["Mars is conquered. Venus and Mercury - both extreme, "
               "comparably hostile - are next."],
         tasks=[stage_task("inner_system")],
@@ -823,23 +809,23 @@ def build_inner(quests):
         quest_icon="minecraft:magma_block",
     )
     electrical_age = make_quest(
-        quests, 2, 0, "The Electrical Age",
+        quests, cid, "electrical_age", "The Electrical Age",
         desc=["Craft a TFMG Converter - bridges TFMG's own power grid into "
               "Create/FE, rung 4 of the endgame automation ladder."],
         tasks=[item_task("tfmg:converter", only_from_crafting=True)],
         rewards=[skill_xp_reward("building", SIDE_XP[8]), *spur_rewards(SIDE_SPURS[8])],
         dependencies=[enter], quest_icon="tfmg:converter",
     )
-    venus_landing = make_quest(
-        quests, 4, -1, "Morning Star (optional)",
+    make_quest(
+        quests, cid, "venus_landing", "Morning Star (optional)",
         desc=["Travel to Venus - either inner planet triggers Jovian "
               "Frontier, so this and Mercury are both optional."],
         tasks=[dimension_task("stellaris:venus")],
         rewards=[skill_xp_reward("running", SIDE_XP[8]), *spur_rewards(SIDE_SPURS[8])],
         dependencies=[electrical_age], quest_icon="minecraft:magma_block",
     )
-    mercury_landing = make_quest(
-        quests, 4, 1, "Swift Planet (optional)",
+    make_quest(
+        quests, cid, "mercury_landing", "Swift Planet (optional)",
         desc=["Travel to Mercury - either inner planet triggers Jovian "
               "Frontier, so this and Venus are both optional."],
         tasks=[dimension_task("stellaris:mercury")],
@@ -850,15 +836,11 @@ def build_inner(quests):
 
 
 # ===========================================================================
-# Chapter 9 - Jovian Frontier (Tier 9, final). TFMG's Combustion Age
-# milestone (ladder ceiling), then the three real "infinite" capstones - each
-# a required CRAFTING TASK here, never a reward, so create:creative_crate is
-# never handed out early, only ever earned by building it yourself at the one
-# tier it's meant for.
+# Chapter 9 - Jovian Frontier (Tier 9, final).
 # ===========================================================================
-def build_jovian(quests):
+def build_jovian(quests, cid):
     enter = make_quest(
-        quests, 0, 0, "Enter the Jovian Frontier",
+        quests, cid, "enter", "Enter the Jovian Frontier",
         desc=["The inner system is conquered. Jupiter - the current edge of "
               "Stellaris' explorable system - is the final frontier."],
         tasks=[stage_task("jovian_frontier")],
@@ -868,7 +850,7 @@ def build_jovian(quests):
         quest_icon="minecraft:end_crystal",
     )
     combustion_age = make_quest(
-        quests, 2, 0, "The Combustion Age",
+        quests, cid, "combustion_age", "The Combustion Age",
         desc=["Craft a TFMG Engine Cylinder - the final rung of the endgame "
               "automation ladder."],
         tasks=[item_task("tfmg:engine_cylinder", only_from_crafting=True)],
@@ -876,7 +858,7 @@ def build_jovian(quests):
         dependencies=[enter], quest_icon="tfmg:engine_cylinder",
     )
     storage_infinity = make_quest(
-        quests, 4, -1, "Infinite Storage",
+        quests, cid, "storage_infinity", "Infinite Storage",
         desc=["Craft a Refined Storage Creative Storage Block - genuinely "
               "infinite item capacity, the true ceiling of the storage "
               "chase started back at Andesite Age."],
@@ -885,7 +867,7 @@ def build_jovian(quests):
         dependencies=[combustion_age], quest_icon="refinedstorage:creative_storage_block",
     )
     energy_infinity = make_quest(
-        quests, 4, 0, "Infinite Energy",
+        quests, cid, "energy_infinity", "Infinite Energy",
         desc=["Craft a Create Creative Motor - a genuinely endless source of "
               "Rotational Force, bridged to FE the same way every earlier "
               "power step in this pack has been."],
@@ -894,7 +876,7 @@ def build_jovian(quests):
         dependencies=[combustion_age], quest_icon="create:creative_motor",
     )
     resource_infinity = make_quest(
-        quests, 4, 1, "Infinite Resources",
+        quests, cid, "resource_infinity", "Infinite Resources",
         desc=["Craft a Create Creative Crate - an endless supply of any one "
               "item you configure. This is the hardest, latest-gated craft "
               "in the entire pack for a reason - guard it accordingly."],
@@ -903,7 +885,7 @@ def build_jovian(quests):
         dependencies=[combustion_age], quest_icon="create:creative_crate",
     )
     make_quest(
-        quests, 6, 0, "Journey's End",
+        quests, cid, "journeys_end", "Journey's End",
         desc=["Every tier from Rootborn to Jupiter, done. Future updates may "
               "extend the ladder further out into the solar system - this "
               "book will grow to meet them."],
@@ -914,73 +896,459 @@ def build_jovian(quests):
     )
 
 
+CHAPTER_DEFS = [
+    ("rootborn", "Rootborn", ["The world is still just the world - for now."],
+     build_rootborn, "minecraft:stone_pickaxe"),
+    ("andesite_age", "Andesite Age", ["Iron enters the world. Create's own machinery begins."],
+     build_andesite, "create:andesite_alloy"),
+    ("brass_age", "Brass Age", ["Automation begins in earnest."],
+     build_brass, "create:brass_ingot"),
+    ("precision_age", "Precision Age", ["Create's own endgame alloys, and netherite gear."],
+     build_precision, "create:sturdy_sheet"),
+    ("induction_age", "Induction Age", ["Full storage-network automation."],
+     build_induction, "refinedstorage:advanced_processor"),
+    ("starforged_age", "Starforged Age", ["The overworld, Nether, and End are conquered. Space travel begins."],
+     build_starforged, "minecraft:nether_star"),
+    ("lunar_frontier", "Lunar Frontier", ["You've reached orbit. The Moon is next."],
+     build_lunar, "stellaris:rocket"),
+    ("martian_frontier", "Martian Frontier", ["The Moon is conquered. Mars is next."],
+     build_martian, "minecraft:redstone"),
+    ("inner_system", "Inner System", ["Mars is conquered. Venus and Mercury are next."],
+     build_inner, "minecraft:magma_block"),
+    ("jovian_frontier", "Jovian Frontier", ["The inner system is conquered. Jupiter is the final frontier."],
+     build_jovian, "minecraft:end_crystal"),
+]
+
+
 # ---------------------------------------------------------------------------
-# Assemble + write
+# JSON -> embedded JS literal. Plain json.dumps is valid JS for this data
+# shape (no NaN/Infinity/non-string keys anywhere in it), so there is no
+# need for a bespoke serializer the way the old SNBT format required.
 # ---------------------------------------------------------------------------
-def main():
-    chapters_dir = QUESTS_DIR / "chapters"
-    lang_dir = QUESTS_DIR / "lang"
-    chapters_dir.mkdir(parents=True, exist_ok=True)
-    lang_dir.mkdir(parents=True, exist_ok=True)
+RUNTIME_TEMPLATE = r"""
+// ---------------------------------------------------------------------------
+// Runtime: bespoke quest tracker (GitHub #33), replacing FTB Quests.
+//
+// Team-shared PROGRESS, per-player REWARDS (instructions.md line 41: "Players
+// should share progress (but not rewards) for preset track quests" - this IS
+// the preset track, formerly FTB Quests' "Tier Progression" chapter). Quest
+// completion is stored keyed by getProgressKey(player) below (a team/party id
+// when the player is in a real multi-member party, else a per-player key) -
+// so any teammate satisfying a quest's tasks marks it done for the whole
+// team, unlocking dependents for everyone - but the reward grant (items/xp/
+// commands) goes ONLY to the player whose live state the tick scan (or
+// /quest check) actually found satisfying, never broadcast to teammates.
+//
+// PARTY-ID SEAM for GitHub #32 (Open Parties and Claims, replacing FTB Teams
+// - separate, in-progress issue, not yet landed): getProgressKey() below is
+// the ONE function that needs to change once #32 lands - every other
+// function in this file keys exclusively off the string it returns. Ground
+// truth for the FTB-Teams-based lookup used until then: dev.ftb.mods.
+// ftbteams.api.TeamManager.getTeamForPlayer(ServerPlayer) -> Optional<Team>;
+// Team.isPartyTeam()/getId() - confirmed via javap against the installed
+// ftb-teams-neoforge-2101.1.10.jar (FTB Teams stays installed - it's a
+// required dependency of FTB Chunks too, and is not this issue's mod to
+// remove; see scripts/gen_quests.py's own module docstring for the full
+// mod-removal evidence trail).
+//
+// Task checking: item tasks are a live inventory-count check (same
+// container-scanning shape as leaderboard.js's countCoins(), generalized to
+// any item id) with optional consume-on-complete - NOT an FTB-Quests-style
+// "must have been freshly crafted" event tracker (see gen_quests.py's own
+// docstring for why this simplification is deliberate and precedented by
+// progression_stage_bridge.js's GitHub #23 fix). Kill tasks read the
+// vanilla per-entity-type kill stat directly (dev.latvian.mods.kubejs.
+// player.PlayerStatsJS.getKilled(EntityType<?>) - confirmed via javap
+// against the installed kubejs jar; net.minecraft.world.entity.EntityType.
+// byString(String) resolves the configured entity id to the EntityType
+// instance that method needs, confirmed via javap against the installed
+// server jar's SRG-named class dump under net/minecraft/world/entity/
+// EntityType.class). Dimension tasks compare String(player.level.dimension)
+// against the configured dimension id (same accessor mob_scaling.js already
+// uses for DIMENSION_FACTOR lookups). Gamestage tasks read player.stages.has
+// (id) (same binding leaderboard.js/progression_stage_bridge.js/selftest.js
+// already use). Checkmark tasks are never tick-completed - they require the
+// player to run /quest check <id> themselves, since there is no self-check
+// GUI to click in a chat-command-only redesign.
 
-    chapter_defs = [
-        ("rootborn", "Rootborn", ["The world is still just the world - for now."],
-         build_rootborn, "minecraft:stone_pickaxe"),
-        ("andesite_age", "Andesite Age", ["Iron enters the world. Create's own machinery begins."],
-         build_andesite, "create:andesite_alloy"),
-        ("brass_age", "Brass Age", ["Automation begins in earnest."],
-         build_brass, "create:brass_ingot"),
-        ("precision_age", "Precision Age", ["Create's own endgame alloys, and netherite gear."],
-         build_precision, "create:sturdy_sheet"),
-        ("induction_age", "Induction Age", ["Full storage-network automation."],
-         build_induction, "refinedstorage:advanced_processor"),
-        ("starforged_age", "Starforged Age", ["The overworld, Nether, and End are conquered. Space travel begins."],
-         build_starforged, "minecraft:nether_star"),
-        ("lunar_frontier", "Lunar Frontier", ["You've reached orbit. The Moon is next."],
-         build_lunar, "stellaris:rocket"),
-        ("martian_frontier", "Martian Frontier", ["The Moon is conquered. Mars is next."],
-         build_martian, "minecraft:redstone"),
-        ("inner_system", "Inner System", ["Mars is conquered. Venus and Mercury are next."],
-         build_inner, "minecraft:magma_block"),
-        ("jovian_frontier", "Jovian Frontier", ["The inner system is conquered. Jupiter is the final frontier."],
-         build_jovian, "minecraft:end_crystal"),
-    ]
+const QuestsCompoundTagClass = Java.loadClass('net.minecraft.nbt.CompoundTag')
+const QuestsEntityTypeClass = Java.loadClass('net.minecraft.world.entity.EntityType')
 
-    written = []
-    for i, (filename, title, subtitle, builder, chap_icon) in enumerate(chapter_defs):
-        chapter = make_chapter(filename, title, subtitle, builder, order_index=i, chapter_icon=chap_icon)
-        (chapters_dir / f"{filename}.snbt").write_text(snbt(chapter) + "\n")
-        written.append((filename, len(chapter["quests"])))
-        print(f"wrote chapters/{filename}.snbt ({len(chapter['quests'])} quests)")
+let QuestsFTBTeamsAPIClass = null
+try {
+    QuestsFTBTeamsAPIClass = Java.loadClass('dev.ftb.mods.ftbteams.api.FTBTeamsAPI')
+} catch (e) {
+    console.error('[vpp quests] FTB Teams API (dev.ftb.mods.ftbteams.api.FTBTeamsAPI) failed to load - quest progress will always be per-player: ' + e)
+}
 
-    data = {
-        "version": 13,
-        "default_reward_team": False,
-        "default_consume_items": False,
-        "default_autoclaim_rewards": "disabled",
-        "default_quest_shape": "",
-        "default_quest_disable_jei": False,
-        "emergency_items_cooldown": 300,
-        "drop_loot_crates": False,
-        "disable_gui": False,
-        "grid_scale": 0.5,
-        "pause_game": False,
-        "lock_message": "",
-        "progression_mode": "linear",
-        "detection_delay": 20,
-        "show_lock_icons": True,
-        "drop_book_on_death": False,
-        "hide_excluded_quests": False,
-        "fallback_locale": "en_us",
-        "verify_on_load": False,
+// ---- progress-key seam (see header comment - the one function GitHub #32 needs to change) ----
+
+function getProgressKey(player) {
+    if (QuestsFTBTeamsAPIClass) {
+        try {
+            let manager = QuestsFTBTeamsAPIClass.api().getManager()
+            let teamOpt = manager.getTeamForPlayer(player)
+            if (teamOpt.isPresent() && teamOpt.get().isPartyTeam()) {
+                return 'team:' + teamOpt.get().getId()
+            }
+        } catch (e) {
+            console.error('[vpp quests] team lookup failed for ' + player.username + ', falling back to a per-player key: ' + e)
+        }
     }
-    (QUESTS_DIR / "data.snbt").write_text(snbt(data) + "\n")
-    (QUESTS_DIR / "chapter_groups.snbt").write_text(snbt({"chapter_groups": []}) + "\n")
-    (lang_dir / "en_us.snbt").write_text(snbt(translations) + "\n")
+    return 'player:' + player.uuid
+}
 
-    total_quests = sum(n for _, n in written)
-    print(f"wrote data.snbt, chapter_groups.snbt, lang/en_us.snbt ({len(translations)} translation keys)")
-    print(f"TOTAL: {len(written)} chapters, {total_quests} quests")
+// ---- persistent progress storage (server.persistentData, same pattern leaderboard.js's cache uses) ----
+
+function questsEnsureCompound(parent, key) {
+    if (!parent.contains(key, 10)) { // 10 = NBT compound-tag type id
+        parent.put(key, new QuestsCompoundTagClass())
+    }
+    return parent.getCompound(key)
+}
+
+const QUESTS_PROGRESS_ROOT_KEY = 'vpp_quests_progress'
+
+function questsProgressCompound(server, progressKey) {
+    let root = questsEnsureCompound(server.persistentData, QUESTS_PROGRESS_ROOT_KEY)
+    return questsEnsureCompound(root, progressKey)
+}
+
+function isQuestComplete(server, progressKey, questId) {
+    return questsProgressCompound(server, progressKey).getBoolean(questId)
+}
+
+function markQuestComplete(server, progressKey, questId) {
+    questsProgressCompound(server, progressKey).putBoolean(questId, true)
+}
+
+function dependenciesSatisfied(server, progressKey, quest) {
+    for (let i = 0; i < quest.dependencies.length; i++) {
+        if (!isQuestComplete(server, progressKey, quest.dependencies[i])) return false
+    }
+    return true
+}
+
+function hasCheckmarkTask(quest) {
+    for (let i = 0; i < quest.tasks.length; i++) {
+        if (quest.tasks[i].type === 'checkmark') return true
+    }
+    return false
+}
+
+// ---- task checking ----
+
+function questsCountItem(player, itemId) {
+    let total = 0
+    let inv = player.getInventory()
+    let size = inv.getContainerSize()
+    for (let i = 0; i < size; i++) {
+        let stack = inv.getItem(i)
+        if (!stack || stack.isEmpty()) continue
+        if (stack.id === itemId) total += stack.getCount()
+    }
+    return total
+}
+
+function questsConsumeItem(player, itemId, count) {
+    let remaining = count
+    let inv = player.getInventory()
+    let size = inv.getContainerSize()
+    for (let i = 0; i < size && remaining > 0; i++) {
+        let stack = inv.getItem(i)
+        if (!stack || stack.isEmpty() || stack.id !== itemId) continue
+        let take = Math.min(remaining, stack.getCount())
+        stack.setCount(stack.getCount() - take)
+        remaining -= take
+    }
+}
+
+function checkTask(player, task) {
+    switch (task.type) {
+        case 'item':
+            return questsCountItem(player, task.item) >= task.count
+        case 'kill': {
+            let opt = QuestsEntityTypeClass.byString(task.entity)
+            if (!opt.isPresent()) return false
+            return player.stats.getKilled(opt.get()) >= task.count
+        }
+        case 'dimension':
+            return String(player.level.dimension) === task.dimension
+        case 'gamestage':
+            return player.stages.has(task.stage)
+        case 'checkmark':
+            return false // player-invoked only, via /quest check
+        default:
+            console.error('[vpp quests] unknown task type: ' + task.type)
+            return false
+    }
+}
+
+function questSatisfied(player, quest) {
+    for (let i = 0; i < quest.tasks.length; i++) {
+        if (!checkTask(player, quest.tasks[i])) return false
+    }
+    return true
+}
+
+// ---- rewards (same COINS/payCoins convention as economy.js) ----
+
+const QUESTS_COINS = [
+    ['numismatics:sun', 4096], ['numismatics:crown', 512], ['numismatics:cog', 64],
+    ['numismatics:sprocket', 16], ['numismatics:bevel', 8], ['numismatics:spur', 1],
+]
+
+function applyReward(player, reward) {
+    switch (reward.type) {
+        case 'item':
+            player.give(Item.of(reward.item, reward.count))
+            break
+        case 'xp':
+            player.server.runCommandSilent(`puffish_skills experience add ${player.username} ${reward.category} ${reward.amount}`)
+            break
+        case 'command':
+            player.server.runCommandSilent(reward.command.split('{p}').join(player.username))
+            break
+        case 'gamestage':
+            player.stages.add(reward.stage)
+            break
+        case 'toast':
+            player.tell(`*** ${reward.message} ***`)
+            break
+        default:
+            console.error('[vpp quests] unknown reward type: ' + reward.type)
+    }
+}
+
+function grantRewards(player, quest) {
+    for (let i = 0; i < quest.rewards.length; i++) {
+        try {
+            applyReward(player, quest.rewards[i])
+        } catch (e) {
+            console.error('[vpp quests] reward grant failed for ' + player.username + ' on quest ' + quest.id + ': ' + e)
+        }
+    }
+}
+
+function notifyTeammates(server, progressKey, completer, quest) {
+    for (const p of server.players) { // KubeJS EntityArrayList, proven for-of target (mob_scaling.js/leaderboard.js)
+        if (String(p.uuid) === String(completer.uuid)) continue
+        if (getProgressKey(p) === progressKey) {
+            p.tell(`Team quest complete: ${quest.title} (completed by ${completer.username})`)
+        }
+    }
+}
+
+function completeQuest(server, player, progressKey, quest) {
+    for (let i = 0; i < quest.tasks.length; i++) {
+        let task = quest.tasks[i]
+        if (task.type === 'item' && task.consume) questsConsumeItem(player, task.item, task.count)
+    }
+    markQuestComplete(server, progressKey, quest.id)
+    grantRewards(player, quest)
+    player.tell(`Quest complete: ${quest.title}`)
+    notifyTeammates(server, progressKey, player, quest)
+}
+
+// ---- tick scan ----
+
+const QUESTS_TICK_INTERVAL = 100 // 5s, matches achievements.js's own cadence
+
+let questsTickCounter = 0
+ServerEvents.tick(event => {
+    questsTickCounter++
+    if (questsTickCounter % QUESTS_TICK_INTERVAL !== 0) return
+
+    for (const player of event.server.players) {
+        try {
+            scanQuestsForPlayer(player)
+        } catch (e) {
+            console.error('[vpp quests] tick scan failed for ' + player.username + ': ' + e)
+        }
+    }
+})
+
+function scanQuestsForPlayer(player) {
+    let server = player.server
+    let progressKey = getProgressKey(player)
+    for (const chapter of QUEST_CHAPTERS) {
+        for (const quest of chapter.quests) {
+            if (hasCheckmarkTask(quest)) continue
+            if (isQuestComplete(server, progressKey, quest.id)) continue
+            if (!dependenciesSatisfied(server, progressKey, quest)) continue
+            if (!questSatisfied(player, quest)) continue
+            completeQuest(server, player, progressKey, quest)
+        }
+    }
+}
+
+// ---- flattened lookups ----
+
+const QUEST_BY_ID = {}
+const CHECKMARK_QUEST_IDS = []
+for (const chapter of QUEST_CHAPTERS) {
+    for (const quest of chapter.quests) {
+        QUEST_BY_ID[quest.id] = quest
+        if (hasCheckmarkTask(quest)) CHECKMARK_QUEST_IDS.push(quest.id)
+    }
+}
+
+// ---- manual checkmark completion ----
+
+function runCheckmarkCheck(player, questId) {
+    let server = player.server
+    let quest = QUEST_BY_ID[questId]
+    if (!quest) { player.tell('Unknown quest id: ' + questId); return }
+    let progressKey = getProgressKey(player)
+    if (isQuestComplete(server, progressKey, questId)) {
+        player.tell(`Already complete: ${quest.title}`)
+        return
+    }
+    if (!dependenciesSatisfied(server, progressKey, quest)) {
+        player.tell(`Locked - complete its prerequisites first: ${quest.title}`)
+        return
+    }
+    completeQuest(server, player, progressKey, quest)
+}
+
+// ---- describe helpers for /quests <chapter> ----
+
+function describeTask(task) {
+    switch (task.type) {
+        case 'item':
+            return `${task.consume ? 'Turn in' : 'Have'} ${task.count}x ${task.item}` + (task.onlyFromCrafting ? ' (crafted)' : '')
+        case 'kill':
+            return `Kill ${task.count}x ${task.entity}`
+        case 'dimension':
+            return `Travel to ${task.dimension}`
+        case 'gamestage':
+            return `Reach stage: ${task.stage}`
+        case 'checkmark':
+            return 'Self-check (/quest check ' + '<id>)'
+        default:
+            return task.type
+    }
+}
+
+function describeReward(reward) {
+    switch (reward.type) {
+        case 'item':
+            return `${reward.count}x ${reward.item}`
+        case 'xp':
+            return `${reward.amount} ${reward.category} XP`
+        case 'command':
+            return 'command reward'
+        case 'gamestage':
+            return `stage: ${reward.stage}`
+        case 'toast':
+            return 'announcement'
+        default:
+            return reward.type
+    }
+}
+
+function describeTasks(quest) {
+    return quest.tasks.map(describeTask).join('; ')
+}
+
+function describeRewards(quest) {
+    return quest.rewards.map(describeReward).join(', ')
+}
+
+// ---- chat command family ----
+
+function showQuestsOverview(player) {
+    let server = player.server
+    let progressKey = getProgressKey(player)
+    player.tell('--- Quests ---')
+    let current = null
+    for (const chapter of QUEST_CHAPTERS) {
+        let total = chapter.quests.length
+        let done = chapter.quests.filter(q => isQuestComplete(server, progressKey, q.id)).length
+        player.tell(`${chapter.title}: ${done}/${total}`)
+        if (!current && done < total) current = chapter
+    }
+    if (!current) current = QUEST_CHAPTERS[QUEST_CHAPTERS.length - 1]
+    player.tell(`Current chapter: ${current.title} - run /quests ${current.id} for details.`)
+}
+
+function showChapterDetail(player, chapter) {
+    let server = player.server
+    let progressKey = getProgressKey(player)
+    player.tell(`--- ${chapter.title} ---`)
+    for (const line of chapter.subtitle) player.tell(line)
+    for (const quest of chapter.quests) {
+        let complete = isQuestComplete(server, progressKey, quest.id)
+        let locked = !complete && !dependenciesSatisfied(server, progressKey, quest)
+        let status = complete ? 'DONE' : (locked ? 'LOCKED' : 'OPEN')
+        player.tell(`[${status}] ${quest.title} - ${describeTasks(quest)} -> ${describeRewards(quest)}`)
+    }
+}
+
+ServerEvents.commandRegistry(event => {
+    const { commands: Commands } = event
+
+    // /quests [chapter] - one literal subcommand per chapter id (10, a
+    // small fixed set), NOT a Commands.argument(...)/Arguments.STRING
+    // interop call - same reasoning skill_respec.js's own /respec command
+    // already documented: no script in this pack has ever registered a
+    // string ArgumentType and this cannot be boot-tested here to find out
+    // if that guess would be right, so literal chaining (already proven
+    // via economy.js/dailies.js/leaderboard.js) is used throughout instead.
+    let questsCmd = Commands.literal('quests')
+        .executes(ctx => { showQuestsOverview(ctx.source.playerOrException); return 1 })
+    for (const chapter of QUEST_CHAPTERS) {
+        questsCmd = questsCmd.then(
+            Commands.literal(chapter.id).executes(ctx => {
+                showChapterDetail(ctx.source.playerOrException, chapter)
+                return 1
+            })
+        )
+    }
+    event.register(questsCmd)
+
+    // /quest check <id> - one literal subcommand per checkmark quest (a
+    // small fixed set - 4 in this book's actual content), same reasoning.
+    let checkCmd = Commands.literal('check')
+        .executes(ctx => {
+            ctx.source.playerOrException.tell('Usage: /quest check <id>. Checkmark quests: ' + CHECKMARK_QUEST_IDS.join(', '))
+            return 0
+        })
+    for (const qid of CHECKMARK_QUEST_IDS) {
+        checkCmd = checkCmd.then(
+            Commands.literal(qid).executes(ctx => {
+                runCheckmarkCheck(ctx.source.playerOrException, qid)
+                return 1
+            })
+        )
+    }
+    event.register(Commands.literal('quest').then(checkCmd))
+})
+""".strip("\n")
+
+
+def main():
+    chapters = []
+    for i, (chapter_id, title, subtitle, builder, chap_icon) in enumerate(CHAPTER_DEFS):
+        chapter = make_chapter(chapter_id, title, subtitle, builder, order_index=i, chapter_icon=chap_icon)
+        chapters.append(chapter)
+
+    total_quests = sum(len(c["quests"]) for c in chapters)
+    total_deps = sum(len(q["dependencies"]) for c in chapters for q in c["quests"])
+
+    lines = []
+    lines.append("// GENERATED by scripts/gen_quests.py - do not hand-edit, re-run the script instead.")
+    lines.append("// Bespoke quest tracker replacing FTB Quests (GitHub #33) - see scripts/gen_quests.py's")
+    lines.append("// own module docstring for the full design rationale (team-shared progress / per-player")
+    lines.append("// rewards, the #32 party-id seam, the mod-removal evidence trail, and every disclosed")
+    lines.append("// content-fidelity simplification).")
+    lines.append(f"// {len(chapters)} chapters, {total_quests} quests, {total_deps} dependency edges.")
+    lines.append("const QUEST_CHAPTERS = " + json.dumps(chapters, indent=2) + "")
+    lines.append("")
+    lines.append(RUNTIME_TEMPLATE)
+
+    OUT_FILE.write_text("\n".join(lines) + "\n")
+    print(f"wrote {OUT_FILE} ({len(chapters)} chapters, {total_quests} quests, {total_deps} dependency edges)")
 
 
 if __name__ == "__main__":
