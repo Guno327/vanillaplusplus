@@ -8,6 +8,19 @@
 [advancements]
 # rootborn is a starting_stage (see progressivestages.toml), no trigger needed.
 
+# GitHub issue #23: this section alone is NOT sufficient to grant these
+# stages. ProgressiveStages (server/triggers/ItemPickupStageGrants, javap-
+# confirmed) only acts on these mappings from NeoForge's
+# ItemEntityPickupEvent$Pre (picking an item up off the ground) plus a
+# once-at-login inventory scan - it has no crafting/possession hook, so an
+# item crafted straight into inventory (crafting table, Create Basin/Mixer
+# extraction, etc.) never grants the mapped stage and downstream FTB Quests
+# "gamestage" tasks hard-lock. pack/kubejs/server_scripts/
+# progression_stage_bridge.js compensates with a periodic "does the player
+# currently hold this item" scan via the player.stages KubeJS bridge - see
+# that file's header for the full decompiled root-cause trail. Keep that
+# file's PSB_ITEM_STAGE_TRIGGERS mirror in sync with this section (and with
+# the [[multi]] any_of item list below) whenever either changes.
 [items]
 "create:andesite_alloy" = "andesite_age"
 "create:brass_ingot" = "brass_age"
@@ -29,6 +42,9 @@
 [bosses]
 "minecraft:ender_dragon" = "starforged_age"   # finalized in Phase 8: beating the End is the space-travel gateway
 
+# Same issue #23 gap as [items] above: MultiTriggerManager's item sub-type
+# also only fires on ItemEntityPickupEvent$Pre, so this is ALSO mirrored in
+# progression_stage_bridge.js's PSB_ITEM_STAGE_TRIGGERS. Keep both in sync.
 [[multi]]
 id = "precision_age_materials"
 stage = "precision_age"
