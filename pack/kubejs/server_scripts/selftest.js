@@ -286,6 +286,76 @@ stCheck('mobility: starforged_age stage id resolves on player.stages without thr
     return { pass: true, detail: 'ok' }
 })
 
+// GitHub issue #23 fix: progression_stage_bridge.js compensates for
+// ProgressiveStages' ItemPickupStageGrants only listening to
+// ItemEntityPickupEvent$Pre (ground pickup), which never fires for items
+// crafted straight into inventory. These two checks catch a regression at
+// the two levels that matter: (1) the mirrored trigger table actually
+// loaded into the shared Rhino scope (a boot-level wiring check - would
+// have caught e.g. a typo'd filename or a shared-scope name collision
+// silently dropping the whole file), and (2) the table's item->stage
+// mapping still agrees with config/ProgressiveStages/triggers.toml's own
+// [items] section + precision_age's [[multi]] any_of list (both files
+// declare they must be kept in sync; this is what actually enforces that).
+stCheck('progression_stage_bridge: PSB_ITEM_STAGE_TRIGGERS loaded and matches triggers.toml', () => {
+    if (typeof PSB_ITEM_STAGE_TRIGGERS === 'undefined' || typeof psbApplyItemStageTriggers !== 'function') {
+        return { pass: false, detail: 'progression_stage_bridge.js did not load into the shared server_scripts scope' }
+    }
+    // Mirrors config/ProgressiveStages/triggers.toml's [items] section
+    // (3 entries) plus precision_age's [[multi]] any_of item list
+    // (1 entry, 2 alternative items) - see that file's own header comment.
+    const expected = {
+        andesite_age: ['create:andesite_alloy'],
+        brass_age: ['create:brass_ingot'],
+        induction_age: ['minecraft:netherite_ingot'],
+        precision_age: ['create:refined_radiance', 'create:shadow_steel'],
+    }
+    const expectedStages = Object.keys(expected)
+    let mismatches = []
+    for (let i = 0; i < PSB_ITEM_STAGE_TRIGGERS.length; i++) {
+        let t = PSB_ITEM_STAGE_TRIGGERS[i]
+        let exp = expected[t.stage]
+        if (!exp) { mismatches.push('unexpected stage ' + t.stage); continue }
+        if (exp.length !== t.items.length || exp.some((id, idx) => id !== t.items[idx])) {
+            mismatches.push(t.stage + ': got [' + t.items.join(',') + '] expected [' + exp.join(',') + ']')
+        }
+    }
+    let gotStages = PSB_ITEM_STAGE_TRIGGERS.map(t => t.stage)
+    let missingStages = expectedStages.filter(s => gotStages.indexOf(s) < 0)
+    missingStages.forEach(s => mismatches.push('missing stage ' + s))
+    return { pass: mismatches.length === 0, detail: mismatches.length === 0 ? (PSB_ITEM_STAGE_TRIGGERS.length + ' triggers match triggers.toml') : mismatches.join('; ') }
+})
+
+stCheck('progression_stage_bridge: crafted-item trigger grants the stage via player.stages (issue #23 regression guard)', (server, player) => {
+    if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
+    if (typeof PSB_ITEM_STAGE_TRIGGERS === 'undefined' || typeof psbApplyItemStageTriggers !== 'function') {
+        return { pass: false, detail: 'progression_stage_bridge.js did not load into the shared server_scripts scope' }
+    }
+    let trigger = null
+    for (let i = 0; i < PSB_ITEM_STAGE_TRIGGERS.length; i++) {
+        if (!player.stages.has(PSB_ITEM_STAGE_TRIGGERS[i].stage)) { trigger = PSB_ITEM_STAGE_TRIGGERS[i]; break }
+    }
+    if (!trigger) return { skip: true, detail: 'player already holds every mapped stage, nothing safe to probe without touching real progress' }
+
+    let itemId = trigger.items[0]
+    let hadBefore = player.inventory.find(itemId) >= 0
+    if (!hadBefore) player.give(Item.of(itemId, 1))
+    try {
+        let granted = psbApplyItemStageTriggers(player)
+        let ok = granted.indexOf(trigger.stage) >= 0 && player.stages.has(trigger.stage)
+        return { pass: ok, detail: ok ? ('granted ' + trigger.stage + ' from ' + itemId) : ('did not grant ' + trigger.stage + ' from ' + itemId + ' (granted=' + granted.join(',') + ')') }
+    } finally {
+        // Restore exactly what we touched: revoke the probe grant, and
+        // remove the probe item only if this check is the one that gave it
+        // (never touch a copy the player already legitimately had).
+        player.stages.remove(trigger.stage)
+        if (!hadBefore) {
+            let slot = player.inventory.find(itemId)
+            if (slot >= 0) player.getInventory().getItem(slot).setCount(0)
+        }
+    }
+})
+
 // ---- helpers ----
 
 function stCountCoinValue(player) {
