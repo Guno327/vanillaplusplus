@@ -48,8 +48,17 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   Release pipeline runbook in `HANDOFF.md`; each mint must repin
   `nix/release.json` (`scripts/update_nix_release.py`).
 
-## Current status (2026-07-20)
+## Current status (2026-07-21)
 
+- v0.2.1 shipped (beta/prerelease) via the first live `mint-release.yml`
+  run: sole content change is #50 — disabling Sable's UDP pipeline
+  (`pack/config/sable-common.toml`), fixing the "Loading Terrain" hang on
+  every client join (#49, owner-reported against v0.2.0). #49 stays open
+  (`fix-pushed` + `verify-in-game`) until a human join confirms it. The
+  mint worked end-to-end except its final open-sync-PR step, which the
+  repo's Actions settings refused; PM opened PR #51 by hand (merged), and
+  #52 (`needs-owner`) asks the owner to flip the one checkbox that fixes
+  future mints. `pack/VERSION` is `0.2.1`.
 - v0.2.0 shipped (beta/prerelease): FTB suite fully removed for
   redistribution-permission reasons (#28) — Open Parties and Claims for
   teams/claims (#32), bespoke KubeJS quest tracker + advancement GUI
@@ -59,10 +68,13 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   (L0+L1 boot tier, weekly + dispatch), `mint-release.yml`
   (dispatch-anytime release minting from main, #27),
   `publish-modrinth.yml` (Modrinth publish on release / dispatch).
-- Open: `verify-in-game` issues #1–#3 and #19 (owner-only hand
-  verification), and #44 `needs-owner` (delete the stale FTB-embedding
-  v0.1.1 draft version on Modrinth before the project goes public — no
-  longer blocks the Nix deployment default, see below).
+- Open: `verify-in-game` issues #1–#3, #19, and #49 (owner-only hand
+  verification); #47 (`awaiting-approval`) — the L3 live-client-join test
+  tier feasibility record, develops only on owner-applied `approved`;
+  #44 `needs-owner` (delete the stale FTB-embedding v0.1.1 draft version
+  on Modrinth before the project goes public — no longer blocks the Nix
+  deployment default, see below); #52 `needs-owner` (Actions PR-creation
+  setting, above).
 - Deployment: NixOS module in `flake.nix` + `nix/`. Defaults to a
   declarative `pkgs.fetchurl` straight from the pinned release's GitHub
   asset (`nix/release.json`'s repo/tag/assetName/sha256, unconditionally

@@ -52,6 +52,22 @@ the #33 lineage; v0.2.0's blob matches main's). #21 closed: all 9 drifted
 mods were already bumped to latest during #35's re-resolve and shipped
 through the full v0.2.0 gate.
 
+**v0.2.1 (2026-07-20, same evening)**: owner reported every client join
+hanging at "Loading Terrain" (#49). Root cause ground-truthed via `javap`
+against the installed Sable jar (Create Aeronautics' physics dep): its
+per-player UDP streaming pipeline completes an auth handshake, then drops
+it ~29s later and the client never survives the mid-session TCP fallback.
+Fix (#50, merged): new `pack/config/sable-common.toml` setting
+`DISABLE_UDP_PIPELINE = true` — Sable then uses TCP from the start.
+v0.2.1 was minted with `mint-release.yml`'s **first live run**: everything
+worked (gates, bundles, release, notes, nix repin, Modrinth dispatch)
+except the final open-sync-PR step, refused exactly as predicted above —
+the PM opened the sync PR by hand (#51, merged) and filed **#52**
+(`needs-owner`) for the one-checkbox repo setting that fixes future
+mints. #49 remains open (`fix-pushed` + `verify-in-game`) pending a real
+in-game join. The L3 live-join test tier that would automate that check
+is filed as #47 (`awaiting-approval`).
+
 **GitHub is now ground truth for outstanding bugs and in-game
 verifications** (user directive, 2026-07-10): the project's GitHub repo at
 `https://github.com/Guno327/vanillaplusplus` (remote `origin`) tracks all
