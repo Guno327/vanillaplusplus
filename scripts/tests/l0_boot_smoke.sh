@@ -79,6 +79,30 @@ if ! grep -qE "Loaded [0-9]+/[0-9]+ KubeJS server scripts in .* with 0 errors an
     fail "KubeJS server scripts did not report 0 errors/0 warnings - see $LOG"
 fi
 
+echo "== L0: Sable UDP pipeline must stay disabled (#49/#50 regression guard) =="
+# #49's "hangs at Loading Terrain" bug traced to Sable's per-player UDP
+# sub-level pipeline; #50's fix is pack/config/sable-common.toml setting
+# disable_udp_pipeline=true, javap-confirmed (ServerConnectionListenerMixin)
+# to make sable$startTcpServerListener / sable$startMemoryChannel return
+# before ever calling sable$setupUDPServer - so sable$server never gets set
+# and PlayerListMixin's onPlayerJoin no-ops (SableUDPServer.getServer(...)
+# returns null). Both of Sable's own log lines for actually starting that
+# pipeline are ground-truthed string literals in the same mixin; their
+# absence here is a direct runtime check that the config value in the
+# actually-deployed server/config/ (not just pack/config/, which could
+# silently drift - see ConfigTracker's own "is not correct. Correcting"
+# rewrite behavior on every boot) is still doing its job. A prior session's
+# debugging found this config change alone did NOT resolve a fresh
+# "still hangs" report - Sable is now believed inert per this exact check,
+# so if the hang recurs the cause is elsewhere; this guard exists to make
+# sure nobody re-litigates Sable without a real regression the next time.
+if ! grep -qE "^\s*disable_udp_pipeline\s*=\s*true" "$ROOT/server/config/sable-common.toml" 2>/dev/null; then
+    fail "server/config/sable-common.toml does not have disable_udp_pipeline=true (deployed config drifted from pack/config/ - see #49/#50)"
+fi
+if grep -qE "Adding (UDP|local UDP) server channel future" "$LOG"; then
+    fail "Sable's UDP pipeline started despite disable_udp_pipeline=true - the #50 fix has regressed or Sable's mixin gate changed (see #49)"
+fi
+
 echo "== L0: diff WARN/ERROR lines against the known-noise baseline =="
 # Known-acceptable boot noise. Sources: DECISIONS.md's "Known-acceptable
 # boot noise" section (wave-1 baseline, 4 clean boots) plus additional
