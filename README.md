@@ -96,17 +96,28 @@ What's in the zip: `mods/`, `config/`, `kubejs/`, `defaultconfigs/`,
 
 This repo ships a flake (`flake.nix` + `nix/module.nix`) with a NixOS
 module (`nixosModules.default`) for running the dedicated server as a
-systemd service. As of #28, it **defaults to a real declarative fetch of
-the server bundle straight from its GitHub release asset**
+systemd service. It **defaults to a real declarative fetch of the server
+bundle straight from this repo's own GitHub release asset**
 (`nix/release.json`'s `repo`/`tag`/`assetName`/`sha256`, verified via
-`pkgs.fetchurl`'s `sha256` check at evaluation time) — never from this
-repo's working tree or a "latest" impure fetch. This repo is public, so
-that asset URL needs no credentials to fetch. (A Modrinth CDN fetch was
-tried first, but Modrinth's own project-review process stalled the
-`modrinth` pin this repo's release script also writes — see
-`DECISIONS.md`'s dated entry.) A manually downloaded release zip is still
-supported as an explicit override (see step 2 below) for a
-custom/older/different build.
+`pkgs.fetchurl`'s `sha256` check at build time) — never from this repo's
+working tree. This repo is public, so that asset URL needs no credentials.
+A manually downloaded release zip is still supported as an explicit
+override (see step 2 below) for a custom/older/different build.
+
+**How you get a newer release.** `nix/release.json` pins one exact
+release, and every mint rewrites that pin, so *upgrading is
+`nix flake update`* on whichever input points at this repo — then
+`nixos-rebuild switch`. There is deliberately no "always grab whatever is
+newest" mode: a flake cannot resolve that during a pure evaluation
+(`pkgs.fetchurl` needs the hash up front), and a runtime fetch would mean
+your server silently changing version underneath a rebuild. Pin, update,
+rebuild — the ordinary Nix workflow.
+
+Modrinth is not involved. A Modrinth CDN fetch was tried first (#28) and
+abandoned: it depends on Modrinth's own project-review status, still
+pending as of this writing (#44). The release script can still record an
+optional `modrinth` pin with `--modrinth`, but nothing in the module reads
+it.
 
 > **Validation status, stated plainly**: `nix` could not be installed in
 > this project's own sandboxed development environment (no root, `/nix`
