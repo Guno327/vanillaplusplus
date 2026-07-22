@@ -38,9 +38,13 @@ def _minimal_valid_pack(root):
     (pack / "kubejs" / "server_scripts" / "clean.js").write_text(
         "try {\n    let x = 1\n} catch (e) {}\n", encoding="utf-8")
     # GitHub #36: one advancement file per quest, matching quests.js above.
+    # GitHub #66: q1 has no dependencies, i.e. it's the tree's root, so its
+    # criterion must be the self-granting minecraft:tick (not
+    # minecraft:impossible) or the whole tab is never visible - see
+    # scripts/ci/check_advancements.py's module docstring.
     advancement = {
-        "criteria": {"impossible": {"trigger": "minecraft:impossible"}},
-        "requirements": [["impossible"]],
+        "criteria": {"auto": {"trigger": "minecraft:tick"}},
+        "requirements": [["auto"]],
         "display": {"icon": {"id": "minecraft:stone", "count": 1}, "title": "Q1",
                      "description": "d", "frame": "task",
                      "background": "minecraft:textures/gui/advancements/backgrounds/stone.png"},

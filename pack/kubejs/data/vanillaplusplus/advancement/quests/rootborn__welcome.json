@@ -1,14 +1,4 @@
 {
-  "criteria": {
-    "impossible": {
-      "trigger": "minecraft:impossible"
-    }
-  },
-  "requirements": [
-    [
-      "impossible"
-    ]
-  ],
   "display": {
     "icon": {
       "id": "minecraft:crafting_table",
@@ -20,5 +10,15 @@
     "show_toast": true,
     "announce_to_chat": false,
     "background": "minecraft:textures/gui/advancements/backgrounds/stone.png"
-  }
+  },
+  "criteria": {
+    "auto": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "requirements": [
+    [
+      "auto"
+    ]
+  ]
 }

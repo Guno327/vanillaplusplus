@@ -17,6 +17,39 @@ end to end), and the root (and only the root) carries display.background
 (required for a tree-root tab in the real vanilla advancement screen,
 confirmed via the ground-truth jar read above).
 
+GitHub issue #66 ("new quests do not show in advancements") added three more
+invariants, all ground-truthed by decompiling
+net.minecraft.server.advancements.AdvancementVisibilityEvaluator and
+net.minecraft.server.PlayerAdvancements out of the real 1.21.1 official-mapped
+server jar (server-1.21.1-20240808.144430-srg.jar under this repo's
+server/libraries/):
+
+  - The root's own criterion must be self-granting (minecraft:tick, exactly
+    like vanilla's own recipes/decorations/crafting_table.json
+    "unlock_right_away" criterion - CriteriaTriggers.class shows
+    minecraft:tick is registered as a bare `new PlayerTrigger()`,
+    unconditionally satisfied on the player's next tick). A root gated on
+    minecraft:impossible is never granted, and PlayerAdvancements never
+    sends an entire tree to the client unless evaluateVisibility() finds at
+    least one visible node in it - so an eternally-ungranted, non-hidden
+    root with no visible descendant is invisible forever and the whole tab
+    never appears. This was the root cause of #66.
+  - Every non-root advancement's parent chain must reach that root within
+    VISIBILITY_DEPTH (=2, the literal private static final int in
+    AdvancementVisibilityEvaluator.class) hops. Past that depth,
+    evaluateVisiblityForUnfinishedNode() only peeks 3 stack frames (self +
+    2 ancestors) looking for a SHOW state, so an undone, displayed,
+    non-hidden descendant more than 2 parents below the self-granted root
+    is invisible until something at or below it is independently granted -
+    the same "list of quests is not displayed" symptom as #66, just pushed
+    a couple of tiers deeper instead of fixed. (This is why
+    scripts/gen_quests.py's build_advancement() parents every non-root
+    quest directly to the root - depth 1 for all of them - instead of to
+    its first quests.js dependency: this pack's real dependency graph
+    chains up to 30 quests deep.)
+  - No cycles in the parent graph (a cycle would make every node in it
+    unreachable from the root and AdvancementTree.root() would misbehave).
+
 Usage: python3 scripts/ci/check_advancements.py [root]
 Exit code: 0 if the advancement tree is internally consistent, 1 otherwise.
 """
@@ -30,6 +63,15 @@ ADVANCEMENTS_DIR_REL = Path("pack") / "kubejs" / "data" / "vanillaplusplus" / "a
 QUESTS_JS_REL = Path("pack") / "kubejs" / "server_scripts" / "quests.js"
 ASSIGNMENT_MARKER = "const QUEST_CHAPTERS = "
 PARENT_PREFIX = "vanillaplusplus:quests/"
+
+# net.minecraft.server.advancements.AdvancementVisibilityEvaluator.VISIBILITY_DEPTH,
+# decompiled straight out of the 1.21.1 official-mapped server jar (see the
+# module docstring above) - the number of ancestor generations past which an
+# undone, non-hidden descendant of a granted root stops being visible.
+VISIBILITY_DEPTH = 2
+
+ROOT_TRIGGER = "minecraft:tick"
+NON_ROOT_TRIGGER = "minecraft:impossible"
 
 
 def _load_quest_ids(root):
@@ -72,6 +114,9 @@ def check_advancements(root=REPO_ROOT):
         if extra:
             errors.append(f"{len(extra)} advancement file(s) don't correspond to any quest: {sorted(extra)}")
 
+    parent_of = {}  # quest id -> parent quest id, non-root entries only
+    root_ids = []
+
     for f in files:
         try:
             data = json.loads(f.read_text())
@@ -81,9 +126,11 @@ def check_advancements(root=REPO_ROOT):
 
         has_background = "background" in data.get("display", {})
         parent = data.get("parent")
+        is_root = parent is None
 
-        if parent is None:
+        if is_root:
             stats["roots"] += 1
+            root_ids.append(f.stem)
             if not has_background:
                 errors.append(f"{f.name}: root advancement (no parent) is missing display.background")
         else:
@@ -93,14 +140,63 @@ def check_advancements(root=REPO_ROOT):
                 errors.append(f"{f.name}: parent {parent!r} doesn't start with {PARENT_PREFIX!r}")
             else:
                 parent_id = parent[len(PARENT_PREFIX):]
+                parent_of[f.stem] = parent_id
                 if parent_id not in file_ids:
                     errors.append(f"{f.name}: parent {parent!r} does not resolve to an existing advancement file")
 
-        if data.get("criteria", {}).get("impossible", {}).get("trigger") != "minecraft:impossible":
-            errors.append(f"{f.name}: missing the command-only minecraft:impossible criterion")
+        # GitHub #66: the root must be self-granting (minecraft:tick) or the
+        # whole tab is never visible; every non-root quest must stay gated on
+        # minecraft:impossible - only quests.js's "advancement grant ... only
+        # ..." command may ever grant it. See the module docstring for the
+        # decompiled evidence.
+        criteria = data.get("criteria", {})
+        triggers = {c.get("trigger") for c in criteria.values()}
+        expected = ROOT_TRIGGER if is_root else NON_ROOT_TRIGGER
+        if len(criteria) != 1 or triggers != {expected}:
+            role = "root" if is_root else "non-root"
+            errors.append(
+                f"{f.name}: {role} advancement should have exactly one {expected!r} criterion, "
+                f"found {criteria!r}"
+            )
 
     if stats["roots"] != 1:
         errors.append(f"expected exactly 1 root advancement (no parent), found {stats['roots']}")
+
+    # GitHub #66: no cycles, and every non-root node must reach the (unique)
+    # root within VISIBILITY_DEPTH hops or it can never be shown to a player
+    # who hasn't already completed something below it - see the module
+    # docstring's decompiled-evidence writeup.
+    if stats["roots"] == 1:
+        (root_id,) = root_ids
+        for qid in file_ids:
+            if qid == root_id:
+                continue
+            seen = {qid}
+            cur = qid
+            depth = 0
+            cycle = False
+            while cur in parent_of:
+                cur = parent_of[cur]
+                depth += 1
+                if cur == root_id:
+                    break
+                if cur in seen:
+                    cycle = True
+                    break
+                seen.add(cur)
+            if cycle:
+                errors.append(f"{qid}.json: parent chain forms a cycle (via {cur!r})")
+            elif cur != root_id:
+                # Dangling parent reference already reported above; don't
+                # double-report a depth violation for an unreachable chain.
+                pass
+            elif depth > VISIBILITY_DEPTH:
+                errors.append(
+                    f"{qid}.json: {depth} hops from root {root_id!r}, exceeds "
+                    f"AdvancementVisibilityEvaluator's VISIBILITY_DEPTH={VISIBILITY_DEPTH} - "
+                    "this quest can never be shown to a player who hasn't already "
+                    "completed something at or below it"
+                )
 
     return errors, stats
 

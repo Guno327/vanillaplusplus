@@ -1,14 +1,4 @@
 {
-  "criteria": {
-    "impossible": {
-      "trigger": "minecraft:impossible"
-    }
-  },
-  "requirements": [
-    [
-      "impossible"
-    ]
-  ],
   "display": {
     "icon": {
       "id": "stellaris:rocket",
@@ -20,5 +10,15 @@
     "show_toast": true,
     "announce_to_chat": false
   },
-  "parent": "vanillaplusplus:quests/starforged_age__launch"
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "parent": "vanillaplusplus:quests/rootborn__welcome"
 }
