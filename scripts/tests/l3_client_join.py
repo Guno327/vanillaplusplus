@@ -10,8 +10,12 @@ set L2 already proves loads cleanly) plus the hmc-specifics control mod,
 drives it through `connect 127.0.0.1:<port>` via HeadlessMC's own in-game
 command relay, and then does the one check that actually tests the #49
 symptom directly: dumps the client's currently-displayed screen with
-hmc-specifics' `gui` command and fails if it's still a loading/dirt-message
-screen after a settle window past Sable's historical ~29s UDP-failure mark.
+hmc-specifics' `gui` command - resent until a real screen dump comes back
+rather than trusted on the first try (see issue #62: `gui` loses the same
+launcher/game FIFO race `connect` already has to fight, and a line lost to
+the launcher used to make this check pass vacuously) - and fails if the
+confirmed dump is still a loading/dirt-message screen after a settle window
+past Sable's historical ~29s UDP-failure mark.
 It does NOT assert `/vpp_selftest` as the joined player, which #47 also asked
 for. That turned out not to be reachable with this toolchain; the reasoning is
 recorded at the KNOWN GAP comment near the end of main(), and the checks it
@@ -99,6 +103,11 @@ CLIENT_LOAD_TIMEOUT_S = 240
 JOIN_TIMEOUT_S = 60
 SETTLE_S = 45  # past Sable's historical ~29s UDP-to-TCP failure window (#49) before asserting
 SHUTDOWN_TIMEOUT_S = 40
+# Hard cap for resending `gui` until it actually lands on the game (#62 - see
+# the module docstring and parse_gui_dump()'s docstring for the race). A
+# check that can silently pass without ever hearing back from the game is
+# worse than no check, so this has to be a fail(), not a longer sleep.
+GUI_TIMEOUT_S = 45
 # Hard cap on the server process, derived rather than hardcoded: it has to
 # outlive every phase that follows the boot, or it exits mid-test and the
 # failure surfaces somewhere far away. A hardcoded 300s here used to kill the
@@ -106,13 +115,19 @@ SHUTDOWN_TIMEOUT_S = 40
 # result rather than as "the server died".
 SERVER_LIFETIME_S = (
     BOOT_TIMEOUT_S + CLIENT_LOAD_TIMEOUT_S + JOIN_TIMEOUT_S
-    + SETTLE_S + SHUTDOWN_TIMEOUT_S + 300
+    + SETTLE_S + GUI_TIMEOUT_S + SHUTDOWN_TIMEOUT_S + 300
 )
 
 JOIN_RE = re.compile(r"(\S+)\[/[\d.]+:\d+\] logged in with entity id")
 DISCONNECT_RE = re.compile(r"lost connection|Disconnecting")
 FATAL_SERVER_RE = re.compile(r"Loading errors|ModLoadingException|FATAL|DirectoryLock|already locked")
 FATAL_CLIENT_RE = re.compile(r'ModLoadingException|Exception in thread "main"|Cowardly refusing')
+# Ground truth for a *successful* `gui` relay (jar-verified - see
+# parse_gui_dump()'s docstring for the exact javap-decompiled class/method and
+# format string this is derived from). A landed `gui` always starts its
+# reply with this literal prefix; nothing else in this pack's client log
+# produces it.
+GUI_SCREEN_PREFIX = "Screen: "
 # ModernFix logs this exactly once, when the main menu is up and interactive -
 # the only unambiguous "client is ready for commands" marker in this pack's
 # client log. ModernFix is a hard dependency of the pack (pack/mods.lock.json),
@@ -288,6 +303,62 @@ def boot_server(env):
             return
         time.sleep(5)
     fail(f"server did not reach Done( within {BOOT_TIMEOUT_S}s - see {SERVER_LOG}")
+
+
+def parse_gui_dump(log_slice):
+    r"""Extract the most recent complete `gui` screen dump from a client-log
+    slice, or return None if no successful dump is present in it yet.
+
+    Ground truth, jar-verified rather than assumed (#62 - see the module
+    docstring for the FIFO race this exists to work around). Decompiled with
+    `javap -p -c` against hmc-specifics-1.21.1-2.4.0-neoforge-release.jar:
+
+    - me.earth.headlessmc.mc.commands.AbstractGuiCommand.execute(String,
+      String...) fetches the current screen and, if one is displayed, calls
+      the overridden execute(GuiScreen, String...) in
+      me.earth.headlessmc.mc.commands.GuiCommand, whose bytecode loads the
+      constant format string "Screen: %s\nButtons:\n%s\nTextFields:\n%s" (arg
+      0 is the screen handle's Class.getName()) and passes it to
+      HeadlessMc.log(String). If no screen is displayed, AbstractGuiCommand
+      instead logs the literal "Minecraft is currently not displaying a
+      Gui." - also a successful relay, just not a screen dump, so it is
+      correctly NOT matched here.
+    - io.github.headlesshq.headlessmc.api.HeadlessMc.log(String) (in
+      headlessmc-launcher.jar) is a `default` method whose bytecode is a bare
+      InAndOutProvider-sourced PrintStream.println(String) - i.e. no logger
+      prefix, no timestamp, the format string above lands in the client log
+      verbatim starting at column 0 of its own line.
+
+    So a landed `gui` is unambiguously identified by a line starting with
+    "Screen: ". A `gui` line lost to the launcher instead of the game (the
+    #62 race) produces no such line at all in the client log - the launcher's
+    rejection ("Couldn't find command for '[gui]', did you mean '...'?",
+    itself javap-confirmed against CommandContextImpl.execute(), which builds
+    that message from Arrays.toString(args)) goes to the launcher's own
+    output, not this file, but is harmless here either way since it simply
+    fails to match and the caller resends.
+
+    Only the LAST "Screen: " marker in the slice is used, so duplicate
+    deliveries (extra copies of `gui` reaching the game after it has already
+    answered once) can't corrupt detection - the assertion always runs
+    against one complete, most-recent dump.
+
+    >>> dump = "Screen: net.minecraft.client.gui.screens.TitleScreen\nButtons:\n\nTextFields:\n"
+    >>> parse_gui_dump(dump) == dump
+    True
+    >>> parse_gui_dump("Couldn't find command for '[gui]', did you mean 'help'?") is None
+    True
+    >>> mixed = ("Couldn't find command for '[gui]', did you mean 'help'?\n"
+    ...          "Screen: net.minecraft.client.gui.screens.TitleScreen\nButtons:\n")
+    >>> parse_gui_dump(mixed).startswith("Screen: net.minecraft.client.gui.screens.TitleScreen")
+    True
+    >>> parse_gui_dump("") is None
+    True
+    """
+    idx = log_slice.rfind(GUI_SCREEN_PREFIX)
+    if idx == -1:
+        return None
+    return log_slice[idx:]
 
 
 def assert_no_refresh_loop(since_offset, window_s, phase):
@@ -527,10 +598,39 @@ def main():
                   f"'{STAGE_PROBE}' (server said: {grant_reply.strip()[-200:]!r}) ==")
 
         print("== L3: dump the client's currently displayed screen (direct #49 reproduction check) ==")
+        # `gui` has to be resent-until-confirmed for exactly the same reason
+        # `connect` above does: the launcher and the game both block reading
+        # the same FIFO, so a line can land on the launcher instead ("Couldn't
+        # find command for '[gui]', did you mean '...'?") and be silently
+        # lost. Before #62 this check sent `gui` once, slept a fixed 5s, and
+        # asserted on whatever was in the log slice - on a lost line that
+        # slice was simply empty, the regex below never matched, and the
+        # check "passed" without ever having heard back from the game. A
+        # check that cannot fail is worse than no check. parse_gui_dump()
+        # holds the jar-verified ground truth for what a landed reply looks
+        # like; extra copies of `gui` that land after the first confirmed
+        # reply are harmless (it always keys on the last dump in the slice).
         pre_len_client = len(read(CLIENT_LOG))
-        send_client_command("gui")
-        time.sleep(5)
-        gui_dump = read(CLIENT_LOG)[pre_len_client:]
+        gui_deadline = time.time() + GUI_TIMEOUT_S
+        gui_dump = None
+        while time.time() < gui_deadline:
+            send_client_command("gui")
+            for _ in range(4):
+                gui_dump = parse_gui_dump(read(CLIENT_LOG)[pre_len_client:])
+                if gui_dump:
+                    break
+                time.sleep(2)
+            if gui_dump:
+                break
+        if gui_dump is None:
+            fail(
+                f"the client never answered a single `gui` command with a screen dump "
+                f"within {GUI_TIMEOUT_S}s - every attempt was either lost to the launcher "
+                f"or produced nothing (#62: see this script's module docstring for the "
+                f"FIFO race, and parse_gui_dump() for the exact ground-truthed success "
+                f"format this looked for). This is a harness failure, not a #49 pass - "
+                f"see {CLIENT_LOG}."
+            )
         print(gui_dump.strip())
         if re.search(r"ReceivingLevelScreen|GenericDirtMessageScreen", gui_dump):
             fail(
