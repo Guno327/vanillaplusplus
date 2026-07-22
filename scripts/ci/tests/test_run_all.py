@@ -62,6 +62,15 @@ def _minimal_valid_pack(root):
     (cat_dir / "definitions.json").write_text(json.dumps({"def1": {}}), encoding="utf-8")
     (cat_dir / "skills.json").write_text(
         json.dumps({"skill1": {"x": 0, "y": 0, "definition": "def1", "root": True}}), encoding="utf-8")
+
+    # GitHub #77: check_selftest_skill_sync.py cross-checks selftest.js's
+    # hand-maintained ST_SKILL_CATEGORIES / ST_SKILL_NODE_COUNT_PER_CATEGORY
+    # against the puffish_skills data above - keep them in sync with cat1's
+    # single-category, single-node shape.
+    (pack / "kubejs" / "server_scripts" / "selftest.js").write_text(
+        "const ST_SKILL_CATEGORIES = [\n    'cat1',\n]\n"
+        "const ST_SKILL_NODE_COUNT_PER_CATEGORY = 1\n",
+        encoding="utf-8")
     return pack
 
 
