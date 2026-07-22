@@ -1,0 +1,173 @@
+{
+	"root": {
+		"definition": "healing",
+		"root": true,
+		"x": 0,
+		"y": 0
+	},
+	"t0_1": {
+		"definition": "consuming_speed",
+		"x": 32,
+		"y": -40
+	},
+	"t0_2": {
+		"definition": "healing",
+		"x": 64,
+		"y": -100
+	},
+	"t0_3": {
+		"definition": "consuming_speed",
+		"x": 96,
+		"y": -220
+	},
+	"t0_4": {
+		"definition": "healing",
+		"x": 128,
+		"y": -220
+	},
+	"t0_5": {
+		"definition": "consuming_speed",
+		"x": 96,
+		"y": -180
+	},
+	"t0_6": {
+		"definition": "healing",
+		"x": 128,
+		"y": -180
+	},
+	"t0_7": {
+		"definition": "healing",
+		"x": 64,
+		"y": -60
+	},
+	"t0_8": {
+		"definition": "consuming_speed",
+		"x": 96,
+		"y": -140
+	},
+	"t0_9": {
+		"definition": "healing",
+		"x": 128,
+		"y": -140
+	},
+	"t0_10": {
+		"definition": "consuming_speed",
+		"x": 96,
+		"y": -100
+	},
+	"t0_11": {
+		"definition": "healing",
+		"x": 128,
+		"y": -100
+	},
+	"t1_1": {
+		"definition": "natural_regeneration",
+		"x": 32,
+		"y": 0
+	},
+	"t1_2": {
+		"definition": "max_health",
+		"x": 64,
+		"y": -20
+	},
+	"t1_3": {
+		"definition": "natural_regeneration",
+		"x": 96,
+		"y": -60
+	},
+	"t1_4": {
+		"definition": "max_health",
+		"x": 128,
+		"y": -60
+	},
+	"t1_5": {
+		"definition": "natural_regeneration",
+		"x": 96,
+		"y": -20
+	},
+	"t1_6": {
+		"definition": "max_health",
+		"x": 128,
+		"y": -20
+	},
+	"t1_7": {
+		"definition": "max_health",
+		"x": 64,
+		"y": 20
+	},
+	"t1_8": {
+		"definition": "natural_regeneration",
+		"x": 96,
+		"y": 20
+	},
+	"t1_9": {
+		"definition": "max_health",
+		"x": 128,
+		"y": 20
+	},
+	"t1_10": {
+		"definition": "natural_regeneration",
+		"x": 96,
+		"y": 60
+	},
+	"t1_11": {
+		"definition": "max_health",
+		"x": 128,
+		"y": 60
+	},
+	"t2_1": {
+		"definition": "stamina",
+		"x": 32,
+		"y": 40
+	},
+	"t2_2": {
+		"definition": "fall_reduction",
+		"x": 64,
+		"y": 60
+	},
+	"t2_3": {
+		"definition": "stamina",
+		"x": 96,
+		"y": 100
+	},
+	"t2_4": {
+		"definition": "fall_reduction",
+		"x": 128,
+		"y": 100
+	},
+	"t2_5": {
+		"definition": "stamina",
+		"x": 96,
+		"y": 140
+	},
+	"t2_6": {
+		"definition": "fall_reduction",
+		"x": 128,
+		"y": 140
+	},
+	"t2_7": {
+		"definition": "fall_reduction",
+		"x": 64,
+		"y": 100
+	},
+	"t2_8": {
+		"definition": "stamina",
+		"x": 96,
+		"y": 180
+	},
+	"t2_9": {
+		"definition": "fall_reduction",
+		"x": 128,
+		"y": 180
+	},
+	"t2_10": {
+		"definition": "stamina",
+		"x": 96,
+		"y": 220
+	},
+	"t2_11": {
+		"definition": "fall_reduction",
+		"x": 128,
+		"y": 220
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Cooking",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "furnace"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/husbandry.png"
+}

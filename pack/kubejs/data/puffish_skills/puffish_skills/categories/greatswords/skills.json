@@ -1,78 +1,173 @@
 {
-	"n0": {
+	"root": {
+		"definition": "attack_damage",
+		"root": true,
 		"x": 0,
-		"y": 0,
-		"definition": "attack_damage+4%",
-		"root": true
+		"y": 0
 	},
-	"n1": {
+	"t0_1": {
+		"definition": "attack_damage",
 		"x": 32,
-		"y": 0,
-		"definition": "knockback+6%"
+		"y": -40
 	},
-	"n2": {
+	"t0_2": {
+		"definition": "knockback",
 		"x": 64,
-		"y": 0,
-		"definition": "attack_damage+4%"
+		"y": -100
 	},
-	"n3": {
+	"t0_3": {
+		"definition": "attack_damage",
 		"x": 96,
-		"y": 0,
-		"definition": "max_health+5%"
+		"y": -220
 	},
-	"n4": {
+	"t0_4": {
+		"definition": "knockback",
 		"x": 128,
-		"y": 0,
-		"definition": "knockback+6%"
+		"y": -220
 	},
-	"a0": {
-		"x": 160,
-		"y": -40,
-		"definition": "attack_speed+2%"
+	"t0_5": {
+		"definition": "attack_damage",
+		"x": 96,
+		"y": -180
 	},
-	"a1": {
-		"x": 192,
-		"y": -40,
-		"definition": "attack_speed+2%"
+	"t0_6": {
+		"definition": "knockback",
+		"x": 128,
+		"y": -180
 	},
-	"a2": {
-		"x": 224,
-		"y": -40,
-		"definition": "attack_speed+2%"
+	"t0_7": {
+		"definition": "knockback",
+		"x": 64,
+		"y": -60
 	},
-	"a3": {
-		"x": 256,
-		"y": -40,
-		"definition": "attack_speed+2%"
+	"t0_8": {
+		"definition": "attack_damage",
+		"x": 96,
+		"y": -140
 	},
-	"a4": {
-		"x": 288,
-		"y": -40,
-		"definition": "attack_speed+2%"
+	"t0_9": {
+		"definition": "knockback",
+		"x": 128,
+		"y": -140
 	},
-	"b0": {
-		"x": 160,
-		"y": 40,
-		"definition": "attack_damage+4%"
+	"t0_10": {
+		"definition": "attack_damage",
+		"x": 96,
+		"y": -100
 	},
-	"b1": {
-		"x": 192,
-		"y": 40,
-		"definition": "max_health+5%"
+	"t0_11": {
+		"definition": "knockback",
+		"x": 128,
+		"y": -100
 	},
-	"b2": {
-		"x": 224,
-		"y": 40,
-		"definition": "knockback+6%"
+	"t1_1": {
+		"definition": "max_health",
+		"x": 32,
+		"y": 0
 	},
-	"b3": {
-		"x": 256,
-		"y": 40,
-		"definition": "attack_damage+4%"
+	"t1_2": {
+		"definition": "attack_speed",
+		"x": 64,
+		"y": -20
 	},
-	"b4": {
-		"x": 288,
-		"y": 40,
-		"definition": "max_health+5%"
+	"t1_3": {
+		"definition": "max_health",
+		"x": 96,
+		"y": -60
+	},
+	"t1_4": {
+		"definition": "attack_speed",
+		"x": 128,
+		"y": -60
+	},
+	"t1_5": {
+		"definition": "max_health",
+		"x": 96,
+		"y": -20
+	},
+	"t1_6": {
+		"definition": "attack_speed",
+		"x": 128,
+		"y": -20
+	},
+	"t1_7": {
+		"definition": "attack_speed",
+		"x": 64,
+		"y": 20
+	},
+	"t1_8": {
+		"definition": "max_health",
+		"x": 96,
+		"y": 20
+	},
+	"t1_9": {
+		"definition": "attack_speed",
+		"x": 128,
+		"y": 20
+	},
+	"t1_10": {
+		"definition": "max_health",
+		"x": 96,
+		"y": 60
+	},
+	"t1_11": {
+		"definition": "attack_speed",
+		"x": 128,
+		"y": 60
+	},
+	"t2_1": {
+		"definition": "toughness_shred",
+		"x": 32,
+		"y": 40
+	},
+	"t2_2": {
+		"definition": "resistance",
+		"x": 64,
+		"y": 60
+	},
+	"t2_3": {
+		"definition": "toughness_shred",
+		"x": 96,
+		"y": 100
+	},
+	"t2_4": {
+		"definition": "resistance",
+		"x": 128,
+		"y": 100
+	},
+	"t2_5": {
+		"definition": "toughness_shred",
+		"x": 96,
+		"y": 140
+	},
+	"t2_6": {
+		"definition": "resistance",
+		"x": 128,
+		"y": 140
+	},
+	"t2_7": {
+		"definition": "resistance",
+		"x": 64,
+		"y": 100
+	},
+	"t2_8": {
+		"definition": "toughness_shred",
+		"x": 96,
+		"y": 180
+	},
+	"t2_9": {
+		"definition": "resistance",
+		"x": 128,
+		"y": 180
+	},
+	"t2_10": {
+		"definition": "toughness_shred",
+		"x": 96,
+		"y": 220
+	},
+	"t2_11": {
+		"definition": "resistance",
+		"x": 128,
+		"y": 220
 	}
 }

@@ -1,0 +1,116 @@
+{
+	"luck": {
+		"title": "+0.08 Luck",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "rabbit_foot"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.luck",
+					"value": 0.08,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"fortune": {
+		"title": "+0.02 Fortune",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "diamond"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.fortune",
+					"value": 0.02,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"trident_damage": {
+		"title": "+0.8% Trident Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "trident"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:trident_damage",
+					"value": 0.008,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"water_efficiency": {
+		"title": "+2% Water Movement",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "dolphins_grace"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.water_movement_efficiency",
+					"value": 0.02,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	},
+	"consuming_speed": {
+		"title": "+1.2% Consuming Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "apple"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:consuming_speed",
+					"value": 0.012,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"mount_speed": {
+		"title": "+0.8% Mount Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "saddle"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:mount_speed",
+					"value": 0.008,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	}
+}

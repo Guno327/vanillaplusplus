@@ -44,9 +44,13 @@ const ST_TIER_IDS = [
     'rootborn', 'andesite_age', 'brass_age', 'precision_age', 'induction_age',
     'starforged_age', 'lunar_frontier', 'martian_frontier', 'inner_system', 'jovian_frontier',
 ]
+// Issue #71 ("Expand Skill Trees / Categories"): 12 -> 23 categories - kept
+// in sync by hand with gen_skill_tree.py's CATEGORY_SPECS ids.
 const ST_SKILL_CATEGORIES = [
-    'bows', 'building', 'daggers', 'greatswords', 'longswords', 'magic',
-    'mining', 'running', 'spears', 'swimming', 'swords', 'tachi',
+    'alchemy', 'bows', 'building', 'cooking', 'daggers', 'enchanting',
+    'exploration', 'farming', 'fishing', 'greatswords', 'longswords',
+    'magic', 'mining', 'running', 'sailing', 'smithing', 'spears',
+    'swimming', 'swords', 'tachi', 'taming', 'trading', 'woodcutting',
 ]
 const ST_COIN_ITEM_IDS = [
     'numismatics:spur', 'numismatics:bevel', 'numismatics:sprocket',
