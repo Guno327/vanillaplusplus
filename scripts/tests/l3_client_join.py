@@ -70,6 +70,7 @@ which stays the real shipped default.
 Usage: python3 scripts/tests/l3_client_join.py
 Exit code 0 = PASS, nonzero = FAIL.
 """
+import hashlib
 import os
 import re
 import shutil
@@ -87,8 +88,12 @@ JDK_BIN = ROOT / ".tools" / "jdk-21.0.11+10" / "bin"
 HEADLESSMC_DIR = Path("/tmp/vpp-research/headlessmc")
 LAUNCHER_JAR = HEADLESSMC_DIR / "headlessmc-launcher.jar"
 
-SERVER_LOG = Path("/tmp/vpp_l3_server.log")
-CLIENT_LOG = Path("/tmp/vpp_l3_client.log")
+# Unique per worktree/checkout - see l0_boot_smoke.sh's LOG comment: a fixed
+# /tmp path lets concurrent worktrees on this machine clobber each other's
+# log mid-run and destroy evidence.
+_WORKTREE_TAG = f"{ROOT.name}_{hashlib.sha1(str(ROOT).encode()).hexdigest()[:10]}"
+SERVER_LOG = Path(f"/tmp/vpp_l3_server_{_WORKTREE_TAG}.log")
+CLIENT_LOG = Path(f"/tmp/vpp_l3_client_{_WORKTREE_TAG}.log")
 SERVER_FIFO = SERVER / "cmd_fifo"
 CLIENT_FIFO = HEADLESSMC_DIR / "l3_client_cmd_fifo"
 
@@ -96,7 +101,7 @@ SERVER_PORT = 25565
 NEOFORGE_VERSION = "neoforge-21.1.235"
 
 XVFB_DISPLAY = ":99"
-XVFB_LOG = Path("/tmp/vpp_l3_xvfb.log")
+XVFB_LOG = Path(f"/tmp/vpp_l3_xvfb_{_WORKTREE_TAG}.log")
 
 BOOT_TIMEOUT_S = 200
 CLIENT_LOAD_TIMEOUT_S = 240
@@ -464,6 +469,7 @@ def teardown(joined_username):
 
 
 def main():
+    print(f"== L3: log files for this run: server={SERVER_LOG} client={CLIENT_LOG} xvfb={XVFB_LOG} ==")
     require_xvfb()
     configure_headlessmc()
     run_build_server()
