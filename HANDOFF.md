@@ -8,7 +8,45 @@ feature branches + PR only, Conventional Commits, tests-first). Start at
 orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
-**Status**: `v0.2.0` (beta) shipped 2026-07-20, superseding `v0.1.1`
+**Status**: `v0.3.0` (prerelease) shipped 2026-07-22, superseding `v0.2.1`.
+`pack/VERSION` is `0.3.0`. **This is a breaking cut for both sides** — the
+server's mod set changed, so a v0.3.0 client will not connect to a v0.2.1
+server.
+
+What it contains:
+
+- **#49 fixed by removing ProgressiveStages entirely.** Its client JEI plugin
+  fed its own ingredient-refresh notifications back into itself and froze
+  every client on "Loading Terrain". Pinning was not enough — the same loop
+  returned at the first tier unlock (7810 refresh passes in 30s, measured) —
+  so progression now gates on materials and recipes alone. Stages survive as
+  markers on KubeJS's own persistent backend, granted by
+  `progression_stage_bridge.js`. See `DECISIONS.md`'s two dated entries.
+- **Mob-spawn gating, dimension-travel blocking and locked-item masking are
+  gone with it**, deliberately ("pure materials only", owner decision). Born
+  in Chaos mobs spawn from world start; the Nether is open immediately.
+- **JEI acquisition-info wave (#57)**: seven info addons (JER, Advanced Loot
+  Info, JEI WorldGen, Just Enough Breeding/Professions/Effects, Enchantment
+  Descriptions) plus `jei_info.js`, a pack-aware layer that reads the tables
+  owning each behaviour rather than hand-copied lists.
+- **Mob difficulty scaling works for the first time.** A wrong
+  attribute-operation id (`multiply_base`, which is puffish_skills'
+  vocabulary, not vanilla's) threw on every scaled spawn — killing the stat
+  boost, the star nametags and the death-reward bonus. Found by L3's new
+  post-join stage-grant probe.
+- **Nix/flake**: the module fetches the server bundle straight from this
+  repo's public GitHub release asset; Modrinth is off the critical path
+  entirely (#60). Upgrading a host is `nix flake update` + `nixos-rebuild
+  switch`.
+
+Test suite at cut time: L0 PASS (94 server mods), L1 PASS 31/31, L2 PASS (100
+client mods / 124 modids), L3 PASS (0 refresh-loop passes after join *and*
+after a tier grant). **Not yet confirmed by a human in game — that is #58**,
+and its headline check is not "does it join" but "craft an Andesite Alloy and
+keep playing", because the previous build joined fine and only froze at the
+first tier unlock.
+
+**Previously** — `v0.2.0` (beta) shipped 2026-07-20, superseding `v0.1.1`
 (2026-07-14). This cut removed the entire FTB suite (FTB Teams/Chunks/
 Quests/Library) — CurseForge-exclusive mods this project has no
 redistribution permission for (#28) — replacing FTB Teams + FTB Chunks
@@ -245,11 +283,26 @@ granted standing access (2026-07-22) to an Incus 7.0.1 cluster at
 
 ## Post-release backlog
 
-Full detail lives in TODO.md item 12 (L3 live-client-join test, MoreCulling
-long-term watch, `noisiumed`-class resolver-bug re-check) and as GitHub
-issues **#3** (rendering-correctness spot-check) and **#8** (residual Rhino
-const-in-for-of audit in `economy.js`/`selftest.js`) — see DECISIONS.md's
-"GitHub as ground truth" section for the issue mapping. TODO.md item 9
+As of the v0.3.0 cut, the open items are:
+
+- **#58** (`verify-in-game`) — does v0.3.0 actually fix #49 on real hardware.
+  The one thing no tier in this suite can settle; read its checklist before
+  testing, the discriminating step is the tier unlock, not the join.
+- **#52** (`needs-owner`) — the repo setting that lets Actions open the
+  post-release sync PR. Until it lands, every mint needs that PR opened by
+  hand (done for v0.2.1 as #51 and v0.3.0 as #59). One checkbox.
+- **#44** (`needs-owner`) — Modrinth project review. No longer blocks
+  anything: the Nix module fetches from this repo's public GitHub release
+  (#60), so this is now purely about distribution reach.
+- **#61 / #62** — this session's two deliberate follow-ups (a recursive
+  recipe-reachability audit tool, and L3's `gui` command needing the same
+  resend-until-answered treatment `connect` already has).
+- TODO.md item 12's remaining watch items (MoreCulling long-term watch,
+  `noisiumed`-class resolver-bug re-check) — its L3 live-client-join entry is
+  now **delivered** (#47, merged with #56).
+- GitHub issues **#3** (rendering-correctness spot-check) and **#8**
+  (residual Rhino const-in-for-of audit in `economy.js`/`selftest.js`) — see
+  DECISIONS.md's "GitHub as ground truth" section for the issue mapping. TODO.md item 9
 (food overhaul) landed as part of the `v0.1.0` cut — its own needs-in-game-
 verification items (diet-hearts persistence, CCK automation, Terralith
 wild-crop density, SoL-Onion Food Book UI) are noted in its DESIGN.md

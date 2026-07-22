@@ -1247,3 +1247,42 @@ from the server log.
 returns true — i.e. when the player did not already hold the stage — and L3
 reuses its world between runs, so from the second run onward the grant is a
 silent no-op and the probe would have skipped forever.
+
+## v0.3.0 cut + session wrap (2026-07-22)
+
+Minted `v0.3.0` (prerelease) off `main` at `59d35c5` via `mint-release.yml`,
+bump=minor. Everything worked except the final "Open post-release sync PR"
+step, refused exactly as it was for v0.2.1 — that is #52's one repo setting,
+still unticked — so the sync PR was opened by hand again (#59). Release notes
+were rewritten afterward: the auto-changelog said "drop ProgressiveStages" and
+nothing about this being a breaking cut for both sides, which is the one thing
+an operator needs to read first.
+
+**`/releases/latest` excludes prereleases.** Found the hard way while repinning
+`nix/release.json`: every release this project has ever cut is a disclosed
+prerelease, so `update_nix_release.py`'s default (no `--tag`) path 404'd.
+Fixed in #60 to list releases and take the newest published one. Worth knowing
+generally — it will bite any tooling that assumes `/latest` means "newest".
+
+**Modrinth taken off the critical path** (#60), after the owner noted approval
+would take a while and confirmed the repo is public. The flake already fetched
+from the GitHub release asset (since #28); what remained was vestigial —
+a per-mint Modrinth poll costing ~30s of retries and ending in a "re-run with
+--modrinth-only" instruction for a pin nothing reads, plus a `_comment` in
+`nix/release.json` that flatly described the wrong default. Modrinth is now
+opt-in via `--modrinth`.
+
+**Stated plainly in flake.nix/README, because it is a real constraint:** a
+flake cannot resolve "whatever release is newest right now" during a pure
+evaluation — `pkgs.fetchurl` needs the hash up front. "Latest" therefore means
+"latest as pinned in nix/release.json", which every mint rewrites; consumers
+upgrade with `nix flake update` + `nixos-rebuild switch`. A runtime fetch in
+the systemd unit would give hands-off updates at the cost of hash verification,
+rollback, and a server that changes version underneath a rebuild — offered to
+the owner, not built.
+
+**Open at session end:** #58 (in-game verification of v0.3.0 — the one thing no
+test tier here can settle), #52 and #44 (both one-click owner actions; #44
+downgraded to distribution-reach only), #61 (recursive recipe-reachability
+audit tool), #62 (L3's `gui` check passes vacuously and needs the
+resend-until-answered treatment `connect` already has).
