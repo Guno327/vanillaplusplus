@@ -155,10 +155,21 @@ const TOOL_NAME_RE = /(^|_)(pickaxe|axe|shovel|spade|hoe|sword|paxel|hammer|exca
 // hand-added exemption every time.
 const STRUCTURAL_PART_RE = /(_connector|_part|_head|_handle|template|blueprint|schematic)$/i
 
+// Every item this sweep strips a recipe from, collected so jei_info.js can
+// attach a "craft this at Silent Gear instead" info page to exactly the items
+// that actually lost their recipe (#57). Deriving the JEI text from the same
+// pass that does the removing is the point: a hand-maintained list would drift
+// the moment a mod is added or an exemption changes, and the failure mode of
+// drift here is a player staring at an item with no recipe and no explanation
+// - the exact dead end this file created and that file fixes. Rebuilt from
+// scratch on every recipe reload, so /reload cannot double it up.
+const TCS_REMOVED_TOOL_ITEMS = []
+
 ServerEvents.recipes(event => {
     let removedCount = 0
     let skippedCount = 0
     let removedByNamespace = {}
+    TCS_REMOVED_TOOL_ITEMS.length = 0
 
     event.forEachRecipe({}, recipe => {
         let recipeId = ''
@@ -210,6 +221,7 @@ ServerEvents.recipes(event => {
         event.remove({ id: recipeId })
         removedCount++
         removedByNamespace[namespace] = (removedByNamespace[namespace] || 0) + 1
+        if (!TCS_REMOVED_TOOL_ITEMS.includes(outputId)) TCS_REMOVED_TOOL_ITEMS.push(outputId)
     })
 
     for (const extraId of EXTRA_REMOVE_RECIPE_IDS) {

@@ -316,6 +316,93 @@ stCheck('tier_gating.js: every gated recipe resolves and demands its tier materi
     }
 })
 
+// #57: the JEI info layer only fires when a recipe viewer syncs, so a
+// console-only boot never exercises it - which is exactly how it would rot
+// unnoticed (a renamed table, a script that stopped loading, an exception
+// swallowed by the try/catch in the event handler). jeiAddPackInfo() is a
+// plain function for this reason: call it with a recording stub and assert
+// both that it produced pages and that the four sources are each represented.
+stCheck('jei_info.js: pack info pages generate for all four sources (#57)', () => {
+    if (typeof jeiAddPackInfo !== 'function') {
+        return { pass: false, detail: 'jei_info.js did not load into the shared server_scripts scope' }
+    }
+    let seen = {}
+    let stub = { add: (id, lines) => { seen[String(id)] = lines.length } }
+    let pages
+    try {
+        pages = jeiAddPackInfo(stub)
+    } catch (e) {
+        return { pass: false, detail: 'jeiAddPackInfo threw: ' + e }
+    }
+    // One representative id per source. The tool id is deliberately checked
+    // against the sweep's live output rather than hardcoded - if the sweep
+    // stops removing anything, that is itself the regression.
+    let problems = []
+    if (typeof TCS_REMOVED_TOOL_ITEMS === 'undefined' || TCS_REMOVED_TOOL_ITEMS.length === 0) {
+        problems.push('tool sweep removed nothing - no tool info pages possible')
+    } else if (!seen[TCS_REMOVED_TOOL_ITEMS[0]]) {
+        problems.push('no info page for removed tool ' + TCS_REMOVED_TOOL_ITEMS[0])
+    }
+    if (!seen['waystones:warp_stone']) problems.push('no tier-gating info page (waystones:warp_stone)')
+    if (!seen['create:andesite_alloy']) problems.push('no stage-trigger info page (create:andesite_alloy)')
+    if (!seen['alltheores:zinc_ingot']) problems.push('no dedup info page (alltheores:zinc_ingot)')
+    return {
+        pass: problems.length === 0,
+        detail: problems.length === 0 ? (pages + ' info pages across 4 sources') : problems.join('; '),
+    }
+})
+
+// #57: every id TG_TIER_INFO explains must be one tier_gating.js actually
+// re-authors, or the JEI text is describing a gate that isn't there. Checked
+// against the outputs of the very recipe ids the gating check above pins,
+// rather than by scanning the whole recipe manager (which is both slow and,
+// as an earlier revision of this check found the hard way, blocked by KubeJS's
+// class shutter: ItemStack#getItem() exposes no kjs$getId to Rhino).
+stCheck('tier_gating.js: TG_TIER_INFO only describes recipes this pack really gates (#57)', server => {
+    if (typeof TG_TIER_INFO === 'undefined') {
+        return { pass: false, detail: 'TG_TIER_INFO missing from the shared scope' }
+    }
+    let gatedOutputs = {}
+    for (let i = 0; i < ST_TIER_GATED_RECIPES.length; i++) {
+        let opt = server.getRecipeManager().byKey(stRl(ST_TIER_GATED_RECIPES[i].id))
+        if (!opt.isPresent()) continue
+        let result
+        try { result = opt.get().value().getResultItem(server.registryAccess()) } catch (e) { continue }
+        if (result) gatedOutputs[String(result.id)] = true
+    }
+    let bad = []
+    let described = 0
+    for (let i = 0; i < TG_TIER_INFO.length; i++) {
+        for (let j = 0; j < TG_TIER_INFO[i].items.length; j++) {
+            described++
+            if (!gatedOutputs[TG_TIER_INFO[i].items[j]]) {
+                bad.push(TG_TIER_INFO[i].items[j] + ' is described but not gated by any vanillaplusplus recipe')
+            }
+        }
+    }
+    return { pass: bad.length === 0, detail: bad.length === 0 ? (described + ' described items all really gated') : bad.join('; ') }
+})
+
+// Regression guard for the mob-scaling operation-id bug (found 2026-07-22):
+// puffish_skills' attr_reward calls this semantic "multiply_base", vanilla's
+// AttributeModifier.Operation calls it "add_multiplied_base", and passing the
+// former to KubeJS's entity.modifyAttribute() threw on every scaled spawn -
+// killing health/damage scaling, the star nametag AND the death-reward bonus,
+// with nothing but a server-log ERROR to show for it. Static id check: a live
+// one would need a real mob spawning next to a real player, which only L3 can
+// stage.
+stCheck('mob_scaling.js: scaling operation is a real vanilla AttributeModifier id', () => {
+    if (typeof MS_SCALING_OPERATION === 'undefined') {
+        return { pass: false, detail: 'MS_SCALING_OPERATION missing from the shared scope' }
+    }
+    const VALID = ['add_value', 'add_multiplied_base', 'add_multiplied_total']
+    let ok = VALID.indexOf(MS_SCALING_OPERATION) >= 0
+    return {
+        pass: ok,
+        detail: ok ? MS_SCALING_OPERATION : MS_SCALING_OPERATION + ' is not one of ' + VALID.join('/') + " (puffish_skills' vocabulary is not vanilla's)",
+    }
+})
+
 stCheck('Artifacts master tag (artifacts:artifacts) has >= 48 items', server => {
     let registry = stItemRegistry(server)
     let tagKey = ST_TagKeyClass.create(ST_RegistriesClass.ITEM, stRl('artifacts:artifacts'))

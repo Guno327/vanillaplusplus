@@ -136,13 +136,13 @@ RUNTIME_INGREDIENT_ADD_MAX = 25
 # item locks behind it. Override with VPP_L3_STAGE_PROBE=<stage id>.
 STAGE_PROBE = os.environ.get("VPP_L3_STAGE_PROBE", "andesite_age")
 STAGE_PROBE_SETTLE_S = 30
-# KubeJS's own /kubejs stages add reply ("Added '<stage>' stage for <player>",
-# javap-confirmed in dev.latvian.mods.kubejs.command.StageCommands). This used
-# to drive ProgressiveStages' /stage grant; that command left with the mod
-# (#49), and the grant now goes through the same KubeJS stage backend the pack
-# itself writes to, which is a better probe anyway - it exercises exactly the
-# path progression_stage_bridge.js uses.
-STAGE_GRANTED_RE = re.compile(r"Added '.*' stage for|stage for ")
+# How the probe confirms the grant landed. Deliberately NOT the "Added
+# '<stage>' stage for <player>" success line that /kubejs stages add prints:
+# StageCommands.addStage only sends that when Stages.add() returns true, i.e.
+# when the player did not already hold the stage (javap-confirmed) - and this
+# harness reuses its world between runs, so the second run onward is a silent
+# no-op and the probe would skip forever. Asking for the resulting stage LIST
+# instead is true whether the grant was fresh or already in place.
 
 
 def fail(msg):
@@ -510,11 +510,13 @@ def main():
         # only report a loop, never invent one.
         print(f"== L3: grant '{STAGE_PROBE}' post-join (#49 item-path probe) ==")
         pre_len_grant_client = len(read(CLIENT_LOG))
-        pre_len_grant_server = len(read(SERVER_LOG))
         send_server_command(f"kubejs stages add {joined_username} {STAGE_PROBE}")
-        time.sleep(5)
-        grant_reply = read(SERVER_LOG)[pre_len_grant_server:]
-        if STAGE_GRANTED_RE.search(grant_reply):
+        time.sleep(3)
+        pre_len_list_server = len(read(SERVER_LOG))
+        send_server_command(f"kubejs stages list {joined_username}")
+        time.sleep(3)
+        grant_reply = read(SERVER_LOG)[pre_len_list_server:]
+        if STAGE_PROBE in grant_reply:
             print(f"== L3: settle {STAGE_PROBE_SETTLE_S}s after the grant ==")
             time.sleep(STAGE_PROBE_SETTLE_S)
             assert_no_refresh_loop(

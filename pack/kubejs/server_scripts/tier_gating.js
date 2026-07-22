@@ -36,6 +36,56 @@
 // (scripts/gen_economy.py prices off it), it just no longer drives a runtime
 // lock. Recipe ids are namespaced vanillaplusplus: like storage.js's, so a
 // `/kubejs hand` lookup in game points at this file rather than the mod's.
+
+// Read by jei_info.js to explain each gate in JEI (#57). Kept here, beside
+// the recipes it describes, so an edit below without a matching entry here is
+// obvious in review; selftest.js asserts every id listed is one this file
+// actually re-authors.
+const TG_TIER_INFO = [
+    {
+        tierName: 'Induction Age',
+        materialName: 'a Netherite Ingot',
+        why: 'Every waystone, sharestone and portstone recipe consumes a Warp Stone, so gating the stone gates teleportation as a whole.',
+        items: ['waystones:warp_stone'],
+    },
+    {
+        tierName: 'Andesite Age',
+        materialName: 'an Andesite Alloy',
+        why: 'Backpack and stack-upgrade tiers chain upward, so gating the early step gates everything above it.',
+        items: ['sophisticatedbackpacks:iron_backpack', 'sophisticatedbackpacks:stack_upgrade_starter_tier'],
+    },
+    {
+        tierName: 'Brass Age',
+        materialName: 'a Brass Ingot',
+        why: 'Backpack and stack-upgrade tiers chain upward, so gating this step gates everything above it.',
+        items: ['sophisticatedbackpacks:gold_backpack', 'sophisticatedbackpacks:stack_upgrade_tier_2'],
+    },
+    {
+        tierName: 'Andesite Age',
+        materialName: 'an Andesite Alloy',
+        why: 'Stock wand recipes are one ingot plus two sticks, so the ingot alone decided the tier.',
+        items: ['wands:copper_wand', 'wands:iron_wand', 'wands:magic_bag_1'],
+    },
+    {
+        tierName: 'Brass Age',
+        materialName: 'a Brass Ingot',
+        why: 'Stock wand recipes are one ingot plus two sticks, so the ingot alone decided the tier.',
+        items: ['wands:diamond_wand', 'wands:magic_bag_2'],
+    },
+    {
+        tierName: 'Brass Age',
+        materialName: 'a Brass Ingot',
+        why: "The base Storage Terminal stays at iron tier on purpose - it is this pack's Tier 1 storage - so only the upper terminals are gated.",
+        items: ['toms_storage:crafting_terminal', 'toms_storage:wireless_terminal'],
+    },
+    {
+        tierName: 'Andesite Age',
+        materialName: 'an Andesite Alloy',
+        why: 'Higher drill tiers chain off this one, so gating it keeps the whole family behind Andesite Age.',
+        items: ['createoreexcavation:drill'],
+    },
+]
+
 ServerEvents.recipes(event => {
     // --- Waystones -> induction_age -------------------------------------
     // Its own recipes use nothing this pack tiers (amethyst + ender pearl +

@@ -1154,3 +1154,96 @@ manager — the same technique the storage.js check uses, since KubeJS's class
 shutter hides `Ingredient`'s own members). L3 with the #49 refresh-loop
 assertion plus the new post-join stage-grant probe is the end-to-end proof
 that the bug class is gone.
+
+## JEI acquisition-info wave, and a silently-dead mob-scaling feature it uncovered (#57, 2026-07-22)
+
+Owner asked for JEI to carry as much "how do I get this?" information as
+possible. Split in two, because two different things know the answer.
+
+**What the game knows — seven addons.** All verified to have real 1.21.1 +
+NeoForge builds and their side markers taken from Modrinth's own
+client_side/server_side fields, per this pack's standing rule:
+
+| mod | side | why |
+| --- | --- | --- |
+| Just Enough Resources | client | ore distribution per dimension/biome, mob + plant drops, dungeon loot, trades |
+| Advanced Loot Info | **both** (server_side=required) | reads the REAL loot tables, so it covers this pack's own `gen_structure_loot.py` output and every modded mob with no per-mod support |
+| JEI WorldGen | both | newest worldgen addon; deliberately overlaps JER — see below |
+| Just Enough Breeding | client | Naturalist adds a large animal set |
+| JEED | client | Ars Nouveau + Apotheosis effects |
+| Just Enough Professions | both | villager workstations; its one required dep is JEI itself |
+| Enchantment Descriptions (+prickle, +bookshelf-lib) | both | Apotheosis' enchanting overhaul is central here — the only pick with a dependency cost |
+
+**Deliberate redundancy, to be resolved in game:** JER's 1.21.1 build is from
+2025-05 and may not see this pack's modded ore generation (Stellaris/TFMG/
+AllTheOres/AllTheModium); JEI WorldGen is from 2026-07 and claims universal
+compatibility. Both are installed so the loser can be dropped on evidence
+rather than guessed at now.
+
+**What only the pack knows — `jei_info.js`.** No addon can explain what this
+pack did to its own recipes, and that is where players actually dead-end:
+`minecraft:iron_pickaxe` has no recipe at all (the #9 tool sweep deleted it to
+funnel players to Silent Gear, whose own JEI plugin documents the Silent Gear
+side perfectly but is not pointed AT from the item you looked up);
+`waystones:warp_stone` demands netherite because #49's `tier_gating.js` put it
+there; `create:andesite_alloy` silently grants a quest-gating stage;
+`alltheores:zinc_ingot` was unified out of its tag by `dedup.js` and is
+consumed by nothing.
+
+`RecipeViewerEvents.addInformation` is posted with `ScriptType.SERVER`
+(javap-confirmed: `recipe/viewer/server/ItemData` posts
+`RecipeViewerEvents.ADD_INFORMATION` with `ScriptType.SERVER` and a
+`ServerAddItemInformationKubeEvent`, synced to the client's viewer), so the
+layer lives in `server_scripts` in the same Rhino scope as the tables it
+reads. Three of its four sources are read from the script that owns the
+behaviour rather than hand-copied — `tool_consolidation_sweep.js` now
+publishes `TCS_REMOVED_TOOL_ITEMS` from its own removal pass (so it covers
+mods added later, which a hand-typed list would miss), `tier_gating.js`
+publishes `TG_TIER_INFO`, and `progression_stage_bridge.js`'s trigger table is
+read directly. Only the dedup redirects are hand-maintained, because
+`dedup.js` is a series of `event.remove(tag, item)` calls with no list to
+read; that one is covered by a selftest check instead.
+
+**The bug this wave uncovered, which is bigger than the wave.** L3's new
+post-join stage-grant probe is the first test in this suite that ever put a
+real player holding a real tier stage next to a real mob spawn. It
+immediately surfaced `EntityEvents.spawned` throwing
+`IllegalArgumentException: 'multiply_base' is not a valid enum constant`.
+
+`mob_scaling.js` passed `'multiply_base'` to KubeJS's
+`entity.modifyAttribute()`, which coerces to vanilla's
+`AttributeModifier.Operation` — whose only valid ids are `add_value`,
+`add_multiplied_base`, `add_multiplied_total`. The spelling came from
+puffish_skills' `attr_reward` vocabulary, where it is correct (see
+`scripts/gen_skill_tree.py`, which still uses it correctly for Puffish's own
+json) — two systems, same semantic, different word. The throw happened
+*before* `setHealth`, the `vpp_difficulty` tag and the star nametag, so:
+**mob difficulty scaling has never worked**, and the death-reward bonus that
+reads that tag never paid out either. Nothing but a server-log ERROR line
+said so — L0 boots with no players, L1 is console-only, and no test had ever
+staged the one situation that triggers it.
+
+Fixed to `add_multiplied_base` behind a named constant
+(`MS_SCALING_OPERATION`) with the trap documented at the use site, plus a
+selftest guard pinning it to the three ids the vanilla enum accepts. Worth
+recording as a lesson about test coverage shape rather than test count: the
+suite was green the entire time this feature was dead, because every tier
+below L3 structurally cannot observe it.
+
+**Verification.** L0 PASS (94 server mods — 88 + the 6 both-side additions,
+0 KubeJS errors/warnings, no unbaselined WARN/ERROR). L1 PASS 31/31,
+including new checks that the info layer generates pages for all four sources
+(driven by a recording stub, since a console-only boot never syncs a recipe
+viewer), that `TG_TIER_INFO` only describes recipes this pack really gates,
+and the mob-scaling operation guard. L2 PASS — the real risk gate for seven
+new JEI plugins: 100 client mods / 124 modids discovered, dependency-resolved
+and mixin-applied with zero mod-loading errors. L3 PASS with the refresh-loop
+assertion at 0 both after join and after a tier grant, and the enum error gone
+from the server log.
+
+**Harness note:** the L3 probe's grant confirmation now reads back
+`kubejs stages list` rather than watching for the "Added '<stage>' stage for
+<player>" line. `StageCommands.addStage` only prints that when `Stages.add()`
+returns true — i.e. when the player did not already hold the stage — and L3
+reuses its world between runs, so from the second run onward the grant is a
+silent no-op and the probe would have skipped forever.
