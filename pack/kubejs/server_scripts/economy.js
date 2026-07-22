@@ -210,6 +210,7 @@ const ITEM_PRICES = {
   "sophisticatedstorage:basic_to_gold_tier_upgrade": 16,
   "sophisticatedstorage:basic_to_iron_tier_upgrade": 4,
   "sophisticatedstorage:basic_to_netherite_tier_upgrade": 64,
+  "sophisticatedstorage:copper_to_gold_tier_upgrade": 16,
   "sophisticatedstorage:copper_to_iron_tier_upgrade": 4,
   "sophisticatedstorage:diamond_to_netherite_tier_upgrade": 64,
   "sophisticatedstorage:gold_to_diamond_tier_upgrade": 16,

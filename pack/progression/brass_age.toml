@@ -240,6 +240,18 @@ locked = [
     "id:sophisticatedstorage:stack_upgrade_tier_2",
     "id:sophisticatedstorage:stack_upgrade_tier_3",
     "id:sophisticatedstorage:void_upgrade",
+
+    # #70 follow-up: copper_to_gold_tier_upgrade needs the same Brass Ingot
+    # gate as basic_to_gold/iron_to_gold above, for a reason the original
+    # pass on this file missed - its own recipe (checked against the jar
+    # directly) uses copper_to_iron_tier_upgrade as its ingredient, which is
+    # only Andesite-Age-gated, not a gold-tier source or anything else tied
+    # to this tier. Left alone it lets a rootborn-tier copper container jump
+    # straight to gold tier on Andesite Age materials plus one gold ingot,
+    # skipping this tier's own gate entirely. Fixed in
+    # pack/kubejs/server_scripts/tier_gating.js alongside the other four
+    # tier-upgrade items.
+    "id:sophisticatedstorage:copper_to_gold_tier_upgrade",
 ]
 always_unlocked = []
 

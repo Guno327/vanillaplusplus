@@ -308,7 +308,7 @@ const ST_TIER_GATED_RECIPES = [
     { id: 'vanillaplusplus:crafting_terminal_brass_tier', tier: 'create:brass_ingot' },
     { id: 'vanillaplusplus:wireless_terminal_brass_tier', tier: 'create:brass_ingot' },
     { id: 'vanillaplusplus:ore_excavation_drill_andesite_tier', tier: 'create:andesite_alloy' },
-    // #70: Sophisticated Storage.
+    // #70: Sophisticated Storage - the container block ladder.
     { id: 'vanillaplusplus:iron_barrel_andesite_tier', tier: 'create:andesite_alloy' },
     { id: 'vanillaplusplus:iron_chest_andesite_tier', tier: 'create:andesite_alloy' },
     { id: 'vanillaplusplus:iron_shulker_box_andesite_tier', tier: 'create:andesite_alloy' },
@@ -317,6 +317,13 @@ const ST_TIER_GATED_RECIPES = [
     { id: 'vanillaplusplus:gold_shulker_box_brass_tier', tier: 'create:brass_ingot' },
     { id: 'vanillaplusplus:storage_stack_upgrade_tier_1_andesite_tier', tier: 'create:andesite_alloy' },
     { id: 'vanillaplusplus:storage_stack_upgrade_tier_3_brass_tier', tier: 'create:brass_ingot' },
+    // #70: Sophisticated Storage - the portable tier-upgrade items, a second
+    // independent path to the same iron/gold tiers (see tier_gating.js).
+    { id: 'vanillaplusplus:basic_to_iron_tier_upgrade_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:copper_to_iron_tier_upgrade_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:basic_to_gold_tier_upgrade_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:iron_to_gold_tier_upgrade_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:copper_to_gold_tier_upgrade_brass_tier', tier: 'create:brass_ingot' },
 ]
 
 stCheck('tier_gating.js: every gated recipe resolves and demands its tier material (#49)', server => {

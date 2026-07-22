@@ -87,14 +87,29 @@ const TG_TIER_INFO = [
     {
         tierName: 'Andesite Age',
         materialName: 'an Andesite Alloy',
-        why: "#70: Sophisticated Storage's barrel/chest/shulker tiers chain upward (iron -> gold -> diamond -> netherite), so gating the iron step gates everything above it. Its own Stack Upgrade Tier 1 has no natural gate at all (just logs), so it gets the same treatment.",
-        items: ['sophisticatedstorage:iron_barrel', 'sophisticatedstorage:iron_chest', 'sophisticatedstorage:iron_shulker_box', 'sophisticatedstorage:stack_upgrade_tier_1'],
+        why: "#70: Sophisticated Storage's barrel/chest/shulker tiers chain upward (iron -> gold -> diamond -> netherite), so gating the iron step gates everything above it. Its own Stack Upgrade Tier 1 has no natural gate at all (just logs), so it gets the same treatment. The portable basic_to_iron/copper_to_iron tier-upgrade items are a second, independent way to reach the same iron-tier result (applied to an existing container instead of crafted fresh), so they need the identical gate or they'd bypass it.",
+        items: [
+            'sophisticatedstorage:iron_barrel',
+            'sophisticatedstorage:iron_chest',
+            'sophisticatedstorage:iron_shulker_box',
+            'sophisticatedstorage:stack_upgrade_tier_1',
+            'sophisticatedstorage:basic_to_iron_tier_upgrade',
+            'sophisticatedstorage:copper_to_iron_tier_upgrade',
+        ],
     },
     {
         tierName: 'Brass Age',
         materialName: 'a Brass Ingot',
-        why: "#70: Sophisticated Storage's gold step gates diamond/netherite above it, same chain-gate reasoning as the iron step.",
-        items: ['sophisticatedstorage:gold_barrel', 'sophisticatedstorage:gold_chest', 'sophisticatedstorage:gold_shulker_box', 'sophisticatedstorage:stack_upgrade_tier_3'],
+        why: "#70: Sophisticated Storage's gold step gates diamond/netherite above it, same chain-gate reasoning as the iron step. basic_to_gold/iron_to_gold tier-upgrade items need the same gate as gold_barrel/gold_chest/gold_shulker_box for the same reason iron's did. copper_to_gold_tier_upgrade is included even though it never touches copper directly in its own recipe - unpatched, its only ingredient is copper_to_iron_tier_upgrade (Andesite-gated), so it would let a rootborn-tier copper container jump straight to gold on Andesite Age materials alone, silently skipping this tier (found by reading the jar's own recipe json, not assumed).",
+        items: [
+            'sophisticatedstorage:gold_barrel',
+            'sophisticatedstorage:gold_chest',
+            'sophisticatedstorage:gold_shulker_box',
+            'sophisticatedstorage:stack_upgrade_tier_3',
+            'sophisticatedstorage:basic_to_gold_tier_upgrade',
+            'sophisticatedstorage:iron_to_gold_tier_upgrade',
+            'sophisticatedstorage:copper_to_gold_tier_upgrade',
+        ],
     },
 ]
 
@@ -383,4 +398,53 @@ ServerEvents.recipes(event => {
         S: 'sophisticatedstorage:stack_upgrade_tier_2',
         R: 'create:brass_ingot'
     }).id('vanillaplusplus:storage_stack_upgrade_tier_3_brass_tier')
+
+    // Sophisticated Storage also ships a second, independent way to reach
+    // the same iron/gold tiers: portable "tier upgrade" items
+    // (basic_to_iron_tier_upgrade etc) that get applied to an EXISTING
+    // container in the mod's own UI instead of being crafted as a whole new
+    // block via the storage_tier_upgrade recipes above. Their own recipes
+    // use plain minecraft:crafting_shaped (no contents to preserve - they
+    // carry no inventory of their own), and left unpatched they bypass the
+    // gate above entirely: basic_to_iron_tier_upgrade/copper_to_iron_tier_
+    // upgrade need just iron ingots, and applying either to a rootborn-tier
+    // basic/copper container reaches iron tier with no Andesite Age
+    // material at all. basic_to_gold_tier_upgrade/iron_to_gold_tier_upgrade
+    // are the matching gold-step gate.
+    //
+    // copper_to_gold_tier_upgrade needs the same Brass Ingot treatment for a
+    // less obvious reason, found by reading its actual recipe json rather
+    // than assuming the ladder is symmetric: its own ingredient is
+    // copper_to_iron_tier_upgrade (an item, gated at Andesite Age above),
+    // NOT a gold-tier source or anything Brass-Age-gated. Left alone, a
+    // player could craft copper_to_iron_tier_upgrade (Andesite Age), then
+    // copper_to_gold_tier_upgrade straight after it using nothing but a
+    // plain gold ingot, and apply the result to a still-rootborn-tier copper
+    // container to reach gold tier without ever touching Brass Age -
+    // silently undercutting Refined Storage's own placement there. diamond/
+    // netherite-reaching upgrade items (basic_to_diamond, gold_to_diamond,
+    // *_to_netherite, etc) all consume one of the five items gated below as
+    // their own ingredient (or, for gold_to_diamond/diamond_to_netherite,
+    // are only useful applied to a gold/diamond-tier container that itself
+    // now requires this gate), so none of them need an edit of their own.
+    const SOPH_STORAGE_UPGRADE_ITEMS = [
+        { id: 'sophisticatedstorage:basic_to_iron_tier_upgrade', pattern: ['III', 'ILI', 'III'], key: { I: { tag: 'c:ingots/iron' }, L: { item: 'minecraft:lever' } }, tierLetter: 'A', tier: 'create:andesite_alloy', suffix: 'andesite_tier' },
+        { id: 'sophisticatedstorage:copper_to_iron_tier_upgrade', pattern: [' I ', 'ILI', ' I '], key: { I: { tag: 'c:ingots/iron' }, L: { item: 'minecraft:lever' } }, tierLetter: 'A', tier: 'create:andesite_alloy', suffix: 'andesite_tier' },
+        { id: 'sophisticatedstorage:basic_to_gold_tier_upgrade', pattern: ['GGG', 'GTG', 'GGG'], key: { G: { tag: 'c:ingots/gold' }, T: { item: 'sophisticatedstorage:basic_to_iron_tier_upgrade' } }, tierLetter: 'R', tier: 'create:brass_ingot', suffix: 'brass_tier' },
+        { id: 'sophisticatedstorage:iron_to_gold_tier_upgrade', pattern: ['GGG', 'GLG', 'GGG'], key: { G: { tag: 'c:ingots/gold' }, L: { item: 'minecraft:lever' } }, tierLetter: 'R', tier: 'create:brass_ingot', suffix: 'brass_tier' },
+        { id: 'sophisticatedstorage:copper_to_gold_tier_upgrade', pattern: ['GGG', 'GTG', 'GGG'], key: { G: { tag: 'c:ingots/gold' }, T: { item: 'sophisticatedstorage:copper_to_iron_tier_upgrade' } }, tierLetter: 'R', tier: 'create:brass_ingot', suffix: 'brass_tier' },
+    ]
+    SOPH_STORAGE_UPGRADE_ITEMS.forEach(entry => {
+        event.remove({ id: entry.id })
+        let newPattern = [entry.pattern[0].replace(/[A-Z]/, entry.tierLetter), entry.pattern[1], entry.pattern[2]]
+        let newKey = Object.assign({}, entry.key)
+        newKey[entry.tierLetter] = { item: entry.tier }
+        event.custom({
+            type: 'minecraft:crafting_shaped',
+            category: 'misc',
+            pattern: newPattern,
+            key: newKey,
+            result: { count: 1, id: entry.id }
+        }).id('vanillaplusplus:' + entry.id.split(':')[1] + '_' + entry.suffix)
+    })
 })
