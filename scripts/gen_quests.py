@@ -1416,7 +1416,7 @@ def advancement_frame(quest):
     return "task"
 
 
-def build_advancement(quest, is_root):
+def build_advancement(quest, is_root, root_id):
     display = {
         "icon": {"id": quest["icon"], "count": 1},
         "title": quest["title"],
@@ -1427,18 +1427,59 @@ def build_advancement(quest, is_root):
     }
     if is_root:
         display["background"] = ADVANCEMENT_ROOT_BACKGROUND
-    advancement = {
-        "criteria": {"impossible": {"trigger": "minecraft:impossible"}},
-        "requirements": [["impossible"]],
-        "display": display,
-    }
+    advancement = {"display": display}
+    if is_root:
+        # GitHub #66: a root gated on minecraft:impossible is NEVER granted
+        # (nothing in this pack ever runs "advancement grant ... only
+        # vanillaplusplus:quests/<root>"), and per
+        # net.minecraft.server.advancements.AdvancementVisibilityEvaluator
+        # (decompiled from the 1.21.1 official-mapped server jar,
+        # server-...-srg.jar in this repo's server/libraries/), an
+        # undone-and-never-shown root is never visible to the client, so the
+        # whole vanilla advancement tab never appears - PlayerAdvancements
+        # only sends a root's subtree once evaluateVisibility() marks some
+        # node in it visible, and an ungranted, non-hidden root without a
+        # visible descendant evaluates to invisible. Vanilla itself grants
+        # its own tab roots via always-satisfiable/near-immediate triggers
+        # (see data/minecraft/advancement/*/root.json in the same jar: e.g.
+        # story/root's crafting_table criterion, or
+        # recipes/decorations/crafting_table.json's literal
+        # {"trigger": "minecraft:tick"} "unlock_right_away" criterion, which
+        # CriteriaTriggers.class shows registered as a bare
+        # `new PlayerTrigger()` - unconditionally satisfied on the player's
+        # very next server tick). We copy that exact trick: the root's own
+        # criterion is minecraft:tick, so every player self-grants it within
+        # a tick of joining, independent of quests.js.
+        advancement["criteria"] = {"auto": {"trigger": "minecraft:tick"}}
+        advancement["requirements"] = [["auto"]]
+    else:
+        # Every non-root quest keeps the minecraft:impossible criterion -
+        # only quests.js's "advancement grant <player> only
+        # vanillaplusplus:quests/<id>" command (run when the quest actually
+        # completes) can ever grant these, exactly as before GitHub #66.
+        advancement["criteria"] = {"impossible": {"trigger": "minecraft:impossible"}}
+        advancement["requirements"] = [["impossible"]]
     if not is_root:
-        # Vanilla advancements are single-parent trees, not DAGs - a quest
-        # with multiple dependencies only gets one tree edge drawn (its
-        # first listed dependency); the real multi-dependency AND-gate for
-        # when the quest actually completes is entirely quests.js's own
-        # dependenciesSatisfied(), unaffected by this simplification.
-        advancement["parent"] = "vanillaplusplus:quests/" + quest["dependencies"][0]
+        # GitHub #66 (continued): AdvancementVisibilityEvaluator only looks
+        # up to VISIBILITY_DEPTH=2 ancestors (self, parent, grandparent) past
+        # the nearest granted/"SHOW" node to decide whether an
+        # undone-but-displayed descendant should still be drawn (see the
+        # decompiled evaluateVisiblityForUnfinishedNode()). This pack's real
+        # dependency graph chains up to 30 quests deep (see
+        # scripts/ci/check_advancements.py's depth check), so parenting each
+        # quest to its first quests.js dependency - as GitHub #36 originally
+        # did - would leave every quest past the self-granted root's
+        # grandchildren invisible until a player had already completed
+        # everything above it: the exact "list of quests is not displayed"
+        # symptom reported in #66, just pushed one or two tiers deeper
+        # instead of fixed. The tree drawn here was always a single-parent
+        # simplification of the true multi-dependency DAG that only
+        # quests.js's dependenciesSatisfied() enforces (see the comment that
+        # used to live on this line), so flattening it further to a single
+        # level - every non-root quest parented directly to the
+        # self-granting root - costs nothing real and keeps every quest
+        # inside the depth-2 visibility window unconditionally.
+        advancement["parent"] = "vanillaplusplus:quests/" + root_id
     return advancement
 
 
@@ -1446,11 +1487,22 @@ def write_advancements(chapters):
     if ADVANCEMENTS_DIR.exists():
         shutil.rmtree(ADVANCEMENTS_DIR)
     ADVANCEMENTS_DIR.mkdir(parents=True)
+    root_ids = [
+        quest["id"]
+        for chapter in chapters
+        for quest in chapter["quests"]
+        if not quest["dependencies"]
+    ]
+    if len(root_ids) != 1:
+        raise ValueError(
+            "expected exactly one dependency-free (root) quest, found: " + repr(root_ids)
+        )
+    root_id = root_ids[0]
     count = 0
     for chapter in chapters:
         for quest in chapter["quests"]:
-            is_root = len(quest["dependencies"]) == 0
-            advancement = build_advancement(quest, is_root)
+            is_root = quest["id"] == root_id
+            advancement = build_advancement(quest, is_root, root_id)
             out = ADVANCEMENTS_DIR / f"{quest['id']}.json"
             out.write_text(json.dumps(advancement, indent=2) + "\n")
             count += 1

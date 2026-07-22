@@ -1,14 +1,4 @@
 {
-  "criteria": {
-    "impossible": {
-      "trigger": "minecraft:impossible"
-    }
-  },
-  "requirements": [
-    [
-      "impossible"
-    ]
-  ],
   "display": {
     "icon": {
       "id": "create:brass_ingot",
@@ -20,5 +10,15 @@
     "show_toast": true,
     "announce_to_chat": false
   },
-  "parent": "vanillaplusplus:quests/andesite_age__iron_tools"
+  "criteria": {
+    "impossible": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "impossible"
+    ]
+  ],
+  "parent": "vanillaplusplus:quests/rootborn__welcome"
 }
