@@ -155,6 +155,18 @@ locked = [
     # iron/gold/diamond/netherite mapping and the deviation this represents
     # from the item9 handoff dir's drafted "netherite->Induction" guess.
     "id:extradelight:netherite_spoon",
+
+    # #70: Sophisticated Storage. Netherite tier-upgrade items and Stack
+    # Upgrade Tiers 4/5/Omega are this mod's own native ceiling (same closed-
+    # tier-ladder situation as sophisticatedbackpacks:netherite_backpack
+    # above) - already naturally gated by their netherite_ingot ingredient
+    # (locked above in this file), explicit lock added for consistency with
+    # this file's own convention.
+    "id:sophisticatedstorage:basic_to_netherite_tier_upgrade",
+    "id:sophisticatedstorage:diamond_to_netherite_tier_upgrade",
+    "id:sophisticatedstorage:stack_upgrade_tier_4",
+    "id:sophisticatedstorage:stack_upgrade_tier_5",
+    "id:sophisticatedstorage:stack_upgrade_omega_tier",
 ]
 always_unlocked = []
 
@@ -183,6 +195,15 @@ locked = [
     "id:createoreexcavation:drilling_machine",
     "id:createoreexcavation:sample_drill",
     "id:createoreexcavation:extractor",
+
+    # #70: Sophisticated Storage. Netherite barrel/chest/shulker - the mod's
+    # own native tier ceiling, already naturally gated by netherite_ingot
+    # (locked above in this file); explicit lock added for consistency with
+    # this file's own convention (see e.g. sophisticatedbackpacks:
+    # netherite_backpack precedent in [items] above).
+    "id:sophisticatedstorage:netherite_barrel",
+    "id:sophisticatedstorage:netherite_chest",
+    "id:sophisticatedstorage:netherite_shulker_box",
 ]
 always_unlocked = []
 

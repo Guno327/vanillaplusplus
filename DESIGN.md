@@ -170,6 +170,60 @@ genuinely simpler mod for Tier 1 alone. Went with the latter:
   `refinedstorage-common.toml`'s `requireEnergy` is back to its default
   (`true`).
 
+### Storage follow-up: Sophisticated Storage bridges Tom's and Refined Storage (GitHub #70)
+
+Owner-filed (2026-07-22, approved): "Adding multiple tiers of storage
+through Sophisticated Storage will allow for better integration with Tom's
+Simple Storage before Refined Storage is available." Its sibling
+`sophisticated-core` was already a hard dependency of Sophisticated
+Backpacks (Phase 11, present since the utility-overhaul pass), so this
+landed as one new mod pin rather than two — `sophisticated-storage
+1.21.1-1.5.80.1999` (Modrinth `hMlaZH8f`/`IfMsqcCe`, `side:both`), verified
+against `sophisticatedcore`'s own `>=1.4.73` requirement (the installed
+`1.4.77.2173` satisfies it) and pinned through `scripts/resolve_mods.py`
+like every other mod in this pack.
+
+**Placement**: single-container barrels/chests/shulker boxes, upgradeable
+copper → iron → gold → diamond → netherite, sitting strictly between Tom's
+Storage's Andesite Age "dumb storage" and Refined Storage's Brass Age
+network rather than replacing either — a player not yet ready to wire up a
+full RS grid gets a real capacity upgrade path instead of stalling on Tom's
+Tier 1 chests. Base/copper tier stays unlocked from rootborn (matching
+Tom's own baseline); the **iron step is the real Andesite Age gate** and
+the **gold step is the real Brass Age gate**, both enforced by
+`pack/kubejs/server_scripts/tier_gating.js` inserting an Andesite Alloy/
+Brass Ingot into the mod's own `storage_tier_upgrade` recipes (same "gate
+the chain's first crossing" pattern already used for Sophisticated
+Backpacks) — diamond and netherite chain off the gold step and need no
+edit of their own, netherite gating itself the same way it does everywhere
+else in this pack. Full per-tier reasoning and item lists are in
+`pack/progression/andesite_age.toml`/`brass_age.toml`.
+
+**The one non-obvious part**: this mod ships the tier ladder through *two*
+independent mechanisms, not one — the block recipes above, and a second,
+separate family of portable "tier upgrade" items (`basic_to_iron_tier_
+upgrade`, `iron_to_gold_tier_upgrade`, etc) applied to an existing
+container instead of crafted fresh. Both had to be gated, or the portable
+items would bypass the block-recipe gate entirely. Ground-truthing the
+jars caught one asymmetry a first pass at this would miss:
+`copper_to_gold_tier_upgrade`'s own ingredient is
+`copper_to_iron_tier_upgrade` (an Andesite-Age-gated item), not anything
+Brass-Age-gated or gold-tier, so left alone it would let a still-rootborn
+copper container jump straight to gold tier on Andesite Age materials plus
+one gold ingot — silently undercutting Refined Storage's own Brass Age
+placement. Fixed the same way as the rest of the family (`tier_gating.js`).
+
+Fast-tier coverage: `scripts/ci/check_storage_tiers.py` (new) asserts the
+mod is really pinned in `pack/mods.lock.json` at a well-formed
+1.21.1/NeoForge entry, and that every `sophisticatedstorage:*` id named in
+`tier_gating.js`/`pack/progression/*.toml` is a real, registered block/item
+in the pinned jar — checked against `pack/mod_registries/
+sophisticatedstorage.json`, a static snapshot of the jar's own
+blockstates/item-model directories (`scripts/gen_mod_registry_snapshot.py`)
+so this works without network access in CI. `selftest.js`'s
+`ST_TIER_GATED_RECIPES`/`TG_TIER_INFO` checks (#49/#57's existing pattern)
+cover all 13 recipes this feature re-authors at L1.
+
 ### RPG skills (Phase 3)
 
 `instructions.md` asks for an RPG leveling system with skill categories

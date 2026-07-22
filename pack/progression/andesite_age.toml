@@ -178,6 +178,25 @@ locked = [
     # mapping and why it deviates from the item9 handoff's drafted
     # "netherite->Induction" guess.
     "id:extradelight:iron_spoon",
+
+    # #70: Sophisticated Storage's tier-upgrade items. Basic-to-copper is
+    # explicit-lock only (copper is never locked anywhere in this pack, same
+    # situation as sophisticatedbackpacks:copper_backpack above); the two
+    # iron-step upgrades are the real gate, patched via KubeJS (tier_gating.js)
+    # to also require an Andesite Alloy in addition to their stock iron - the
+    # gold/diamond/netherite tier-upgrade items chain off basic_to_iron_tier_
+    # upgrade/copper_to_iron_tier_upgrade so they need no lock/edit of their
+    # own, same "gate the chain's first crossing, not every rung" approach
+    # already used for the backpack family below. Stack Upgrade Tier 1
+    # (sophisticatedstorage's own, distinct from sophisticatedbackpacks'
+    # same-named item) uses only logs + upgrade_base stock - no natural gate
+    # at all - so it gets the same Andesite Alloy treatment as sophisticated-
+    # backpacks:stack_upgrade_starter_tier above.
+    "id:sophisticatedstorage:basic_to_copper_tier_upgrade",
+    "id:sophisticatedstorage:basic_to_iron_tier_upgrade",
+    "id:sophisticatedstorage:copper_to_iron_tier_upgrade",
+    "id:sophisticatedstorage:stack_upgrade_tier_1",
+    "id:sophisticatedstorage:stack_upgrade_tier_1_plus",
 ]
 always_unlocked = []
 
@@ -202,6 +221,21 @@ locked = [
 
     "id:ars_nouveau:enchanting_apparatus",
     "id:ars_nouveau:arcane_pedestal",
+
+    # #70: Sophisticated Storage. Base wood barrel/chest (sophisticatedstorage:
+    # barrel/chest, one registry name shared by every wood-color variant via a
+    # data component - verified against the mod's own recipe outputs) stay
+    # unlocked from rootborn, same baseline as Tom's Storage's dumb-storage
+    # tier and this file's own stone_wand/leather_backpack precedent. Copper
+    # tier is explicit-lock only (copper is never locked elsewhere in this
+    # pack); iron tier is the real KubeJS-enforced gate (see tier_gating.js) -
+    # gold/diamond/netherite chain off it and need no lock of their own here.
+    "id:sophisticatedstorage:copper_barrel",
+    "id:sophisticatedstorage:copper_chest",
+    "id:sophisticatedstorage:copper_shulker_box",
+    "id:sophisticatedstorage:iron_barrel",
+    "id:sophisticatedstorage:iron_chest",
+    "id:sophisticatedstorage:iron_shulker_box",
 ]
 always_unlocked = []
 
