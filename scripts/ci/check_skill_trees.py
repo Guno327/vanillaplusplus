@@ -137,18 +137,21 @@ def _rel(path, root):
 
 def _eval_experience_expr(expr, level):
     """Evaluates the tiny arithmetic subset this generator actually emits
-    for experience_per_level: `+`, `*`, and `pow(base, level)`, with the
-    single variable `level`. Not a general expression parser - just enough
-    to sample the curve for the monotonic/superlinear check below without
+    for experience_per_level: `+`, `*`, and `base ^ level` (puffish_skills'
+    own exponentiation operator - see issue #79 and gen_skill_tree.py's
+    module docstring point 6 for why it's `^`, not a `pow(...)` function
+    call, in this mod's expression engine), with the single variable
+    `level`. Not a general expression parser - just enough to sample the
+    curve for the monotonic/superlinear check below without
     hand-duplicating puffish_skills' own (unavailable-in-Python) engine."""
     safe_expr = expr.replace("level", str(level))
-    # Anything beyond digits/operators/whitespace/`pow` itself is a syntax
+    # Anything beyond digits/operators/whitespace/`^` itself is a syntax
     # this checker doesn't understand - fail loudly instead of silently
     # eval-ing something unexpected.
-    if not re.fullmatch(r"[0-9+\-*/.,() a-z]*", safe_expr):
+    if not re.fullmatch(r"[0-9+\-*/.,()^ a-z]*", safe_expr):
         raise ValueError(f"unrecognized characters in experience expression: {expr!r}")
-    safe_expr = safe_expr.replace("pow(", "__pow__(")
-    return eval(safe_expr, {"__builtins__": {}}, {"__pow__": pow})
+    safe_expr = safe_expr.replace("^", "**")
+    return eval(safe_expr, {"__builtins__": {}}, {})
 
 
 def check_skill_trees(root):

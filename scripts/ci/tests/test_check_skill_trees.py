@@ -28,7 +28,7 @@ def _write_valid_category(
     skills=None,
     definitions=None,
     connections=None,
-    experience_expr="70 * pow(1.13, level)",
+    experience_expr="70 * (1.13 ^ level)",
     attribute="generic.luck",
     operation="addition",
 ):
@@ -198,7 +198,7 @@ class TestCheckSkillTrees(unittest.TestCase):
     def test_exponential_experience_curve_passes(self):
         with tempfile.TemporaryDirectory() as tmp:
             _write_config(tmp, ["test_cat"])
-            _write_valid_category(tmp, experience_expr="70 * pow(1.13, level)")
+            _write_valid_category(tmp, experience_expr="70 * (1.13 ^ level)")
             errors, _ = check_skill_trees.check_skill_trees(Path(tmp))
             self.assertEqual(errors, [])
 

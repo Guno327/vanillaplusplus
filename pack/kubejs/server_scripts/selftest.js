@@ -52,6 +52,16 @@ const ST_SKILL_CATEGORIES = [
     'magic', 'mining', 'running', 'sailing', 'smithing', 'spears',
     'swimming', 'swords', 'tachi', 'taming', 'trading', 'woodcutting',
 ]
+// Issue #71 also expanded 15 -> 34 skill nodes per category - kept in sync
+// by hand with gen_skill_tree.py's per-category node count (12 -> 23
+// categories x 15 -> 34 nodes = 782 total, per
+// pack/kubejs/data/puffish_skills/puffish_skills/categories/*/skills.json).
+// Issue #77: this drifted out of sync with the actual shipped node count
+// once before (asserted 15 for two release cycles after #71 shipped 34) -
+// scripts/ci/check_selftest_skill_sync.py now cross-checks both this
+// constant and ST_SKILL_CATEGORIES above against the real generated data on
+// every fast-tier CI run so that can't happen silently again.
+const ST_SKILL_NODE_COUNT_PER_CATEGORY = 34
 const ST_COIN_ITEM_IDS = [
     'numismatics:spur', 'numismatics:bevel', 'numismatics:sprocket',
     'numismatics:cog', 'numismatics:crown', 'numismatics:sun',
@@ -126,7 +136,7 @@ stCheck('ProgressiveStages: 10 tier ids resolve on player.stages without throwin
     return { pass: true, detail: ST_TIER_IDS.length + ' ids resolved' }
 })
 
-stCheck('SkillsAPI: 12 skill categories all present', () => {
+stCheck('SkillsAPI: 23 skill categories all present', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
     let missing = []
     for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
@@ -134,10 +144,10 @@ stCheck('SkillsAPI: 12 skill categories all present', () => {
         let opt = ST_SkillsAPIClass.getCategory(catRl)
         if (!opt.isPresent()) missing.push(ST_SKILL_CATEGORIES[i])
     }
-    return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 12 present' : 'missing: ' + missing.join(',') }
+    return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 23 present' : 'missing: ' + missing.join(',') }
 })
 
-stCheck('SkillsAPI: all 12 skill categories have an Experience/level source (points wiring)', () => {
+stCheck('SkillsAPI: all 23 skill categories have an Experience/level source (points wiring)', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
     let missing = []
     for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
@@ -146,7 +156,7 @@ stCheck('SkillsAPI: all 12 skill categories have an Experience/level source (poi
         if (!catOpt.isPresent()) { missing.push(ST_SKILL_CATEGORIES[i] + '(category missing)'); continue }
         if (!catOpt.get().getExperience().isPresent()) missing.push(ST_SKILL_CATEGORIES[i])
     }
-    return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 12 wired' : 'missing Experience: ' + missing.join(',') }
+    return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 23 wired' : 'missing Experience: ' + missing.join(',') }
 })
 
 // issue #24 ("plenty of skill points but unable to allocate them") ground-
@@ -178,12 +188,12 @@ stCheck('SkillsAPI: all 12 skill categories have an Experience/level source (poi
 // plus that every "definition" reference resolves, catching this bug class
 // (and the silent-node-drop variant) well before a boot is ever attempted.
 // What L1 CAN and does check here instead: that every category's skill
-// node count survived config parsing intact (15/15) - a bad "definition"
+// node count survived config parsing intact (34/34) - a bad "definition"
 // reference doesn't fail the datapack load, it silently drops just that
 // node (net.puffish.skillsmod.config.skill.SkillConfig.parse), which would
-// show up here as a category with fewer than 15 skills reachable through
+// show up here as a category with fewer than 34 skills reachable through
 // the API.
-stCheck('SkillsAPI: all 12 skill categories retained their full 15-node skill count after parsing', () => {
+stCheck('SkillsAPI: all 23 skill categories retained their full 34-node skill count after parsing', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
     let bad = []
     for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
@@ -191,9 +201,9 @@ stCheck('SkillsAPI: all 12 skill categories retained their full 15-node skill co
         let catOpt = ST_SkillsAPIClass.getCategory(catRl)
         if (!catOpt.isPresent()) { bad.push(ST_SKILL_CATEGORIES[i] + '(category missing)'); continue }
         let count = catOpt.get().streamSkills().toArray().length
-        if (count !== 15) bad.push(ST_SKILL_CATEGORIES[i] + '=' + count)
+        if (count !== ST_SKILL_NODE_COUNT_PER_CATEGORY) bad.push(ST_SKILL_CATEGORIES[i] + '=' + count)
     }
-    return { pass: bad.length === 0, detail: bad.length === 0 ? 'all 12 have 15/15 nodes' : 'bad counts: ' + bad.join(',') }
+    return { pass: bad.length === 0, detail: bad.length === 0 ? ('all 23 have ' + ST_SKILL_NODE_COUNT_PER_CATEGORY + '/' + ST_SKILL_NODE_COUNT_PER_CATEGORY + ' nodes') : 'bad counts: ' + bad.join(',') }
 })
 
 stCheck('Numismatics: bank account/balance reachable for a player', (server, player) => {
