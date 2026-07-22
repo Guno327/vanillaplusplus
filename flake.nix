@@ -2,14 +2,22 @@
   description = ''
     Vanilla++ dedicated server -- a NixOS module (primary deliverable) plus
     an optional standalone unpack helper, never deployed from this repo's
-    working tree. As of #28, the server bundle is fetched declaratively
-    straight from its GitHub release asset by default (nix/release.json's
+    working tree. The server bundle is fetched declaratively straight from
+    this repo's own GitHub release asset (nix/release.json's
     repo/tag/assetName/sha256, verified via pkgs.fetchurl's sha256 check)
     -- a manually downloaded release zip remains supported as an explicit
-    override for a custom/older/different build. A Modrinth CDN fetch was
-    tried first but depends on the Modrinth project's own review status,
-    which stalled; GitHub's asset URL only became usable unauthenticated
-    once this repo went public (see DECISIONS.md for the full history).
+    override for a custom/older/different build.
+
+    "Latest release" here means the newest release AS PINNED by
+    nix/release.json, which scripts/update_nix_release.py rewrites on every
+    mint. That indirection is not incidental: a flake cannot resolve
+    "whatever is newest right now" during a pure evaluation, because
+    pkgs.fetchurl needs the hash up front. Consumers therefore pick up a new
+    release the ordinary Nix way -- `nix flake update` on the input that
+    points at this repo -- rather than by the flake silently changing under
+    them. A Modrinth CDN fetch was tried first (#28) and abandoned: it
+    depends on Modrinth's own project-review status, which is still pending
+    (#44), while this repo is public so its asset URL needs no credentials.
     See README.md's "Running on NixOS" section for host setup.
   '';
 

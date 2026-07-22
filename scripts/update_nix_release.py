@@ -27,17 +27,18 @@ What it does:
    Accept: application/octet-stream asset-API endpoint), confirms the
    size matches the API's reported size, and hashes it - the canonical
    bytes are what got uploaded, never the local working tree.
-4. Queries Modrinth's public API for the version whose version_number
-   matches this release, and within it the file matching the same
-   asset name, for its CDN url + sha512 (retries briefly - the Modrinth
-   publish workflow that uploads it runs asynchronously off the same
-   GitHub release and may not have finished yet; non-fatal if it never
-   shows up, this step is just skipped with a warning and can be re-run
-   alone later via --modrinth-only).
-5. Writes nix/release.json with the new tag/version/assetId/assetApiUrl/
-   size/sha256 (SRI form)/sha256Hex (plain hex) plus, if found, a
-   `modrinth` object (projectId/versionId/serverAssetUrl/serverAssetSha512)
-   that nix/module.nix's default `serverArchive` fetchurl actually uses.
+4. Writes nix/release.json with the new tag/version/assetId/assetApiUrl/
+   size/sha256 (SRI form)/sha256Hex (plain hex). That GitHub pin is what
+   nix/module.nix's default `serverArchive` fetchurl actually uses.
+
+Modrinth is OPT-IN (--modrinth / --modrinth-only), not part of a normal
+mint. It used to run unconditionally, back when the module preferred a
+Modrinth CDN url; the module has fetched straight from the GitHub release
+asset since #28, and this repo is public so that url needs no credentials.
+Leaving the lookup on cost every mint ~30s of "not visible yet" retries and
+ended with a "re-run with --modrinth-only" instruction for a pin nothing
+reads - purely misleading, since the Modrinth project is still in draft and
+its public API 404s (#44).
 
 Auth: needs a GitHub token with at least read access to this repo's
 releases (the repo is public, so this is mostly about rate limits, not
@@ -49,11 +50,11 @@ Never hardcode a token in this file or print one it reads. Modrinth's API
 needs no auth at all - it's a public read.
 
 Usage:
-  python3 scripts/update_nix_release.py                # latest release
+  python3 scripts/update_nix_release.py                # newest release
   python3 scripts/update_nix_release.py --tag v0.1.0   # a specific tag
-  python3 scripts/update_nix_release.py --modrinth-only --tag v0.2.0
-    # re-run just the Modrinth lookup against an already-written
-    # nix/release.json, once the async publish workflow has finished
+  python3 scripts/update_nix_release.py --modrinth --tag v0.3.0
+    # also look up + record the optional Modrinth pin (opt-in; only
+    # meaningful once the Modrinth project is out of draft - see #44)
 """
 import argparse
 import base64
@@ -240,7 +241,7 @@ def fetch_modrinth_server_file(version: str, asset_name: str) -> dict | None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--tag", default=None, help="release tag to pin (default: latest)")
+    ap.add_argument("--tag", default=None, help="release tag to pin (default: newest published release, prereleases included)")
     ap.add_argument("--token", default=None, help="GitHub token (prefer env var instead)")
     ap.add_argument(
         "--scratch",
@@ -248,9 +249,15 @@ def main() -> None:
         help="scratch dir for the downloaded asset (default: /tmp/vpp-nix-release-scratch)",
     )
     ap.add_argument(
+        "--modrinth",
+        action="store_true",
+        help="also look up and record the optional Modrinth pin (opt-in; nothing in "
+             "nix/module.nix reads it - see #44)",
+    )
+    ap.add_argument(
         "--modrinth-only",
         action="store_true",
-        help="skip the GitHub download/hash pass and only (re-)fetch the Modrinth `modrinth` "
+        help="skip the GitHub download/hash pass and only (re-)fetch the optional Modrinth `modrinth` "
              "fields into the existing nix/release.json - use once the async publish workflow "
              "has actually finished, if the main run above warned it hadn't yet",
     )
@@ -274,7 +281,19 @@ def main() -> None:
     if args.tag:
         release = api_get(f"/repos/{REPO}/releases/tags/{args.tag}", token)
     else:
-        release = api_get(f"/repos/{REPO}/releases/latest", token)
+        # NOT /releases/latest: that endpoint excludes prereleases, and every
+        # release this project has ever cut is a disclosed beta prerelease, so
+        # it 404s here (hit for real during the v0.3.0 mint). List instead and
+        # take the newest by published date, prereleases included - drafts
+        # excluded, since a draft has no downloadable asset to pin.
+        releases = api_get(f"/repos/{REPO}/releases?per_page=20", token)
+        published = [r for r in releases if not r.get("draft")]
+        if not published:
+            print(f"error: no published releases found on {REPO}", file=sys.stderr)
+            sys.exit(1)
+        release = max(published, key=lambda r: r.get("published_at") or r.get("created_at") or "")
+        print(f"resolved newest release: {release['tag_name']}"
+              f"{' (prerelease)' if release.get('prerelease') else ''}")
 
     tag = release["tag_name"]
     assets = release.get("assets", [])
@@ -325,24 +344,25 @@ def main() -> None:
     else:
         print(f"detected NeoForge version: {neoforge_version}")
 
-    print(f"== looking up Modrinth version {version!r} (project {MODRINTH_PROJECT_ID}) ==")
-    modrinth = fetch_modrinth_server_file(version, asset["name"])
+    if args.modrinth:
+        print(f"== looking up Modrinth version {version!r} (project {MODRINTH_PROJECT_ID}) ==")
+        modrinth = fetch_modrinth_server_file(version, asset["name"])
+    else:
+        modrinth = None
 
     data = {
         "_comment": (
             "Pin of the current minted release's server bundle. nix/module.nix's "
-            "serverArchive option defaults to fetching `modrinth.serverAssetUrl` (a "
-            "stable, public, unauthenticated Modrinth CDN URL) via pkgs.fetchurl, "
-            "verified against `modrinth.serverAssetSha512` at evaluation time - a real "
-            "declarative fetch, not a runtime check. The top-level assetId/assetApiUrl/"
-            "sha256 fields are the GitHub side of the same release, kept as the "
-            "informational reference the module's sync script warns (doesn't fail) "
-            "against if an operator points serverArchive at a manual/custom build "
-            "instead. Regenerated by scripts/update_nix_release.py at every release cut "
-            "(see HANDOFF.md's release pipeline) -- do not hand-edit except for "
-            "emergencies, and re-run the script afterward to confirm the hash still "
-            "matches. If `modrinth` is missing, the async publish-modrinth.yml workflow "
-            "hadn't finished when this was generated - re-run with --modrinth-only."
+            "serverArchive option defaults to fetching this release's GitHub asset "
+            "(repo/tag/assetName) via pkgs.fetchurl, verified against `sha256` at "
+            "build time - a real declarative fetch, not a runtime check. This repo is "
+            "public, so that url needs no credentials. Regenerated by "
+            "scripts/update_nix_release.py at every release cut (see HANDOFF.md's "
+            "release pipeline) -- do not hand-edit except for emergencies, and re-run "
+            "the script afterward to confirm the hash still matches. An optional "
+            "`modrinth` object may also be present if the pin was generated with "
+            "--modrinth; nothing in the module reads it today, and it stays absent "
+            "while the Modrinth project is in draft (#44)."
         ),
         "repo": REPO,
         "tag": tag,
@@ -360,11 +380,12 @@ def main() -> None:
         data["modrinth"] = {"projectId": MODRINTH_PROJECT_ID, **modrinth}
     RELEASE_JSON.write_text(json.dumps(data, indent=2) + "\n")
     print(f"wrote {RELEASE_JSON}")
-    if modrinth is None:
+    if args.modrinth and modrinth is None:
         print(
-            "Next: re-run `python3 scripts/update_nix_release.py --modrinth-only --tag "
-            f"{tag}` once the publish-modrinth.yml workflow run for this release has "
-            "finished, then git add nix/release.json && commit."
+            "note: the Modrinth pin was requested but the version was not visible - "
+            "the publish workflow may still be running, or the project is still in "
+            "draft (#44). Nothing in nix/module.nix reads that pin, so this does not "
+            "block anything."
         )
     else:
         print("Next: git add nix/release.json && commit -- the flake now resolves this pinned release.")
