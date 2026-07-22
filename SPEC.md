@@ -73,18 +73,39 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   `awaiting-approval` (recipe-reachability audit tool, feasibility
   posted); #62 `fix-in-progress` (L3's `gui` screen check passes
   vacuously — needs the same resend-until-answered loop as `connect`);
-  #64 (`build_server.py` cannot bootstrap NeoForge on a fresh machine);
+  #64 (`build_server.py` cannot bootstrap NeoForge on a fresh machine —
+  the bootstrap itself now works on `fix/64-neoforge-bootstrap`, but the
+  acceptance test still fails: a freshly installed server writes
+  `eula=false` and L0 never reaches a `Done (` marker. Same run exposed a
+  second defect — `l0_boot_smoke.sh` hardcodes `/tmp/vpp_l0_boot_smoke.log`,
+  so concurrent worktree runs overwrite each other's evidence);
   #65 (recorded coverage gap: selftest.js player-gated checks are
   unexercised in every tier — dead ends documented, no action scheduled).
-- Open (owner-filed gameplay backlog, 2026-07-22, all owner-`approved`
-  except #66 which is a bug): #66 (new quest system's quests do not show
-  in the vanilla advancements GUI), #67 (Overgeared forging minigames
-  integrated with Silent Gear quality), #68 (bundle Iris + a recommended
-  minimalist shader in the client pack), #69 (QoL pass 2: right-click
-  harvest, 25% sleep-skip, ladder climbing, inventory trash can), #70
-  (Sophisticated Storage tiers alongside Tom's Simple Storage), #71
-  (skill-tree expansion: many more nodes, no exclusivity, smaller
-  per-node uplift, more categories, exponential skill-point costs).
+- Owner-filed gameplay backlog (2026-07-22, all owner-`approved` except
+  #66 which is a bug), as of the post-v0.3.0 wave:
+  - **#66 merged** (#74) — the quest advancement tab never appeared
+    because the tree root was gated on `minecraft:impossible` and nothing
+    granted it; roots are now `minecraft:tick` and every quest is
+    parented directly to the root, since
+    `AdvancementVisibilityEvaluator.VISIBILITY_DEPTH` is literally 2 and
+    this pack's quest graph chains 30 deep. Six invariants added to
+    `check_advancements.py`. Stays open under `verify-in-game`: nothing
+    in L0–L3 opens the advancement GUI.
+  - **#71 merged** (#75) — skill trees go from 12 categories / 180 nodes
+    to 23 / 782, with zero `exclusive` connections. This **supersedes**
+    the exclusive-fork design ("Item 11", DECISIONS.md) and the
+    exclusivity half of #1; `/respec` survives, its re-lock path does
+    not. Stays open under `verify-in-game` for respec/root re-lock,
+    whether `mount_speed` affects boats, and XP-curve feel.
+  - **#70 in development** — Sophisticated Storage tiered between Tom's
+    Simple Storage and Refined Storage, on `feat/70-sophisticated-storage`.
+    Rewrites `pack/manifest.json` + `pack/mods.lock.json`, which is why
+    **#67, #68 and #69 are serialized behind it** — landing or explicitly
+    parking #70 is what unblocks that queue.
+  - Queued: #67 (Overgeared forging minigames integrated with Silent Gear
+    quality), #68 (bundle Iris + a recommended minimalist shader in the
+    client pack), #69 (QoL pass 2: right-click harvest, 25% sleep-skip,
+    ladder climbing, inventory trash can).
 - Deployment: NixOS module in `flake.nix` + `nix/`. Defaults to a
   declarative `pkgs.fetchurl` straight from the pinned release's GitHub
   asset (`nix/release.json`'s repo/tag/assetName/sha256, unconditionally
