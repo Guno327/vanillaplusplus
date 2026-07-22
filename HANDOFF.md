@@ -86,6 +86,29 @@ mod set joins the dedicated server, survives a 45s post-join settle window
 past Sable's historical ~29s mark without disconnecting, and is not
 sitting on a loading/dirt-message screen.
 
+**#49 ROOT-CAUSED AND FIXED (2026-07-22, later the same day)** — superseding
+the "#49 did NOT reproduce" paragraph below, which is kept for the record.
+The owner's full client log from a fresh `v0.2.1` freeze ends in an
+unbounded repeat of JEI's `Ingredients are being added at runtime: 249
+FluidStack`. Cause: **ProgressiveStages 3.0.1's JEI plugin feedback-loops
+with JEI** — its ingredient listener calls `scheduleRefresh()`, the queued
+refresh clears its own re-entry guard before running, and 3.0.1's
+`refreshLockedFluids()` re-adds every unlocked fluid via
+`addIngredientsAtRuntime`, which JEI notifies listeners for
+unconditionally. `2.1` (what `v0.2.0` shipped) early-returns from that
+method when no mod is locked, and this pack locks none — 3.0.1 dropped
+that guard and only ever arrived as a drive-by re-resolve bump during #32.
+Fix: **`progressivestages` pinned to `2.1`** in `pack/manifest.json` +
+lockfile, mechanism recorded in the manifest note. Verified L0 green, and
+L3 with a new direct assertion: **0** runtime ingredient-add passes on 2.1
+vs **2506** in the same 45s window on 3.0.1 (deliberate positive control).
+**L3 now reproduces #49** — the old "does not reproduce" finding was a gap
+in what L3 looked at. Full writeup in `DECISIONS.md`. Two things stay
+open on #49: an upstream bug report, and the *item*-path variant of the
+same loop (`refreshJei()` re-adds owned locked item ids unconditionally in
+**both** versions) — inert at `rootborn` because that tier locks nothing,
+unproven once a tier is unlocked. Owner still needs to confirm in-game.
+
 **#49 did NOT reproduce there, which is not the same as fixed.** The owner
 reproduced the hang on v0.2.1 by hand; L3 does not. Something differs
 between the two environments - L3 runs Mesa llvmpipe software rendering,

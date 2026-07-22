@@ -1056,3 +1056,88 @@ via `record-output`, streaming file push). Needed because the dev box has
 no `incus`/`lxc` CLI and no `curl`, and Ubuntu Core offers no apt or root
 to install any. One trap encoded in it: a raw `+` in a query path decodes
 to a space, so anything under `vanilla++` 404s unless the path is quoted.
+
+## #49 root-caused and fixed: ProgressiveStages 3.0.1's JEI plugin loops with JEI (2026-07-22)
+
+Owner retested the hang on `v0.2.1` and it still froze at "Loading
+Terrain", with a full client log this time. The log ends in an unbounded
+repeat of JEI's `Ingredients are being added at runtime: 249 FluidStack`,
+starting seconds after the join — that is the bug, and it is neither
+Sable nor a rendering issue.
+
+**Mechanism, `javap`-verified against the actual jars, not inferred:**
+
+1. `ProgressiveStagesJEIPlugin.onRuntimeAvailable` registers an
+   `IIngredientManager.IIngredientListener` whose `onIngredientsAdded` and
+   `onIngredientsRemoved` each do exactly one thing: call
+   `scheduleRefresh()`.
+2. `scheduleRefresh()` guards re-entry with an `AtomicBoolean`, but the
+   task it queues clears that guard *before* doing the work
+   (`lambda$scheduleRefresh$4`: `refreshQueued.set(false)` then
+   `refreshJei()`), so the guard cannot suppress anything the refresh
+   itself triggers.
+3. `3.0.1`'s `refreshLockedFluids()` walks all of
+   `BuiltInRegistries.FLUID` and re-adds every unlocked fluid through
+   `IIngredientManager.addIngredientsAtRuntime` unconditionally — no diff
+   against what JEI already holds.
+4. JEI's `IngredientManager.addIngredientsAtRuntime` notifies every
+   listener with the whole submitted list unconditionally (only invalid /
+   not-on-server entries are filtered). Back to step 1, forever, with
+   JEI's multi-second ingredient-filter rebuild running each pass.
+
+`2.1` — what `v0.2.0` shipped — has the same listener, but its
+`refreshLockedFluids()` **early-returns when `LockRegistry.getAllLockedMods()`
+is empty**, and no tier TOML in this pack locks a mod, so that path never
+runs. 3.0.1 removed that guard. Crucially, 3.0.1 was never a requested
+upgrade: it rode in as a drive-by `resolve_mods.py` bump during #32.
+
+**Fix: pin `progressivestages` to `2.1`** in `pack/manifest.json` (+
+lockfile), with the full mechanism recorded in the manifest note so nobody
+unpins it without re-checking that early-return. The two *other* drive-by
+bumps that the re-resolve wanted to bring along (`c2me` 0.115→0.116,
+`noisiumed` 3.0.5→3.0.6) were deliberately reverted out of this change —
+an unvetted drive-by bump is what caused this bug in the first place.
+
+**No config could have avoided this.** Only `emi.show_locked_recipes` is
+read by the JEI plugin, and it does not gate the fluid re-add;
+`emi.enabled` gates the EMI plugin only. JEI has no plugin blacklist
+(checked the jar). Verified there is no in-pack toggle before choosing a
+downgrade.
+
+**Verification.** L0 green with 2.1 (89 server mods, 0 KubeJS
+errors/warnings, no unbaselined WARN/ERROR). L3 on the Incus host, now
+with a direct counter for this failure mode:
+
+- `2.1`: **0** runtime ingredient-add passes in the 45s settle window →
+  `L3 PASS`.
+- `3.0.1` (deliberate positive control, same host, same run script):
+  **2506** passes in the same 45s window → `L3 FAIL` on the new
+  assertion.
+
+So **L3 now reproduces #49** — the previous session's "L3 does not
+reproduce it" was a gap in what L3 *looked at*, not a difference in
+behaviour. The client still completes the join under llvmpipe, which is
+why the dirt-screen check alone passed while the client was in fact
+burning ~55 refresh passes/second.
+
+`RUNTIME_INGREDIENT_ADD_MAX = 25` in `scripts/tests/l3_client_join.py` is
+the guard, counted over the post-join slice only so JEI's own startup
+registrations cannot trip it. The separation between 0 and 2506 is wide
+enough that the exact cap is not delicate.
+
+**Known residual, tracked on #49, not fixed here:** `refreshJei()`'s
+*item* path re-adds every locked item id the player already owns,
+unconditionally, in **both** versions. It is inert today because
+`rootborn.toml` locks nothing and a fresh player therefore owns no locked
+ids — the owner's log shows zero item adds — but it is the same shape of
+bug and may fire once a tier is unlocked. Needs a live join as a player
+holding `andesite_age` to settle. An upstream bug report covering both
+paths is the real fix; the mod is actively developed (3.0.1 is three days
+old).
+
+**Harness note from these runs:** the `gui` screen dump failed with
+"Couldn't find command for '[gui]'" — the known launcher/game stdin race
+(item 3 in the previous entry) hitting a command that, unlike `connect`,
+is not resent until confirmed. The screen check therefore passed
+vacuously in these runs and the new ingredient-add counter carried the
+assertion. Worth making `gui` resend-until-answered.

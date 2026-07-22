@@ -21,18 +21,18 @@
     {
       "slug": "progressivestages",
       "project_id": "rY4mdP4Q",
-      "version_id": "NfFrk2e7",
-      "version_number": "3.0.1",
-      "filename": "progressivestages-3.0.1.jar",
-      "url": "https://cdn.modrinth.com/data/rY4mdP4Q/versions/NfFrk2e7/progressivestages-3.0.1.jar",
+      "version_id": "J1BsRBDq",
+      "version_number": "2.1",
+      "filename": "progressivestages-2.1.jar",
+      "url": "https://cdn.modrinth.com/data/rY4mdP4Q/versions/J1BsRBDq/progressivestages-2.1.jar",
       "hashes": {
-        "sha512": "99f2f3b6359cf80cdb6ee8326a4c079ebb9564da6be749c7d96cf591b09c4ceec813ff36ee7191b3eedfccb9910cf33248779d49286f91c90a5265ae002db5a9",
-        "sha1": "99028027cacd245fed7fe5813182c2fa00795e22"
+        "sha512": "2f8f3862b9dfab826ac191f33a2cf6ac7a646283cb75e1efd52574a174e41e5f4fb947faaa3fce853b721b5313edd2b3336584460396fafe1dc663c45e908909",
+        "sha1": "427fb7f4a33daa9bd94d5a4b6e36495403161619"
       },
-      "filesize": 1628662,
+      "filesize": 478877,
       "side": "both",
       "phase": 1,
-      "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases"
+      "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases. PINNED to 2.1 (GitHub #49): 3.0.1 - which arrived only as a drive-by re-resolve bump during #32, never a requested feature - hard-freezes every client on 'Loading Terrain'. Its client JEI plugin registers an IIngredientManager.IIngredientListener whose onIngredientsAdded/Removed call scheduleRefresh(), scheduleRefresh's AtomicBoolean guard is cleared by the queued task BEFORE refreshJei() runs (lambda$scheduleRefresh$4), and 3.0.1's refreshLockedFluids() walks all of BuiltInRegistries.FLUID re-adding every unlocked fluid via addIngredientsAtRuntime with no diff against JEI's current contents - which JEI notifies listeners for unconditionally (javap'd mezz/jei/library/ingredients/IngredientManager). Result: 249 fluids re-added per pass forever, each pass re-running the ~2.6s ingredient-filter rebuild. 2.1's refreshLockedFluids() early-returns when LockRegistry.getAllLockedMods() is empty, and no tier TOML in this pack locks a mod, so that path never runs. All bytecode-verified against both jars, not guessed. Do NOT unpin without re-checking that path. KNOWN RESIDUAL: refreshJei()'s ITEM path re-adds every locked item id the player already owns, unconditionally, in BOTH versions - harmless at rootborn (rootborn.toml locks nothing) but a suspected repeat of the same loop once a tier is unlocked; tracked on #49"
     },
     {
       "slug": "toms-storage",

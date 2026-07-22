@@ -118,6 +118,19 @@ FATAL_CLIENT_RE = re.compile(r'ModLoadingException|Exception in thread "main"|Co
 # client log. ModernFix is a hard dependency of the pack (pack/mods.lock.json),
 # so keying on it is safe here even though it is mod-specific.
 MAIN_MENU_RE = re.compile(r"Game took [\d.]+ seconds to start")
+# #49's second root cause, and the one this tier missed on its first green run:
+# ProgressiveStages 3.0.1's JEI plugin registers an ingredient listener that
+# calls scheduleRefresh(), while its own refresh re-adds every unlocked fluid
+# through IIngredientManager.addIngredientsAtRuntime - which notifies that same
+# listener unconditionally. The client then re-adds the pack's ~249 fluids (and
+# re-runs JEI's multi-second ingredient-filter rebuild) forever, which reads as
+# a permanent "Loading Terrain" freeze with no crash and no stack trace. JEI
+# logs one of these lines per pass, so a runaway count is a direct, cheap
+# signal for it. A healthy join emits a small handful (JEI's own startup plus
+# any legitimate one-shot runtime registration); the broken client emitted them
+# continuously for minutes.
+RUNTIME_INGREDIENT_ADD_RE = re.compile(r"Ingredients are being added at runtime")
+RUNTIME_INGREDIENT_ADD_MAX = 25
 
 
 def fail(msg):
@@ -438,9 +451,24 @@ def main():
                 f"the player-add - see {SERVER_LOG} / {CLIENT_LOG}"
             )
         print(f"== L3: server confirms {joined_username} joined ==")
+        pre_len_join_client = len(read(CLIENT_LOG))
 
         print(f"== L3: settle {SETTLE_S}s (past Sable's historical ~29s UDP failure window, #49) ==")
         time.sleep(SETTLE_S)
+
+        # #49's JEI-refresh-loop check. Counted over the post-join slice only,
+        # so JEI's own startup registrations (pre-join) can't trip it.
+        post_join_client = read(CLIENT_LOG)[pre_len_join_client:]
+        runtime_adds = len(RUNTIME_INGREDIENT_ADD_RE.findall(post_join_client))
+        print(f"== L3: {runtime_adds} runtime ingredient-add pass(es) since join "
+              f"(cap {RUNTIME_INGREDIENT_ADD_MAX}) ==")
+        if runtime_adds > RUNTIME_INGREDIENT_ADD_MAX:
+            fail(
+                f"{runtime_adds} 'Ingredients are being added at runtime' passes in the "
+                f"{SETTLE_S}s since join - a recipe-viewer plugin is in a refresh feedback "
+                f"loop and the client will never finish loading terrain (#49). See "
+                f"{CLIENT_LOG}, and pack/manifest.json's progressivestages pin note."
+            )
 
         text = read(SERVER_LOG)
         if DISCONNECT_RE.search(text) and joined_username in text[text.find(joined_username):]:
