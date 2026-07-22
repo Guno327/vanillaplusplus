@@ -14,13 +14,23 @@
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 JDK="$ROOT/.tools/jdk-21.0.11+10/bin"
-LOG="/tmp/vpp_l0_boot_smoke.log"
+# Log path must be unique per worktree/checkout, not just per test tier:
+# multiple git worktrees of this repo (e.g. wt-64, wt-70) run L0 concurrently
+# on this machine, and a fixed /tmp path lets one worktree's run silently
+# clobber another's log mid-boot - this actually happened during this
+# session and destroyed evidence. Derive a tag from $ROOT (worktree dirname
+# + a short hash of the full path, so same-named dirs on different machines
+# or ancestors still can't collide) rather than hardcoding a bare filename.
+WORKTREE_TAG="$(basename "$ROOT")_$(printf '%s' "$ROOT" | cksum | cut -d' ' -f1)"
+LOG="/tmp/vpp_l0_boot_smoke_${WORKTREE_TAG}.log"
 FIFO="$ROOT/server/cmd_fifo"
 
 fail() {
     echo "L0 FAIL: $1" >&2
     exit 1
 }
+
+echo "== L0: log file for this run: $LOG =="
 
 echo "== L0: build server/ from pack/mods.lock.json =="
 cd "$ROOT" || fail "cannot cd to repo root"
@@ -36,6 +46,24 @@ if [ "$EXPECTED_JAR_COUNT" != "$LOCKFILE_SERVER_COUNT" ]; then
     fail "server/mods jar count ($EXPECTED_JAR_COUNT) != lockfile side!=client count ($LOCKFILE_SERVER_COUNT)"
 fi
 echo "expected server mod count: $EXPECTED_JAR_COUNT (matches lockfile)"
+
+echo "== L0: agree to the EULA for this throwaway test boot only =="
+# scripts/build_server_bundle.py deliberately EXCLUDES eula.txt from the
+# shipped server bundle (see its header comment) - end users must make
+# their own agreement to the Minecraft EULA, this project must not
+# pre-accept it on a stranger's behalf. build_server.py (the bootstrap
+# under test elsewhere) rightly does not write eula.txt either. But this
+# script boots a throwaway LOCAL server purely to smoke-test our own build,
+# never shipped or shown to anyone else - that is a fundamentally different
+# act from shipping a pre-agreed EULA to an end user, so only this harness
+# may assert eula=true, and only in the gitignored server/ build artifact,
+# never in anything committed or bundled. Without this, a fresh checkout's
+# freshly-written server/eula.txt defaults to eula=false and the server
+# refuses to start ("You need to agree to the EULA..."), which is exactly
+# what masked issue #64's real bootstrap defect: this repo's own long-lived
+# dev checkout had eula.txt hand-set to true (server/ is untracked) and
+# nobody ever saw a fresh-checkout boot fail on this until now.
+echo "eula=true" > "$ROOT/server/eula.txt"
 
 echo "== L0: boot server (nogui, 240s timeout) =="
 cd "$ROOT/server" || fail "cannot cd to server/"

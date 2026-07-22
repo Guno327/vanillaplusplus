@@ -13,6 +13,7 @@ boots + greps the KubeJS command's own summary line).
 Usage: python3 scripts/tests/l1_selftest.py
 Exit code 0 = PASS, nonzero = FAIL.
 """
+import hashlib
 import re
 import shutil
 import subprocess
@@ -23,7 +24,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent.parent
 SERVER = ROOT / "server"
 JDK_BIN = ROOT / ".tools" / "jdk-21.0.11+10" / "bin"
-LOG = Path("/tmp/vpp_l1_selftest.log")
+# Unique per worktree/checkout (see l0_boot_smoke.sh's LOG comment for why:
+# concurrent worktrees on this machine can otherwise clobber each other's
+# fixed-path /tmp log mid-boot and destroy evidence).
+_WORKTREE_TAG = f"{ROOT.name}_{hashlib.sha1(str(ROOT).encode()).hexdigest()[:10]}"
+LOG = Path(f"/tmp/vpp_l1_selftest_{_WORKTREE_TAG}.log")
 FIFO = SERVER / "cmd_fifo"
 BOOT_TIMEOUT_S = 200
 COMMAND_TIMEOUT_S = 30
@@ -52,6 +57,7 @@ def strip_ansi(text):
 
 
 def main():
+    print(f"== L1: log file for this run: {LOG} ==")
     run_build_server()
 
     if FIFO.exists():

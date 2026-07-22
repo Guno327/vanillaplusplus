@@ -40,7 +40,11 @@ SERVER_MODS = ROOT / "server" / "mods"
 HEADLESSMC_DIR = Path("/tmp/vpp-research/headlessmc")
 LAUNCHER_JAR = HEADLESSMC_DIR / "headlessmc-launcher.jar"
 JDK_BIN = ROOT / ".tools" / "jdk-21.0.11+10" / "bin"
-LOG = Path("/tmp/vpp_l2_client_smoke.log")
+# Unique per worktree/checkout - see l0_boot_smoke.sh's LOG comment: a fixed
+# /tmp path lets concurrent worktrees on this machine clobber each other's
+# log mid-run.
+_WORKTREE_TAG = f"{ROOT.name}_{hashlib.sha1(str(ROOT).encode()).hexdigest()[:10]}"
+LOG = Path(f"/tmp/vpp_l2_client_smoke_{_WORKTREE_TAG}.log")
 UA = {"User-Agent": "vanilla-plus-plus/0.1 (+github.com/gunnarhovik327)"}
 LAUNCH_TIMEOUT_S = 300
 
@@ -212,6 +216,7 @@ MIN_EXPECTED_MODID_COUNT = 70  # sanity floor, well under the true ~90 (incl. ja
 
 
 def main():
+    print(f"== L2: log file for this run: {LOG} ==")
     lock = load_lock()
     client_mods = [m for m in lock["mods"] if m["side"] != "server"]
 
