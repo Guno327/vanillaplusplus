@@ -48,43 +48,46 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   Release pipeline runbook in `HANDOFF.md`; each mint must repin
   `nix/release.json` (`scripts/update_nix_release.py`).
 
-## Current status (2026-07-21)
+## Current status (2026-07-22, post-v0.3.0 owner confirmation)
 
-- v0.2.1 shipped (beta/prerelease) via the first live `mint-release.yml`
-  run: sole content change is #50 — disabling Sable's UDP pipeline
-  (`pack/config/sable-common.toml`), fixing the "Loading Terrain" hang on
-  every client join (#49, owner-reported against v0.2.0). #49 stays open
-  (`fix-pushed` + `verify-in-game`) until a human join confirms it. The
-  mint worked end-to-end except its final open-sync-PR step, which the
-  repo's Actions settings refused; PM opened PR #51 by hand (merged), and
-  #52 (`needs-owner`) asks the owner to flip the one checkbox that fixes
-  future mints. `pack/VERSION` is `0.2.1`.
-- v0.2.0 shipped (beta/prerelease): FTB suite fully removed for
-  redistribution-permission reasons (#28) — Open Parties and Claims for
-  teams/claims (#32), bespoke KubeJS quest tracker + advancement GUI
-  (#33/#36) — plus the QoL wave (#13/#14/#16) and the skill-point
-  allocation fix (#24). `pack/VERSION` is `0.2.0`.
-- CI exists: `ci.yml` (fast tier, every PR/push to main), `boot.yml`
-  (L0+L1 boot tier, weekly + dispatch), `mint-release.yml`
-  (dispatch-anytime release minting from main, #27),
-  `publish-modrinth.yml` (Modrinth publish on release / dispatch).
-- Open: `verify-in-game` issues #1–#3, #19, and #49 (owner-only hand
-  verification — #49 retested on v0.2.1 and still reproduces for the owner
-  despite #50's Sable-UDP fix, which is confirmed inert at runtime; L3 now
-  runs a real live join green and does **not** reproduce the hang, which
-  narrows but does not close it — see HANDOFF.md before acting on that);
-  #47 (`approved`, largely delivered) — `scripts/tests/l3_client_join.py`
-  reaches `L3 PASS` on the owner-provided Incus host; its one unmet
-  acceptance criterion is the in-world `/vpp_selftest` run, deliberately
-  not asserted (KNOWN GAP in the script); #44 `needs-owner` (delete the stale FTB-embedding v0.1.1
-  draft version on Modrinth before the project goes public — no longer
-  blocks the Nix deployment default, see below); #52 `needs-owner`
-  (Actions PR-creation setting, above).
+- v0.3.0 shipped (prerelease) and **owner-confirmed working in game**
+  (#58: "Loads to world correctly now" — the first human-verified cut).
+  It resolves #49, the "Loading Terrain" freeze that survived two prior
+  fix attempts, by removing ProgressiveStages entirely: its client JEI
+  plugin fed its own ingredient-refresh notifications back into itself.
+  Progression now gates on materials and recipes alone (#56 — breaking
+  for both client and server; a v0.3.0 client cannot join a v0.2.1
+  server). Also in the cut: the JEI acquisition-info wave (#57, seven
+  info addons + pack-aware `jei_info.js`), mob difficulty scaling working
+  for the first time (wrong attribute-operation id, found by L3's
+  stage-grant probe), and #60 (below). `pack/VERSION` is `0.3.0`.
+- CI: `ci.yml` (fast tier, every PR/push to main), `boot.yml` (L0+L1,
+  weekly + dispatch), `mint-release.yml` (dispatch-anytime minting, #27 —
+  its final open-sync-PR step is now unblocked: the owner enabled the
+  Actions PR-creation setting, #52 closed), `publish-modrinth.yml`.
+  Suite at cut: L0/L1/L2/L3 all green; L3 (live client join, #47) is a
+  standing tier on the owner-provided Incus host (runbook in HANDOFF.md).
+- Open (engineering): `verify-in-game` #1–#3 (owner-only hand
+  verification); #44 `needs-owner` (Modrinth review + stale v0.1.1 draft
+  deletion — distribution reach only, blocks nothing technical); #61
+  `awaiting-approval` (recipe-reachability audit tool, feasibility
+  posted); #62 `fix-in-progress` (L3's `gui` screen check passes
+  vacuously — needs the same resend-until-answered loop as `connect`);
+  #64 (`build_server.py` cannot bootstrap NeoForge on a fresh machine);
+  #65 (recorded coverage gap: selftest.js player-gated checks are
+  unexercised in every tier — dead ends documented, no action scheduled).
+- Open (owner-filed gameplay backlog, 2026-07-22, all owner-`approved`
+  except #66 which is a bug): #66 (new quest system's quests do not show
+  in the vanilla advancements GUI), #67 (Overgeared forging minigames
+  integrated with Silent Gear quality), #68 (bundle Iris + a recommended
+  minimalist shader in the client pack), #69 (QoL pass 2: right-click
+  harvest, 25% sleep-skip, ladder climbing, inventory trash can), #70
+  (Sophisticated Storage tiers alongside Tom's Simple Storage), #71
+  (skill-tree expansion: many more nodes, no exclusivity, smaller
+  per-node uplift, more categories, exponential skill-point costs).
 - Deployment: NixOS module in `flake.nix` + `nix/`. Defaults to a
   declarative `pkgs.fetchurl` straight from the pinned release's GitHub
   asset (`nix/release.json`'s repo/tag/assetName/sha256, unconditionally
-  present) — switched off the Modrinth-CDN default from #43 the same day,
-  once the repo went public made an unauthenticated GitHub fetch possible
-  again and removed the dependency on Modrinth's own review timeline. A
+  present); Modrinth is off the mint's critical path entirely (#60). A
   manually-downloaded release zip remains a supported override (README
   "Running on NixOS").
