@@ -1,6 +1,17 @@
 {
   "minecraft": "1.21.1",
   "loader": "neoforge",
+  "loader_installer": {
+    "version": "21.1.235",
+    "url": "https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.235/neoforge-21.1.235-installer.jar",
+    "filename": "neoforge-21.1.235-installer.jar",
+    "hashes": {
+      "sha256": "58edd322dc3cbbcd5c75d9a44f93d01211fda2953665483077ddd41fbecf942c",
+      "sha512": "6d0164b145ac60a5b0ec72be64883e7a62bb501b142f6ae3bd9368dc201472520f01eb2b300de7feede6d675f941f93b2c7e18c1fb090376f9695f885d766d40"
+    },
+    "filesize": 6965992,
+    "_note": "Pinned NeoForge server installer (issue #64). Version MUST match pack/pack.toml [versions].neoforge - build_server.py hard-fails if they drift. Checksum obtained by downloading the real artifact from the url above (2026-07-22) and hashing it, not invented."
+  },
   "mods": [
     {
       "slug": "create",
