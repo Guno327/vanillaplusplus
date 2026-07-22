@@ -969,3 +969,90 @@ updated to match. The Modrinth publish workflow/pin itself
 (`publish-modrinth.yml`, `update_nix_release.py`'s `--modrinth-only`) is
 untouched — still useful for the Modrinth *listing* players can install
 from, just no longer what this module defaults to.
+
+## L3 live-join test made to actually run; #49 narrowed, not closed (2026-07-22)
+
+Owner provided permanent access to an Incus cluster so L3 could run
+somewhere with a display, and asked for L3 to become a standard part of
+the test suite. It now reaches `L3 PASS` reproducibly (five clean runs):
+a real client with the full mod set joins the dedicated server, survives a
+45s post-join settle window past Sable's historical ~29s mark, and is not
+sitting on a loading/dirt-message screen.
+
+**Every blocker was in the harness, not the pack.** Five distinct bugs,
+each of which independently prevented a join, listed because several are
+badly counter-intuitive and cost a full ~10-minute client boot apiece to
+find:
+
+1. **`hmc.check.xvfb=true` is the switch that matters, not `-lwjgl`.**
+   HeadlessMC installs its LWJGL redirection layer (stubbing
+   lwjgl-glfw/lwjgl-opengl into no-ops) *by default* — that is its whole
+   purpose. Its `-lwjgl` flag does not select the stub; per its own
+   `help launch` it "Removes lwjgl code, causing Minecraft not to render
+   anything", i.e. more headless, and neither L2 nor L3 ever passed it.
+   The previous revision of `l3_client_join.py` asserted the exact
+   opposite in its docstring and would have stayed broken on any machine.
+   With the property off, the client loads its entire mod set, reports
+   `OpenGL Vendor:` empty and `Backend API: NO CONTEXT`, and dies on
+   Sodium's fence object *while Xvfb is running perfectly*. With it on,
+   `XvfbService` shells out to `ps aux`, logs "Running with xvfb", skips
+   redirection, and the same run reports `OpenGL Renderer: llvmpipe`.
+2. **`connect` takes ip and port as separate arguments.** `connect
+   host:port` reaches hmc-specifics' ConnectCommand fine and then throws
+   inside it — Minecraft's `ServerAddress` hands the string to Guava's
+   `HostAndPort.fromParts()`, which rejects a host that already carries a
+   port. The IllegalArgumentException only appears as a stack trace in the
+   client log, so the symptom is just "never joined".
+3. **The launcher and the game race for the same stdin.** HeadlessMC gives
+   the game its own stdin, so each line written to the FIFO is delivered
+   to whichever process the kernel wakes. Lines landing on the launcher
+   are rejected with "Couldn't find command for '[connect, ...]', did you
+   mean 'help'?" and lost. This reads like a missing mod but is not —
+   launcher-side verbs like `quit` still work, so the relay looks healthy.
+   Fix is to resend until the server confirms the join. `-quit` is *not*
+   the fix: it makes the launcher delete the game's instrumented runtime
+   dir on the way out (only half-fixed by `hmc.keepfiles=true`) and, since
+   it relays the game's stdout, its exit kills the game before it renders
+   a frame.
+4. **The client instance never got `pack/{config,kubejs,defaultconfigs}`.**
+   `build_server.py` syncs these into `server/` and `build_mrpack.py`
+   ships them under `overrides/`, so real players are unaffected — but
+   nothing did the equivalent for the local research instance. The pack
+   registers its own items from `pack/kubejs/startup_scripts`, so the
+   client was kicked mid-handshake with "The server send registries with
+   unknown keys: ResourceKey[minecraft:item / vanillaplusplus:...]".
+   Looks exactly like a pack bug; is purely a stale test instance.
+5. **The server was killed mid-test by its own `timeout 300`.** A
+   hardcoded literal that could not track the other timeouts; the full run
+   (boot + ~3min client load + settle) exceeds it, so the server exited
+   during the post-join phase and the failure surfaced as a missing
+   assertion result rather than "the server died". Now derived from the
+   other constants.
+
+**#49: L3 does not reproduce it. That is not the same as fixed, and it
+must not be closed on this evidence.** The owner reproduced the hang by
+hand on v0.2.1; L3 does not. The environments differ in ways that could
+plausibly matter (Mesa llvmpipe software rendering, loopback networking, a
+freshly generated world), so the honest conclusion is that L3 fails to
+reproduce it, not that the bug is gone. Concrete lead for next session:
+the join log shows Sable's **client**-side UDP channel still going active
+and then closing — #50 disabled the *server* pipeline only.
+
+**Accepted gap**: L3 does not run `/vpp_selftest` as the joined player, so
+selftest.js's player-gated checks still SKIP and remain unexercised
+anywhere in the suite. Both available routes are dead ends with this
+toolchain: from the console `execute run vpp_selftest` works but
+`execute as <player> run vpp_selftest` (and `@a`) silently produces
+nothing — no result, no error, no exception, with the player provably
+online via a `list` probe and a 150s window; from the client,
+hmc-specifics 2.4.0's registered command surface accepts `connect`, `gui`
+and `menu` but rejects `command`, `./...` and even `disconnect`. Recorded
+as a KNOWN GAP in the script rather than faked or silently dropped; worth
+its own issue.
+
+**New tooling**: `scripts/incus_api.py`, a stdlib-only Incus REST client
+(TOFU server-cert pinning, async-operation waiting, websocket-free exec
+via `record-output`, streaming file push). Needed because the dev box has
+no `incus`/`lxc` CLI and no `curl`, and Ubuntu Core offers no apt or root
+to install any. One trap encoded in it: a raw `+` in a query path decodes
+to a space, so anything under `vanilla++` 404s unless the path is quoted.

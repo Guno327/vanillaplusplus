@@ -69,12 +69,17 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   (dispatch-anytime release minting from main, #27),
   `publish-modrinth.yml` (Modrinth publish on release / dispatch).
 - Open: `verify-in-game` issues #1–#3, #19, and #49 (owner-only hand
-  verification); #47 (`awaiting-approval`) — the L3 live-client-join test
-  tier feasibility record, develops only on owner-applied `approved`;
-  #44 `needs-owner` (delete the stale FTB-embedding v0.1.1 draft version
-  on Modrinth before the project goes public — no longer blocks the Nix
-  deployment default, see below); #52 `needs-owner` (Actions PR-creation
-  setting, above).
+  verification — #49 retested on v0.2.1 and still reproduces for the owner
+  despite #50's Sable-UDP fix, which is confirmed inert at runtime; L3 now
+  runs a real live join green and does **not** reproduce the hang, which
+  narrows but does not close it — see HANDOFF.md before acting on that);
+  #47 (`approved`, largely delivered) — `scripts/tests/l3_client_join.py`
+  reaches `L3 PASS` on the owner-provided Incus host; its one unmet
+  acceptance criterion is the in-world `/vpp_selftest` run, deliberately
+  not asserted (KNOWN GAP in the script); #44 `needs-owner` (delete the stale FTB-embedding v0.1.1
+  draft version on Modrinth before the project goes public — no longer
+  blocks the Nix deployment default, see below); #52 `needs-owner`
+  (Actions PR-creation setting, above).
 - Deployment: NixOS module in `flake.nix` + `nix/`. Defaults to a
   declarative `pkgs.fetchurl` straight from the pinned release's GitHub
   asset (`nix/release.json`'s repo/tag/assetName/sha256, unconditionally
