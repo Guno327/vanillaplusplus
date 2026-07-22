@@ -1,0 +1,173 @@
+{
+	"root": {
+		"definition": "repair_cost",
+		"root": true,
+		"x": 0,
+		"y": 0
+	},
+	"t0_1": {
+		"definition": "repair_cost",
+		"x": 32,
+		"y": -40
+	},
+	"t0_2": {
+		"definition": "experience_gain",
+		"x": 64,
+		"y": -100
+	},
+	"t0_3": {
+		"definition": "repair_cost",
+		"x": 96,
+		"y": -220
+	},
+	"t0_4": {
+		"definition": "experience_gain",
+		"x": 128,
+		"y": -220
+	},
+	"t0_5": {
+		"definition": "repair_cost",
+		"x": 96,
+		"y": -180
+	},
+	"t0_6": {
+		"definition": "experience_gain",
+		"x": 128,
+		"y": -180
+	},
+	"t0_7": {
+		"definition": "experience_gain",
+		"x": 64,
+		"y": -60
+	},
+	"t0_8": {
+		"definition": "repair_cost",
+		"x": 96,
+		"y": -140
+	},
+	"t0_9": {
+		"definition": "experience_gain",
+		"x": 128,
+		"y": -140
+	},
+	"t0_10": {
+		"definition": "repair_cost",
+		"x": 96,
+		"y": -100
+	},
+	"t0_11": {
+		"definition": "experience_gain",
+		"x": 128,
+		"y": -100
+	},
+	"t1_1": {
+		"definition": "sword_damage",
+		"x": 32,
+		"y": 0
+	},
+	"t1_2": {
+		"definition": "axe_damage",
+		"x": 64,
+		"y": -20
+	},
+	"t1_3": {
+		"definition": "sword_damage",
+		"x": 96,
+		"y": -60
+	},
+	"t1_4": {
+		"definition": "axe_damage",
+		"x": 128,
+		"y": -60
+	},
+	"t1_5": {
+		"definition": "sword_damage",
+		"x": 96,
+		"y": -20
+	},
+	"t1_6": {
+		"definition": "axe_damage",
+		"x": 128,
+		"y": -20
+	},
+	"t1_7": {
+		"definition": "axe_damage",
+		"x": 64,
+		"y": 20
+	},
+	"t1_8": {
+		"definition": "sword_damage",
+		"x": 96,
+		"y": 20
+	},
+	"t1_9": {
+		"definition": "axe_damage",
+		"x": 128,
+		"y": 20
+	},
+	"t1_10": {
+		"definition": "sword_damage",
+		"x": 96,
+		"y": 60
+	},
+	"t1_11": {
+		"definition": "axe_damage",
+		"x": 128,
+		"y": 60
+	},
+	"t2_1": {
+		"definition": "trident_damage",
+		"x": 32,
+		"y": 40
+	},
+	"t2_2": {
+		"definition": "armor_shred",
+		"x": 64,
+		"y": 60
+	},
+	"t2_3": {
+		"definition": "trident_damage",
+		"x": 96,
+		"y": 100
+	},
+	"t2_4": {
+		"definition": "armor_shred",
+		"x": 128,
+		"y": 100
+	},
+	"t2_5": {
+		"definition": "trident_damage",
+		"x": 96,
+		"y": 140
+	},
+	"t2_6": {
+		"definition": "armor_shred",
+		"x": 128,
+		"y": 140
+	},
+	"t2_7": {
+		"definition": "armor_shred",
+		"x": 64,
+		"y": 100
+	},
+	"t2_8": {
+		"definition": "trident_damage",
+		"x": 96,
+		"y": 180
+	},
+	"t2_9": {
+		"definition": "armor_shred",
+		"x": 128,
+		"y": 180
+	},
+	"t2_10": {
+		"definition": "trident_damage",
+		"x": 96,
+		"y": 220
+	},
+	"t2_11": {
+		"definition": "armor_shred",
+		"x": 128,
+		"y": 220
+	}
+}

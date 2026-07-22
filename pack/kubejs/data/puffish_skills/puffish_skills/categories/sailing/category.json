@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Sailing",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "oak_boat"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/end.png"
+}

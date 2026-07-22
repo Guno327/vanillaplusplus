@@ -1,6 +1,6 @@
 {
-	"attack_speed+4%": {
-		"title": "+4% Attack Speed",
+	"attack_speed": {
+		"title": "+0.7% Attack Speed",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -12,14 +12,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.attack_speed",
-					"value": 0.04,
+					"value": 0.007,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"move_speed+2%": {
-		"title": "+2% Movement Speed",
+	"move_speed": {
+		"title": "+0.6% Movement Speed",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -31,14 +31,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.movement_speed",
-					"value": 0.02,
+					"value": 0.006,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"luck+1": {
-		"title": "+1 Luck",
+	"luck": {
+		"title": "+0.08 Luck",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -50,14 +50,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.luck",
-					"value": 1,
+					"value": 0.08,
 					"operation": "addition"
 				}
 			}
 		]
 	},
-	"melee_damage+2%": {
-		"title": "+2% Melee Damage",
+	"melee_damage": {
+		"title": "+0.6% Melee Damage",
 		"icon": {
 			"type": "effect",
 			"data": {
@@ -69,27 +69,46 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "puffish_skills:player.melee_damage",
-					"value": 0.02,
+					"value": 0.006,
 					"operation": "multiply_total"
 				}
 			}
 		]
 	},
-	"attack_speed+6%": {
-		"title": "+6% Attack Speed",
+	"stealth": {
+		"title": "+1.5% Stealth",
 		"icon": {
-			"type": "item",
+			"type": "effect",
 			"data": {
-				"item": "sugar"
+				"effect": "invisibility"
 			}
 		},
 		"rewards": [
 			{
 				"type": "puffish_skills:attribute",
 				"data": {
-					"attribute": "generic.attack_speed",
-					"value": 0.06,
+					"attribute": "puffish_attributes:stealth",
+					"value": 0.015,
 					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"armor_shred": {
+		"title": "+0.15 Armor Shred",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "shears"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:armor_shred",
+					"value": 0.15,
+					"operation": "addition"
 				}
 			}
 		]

@@ -12,6 +12,17 @@
 		"running",
 		"swimming",
 		"building",
-		"magic"
+		"magic",
+		"farming",
+		"fishing",
+		"trading",
+		"enchanting",
+		"cooking",
+		"exploration",
+		"sailing",
+		"taming",
+		"smithing",
+		"alchemy",
+		"woodcutting"
 	]
 }

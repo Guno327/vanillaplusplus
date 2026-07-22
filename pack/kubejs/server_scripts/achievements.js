@@ -4,8 +4,8 @@
 const ACHIEVEMENT_CHAINS = [
   { key: "mob_kills", getter: "getMobKills", label: "Monster Slayer", category: "swords", thresholds: [50, 200, 800, 3200] },
   { key: "play_time", getter: "getPlayTime", label: "Dedicated Settler", category: "mining", thresholds: [24000, 96000, 384000, 1536000] },
-  { key: "animals_bred", getter: "getAnimalsBred", label: "Animal Husbandry", category: "building", thresholds: [20, 80, 320, 1280] },
-  { key: "fish_caught", getter: "getFishCaught", label: "Angler", category: "swimming", thresholds: [15, 60, 240, 960] },
+  { key: "animals_bred", getter: "getAnimalsBred", label: "Animal Husbandry", category: "taming", thresholds: [20, 80, 320, 1280] },
+  { key: "fish_caught", getter: "getFishCaught", label: "Angler", category: "fishing", thresholds: [15, 60, 240, 960] },
 ]
 
 let achievementTickCounter = 0

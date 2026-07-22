@@ -1,0 +1,116 @@
+{
+	"repair_cost": {
+		"title": "-0.25 Repair Cost",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "anvil"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:repair_cost",
+					"value": -0.25,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"experience_gain": {
+		"title": "+1% Experience Gain",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "experience_bottle"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:experience",
+					"value": 0.01,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"sword_damage": {
+		"title": "+0.7% Sword Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "diamond_sword"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:sword_damage",
+					"value": 0.007,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"axe_damage": {
+		"title": "+0.7% Axe Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "diamond_axe"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:axe_damage",
+					"value": 0.007,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"trident_damage": {
+		"title": "+0.8% Trident Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "trident"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:trident_damage",
+					"value": 0.008,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"armor_shred": {
+		"title": "+0.15 Armor Shred",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "shears"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:armor_shred",
+					"value": 0.15,
+					"operation": "addition"
+				}
+			}
+		]
+	}
+}

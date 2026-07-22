@@ -1,25 +1,6 @@
 {
-	"reach+0.5": {
-		"title": "+0.5 Block Reach",
-		"icon": {
-			"type": "item",
-			"data": {
-				"item": "bricks"
-			}
-		},
-		"rewards": [
-			{
-				"type": "puffish_skills:attribute",
-				"data": {
-					"attribute": "minecraft:player.block_interaction_range",
-					"value": 0.5,
-					"operation": "addition"
-				}
-			}
-		]
-	},
-	"break_speed+3%": {
-		"title": "+3% Block Break Speed",
+	"break_speed": {
+		"title": "+0.8% Block Break Speed",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -31,14 +12,33 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "minecraft:player.block_break_speed",
-					"value": 0.03,
+					"value": 0.008,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"step_height+0.25": {
-		"title": "+0.25 Step Height",
+	"block_reach": {
+		"title": "+0.12 Block Reach",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "bricks"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "minecraft:player.block_interaction_range",
+					"value": 0.12,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"step_height": {
+		"title": "+0.05 Step Height",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -50,8 +50,65 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.step_height",
-					"value": 0.25,
+					"value": 0.05,
 					"operation": "addition"
+				}
+			}
+		]
+	},
+	"repair_cost": {
+		"title": "-0.25 Repair Cost",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "anvil"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:repair_cost",
+					"value": -0.25,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"experience_gain": {
+		"title": "+1% Experience Gain",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "experience_bottle"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:experience",
+					"value": 0.01,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"max_health": {
+		"title": "+0.6% Max Health",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "totem_of_undying"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.max_health",
+					"value": 0.006,
+					"operation": "multiply_total"
 				}
 			}
 		]

@@ -1,0 +1,36 @@
+{
+	"experience_per_level": {
+		"type": "expression",
+		"data": {
+			"expression": "70 * pow(1.13, level)"
+		}
+	},
+	"sources": [
+		{
+			"type": "puffish_skills:break_block",
+			"data": {
+				"variables": {
+					"any_log": {
+						"operations": [
+							{
+								"type": "get_broken_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#minecraft:logs"
+								}
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "any_log",
+						"expression": "1"
+					}
+				]
+			}
+		}
+	]
+}

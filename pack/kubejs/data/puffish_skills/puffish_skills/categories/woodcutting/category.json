@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Woodcutting",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "diamond_axe"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/stone.png"
+}

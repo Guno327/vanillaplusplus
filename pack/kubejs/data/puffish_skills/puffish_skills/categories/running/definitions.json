@@ -1,6 +1,6 @@
 {
-	"sprint_speed+3%": {
-		"title": "+3% Sprinting Speed",
+	"sprint_speed": {
+		"title": "+0.7% Sprinting Speed",
 		"icon": {
 			"type": "effect",
 			"data": {
@@ -12,52 +12,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "puffish_attributes:sprinting_speed",
-					"value": 0.03,
+					"value": 0.007,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"stamina+5%": {
-		"title": "+5% Stamina",
-		"icon": {
-			"type": "effect",
-			"data": {
-				"effect": "saturation"
-			}
-		},
-		"rewards": [
-			{
-				"type": "puffish_skills:attribute",
-				"data": {
-					"attribute": "puffish_skills:player.stamina",
-					"value": 0.05,
-					"operation": "multiply_total"
-				}
-			}
-		]
-	},
-	"jump+3%": {
-		"title": "+3% Jump",
-		"icon": {
-			"type": "effect",
-			"data": {
-				"effect": "jump_boost"
-			}
-		},
-		"rewards": [
-			{
-				"type": "puffish_skills:attribute",
-				"data": {
-					"attribute": "puffish_skills:player.jump",
-					"value": 0.03,
-					"operation": "multiply_total"
-				}
-			}
-		]
-	},
-	"step_height+0.25": {
-		"title": "+0.25 Step Height",
+	"step_height": {
+		"title": "+0.05 Step Height",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -69,8 +31,84 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.step_height",
-					"value": 0.25,
+					"value": 0.05,
 					"operation": "addition"
+				}
+			}
+		]
+	},
+	"jump": {
+		"title": "+0.8% Jump",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "jump_boost"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.jump",
+					"value": 0.008,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	},
+	"stamina": {
+		"title": "+1% Stamina",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "saturation"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.stamina",
+					"value": 0.01,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	},
+	"fall_reduction": {
+		"title": "+0.015 Fall Reduction",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "slime_ball"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:fall_reduction",
+					"value": 0.015,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"move_speed": {
+		"title": "+0.6% Movement Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "feather"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.movement_speed",
+					"value": 0.006,
+					"operation": "multiply_base"
 				}
 			}
 		]

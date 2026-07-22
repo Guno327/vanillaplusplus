@@ -1,6 +1,6 @@
 {
-	"reach+0.5": {
-		"title": "+0.5 Attack Reach",
+	"entity_reach": {
+		"title": "+0.12 Attack Reach",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -12,33 +12,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "minecraft:player.entity_interaction_range",
-					"value": 0.5,
+					"value": 0.12,
 					"operation": "addition"
 				}
 			}
 		]
 	},
-	"attack_damage+3%": {
-		"title": "+3% Attack Damage",
-		"icon": {
-			"type": "item",
-			"data": {
-				"item": "iron_sword"
-			}
-		},
-		"rewards": [
-			{
-				"type": "puffish_skills:attribute",
-				"data": {
-					"attribute": "generic.attack_damage",
-					"value": 0.03,
-					"operation": "multiply_base"
-				}
-			}
-		]
-	},
-	"knockback+4%": {
-		"title": "+4% Knockback",
+	"knockback": {
+		"title": "+1.2% Knockback",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -50,33 +31,33 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "puffish_attributes:knockback",
-					"value": 0.04,
+					"value": 0.012,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"melee_damage+2%": {
-		"title": "+2% Melee Damage",
+	"attack_damage": {
+		"title": "+0.7% Attack Damage",
 		"icon": {
-			"type": "effect",
+			"type": "item",
 			"data": {
-				"effect": "strength"
+				"item": "iron_sword"
 			}
 		},
 		"rewards": [
 			{
 				"type": "puffish_skills:attribute",
 				"data": {
-					"attribute": "puffish_skills:player.melee_damage",
-					"value": 0.02,
-					"operation": "multiply_total"
+					"attribute": "generic.attack_damage",
+					"value": 0.007,
+					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"attack_speed+3%": {
-		"title": "+3% Attack Speed",
+	"attack_speed": {
+		"title": "+0.7% Attack Speed",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -88,8 +69,46 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.attack_speed",
-					"value": 0.03,
+					"value": 0.007,
 					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"melee_damage": {
+		"title": "+0.6% Melee Damage",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "strength"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.melee_damage",
+					"value": 0.006,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	},
+	"armor_shred": {
+		"title": "+0.15 Armor Shred",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "shears"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:armor_shred",
+					"value": 0.15,
+					"operation": "addition"
 				}
 			}
 		]

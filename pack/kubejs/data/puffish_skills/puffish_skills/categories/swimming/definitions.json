@@ -1,6 +1,6 @@
 {
-	"water_efficiency+8%": {
-		"title": "+8% Water Movement",
+	"water_efficiency": {
+		"title": "+2% Water Movement",
 		"icon": {
 			"type": "effect",
 			"data": {
@@ -12,14 +12,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.water_movement_efficiency",
-					"value": 0.08,
+					"value": 0.02,
 					"operation": "multiply_total"
 				}
 			}
 		]
 	},
-	"oxygen+10%": {
-		"title": "+10% Oxygen",
+	"oxygen": {
+		"title": "+3% Oxygen",
 		"icon": {
 			"type": "effect",
 			"data": {
@@ -31,14 +31,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.oxygen_bonus",
-					"value": 0.1,
+					"value": 0.03,
 					"operation": "multiply_total"
 				}
 			}
 		]
 	},
-	"submerged_mining_speed+5%": {
-		"title": "+5% Underwater Mining Speed",
+	"submerged_mining_speed": {
+		"title": "+1.2% Underwater Mining Speed",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -50,7 +50,64 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "minecraft:player.submerged_mining_speed",
-					"value": 0.05,
+					"value": 0.012,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"trident_damage": {
+		"title": "+0.8% Trident Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "trident"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:trident_damage",
+					"value": 0.008,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"natural_regeneration": {
+		"title": "+1% Natural Regeneration",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:natural_regeneration",
+					"value": 0.01,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"healing": {
+		"title": "+1% Healing",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:healing",
+					"value": 0.01,
 					"operation": "multiply_base"
 				}
 			}

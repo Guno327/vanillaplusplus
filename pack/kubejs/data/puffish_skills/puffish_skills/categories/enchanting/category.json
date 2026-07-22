@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Enchanting",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "enchanting_table"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/story.png"
+}

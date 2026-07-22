@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Farming",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "diamond_hoe"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/husbandry.png"
+}

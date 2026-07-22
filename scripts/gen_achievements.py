@@ -26,8 +26,12 @@ OUT_FILE = ROOT / "pack" / "kubejs" / "server_scripts" / "achievements.js"
 CHAINS = [
     ("mob_kills", "getMobKills", "Monster Slayer", "swords", [50, 200, 800, 3200]),
     ("play_time", "getPlayTime", "Dedicated Settler", "mining", [24000, 96000, 384000, 1536000]),  # ticks (20/s)
-    ("animals_bred", "getAnimalsBred", "Animal Husbandry", "building", [20, 80, 320, 1280]),
-    ("fish_caught", "getFishCaught", "Angler", "swimming", [15, 60, 240, 960]),
+    # animals_bred/fish_caught used to reward the closest-available category
+    # (building/swimming) before issue #71 added dedicated "taming"/
+    # "fishing" categories - redirected to the actually-matching category
+    # now that one exists.
+    ("animals_bred", "getAnimalsBred", "Animal Husbandry", "taming", [20, 80, 320, 1280]),
+    ("fish_caught", "getFishCaught", "Angler", "fishing", [15, 60, 240, 960]),
 ]
 
 TICK_INTERVAL = 100  # check every 5s - stats don't need tighter resolution than that

@@ -1,0 +1,116 @@
+{
+	"healing": {
+		"title": "+1% Healing",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:healing",
+					"value": 0.01,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"natural_regeneration": {
+		"title": "+1% Natural Regeneration",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:natural_regeneration",
+					"value": 0.01,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"magic_resistance": {
+		"title": "+0.7% Magic Resistance",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "ender_pearl"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:magic_resistance",
+					"value": 0.007,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"resistance": {
+		"title": "+0.7% Resistance",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "resistance"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:resistance",
+					"value": 0.007,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"magic_damage": {
+		"title": "+0.7% Magic Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "blaze_powder"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:magic_damage",
+					"value": 0.007,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"life_steal": {
+		"title": "+0.006 Life Steal",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:life_steal",
+					"value": 0.006,
+					"operation": "addition"
+				}
+			}
+		]
+	}
+}

@@ -1,0 +1,116 @@
+{
+	"fortune": {
+		"title": "+0.02 Fortune",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "diamond"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.fortune",
+					"value": 0.02,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"consuming_speed": {
+		"title": "+1.2% Consuming Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "apple"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:consuming_speed",
+					"value": 0.012,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"stamina": {
+		"title": "+1% Stamina",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "saturation"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.stamina",
+					"value": 0.01,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	},
+	"break_speed": {
+		"title": "+0.8% Block Break Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "iron_pickaxe"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "minecraft:player.block_break_speed",
+					"value": 0.008,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"healing": {
+		"title": "+1% Healing",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:healing",
+					"value": 0.01,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"natural_regeneration": {
+		"title": "+1% Natural Regeneration",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:natural_regeneration",
+					"value": 0.01,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	}
+}

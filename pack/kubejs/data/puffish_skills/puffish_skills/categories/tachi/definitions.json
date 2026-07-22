@@ -1,6 +1,6 @@
 {
-	"attack_speed+3%": {
-		"title": "+3% Attack Speed",
+	"attack_speed": {
+		"title": "+0.7% Attack Speed",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -12,33 +12,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.attack_speed",
-					"value": 0.03,
+					"value": 0.007,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"attack_damage+3%": {
-		"title": "+3% Attack Damage",
-		"icon": {
-			"type": "item",
-			"data": {
-				"item": "iron_sword"
-			}
-		},
-		"rewards": [
-			{
-				"type": "puffish_skills:attribute",
-				"data": {
-					"attribute": "generic.attack_damage",
-					"value": 0.03,
-					"operation": "multiply_base"
-				}
-			}
-		]
-	},
-	"move_speed+1%": {
-		"title": "+1% Movement Speed",
+	"move_speed": {
+		"title": "+0.6% Movement Speed",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -50,14 +31,33 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.movement_speed",
-					"value": 0.01,
+					"value": 0.006,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"luck+1": {
-		"title": "+1 Luck",
+	"attack_damage": {
+		"title": "+0.7% Attack Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "iron_sword"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.attack_damage",
+					"value": 0.007,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"luck": {
+		"title": "+0.08 Luck",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -69,7 +69,45 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.luck",
-					"value": 1,
+					"value": 0.08,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"stealth": {
+		"title": "+1.5% Stealth",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "invisibility"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:stealth",
+					"value": 0.015,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"life_steal": {
+		"title": "+0.006 Life Steal",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:life_steal",
+					"value": 0.006,
 					"operation": "addition"
 				}
 			}

@@ -1,6 +1,6 @@
 {
-	"mining_speed+3%": {
-		"title": "+3% Mining Speed",
+	"mining_speed": {
+		"title": "+0.7% Mining Speed",
 		"icon": {
 			"type": "effect",
 			"data": {
@@ -12,33 +12,33 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "puffish_attributes:mining_speed",
-					"value": 0.03,
+					"value": 0.007,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"pickaxe_speed+3%": {
-		"title": "+3% Pickaxe Speed",
+	"breaking_speed": {
+		"title": "+0.8% Breaking Speed",
 		"icon": {
 			"type": "item",
 			"data": {
-				"item": "diamond_pickaxe"
+				"item": "iron_pickaxe"
 			}
 		},
 		"rewards": [
 			{
 				"type": "puffish_skills:attribute",
 				"data": {
-					"attribute": "puffish_attributes:pickaxe_speed",
-					"value": 0.03,
+					"attribute": "puffish_attributes:breaking_speed",
+					"value": 0.008,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"fortune+0.1": {
-		"title": "+0.1 Fortune",
+	"fortune": {
+		"title": "+0.02 Fortune",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -50,8 +50,65 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "puffish_skills:player.fortune",
-					"value": 0.1,
+					"value": 0.02,
 					"operation": "addition"
+				}
+			}
+		]
+	},
+	"pickaxe_speed": {
+		"title": "+0.8% Pickaxe Speed",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "diamond_pickaxe"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:pickaxe_speed",
+					"value": 0.008,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"luck": {
+		"title": "+0.08 Luck",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "rabbit_foot"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "generic.luck",
+					"value": 0.08,
+					"operation": "addition"
+				}
+			}
+		]
+	},
+	"experience_gain": {
+		"title": "+1% Experience Gain",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "experience_bottle"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:experience",
+					"value": 0.01,
+					"operation": "multiply_base"
 				}
 			}
 		]

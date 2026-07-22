@@ -1,6 +1,6 @@
 {
-	"sword_damage+3%": {
-		"title": "+3% Sword Damage",
+	"sword_damage": {
+		"title": "+0.7% Sword Damage",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -12,14 +12,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "puffish_attributes:sword_damage",
-					"value": 0.03,
+					"value": 0.007,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"attack_speed+3%": {
-		"title": "+3% Attack Speed",
+	"attack_speed": {
+		"title": "+0.7% Attack Speed",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -31,52 +31,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.attack_speed",
-					"value": 0.03,
+					"value": 0.007,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"melee_damage+2%": {
-		"title": "+2% Melee Damage",
-		"icon": {
-			"type": "effect",
-			"data": {
-				"effect": "strength"
-			}
-		},
-		"rewards": [
-			{
-				"type": "puffish_skills:attribute",
-				"data": {
-					"attribute": "puffish_skills:player.melee_damage",
-					"value": 0.02,
-					"operation": "multiply_total"
-				}
-			}
-		]
-	},
-	"knockback+5%": {
-		"title": "+5% Knockback",
-		"icon": {
-			"type": "item",
-			"data": {
-				"item": "feather"
-			}
-		},
-		"rewards": [
-			{
-				"type": "puffish_skills:attribute",
-				"data": {
-					"attribute": "puffish_attributes:knockback",
-					"value": 0.05,
-					"operation": "multiply_base"
-				}
-			}
-		]
-	},
-	"attack_damage+3%": {
-		"title": "+3% Attack Damage",
+	"attack_damage": {
+		"title": "+0.7% Attack Damage",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -88,8 +50,65 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "generic.attack_damage",
-					"value": 0.03,
+					"value": 0.007,
 					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"knockback": {
+		"title": "+1.2% Knockback",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "feather"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:knockback",
+					"value": 0.012,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"melee_damage": {
+		"title": "+0.6% Melee Damage",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "strength"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_skills:player.melee_damage",
+					"value": 0.006,
+					"operation": "multiply_total"
+				}
+			}
+		]
+	},
+	"life_steal": {
+		"title": "+0.006 Life Steal",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:life_steal",
+					"value": 0.006,
+					"operation": "addition"
 				}
 			}
 		]

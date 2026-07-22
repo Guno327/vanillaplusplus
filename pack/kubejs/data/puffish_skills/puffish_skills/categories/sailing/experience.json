@@ -1,0 +1,43 @@
+{
+	"experience_per_level": {
+		"type": "expression",
+		"data": {
+			"expression": "70 * pow(1.13, level)"
+		}
+	},
+	"sources": [
+		{
+			"type": "puffish_skills:increase_stat",
+			"data": {
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.boat_one_cm"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 0.02"
+					}
+				]
+			}
+		}
+	]
+}

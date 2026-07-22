@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Trading",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "emerald"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/husbandry.png"
+}

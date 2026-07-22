@@ -1,6 +1,6 @@
 {
-	"spell_damage+3%": {
-		"title": "+3% Spell Damage",
+	"spell_damage": {
+		"title": "+0.7% Spell Damage",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -12,14 +12,33 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "ars_nouveau:ars_nouveau.perk.spell_damage",
-					"value": 0.03,
+					"value": 0.007,
 					"operation": "multiply_base"
 				}
 			}
 		]
 	},
-	"max_mana+10": {
-		"title": "+10 Max Mana",
+	"magic_damage": {
+		"title": "+0.7% Magic Damage",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "blaze_powder"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:magic_damage",
+					"value": 0.007,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"max_mana": {
+		"title": "+3 Max Mana",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -31,14 +50,14 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "ars_nouveau:ars_nouveau.perk.max_mana",
-					"value": 10,
+					"value": 3,
 					"operation": "addition"
 				}
 			}
 		]
 	},
-	"mana_regen+10%": {
-		"title": "+10% Mana Regen",
+	"mana_regen": {
+		"title": "+2% Mana Regen",
 		"icon": {
 			"type": "item",
 			"data": {
@@ -50,7 +69,45 @@
 				"type": "puffish_skills:attribute",
 				"data": {
 					"attribute": "ars_nouveau:ars_nouveau.perk.mana_regen",
-					"value": 0.1,
+					"value": 0.02,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"magic_resistance": {
+		"title": "+0.7% Magic Resistance",
+		"icon": {
+			"type": "item",
+			"data": {
+				"item": "ender_pearl"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:magic_resistance",
+					"value": 0.007,
+					"operation": "multiply_base"
+				}
+			}
+		]
+	},
+	"healing": {
+		"title": "+1% Healing",
+		"icon": {
+			"type": "effect",
+			"data": {
+				"effect": "regeneration"
+			}
+		},
+		"rewards": [
+			{
+				"type": "puffish_skills:attribute",
+				"data": {
+					"attribute": "puffish_attributes:healing",
+					"value": 0.01,
 					"operation": "multiply_base"
 				}
 			}
