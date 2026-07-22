@@ -41,11 +41,30 @@ where each lands in this generator:
      verified against real recipes/advancement criteria in this sandbox
      (no live client - see the repo's Verification section in DESIGN.md).
   6. Exponential XP curve -> every category's experience_per_level is
-     "70 * pow(1.13, level)" (see EXPERIENCE_EXPR below) instead of the old
-     linear "100 + level * 40". `pow` is a real function in puffish_skills'
-     own expression engine (net.puffish.skillsmod.expression.DefaultParser
-     - javap'd this session, confirms `pow`/`sqrt`/`min`/`max`/`clamp`/
-     trig functions are all registered FunctionOperators).
+     "70 * (1.13 ^ level)" (see EXPERIENCE_EXPR below) instead of the old
+     linear "100 + level * 40". Issue #79 ("skill-tree datapack does not
+     load at all on main"): a prior version of this generator used
+     "70 * pow(1.13, level)", but `pow` does NOT exist in puffish_skills'
+     expression engine (net.puffish.skillsmod.expression.DefaultParser,
+     shipped inside puffish_skills-0.18.1-1.21-neoforge.jar - that jar, not
+     this comment, is the source of truth; re-javap it if this ever needs
+     re-verifying) - the engine rejects any unknown identifier with
+     "Unknown variable `pow`" and puffish_skills discards the WHOLE
+     category's datapack entry on that error (once per category, so all 23
+     categories vanished at runtime). DefaultParser's actual registered
+     vocabulary, confirmed by javap'ing every BINARY_OPERATORS/
+     UNARY_OPERATORS/FUNCTIONS entry in its static initializer this
+     session:
+       constants: e, pi, tau
+       functions (26): sin, cos, tan, asin, acos, atan, atan2, sinh, cosh,
+         tanh, log, exp, sqrt, cbrt, floor, ceil, round, trunc, abs, sign,
+         fract, mod, mix, clamp, min, max
+       binary operators: | & = <> >= <= > < + - * / ^     unary: ! + -
+     Exponentiation is the `^` binary operator (BinaryOperator.createRight,
+     precedence 8), not a `pow(base, exponent)` function call - `^` is also
+     already higher-precedence than `*`/`/` (precedence 6) so it naturally
+     binds tighter, but EXPRESSION_EXPR still parenthesizes the `^` term
+     explicitly rather than relying on that.
 
 Layout is still fully generated, never hand-typed: `layout_tree()` assigns
 every node an (x, y) by depth-then-slot-index, which is collision-free by
@@ -81,7 +100,10 @@ BRANCH_SHAPE = [2, 2, 1]
 # cumulative), level 10 costs ~210 XP/step (~1289 cumulative), level 20
 # costs ~714 XP/step (~5666 cumulative), level 34 (a fully maxed category)
 # costs ~3951 XP for that one last point (~33800 cumulative XP total).
-EXPERIENCE_EXPR = "70 * pow(1.13, level)"
+# Issue #79: written as "70 * (1.13 ^ level)", NOT "70 * pow(1.13, level)" -
+# see the module docstring's point 6 for why `pow` doesn't exist in this
+# engine and where `^` came from.
+EXPERIENCE_EXPR = "70 * (1.13 ^ level)"
 
 
 def write_json(path: Path, data):

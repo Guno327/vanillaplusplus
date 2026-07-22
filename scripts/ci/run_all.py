@@ -23,6 +23,7 @@ CHECKS = [
     "check_quests.py",
     "check_advancements.py",
     "check_skill_trees.py",
+    "check_skill_expressions.py",
     "check_selftest_skill_sync.py",
 ]
 
