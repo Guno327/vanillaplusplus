@@ -308,6 +308,15 @@ const ST_TIER_GATED_RECIPES = [
     { id: 'vanillaplusplus:crafting_terminal_brass_tier', tier: 'create:brass_ingot' },
     { id: 'vanillaplusplus:wireless_terminal_brass_tier', tier: 'create:brass_ingot' },
     { id: 'vanillaplusplus:ore_excavation_drill_andesite_tier', tier: 'create:andesite_alloy' },
+    // #70: Sophisticated Storage.
+    { id: 'vanillaplusplus:iron_barrel_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:iron_chest_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:iron_shulker_box_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:gold_barrel_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:gold_chest_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:gold_shulker_box_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:storage_stack_upgrade_tier_1_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:storage_stack_upgrade_tier_3_brass_tier', tier: 'create:brass_ingot' },
 ]
 
 stCheck('tier_gating.js: every gated recipe resolves and demands its tier material (#49)', server => {

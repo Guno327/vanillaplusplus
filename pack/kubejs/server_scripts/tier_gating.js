@@ -84,6 +84,18 @@ const TG_TIER_INFO = [
         why: 'Higher drill tiers chain off this one, so gating it keeps the whole family behind Andesite Age.',
         items: ['createoreexcavation:drill'],
     },
+    {
+        tierName: 'Andesite Age',
+        materialName: 'an Andesite Alloy',
+        why: "#70: Sophisticated Storage's barrel/chest/shulker tiers chain upward (iron -> gold -> diamond -> netherite), so gating the iron step gates everything above it. Its own Stack Upgrade Tier 1 has no natural gate at all (just logs), so it gets the same treatment.",
+        items: ['sophisticatedstorage:iron_barrel', 'sophisticatedstorage:iron_chest', 'sophisticatedstorage:iron_shulker_box', 'sophisticatedstorage:stack_upgrade_tier_1'],
+    },
+    {
+        tierName: 'Brass Age',
+        materialName: 'a Brass Ingot',
+        why: "#70: Sophisticated Storage's gold step gates diamond/netherite above it, same chain-gate reasoning as the iron step.",
+        items: ['sophisticatedstorage:gold_barrel', 'sophisticatedstorage:gold_chest', 'sophisticatedstorage:gold_shulker_box', 'sophisticatedstorage:stack_upgrade_tier_3'],
+    },
 ]
 
 ServerEvents.recipes(event => {
@@ -269,4 +281,106 @@ ServerEvents.recipes(event => {
         i: '#c:ingots/iron',
         A: 'create:andesite_alloy'
     }).id('vanillaplusplus:ore_excavation_drill_andesite_tier')
+
+    // --- Sophisticated Storage -> andesite_age / brass_age (#70) ---------
+    // Base wood barrel/chest (sophisticatedstorage:barrel/chest, one
+    // registry name shared by every wood color via a data component - not
+    // touched here, stays this pack's Tier 0 baseline alongside Tom's
+    // Storage's own dumb-storage tier). Copper tier is left on its stock
+    // recipe too (copper is never locked in this pack, same as every other
+    // copper item here).
+    //
+    // The tier ladder itself (copper -> iron -> gold -> diamond ->
+    // netherite) is one shared recipe TYPE
+    // (sophisticatedstorage:storage_tier_upgrade) across barrel/chest/
+    // shulker_box, each upgrade consuming the previous tier's block as its
+    // center ingredient - so, same as the backpack family above, gating the
+    // iron and gold steps gates every tier above them; diamond and
+    // netherite need no edit of their own (netherite_barrel's own recipe
+    // already requires the diamond tier as an ingredient, which by then
+    // already required gold, which already required iron - the chain does
+    // the rest). event.custom() (not event.shaped()) is required for the
+    // same reason it was for sophisticatedbackpacks:backpack_upgrade above:
+    // this recipe type is what carries a storage block's CONTENTS into its
+    // upgraded tier - a plain shaped recipe would delete them on upgrade.
+    //
+    // The stock jar also ships an alternate "upgrade directly from copper"
+    // recipe for barrel and shulker_box (iron_barrel_from_copper_barrel,
+    // iron_shulker_box_from_copper_shulker_box - no chest equivalent exists
+    // in the jar) that would bypass the Andesite Alloy requirement below
+    // entirely; both are removed so the iron step has exactly one path.
+    const SOPH_STORAGE_TYPES = ['barrel', 'chest', 'shulker_box']
+
+    SOPH_STORAGE_TYPES.forEach(type => {
+        if (type !== 'chest') {
+            event.remove({ id: `sophisticatedstorage:iron_${type}_from_copper_${type}` })
+        }
+        event.remove({ id: `sophisticatedstorage:iron_${type}` })
+        event.custom({
+            type: 'sophisticatedstorage:storage_tier_upgrade',
+            category: 'misc',
+            key: {
+                I: { tag: 'c:ingots/iron' },
+                A: { item: 'create:andesite_alloy' },
+                S: { item: `sophisticatedstorage:${type}` }
+            },
+            pattern: [
+                'IAI',
+                'ISI',
+                'III'
+            ],
+            result: { count: 1, id: `sophisticatedstorage:iron_${type}` }
+        }).id(`vanillaplusplus:iron_${type}_andesite_tier`)
+
+        event.remove({ id: `sophisticatedstorage:gold_${type}` })
+        event.custom({
+            type: 'sophisticatedstorage:storage_tier_upgrade',
+            category: 'misc',
+            key: {
+                G: { tag: 'c:ingots/gold' },
+                R: { item: 'create:brass_ingot' },
+                S: { item: `sophisticatedstorage:iron_${type}` }
+            },
+            pattern: [
+                'GRG',
+                'GSG',
+                'GGG'
+            ],
+            result: { count: 1, id: `sophisticatedstorage:gold_${type}` }
+        }).id(`vanillaplusplus:gold_${type}_brass_tier`)
+    })
+
+    // Stack Upgrade Tier 1 (sophisticatedstorage's own, distinct item from
+    // sophisticatedbackpacks:stack_upgrade_starter_tier above) has no
+    // natural gate at all - stock recipe is just logs + an Upgrade Base -
+    // so it gets the same Andesite Alloy treatment as that backpack item.
+    // Tier 1 Plus/Tier 2 chain off Tier 1 as their own center ingredient
+    // and need no edit. Tier 3 is this ladder's gold step (chains off
+    // Tier 2), gated the same way as the barrel/chest/shulker gold step
+    // above; Tier 4/5/Omega chain off Tier 3 and need no edit of their own.
+    // Both keep their stock recipe TYPE (minecraft:crafting_shaped, unlike
+    // the barrel/chest/shulker ladder above) since a stack upgrade item
+    // carries no contents of its own to lose on re-craft.
+    event.remove({ id: 'sophisticatedstorage:stack_upgrade_tier_1' })
+    event.shaped('sophisticatedstorage:stack_upgrade_tier_1', [
+        'LAL',
+        'LBL',
+        'LLL'
+    ], {
+        B: 'sophisticatedstorage:upgrade_base',
+        L: '#minecraft:logs',
+        A: 'create:andesite_alloy'
+    }).id('vanillaplusplus:storage_stack_upgrade_tier_1_andesite_tier')
+
+    event.remove({ id: 'sophisticatedstorage:stack_upgrade_tier_3' })
+    event.shaped('sophisticatedstorage:stack_upgrade_tier_3', [
+        'GRG',
+        'GSG',
+        'BGB'
+    ], {
+        B: '#c:storage_blocks/gold',
+        G: '#c:ingots/gold',
+        S: 'sophisticatedstorage:stack_upgrade_tier_2',
+        R: 'create:brass_ingot'
+    }).id('vanillaplusplus:storage_stack_upgrade_tier_3_brass_tier')
 })

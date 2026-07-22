@@ -218,6 +218,28 @@ locked = [
     # locked at Precision Age, not Induction Age).
     "id:extradelight:gold_spoon",
     "id:extradelight:diamond_spoon",
+
+    # #70: Sophisticated Storage. Gold-step tier-upgrade items are the real
+    # gate here, patched via KubeJS (tier_gating.js) to require a Brass
+    # Ingot in addition to their stock gold - same "gate the chain's first
+    # crossing" treatment as the iron step in andesite_age.toml. Diamond/
+    # netherite tier-upgrade items chain off these and need no lock/edit of
+    # their own. Stack Upgrade Tier 3 (the gold rung of sophisticatedstorage's
+    # own stack-upgrade ladder) gets the matching Brass Ingot treatment,
+    # mirroring sophisticatedbackpacks:stack_upgrade_tier_2 above; Tier 2 is
+    # naturally gated by chaining off Tier 1 (locked at andesite_age) and
+    # needs no edit of its own. Void Upgrade needs no KubeJS edit either -
+    # its stock recipe already needs obsidian + an ender pearl, both
+    # Nether-adjacent and this pack locks the Nether itself until this tier
+    # (see this file's own [dimensions] below), same natural-gate reasoning
+    # already used for sophisticatedbackpacks:void_upgrade.
+    "id:sophisticatedstorage:basic_to_gold_tier_upgrade",
+    "id:sophisticatedstorage:basic_to_diamond_tier_upgrade",
+    "id:sophisticatedstorage:iron_to_gold_tier_upgrade",
+    "id:sophisticatedstorage:gold_to_diamond_tier_upgrade",
+    "id:sophisticatedstorage:stack_upgrade_tier_2",
+    "id:sophisticatedstorage:stack_upgrade_tier_3",
+    "id:sophisticatedstorage:void_upgrade",
 ]
 always_unlocked = []
 
@@ -266,6 +288,24 @@ locked = [
     "id:toms_storage:inventory_cable_framed",
     "id:toms_storage:crafting_terminal",
     "id:toms_storage:inventory_interface",
+
+    # #70: Sophisticated Storage. Gold/diamond barrel/chest/shulker complete
+    # the container ladder started at andesite_age.toml (diamond chains off
+    # the gold-gated tier-upgrade item above and needs no lock/edit of its
+    # own). The Controller block - the piece that turns a wall of storage
+    # blocks into one network, this mod's answer to Refined Storage's own
+    # Controller/Grid pairing listed above - needs no KubeJS edit either:
+    # its stock recipe needs a comparator, which needs Nether quartz, and
+    # this pack locks the Nether itself until Brass Age (same reasoning
+    # already used for Refined Storage's own Nether-gated processor chain,
+    # see this file's header comment).
+    "id:sophisticatedstorage:gold_barrel",
+    "id:sophisticatedstorage:gold_chest",
+    "id:sophisticatedstorage:gold_shulker_box",
+    "id:sophisticatedstorage:diamond_barrel",
+    "id:sophisticatedstorage:diamond_chest",
+    "id:sophisticatedstorage:diamond_shulker_box",
+    "id:sophisticatedstorage:controller",
 ]
 always_unlocked = []
 
