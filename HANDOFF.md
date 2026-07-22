@@ -115,6 +115,39 @@ silently no-ops server-side; hmc-specifics 2.4.0 exposes no usable chat
 verb) - reasoning is recorded at the KNOWN GAP comment in the script.
 Worth its own issue.
 
+**#49 root-caused and fixed by dropping ProgressiveStages (2026-07-22)**:
+the owner's full freeze log ended in an unbounded repeat of JEI's
+`Ingredients are being added at runtime: 249 FluidStack`. ProgressiveStages'
+client JEI plugin registers an ingredient listener that calls
+`scheduleRefresh()`, its queued refresh clears its own re-entry guard before
+running, and the refresh re-adds ingredients through
+`addIngredientsAtRuntime` — which JEI notifies listeners for unconditionally.
+Pinning to 2.1 fixed only *joining*: the item-path variant of the same loop
+fired the moment a tier unlocked (measured on the pinned build: **7810**
+refresh passes in 30s after `andesite_age`). PR #55 (the pin) was closed
+unmerged; the owner's call was to remove the mod entirely and gate
+progression by materials and recipes alone.
+
+That was cheap because KubeJS ships its own persistent stage backend
+(`StageEvents.create()` -> `TagWrapperStages` when no mod claims
+`StageCreationEvent`), so `player.stages` and every script reading it —
+quests, mob scaling, flight, leaderboard, selftest — needed no changes.
+`progression_stage_bridge.js` absorbed the three trigger types the mod still
+owned (starting stage, the four Stellaris dimension stages, ender-dragon ->
+starforged_age); the tier TOMLs moved to `pack/progression/` as generator
+design data; and new `tier_gating.js` adds one tier material to the 13
+recipes whose only gate was the deleted lock (Waystones, backpack/wand
+tiers, Tom's upper terminals, Create Ore Excavation's drill). Mob-spawn
+gating, dimension-travel blocking and locked-item name masking are
+deliberately gone, not reimplemented. Full writeup in `DECISIONS.md`.
+
+Verified L0 PASS (88 mods), L1 PASS 28/28 (three new checks), and L3 PASS
+with two new assertions — a refresh-loop counter and a post-join stage-grant
+probe: **0** ingredient-add passes after granting `andesite_age`, against
+7810 on the pinned-2.1 build. Still open on #49: the owner's own in-game
+confirmation, and an upstream bug report (the report is written, but this
+box's fine-grained PAT cannot open issues on another owner's repo).
+
 **GitHub is now ground truth for outstanding bugs and in-game
 verifications** (user directive, 2026-07-10): the project's GitHub repo at
 `https://github.com/Guno327/vanillaplusplus` (remote `origin`) tracks all

@@ -11,11 +11,33 @@ the original requirements this design satisfies, and `pack/manifest.json` /
   (26.x) don't have a Create port yet, so 1.21.1 is the practical ceiling.
 - **Create 6.0.10** as the progression backbone. Bundles Flywheel, Registrate,
   and Ponder as jar-in-jar — no separate install needed.
-- **ProgressiveStages 2.1** as the tier-gating engine (see below). Chosen over
-  the unmaintained GameStages (not ported past 1.20) and the newer, unproven
-  EpochStages (10 downloads, published weeks ago) — ProgressiveStages has ~5
-  months of history, active updates, and native FTB Teams/FTB Quests
-  integration we'll lean on in Phases 4 and 6.
+- **Material/recipe gating** as the tier-gating mechanism: an item is
+  reachable exactly when its ingredient chain is reachable. Stages still
+  exist as progress *markers* (quests, mob scaling, flight, leaderboard read
+  them) but no longer gate anything, and they are granted by
+  `pack/kubejs/server_scripts/progression_stage_bridge.js` off KubeJS's own
+  persistent stage backend.
+
+  **Superseded (2026-07-22, GitHub #49):** this line previously read
+  "**ProgressiveStages 2.1** as the tier-gating engine (see below). Chosen
+  over the unmaintained GameStages (not ported past 1.20) and the newer,
+  unproven EpochStages…". That mod is gone. Its client JEI plugin registered
+  an ingredient listener that its own refresh re-triggered, re-adding the
+  pack's fluids/items to JEI forever and freezing every client on "Loading
+  Terrain" — reproduced on the L3 harness at 7810 refresh passes in 30s
+  after a single tier unlock. Rather than pin a version we would have to
+  work around indefinitely (2.1 is the floor: 1.3/1.2 lack the loop but also
+  lack `MultiTrigger*`/`KubeJSStagesCompat`, which this pack depends on),
+  progression moved to gating by materials alone — the owner's call, and the
+  elegant answer: a bug class that cannot come back. What the mod uniquely
+  did and what replaced it is recorded in `DECISIONS.md`'s dated entry; the
+  short version is that most of its lock list was redundant with the
+  ingredient chains already, and `tier_gating.js` adds one tier material to
+  the handful of recipes (Waystones, backpack/wand tiers, Tom's upper
+  terminals, Create Ore Excavation's drill) whose only gate was the lock.
+  Enforcement the mod did that has NO recipe equivalent — mob-spawn gating,
+  dimension-travel blocking, locked-item name masking — is deliberately
+  dropped, not reimplemented.
 - Tooling: no packwiz binary (this environment has no Go toolchain or package
   manager) — `scripts/resolve_mods.py` + `scripts/mods.lock.json` do the same
   job against the Modrinth API, git-friendly and reproducible. See
@@ -75,9 +97,12 @@ release cadences, not something in our control.
 
 Dependency chain is strictly linear (`rootborn -> andesite_age -> brass_age ->
 precision_age -> induction_age -> starforged_age -> lunar_frontier ->
-martian_frontier -> inner_system -> jovian_frontier`); `linear_progression =
-true` in `progressivestages.toml` so granting any tier auto-grants
-everything below it. This directly satisfies "previous Create stuff should
+martian_frontier -> inner_system -> jovian_frontier`). Until #49 this was
+enforced by `linear_progression = true` in `progressivestages.toml`, which
+auto-granted every lower tier along with any tier granted; with that mod gone
+the chain is implied by the material chains themselves (you cannot reach brass
+without andesite), and the tier files that describe it live on as pack design
+data in `pack/progression/`. This directly satisfies "previous Create stuff should
 be necessary for the next tier of stuff." **Not independently verifiable in
 this sandbox**: actually flying a rocket to each planet and confirming the
 dimension-entry triggers fire as designed needs a live client — boot-tested

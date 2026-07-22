@@ -107,6 +107,55 @@ const PSB_ITEM_STAGE_TRIGGERS = [
     { stage: 'precision_age', items: ['create:refined_radiance', 'create:shadow_steel'] },
 ]
 
+// ---------------------------------------------------------------------------
+// ProgressiveStages removal (#49, 2026-07-22): this file is now the ONLY
+// granter of tier stages, so the three trigger types that were still owned by
+// the mod are ported here. Progression itself is no longer *enforced* by
+// stages at all - an item is reachable exactly when its ingredient chain is
+// reachable - but stages remain the pack's progress markers, read by
+// quests.js (its "gamestage" task type), mob_scaling.js (tier count ->
+// difficulty), mobility.js (starforged flight), leaderboard.js and
+// selftest.js. Those all go through KubeJS's own player.stages, which keeps
+// working with the mod gone: dev.latvian.mods.kubejs.stages.StageEvents.
+// create() falls back to TagWrapperStages (player-NBT-backed, synced via
+// KubeJS's own SyncStagesPayload) whenever no mod claims StageCreationEvent -
+// javap-confirmed against kubejs-neoforge-2101.7.2-build.368.jar, which is
+// what made dropping the mod cheap rather than a rewrite of five scripts.
+//
+// What each ported trigger replaces, from the deleted
+// config/ProgressiveStages/triggers.toml + progressivestages.toml:
+//
+//   [general].starting_stages = ["rootborn"] -> PSB_STARTING_STAGES, granted
+//     at login (the mod granted these on first join). Re-checked on every
+//     scan, not just first join: idempotent, and it self-heals any player
+//     who joined a world built before this change - the same self-healing
+//     argument the item-trigger scan above already makes.
+//   [dimensions] -> PSB_DIMENSION_STAGE_TRIGGERS, evaluated from the
+//     player's CURRENT dimension on the same 20-tick scan rather than from a
+//     dimension-change event. Same "does the player currently satisfy it"
+//     robustness argument as the item scan: no event to miss, and a player
+//     already standing on the Moon when this ships still gets the stage.
+//   [bosses] -> PSB_BOSS_STAGE_TRIGGERS on EntityEvents.death. Granted to
+//     the killer AND to every player in the same dimension, because the End
+//     fight is a group activity and the mod's own single-killer grant would
+//     silently strand everyone else on the pack's one hard tier gateway.
+//
+// KEEP IN SYNC with DESIGN.md's tier table. There is no longer a TOML to
+// mirror - these three constants ARE the trigger definition now.
+const PSB_STARTING_STAGES = ['rootborn']
+
+const PSB_DIMENSION_STAGE_TRIGGERS = [
+    { dimension: 'stellaris:earth_orbit', stage: 'lunar_frontier' },
+    { dimension: 'stellaris:moon', stage: 'martian_frontier' },
+    { dimension: 'stellaris:mars', stage: 'inner_system' },
+    { dimension: 'stellaris:venus', stage: 'jovian_frontier' },
+    { dimension: 'stellaris:mercury', stage: 'jovian_frontier' },
+]
+
+const PSB_BOSS_STAGE_TRIGGERS = [
+    { entity: 'minecraft:ender_dragon', stage: 'starforged_age' },
+]
+
 // GitHub #32: FTB Teams + FTB Chunks dropped (CurseForge-exclusive, no
 // redistribution permission - #28) in favor of Open Parties and Claims
 // (Modrinth, LGPL-3.0). Under FTB Teams, progressivestages.toml's
@@ -240,6 +289,74 @@ function psbApplyItemStageTriggers(player) {
     return granted
 }
 
+// Same shape and the same selftest-callability argument as
+// psbApplyItemStageTriggers above. Returns the list of stage ids actually
+// granted this call.
+function psbApplyStartingStages(player) {
+    let granted = []
+    for (let i = 0; i < PSB_STARTING_STAGES.length; i++) {
+        if (player.stages.has(PSB_STARTING_STAGES[i])) continue
+        player.stages.add(PSB_STARTING_STAGES[i])
+        granted.push(PSB_STARTING_STAGES[i])
+    }
+    return granted
+}
+
+// String(player.level.dimension) is the established idiom in this pack for
+// reading a dimension id as a comparable string (mob_scaling.js's
+// DIMENSION_FACTOR lookup does exactly this) - player.level.dimension is a
+// ResourceLocation, not a String, so an == against a string literal without
+// the String() wrapper silently never matches.
+function psbApplyDimensionStageTriggers(player) {
+    let granted = []
+    let dimension = String(player.level.dimension)
+    for (let i = 0; i < PSB_DIMENSION_STAGE_TRIGGERS.length; i++) {
+        let trigger = PSB_DIMENSION_STAGE_TRIGGERS[i]
+        if (trigger.dimension !== dimension) continue
+        if (player.stages.has(trigger.stage)) continue
+        player.stages.add(trigger.stage)
+        granted.push(trigger.stage)
+    }
+    return granted
+}
+
+// Granted to every player in the boss's dimension, not just the killer - see
+// the PSB_BOSS_STAGE_TRIGGERS comment. Takes the entity and its level rather
+// than the raw event so selftest.js can drive it without faking a death.
+function psbApplyBossStageTriggers(server, entityType, dimension) {
+    let granted = 0
+    for (let i = 0; i < PSB_BOSS_STAGE_TRIGGERS.length; i++) {
+        let trigger = PSB_BOSS_STAGE_TRIGGERS[i]
+        if (trigger.entity !== String(entityType)) continue
+        for (const player of server.players) {
+            if (String(player.level.dimension) !== String(dimension)) continue
+            if (player.stages.has(trigger.stage)) continue
+            player.stages.add(trigger.stage)
+            granted++
+        }
+    }
+    return granted
+}
+
+EntityEvents.death(event => {
+    try {
+        // .level.server, not event.server: skills.js already reads the server
+        // off a level this way (event.block.level.server), and the death event
+        // itself is not guaranteed to carry a server binding.
+        psbApplyBossStageTriggers(event.entity.level.server, event.entity.type, event.entity.level.dimension)
+    } catch (e) {
+        console.error('[vpp progression_stage_bridge] boss stage trigger failed: ' + e)
+    }
+})
+
+PlayerEvents.loggedIn(event => {
+    try {
+        psbApplyStartingStages(event.player)
+    } catch (e) {
+        console.error('[vpp progression_stage_bridge] starting-stage grant failed for ' + event.player.username + ': ' + e)
+    }
+})
+
 let psbTickCounter = 0
 ServerEvents.tick(event => {
     psbTickCounter++
@@ -247,7 +364,9 @@ ServerEvents.tick(event => {
 
     for (const player of event.server.players) {
         try {
+            psbApplyStartingStages(player)
             psbApplyItemStageTriggers(player)
+            psbApplyDimensionStageTriggers(player)
         } catch (e) {
             console.error('[vpp progression_stage_bridge] tick scan failed for ' + player.username + ': ' + e)
         }

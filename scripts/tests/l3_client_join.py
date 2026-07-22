@@ -118,6 +118,31 @@ FATAL_CLIENT_RE = re.compile(r'ModLoadingException|Exception in thread "main"|Co
 # client log. ModernFix is a hard dependency of the pack (pack/mods.lock.json),
 # so keying on it is safe here even though it is mod-specific.
 MAIN_MENU_RE = re.compile(r"Game took [\d.]+ seconds to start")
+# #49's second root cause, and the one this tier missed on its first green run:
+# ProgressiveStages 3.0.1's JEI plugin registers an ingredient listener that
+# calls scheduleRefresh(), while its own refresh re-adds every unlocked fluid
+# through IIngredientManager.addIngredientsAtRuntime - which notifies that same
+# listener unconditionally. The client then re-adds the pack's ~249 fluids (and
+# re-runs JEI's multi-second ingredient-filter rebuild) forever, which reads as
+# a permanent "Loading Terrain" freeze with no crash and no stack trace. JEI
+# logs one of these lines per pass, so a runaway count is a direct, cheap
+# signal for it. A healthy join emits a small handful (JEI's own startup plus
+# any legitimate one-shot runtime registration); the broken client emitted them
+# continuously for minutes.
+RUNTIME_INGREDIENT_ADD_RE = re.compile(r"Ingredients are being added at runtime")
+RUNTIME_INGREDIENT_ADD_MAX = 25
+# Stage granted post-join to exercise #49's item-path variant (see the probe
+# in main()). Any real tier stage works; andesite_age is the first one with
+# item locks behind it. Override with VPP_L3_STAGE_PROBE=<stage id>.
+STAGE_PROBE = os.environ.get("VPP_L3_STAGE_PROBE", "andesite_age")
+STAGE_PROBE_SETTLE_S = 30
+# KubeJS's own /kubejs stages add reply ("Added '<stage>' stage for <player>",
+# javap-confirmed in dev.latvian.mods.kubejs.command.StageCommands). This used
+# to drive ProgressiveStages' /stage grant; that command left with the mod
+# (#49), and the grant now goes through the same KubeJS stage backend the pack
+# itself writes to, which is a better probe anyway - it exercises exactly the
+# path progression_stage_bridge.js uses.
+STAGE_GRANTED_RE = re.compile(r"Added '.*' stage for|stage for ")
 
 
 def fail(msg):
@@ -263,6 +288,28 @@ def boot_server(env):
             return
         time.sleep(5)
     fail(f"server did not reach Done( within {BOOT_TIMEOUT_S}s - see {SERVER_LOG}")
+
+
+def assert_no_refresh_loop(since_offset, window_s, phase):
+    """#49's guard: a recipe-viewer plugin stuck re-adding ingredients.
+
+    Counted over a slice of the client log rather than the whole file, so
+    JEI's own legitimate startup registrations can't trip it. The healthy
+    vs broken separation is enormous (0 vs 2506 in a 45s window, measured),
+    so the exact cap is not delicate.
+    """
+    slice_text = read(CLIENT_LOG)[since_offset:]
+    adds = len(RUNTIME_INGREDIENT_ADD_RE.findall(slice_text))
+    print(f"== L3: {adds} runtime ingredient-add pass(es) {phase} "
+          f"(cap {RUNTIME_INGREDIENT_ADD_MAX}) ==")
+    if adds > RUNTIME_INGREDIENT_ADD_MAX:
+        fail(
+            f"{adds} 'Ingredients are being added at runtime' passes in the {window_s}s "
+            f"{phase} - a recipe-viewer plugin is in a refresh feedback loop and the "
+            f"client will never finish loading terrain (#49). See {CLIENT_LOG}, and "
+            f"pack/manifest.json's progressivestages pin note."
+        )
+    return adds
 
 
 def send_server_command(cmd):
@@ -438,13 +485,44 @@ def main():
                 f"the player-add - see {SERVER_LOG} / {CLIENT_LOG}"
             )
         print(f"== L3: server confirms {joined_username} joined ==")
+        pre_len_join_client = len(read(CLIENT_LOG))
 
         print(f"== L3: settle {SETTLE_S}s (past Sable's historical ~29s UDP failure window, #49) ==")
         time.sleep(SETTLE_S)
 
+        # #49's JEI-refresh-loop check. Counted over the post-join slice only,
+        # so JEI's own startup registrations (pre-join) can't trip it.
+        assert_no_refresh_loop(pre_len_join_client, SETTLE_S, "since join")
+
         text = read(SERVER_LOG)
         if DISCONNECT_RE.search(text) and joined_username in text[text.find(joined_username):]:
             fail(f"{joined_username} disconnected during the settle window - see {SERVER_LOG}")
+
+        # #49's item-path variant. The fluid loop that froze v0.2.1 clients is
+        # gone with progressivestages pinned to 2.1, but refreshJei()'s ITEM
+        # path has the same shape in BOTH 2.1 and 3.0.1: it re-adds every
+        # locked item id the player already owns, unconditionally, and JEI
+        # notifies its listeners of every add. That is inert for a fresh
+        # player only because rootborn.toml locks nothing, so nothing is
+        # "owned and locked" yet - which is exactly why joining alone cannot
+        # test it. Granting a real tier stage post-join is what puts entries
+        # in that set. Failure to grant is a SKIP, not a FAIL: this probe may
+        # only report a loop, never invent one.
+        print(f"== L3: grant '{STAGE_PROBE}' post-join (#49 item-path probe) ==")
+        pre_len_grant_client = len(read(CLIENT_LOG))
+        pre_len_grant_server = len(read(SERVER_LOG))
+        send_server_command(f"kubejs stages add {joined_username} {STAGE_PROBE}")
+        time.sleep(5)
+        grant_reply = read(SERVER_LOG)[pre_len_grant_server:]
+        if STAGE_GRANTED_RE.search(grant_reply):
+            print(f"== L3: settle {STAGE_PROBE_SETTLE_S}s after the grant ==")
+            time.sleep(STAGE_PROBE_SETTLE_S)
+            assert_no_refresh_loop(
+                pre_len_grant_client, STAGE_PROBE_SETTLE_S, f"since granting {STAGE_PROBE}"
+            )
+        else:
+            print(f"== L3: item-path probe SKIPPED - no grant confirmation for "
+                  f"'{STAGE_PROBE}' (server said: {grant_reply.strip()[-200:]!r}) ==")
 
         print("== L3: dump the client's currently displayed screen (direct #49 reproduction check) ==")
         pre_len_client = len(read(CLIENT_LOG))

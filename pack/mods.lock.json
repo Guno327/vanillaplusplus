@@ -19,22 +19,6 @@
       "note": "core progression backbone"
     },
     {
-      "slug": "progressivestages",
-      "project_id": "rY4mdP4Q",
-      "version_id": "NfFrk2e7",
-      "version_number": "3.0.1",
-      "filename": "progressivestages-3.0.1.jar",
-      "url": "https://cdn.modrinth.com/data/rY4mdP4Q/versions/NfFrk2e7/progressivestages-3.0.1.jar",
-      "hashes": {
-        "sha512": "99f2f3b6359cf80cdb6ee8326a4c079ebb9564da6be749c7d96cf591b09c4ceec813ff36ee7191b3eedfccb9910cf33248779d49286f91c90a5265ae002db5a9",
-        "sha1": "99028027cacd245fed7fe5813182c2fa00795e22"
-      },
-      "filesize": 1628662,
-      "side": "both",
-      "phase": 1,
-      "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases"
-    },
-    {
       "slug": "toms-storage",
       "project_id": "XZNI4Cpy",
       "version_id": "x8jcBWWG",

@@ -1056,3 +1056,101 @@ via `record-output`, streaming file push). Needed because the dev box has
 no `incus`/`lxc` CLI and no `curl`, and Ubuntu Core offers no apt or root
 to install any. One trap encoded in it: a raw `+` in a query path decodes
 to a space, so anything under `vanilla++` 404s unless the path is quoted.
+
+## ProgressiveStages dropped entirely; progression gated by materials (#49, owner decision, 2026-07-22)
+
+The pin-to-2.1 fix (PR #55) was closed unmerged in favour of removing the mod.
+What settled it was testing the residual item-path variant of the same JEI
+bug on the *pinned 2.1* build: 45s after joining, before any stage grant,
+**0** ingredient-add passes; 30s after `stage grant <player> andesite_age`,
+**7810** passes, each re-adding the same `67 net.minecraft.world.item.
+ItemStack`, still climbing at teardown. `refreshJei()`'s item path re-adds
+every locked item id the player already owns, unconditionally, in both 2.1
+and 3.0.1 — so the pin fixed *joining* and nothing else: the freeze returned
+the moment anyone unlocked their first tier. Older versions are not a way
+out either (`1.3`/`1.2` never call `registerIngredientListener`, so no loop,
+but they also ship no `MultiTrigger*` and no `KubeJSStagesCompat`, both of
+which this pack depends on). **2.1 was the floor and the floor was not high
+enough.**
+
+Owner's call: drop the mod, rely on resource availability and crafting
+recipes. A bug class that cannot return.
+
+**Why this was cheap rather than a rewrite.** KubeJS ships its own stage
+backend: `dev.latvian.mods.kubejs.stages.StageEvents.create()` falls back to
+`TagWrapperStages` (player-NBT-backed, synced via KubeJS's own
+`SyncStagesPayload`) whenever no mod claims `StageCreationEvent` —
+ProgressiveStages was merely one claimant. javap-confirmed against
+kubejs-neoforge-2101.7.2-build.368.jar. So `player.stages`,
+`PlayerEvents.stageAdded` and `/kubejs stages` keep working, and every script
+that reads stages — `quests.js` (its whole "gamestage" task type),
+`mob_scaling.js`, `mobility.js`, `leaderboard.js`, `selftest.js` — needed no
+changes at all.
+
+**What actually changed:**
+
+- `progression_stage_bridge.js` is now the *only* granter of tier stages. It
+  already granted the four item-triggered tiers (it was written for #23,
+  because the mod's own triggers missed crafted items); the three trigger
+  types the mod still owned are ported into it — `PSB_STARTING_STAGES`
+  (rootborn at login), `PSB_DIMENSION_STAGE_TRIGGERS` (the four Stellaris
+  frontier stages, evaluated from the player's current dimension on the
+  existing 20-tick scan), and `PSB_BOSS_STAGE_TRIGGERS` (ender dragon ->
+  starforged_age, via `EntityEvents.death`). The boss grant goes to every
+  player in the dimension, not just the killer: the End fight is a group
+  activity and a single-killer grant would strand everyone else on this
+  pack's one hard tier gateway.
+- `pack/config/ProgressiveStages/*.toml` moved to `pack/progression/*.toml`
+  and `progressivestages.toml` was deleted. The tier files are still the
+  pack's tier manifest (`gen_economy.py` prices off them, unchanged output
+  byte-for-byte after the path move) — they are design data now, read by
+  generators and shipped to nobody, since `build_server.py`/`build_mrpack.py`
+  only sync `config`/`kubejs`/`defaultconfigs`. `triggers.toml` was deleted
+  outright: the bridge's constants ARE the trigger definition now, so keeping
+  a second copy would only invite drift.
+- New `pack/kubejs/server_scripts/tier_gating.js`: 13 recipe edits, each
+  adding ONE tier material to a recipe whose only gate was the deleted lock.
+
+**Which families actually needed an edit — grounded, not guessed.** A recipe
+audit across all 4758 craftable ids in the built server showed most of the
+lock list was already redundant: Create/TFMG/Stellaris/AllTheModium chains
+gate themselves, Refined Storage gates itself through its own basic ->
+improved -> advanced processor chain (`autocrafter` and `wireless_transmitter`
+need an advanced processor; `16k_storage_part` needs an improved one), and
+`weapon_smithing.js`/`storage.js`/`ars_nouveau_armor.js`/`tick_accelerator.js`
+had already re-authored several families whose gates therefore survive
+untouched. **Caveat worth recording**: the first version of that audit
+produced false positives — it flagged `create:track_station` (which actually
+needs `railway_casing`) and `refinedstorage:controller` (it matched RS's
+*recoloring* recipe, not the real one). Every family below was confirmed by
+reading its real recipe JSON out of the jar, not by the heuristic. A proper
+recursive-reachability version of the audit is worth having as a permanent
+tool and is filed as follow-up work, not blocking.
+
+Edited: Waystones (`warp_stone` -> netherite ingot; one edit covers the
+10-id family, since every waystone/sharestone/portstone recipe in the jar
+consumes warp_stone and the three scrolls are inert without a placed
+waystone), Sophisticated Backpacks (`iron_backpack`/`gold_backpack` +
+`stack_upgrade_starter_tier`/`tier_2` — the chains gate everything above
+them; kept the mod's own `backpack_upgrade` recipe type via `event.custom()`
+because that type is what carries stored CONTENTS into the upgraded
+backpack, and a plain shaped recipe would silently delete a player's
+inventory), Building Wands (copper/iron/diamond wand + magic_bag_1/2),
+Tom's Storage upper terminals (crafting/wireless — the *base* terminal stays
+deliberately pulled down to iron tier by `storage.js`), and Create Ore
+Excavation's entry drill.
+
+**Deliberately not reimplemented** (owner chose "pure materials only" when
+asked): mob-spawn gating, dimension-travel blocking, block-interaction rules,
+locked-item name masking, and JEI hiding of locked items. Born in Chaos mobs
+now spawn from world start and the Nether is open from the beginning.
+
+**Verification.** L0 PASS (88 server mods — one fewer, 0 KubeJS
+errors/warnings, no unbaselined WARN/ERROR). L1 PASS 28/28 with three new
+checks: the ported trigger tables are wired, the starting stage grants on a
+live player, and every one of the 13 gated recipes both resolves and actually
+demands its tier material (`Predicate#test` probe against the live recipe
+manager — the same technique the storage.js check uses, since KubeJS's class
+shutter hides `Ingredient`'s own members). L3 with the #49 refresh-loop
+assertion plus the new post-join stage-grant probe is the end-to-end proof
+that the bug class is gone.

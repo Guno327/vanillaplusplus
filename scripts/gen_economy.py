@@ -4,9 +4,13 @@ pack/kubejs/server_scripts/economy.js (both the price data and the /sell
 command that reads it - kept in one file so there's no cross-script load-order
 dependency between a data file and a logic file).
 
-Pricing source: pack/config/ProgressiveStages/*.toml's own [items].locked
-lists - these are the item ids that become available at each tier, already
-authored in Phase 1 as this pack's own progression/difficulty signal. Reusing
+Pricing source: pack/progression/*.toml's own [items].locked lists - these
+are the item ids that become available at each tier, already authored in
+Phase 1 as this pack's own progression/difficulty signal. (Those files were
+ProgressiveStages tier configs until #49 dropped that mod; they now live in
+pack/progression/ as plain pack design data - read by generators, shipped to
+nobody. The [items].locked lists are still this pack's tier manifest, they
+just no longer drive a runtime lock.) Reusing
 them here means "preset value... determined intelligently based on the tier/
 difficulty" (instructions.md) falls directly out of decisions already made,
 rather than needing a second, independent difficulty metric (e.g. recursive
@@ -26,7 +30,7 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-STAGES_DIR = ROOT / "pack" / "config" / "ProgressiveStages"
+STAGES_DIR = ROOT / "pack" / "progression"
 OUT_FILE = ROOT / "pack" / "kubejs" / "server_scripts" / "economy.js"
 
 # Sell price in spurs (Numismatics' base currency unit - 8 spurs/bevel,
