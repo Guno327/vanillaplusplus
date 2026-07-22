@@ -48,7 +48,7 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   Release pipeline runbook in `HANDOFF.md`; each mint must repin
   `nix/release.json` (`scripts/update_nix_release.py`).
 
-## Current status (2026-07-22, post-v0.3.0 owner confirmation)
+## Current status (2026-07-22, post-#64/#70/#77/#79 wave)
 
 - v0.3.0 shipped (prerelease) and **owner-confirmed working in game**
   (#58: "Loads to world correctly now" — the first human-verified cut).
@@ -73,14 +73,23 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   `awaiting-approval` (recipe-reachability audit tool, feasibility
   posted); #62 `fix-in-progress` (L3's `gui` screen check passes
   vacuously — needs the same resend-until-answered loop as `connect`);
-  #64 (`build_server.py` cannot bootstrap NeoForge on a fresh machine —
-  the bootstrap itself now works on `fix/64-neoforge-bootstrap`, but the
-  acceptance test still fails: a freshly installed server writes
-  `eula=false` and L0 never reaches a `Done (` marker. Same run exposed a
-  second defect — `l0_boot_smoke.sh` hardcodes `/tmp/vpp_l0_boot_smoke.log`,
-  so concurrent worktree runs overwrite each other's evidence);
   #65 (recorded coverage gap: selftest.js player-gated checks are
-  unexercised in every tier — dead ends documented, no action scheduled).
+  unexercised in every tier — dead ends documented, no action scheduled);
+  #80 (concurrent L0/L1 boots across worktrees have no mutual exclusion —
+  split out of #64, which fixed the evidence clobbering but not the
+  resource contention).
+  - **#64 merged** (#82) — `build_server.py` now bootstraps the NeoForge
+    server install itself from a checksum-pinned `loader_installer` block
+    in `pack/mods.lock.json`, verified *before* the jar is executed and
+    cross-checked against `pack/pack.toml`. The acceptance test the issue
+    named — `run.sh` + `libraries/` moved aside, `eula.txt` deleted — is
+    green: `L0 PASS: boot clean, 94 server mods`. Two defects only a real
+    run could expose were fixed with it: a fresh install writes
+    `eula=false` (the harness now accepts it for its throwaway local boot;
+    `build_server.py` and `build_server_bundle.py` deliberately still do
+    not, so shipped bundles require the end user's own agreement), and all
+    four tier scripts hardcoded a `/tmp` log path that let concurrent
+    worktrees overwrite each other's evidence.
 - Owner-filed gameplay backlog (2026-07-22, all owner-`approved` except
   #66 which is a bug), as of the post-v0.3.0 wave:
   - **#66 merged** (#74) — the quest advancement tab never appeared
@@ -97,15 +106,41 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
     exclusivity half of #1; `/respec` survives, its re-lock path does
     not. Stays open under `verify-in-game` for respec/root re-lock,
     whether `mount_speed` affects boats, and XP-curve feel.
-  - **#70 in development** — Sophisticated Storage tiered between Tom's
-    Simple Storage and Refined Storage, on `feat/70-sophisticated-storage`.
-    Rewrites `pack/manifest.json` + `pack/mods.lock.json`, which is why
-    **#67, #68 and #69 are serialized behind it** — landing or explicitly
-    parking #70 is what unblocks that queue.
-  - Queued: #67 (Overgeared forging minigames integrated with Silent Gear
-    quality), #68 (bundle Iris + a recommended minimalist shader in the
-    client pack), #69 (QoL pass 2: right-click harvest, 25% sleep-skip,
-    ladder climbing, inventory trash can).
+  - **#79 merged** (#78) — **the skill trees did not load at all.** #71's
+    new XP curve, `"70 * pow(1.13, level)"`, uses a function
+    `puffish_skills` does not have, and the mod rejects the *entire*
+    datapack on an unknown identifier: between #75 and #78 merging, `main`
+    had zero categories, zero XP sources and zero of the 782 nodes present
+    at runtime. Found by running L1, not by inspection. The curve is now
+    `"70 * (1.13 ^ level)"` (`^` is the real exponent operator, confirmed
+    by disassembling the pinned jar). **The structural lesson: the fast
+    tier passed a datapack the mod itself refuses to load**, because it
+    validated structure but not the expression language. New
+    `check_skill_expressions.py` tokenises every generated expression
+    against the jar-derived vocabulary; new `check_selftest_skill_sync.py`
+    (#77) cross-checks `selftest.js`'s hand-maintained category list and
+    node count against the generated data. Both close that class of gap at
+    PR time. Any in-game verification of #71 or #1 done before `551c8bd`
+    was against a pack with no skill system and must be redone.
+  - **#70 merged** (#81) — Sophisticated Storage tiered between Tom's
+    Simple Storage and Refined Storage: wood at rootborn, iron at Andesite
+    Age, gold/diamond at Brass Age, netherite at Precision Age, ids
+    ground-truthed against a snapshot of the real jar
+    (`gen_mod_registry_snapshot.py` + `check_storage_tiers.py`). Found and
+    fixed a genuine progression skip in passing: the mod has *two* routes
+    to a tier — craft fresh, or apply a portable tier-upgrade item — and
+    only the first was gated, so a rootborn copper container could jump
+    straight to gold on Andesite Age materials, skipping Brass Age.
+    **This generalises: the pack's gating pattern assumes one crafting
+    route per gated item**, which is the concrete argument for approving
+    #61's recursive recipe-reachability audit. Stays open under
+    `verify-in-game` for tier-upgrading a *placed* container.
+  - Queued, now unblocked by #70 but still serialized against each other
+    (all three rewrite `pack/manifest.json` + the generated lockfile):
+    #69 (QoL pass 2: right-click harvest, 25% sleep-skip, ladder climbing,
+    inventory trash can) — **in development**; then #67 (Overgeared
+    forging minigames integrated with Silent Gear quality) and #68 (bundle
+    Iris + a recommended minimalist shader in the client pack).
 - Deployment: NixOS module in `flake.nix` + `nix/`. Defaults to a
   declarative `pkgs.fetchurl` straight from the pinned release's GitHub
   asset (`nix/release.json`'s repo/tag/assetName/sha256, unconditionally
