@@ -19,22 +19,6 @@
       "note": "core progression backbone"
     },
     {
-      "slug": "progressivestages",
-      "project_id": "rY4mdP4Q",
-      "version_id": "NfFrk2e7",
-      "version_number": "3.0.1",
-      "filename": "progressivestages-3.0.1.jar",
-      "url": "https://cdn.modrinth.com/data/rY4mdP4Q/versions/NfFrk2e7/progressivestages-3.0.1.jar",
-      "hashes": {
-        "sha512": "99f2f3b6359cf80cdb6ee8326a4c079ebb9564da6be749c7d96cf591b09c4ceec813ff36ee7191b3eedfccb9910cf33248779d49286f91c90a5265ae002db5a9",
-        "sha1": "99028027cacd245fed7fe5813182c2fa00795e22"
-      },
-      "filesize": 1628662,
-      "side": "both",
-      "phase": 1,
-      "note": "tier-gating engine: items/recipes/blocks/entities/dimensions locked behind stages, FTB Teams+Quests integration for later phases"
-    },
-    {
       "slug": "toms-storage",
       "project_id": "XZNI4Cpy",
       "version_id": "x8jcBWWG",
@@ -1281,6 +1265,150 @@
       "side": "both",
       "phase": 18,
       "note": "Release client QoL (user decision, pulled forward from the deferred item 9 food stack): hunger/saturation/exhaustion HUD overlay. Modrinth client_side=optional/server_side=optional - full accuracy needs a matching server-side install for real exhaustion values (client-only falls back to estimation), so side:both is correct over client-only"
+    },
+    {
+      "slug": "just-enough-resources-jer",
+      "project_id": "uEfK2CXF",
+      "version_id": "TgNFki8j",
+      "version_number": "1.6.0.17",
+      "filename": "JustEnoughResources-NeoForge-1.21.1-1.6.0.17.jar",
+      "url": "https://cdn.modrinth.com/data/uEfK2CXF/versions/TgNFki8j/JustEnoughResources-NeoForge-1.21.1-1.6.0.17.jar",
+      "hashes": {
+        "sha512": "9a4f8c32e65d5f9451edcf1a584b22b9f590dab2cfb3efb68ef2b4c042d8ff39dcfdaddba0a9d615c7af4ecfa1cefda417c8972d7dcb54e574837ec81d6939b0",
+        "sha1": "e739d69b2de31ca8c0cb4691ab08e823f153bc44"
+      },
+      "filesize": 292088,
+      "side": "client",
+      "phase": 20,
+      "note": "JEI info wave (#57): the canonical answer to 'where does this come from' - ore distribution graphs per dimension/biome, mob drops, plant drops, villager trades, dungeon loot. Modrinth client_side=required/server_side=unsupported confirms client-only. Zero required dependencies. Note this is the oldest build in this wave (1.6.0.17, 2025-05) - verify its worldgen tab actually covers this pack's modded ore gen (Stellaris/TFMG/AllTheOres/AllTheModium) in game; jei-worldgen below is the newer second opinion and both are installed deliberately"
+    },
+    {
+      "slug": "advanced-loot-info",
+      "project_id": "PEPVViac",
+      "version_id": "y8p1Vq83",
+      "version_number": "1.21.1-1.12.0",
+      "filename": "AdvancedLootInfo-neoforge-1.21.1-1.12.0.jar",
+      "url": "https://cdn.modrinth.com/data/PEPVViac/versions/y8p1Vq83/AdvancedLootInfo-neoforge-1.21.1-1.12.0.jar",
+      "hashes": {
+        "sha512": "a496418ca955f2912c2c2e1064abe9bea31f9676a15673eab843d2dcfb3e962232bde69b096ff2b647efbab7bbe90546cb38f72cdfbe753ca284d83fe7a7bd24",
+        "sha1": "d4d48bde7b92449f34281159232650d8dda28ad0"
+      },
+      "filesize": 720490,
+      "side": "both",
+      "phase": 20,
+      "note": "JEI info wave (#57): loot-table and villager-trade info read from the REAL loot tables rather than a hand-authored list, which is what makes it cover this pack's own generated structure loot (scripts/gen_structure_loot.py) and every modded mob without per-mod support. Modrinth client_side=required/server_side=REQUIRED - the one addon in this wave that must be on both sides. MIT, zero required dependencies, actively maintained (1.12.0, 2026-05)"
+    },
+    {
+      "slug": "jei-worldgen",
+      "project_id": "YYrsrQ6q",
+      "version_id": "nzhuNNMG",
+      "version_number": "1.4.0+neoforge-1.21.1",
+      "filename": "jeiworldgen-neoforge-1.21.1-1.4.0.jar",
+      "url": "https://cdn.modrinth.com/data/YYrsrQ6q/versions/nzhuNNMG/jeiworldgen-neoforge-1.21.1-1.4.0.jar",
+      "hashes": {
+        "sha512": "034201d8975b5e4875ab7b12efe7ec58f5cd31487d84a6e1e9d92d449b19dbfd632030fc1e4558a2420fe65ca78ef7e74a15ea65946cee55738cc0c299b9d280",
+        "sha1": "78a7f2f7ade1f32ab471238a22136429a93b23c2"
+      },
+      "filesize": 130500,
+      "side": "both",
+      "phase": 20,
+      "note": "JEI info wave (#57): worldgen info with universal compatibility, newest build in the wave (1.4.0, 2026-07). Deliberately overlaps JER's worldgen tab - JER's 1.21.1 build is a year old and may not see this pack's modded ore generation, so both are installed and the redundant one gets dropped once an in-game check says which. Modrinth server_side=optional -> side:both per this pack's standing rule"
+    },
+    {
+      "slug": "justenoughbreeding",
+      "project_id": "9Pk89J3g",
+      "version_id": "SMcvKJOF",
+      "version_number": "3.1.0",
+      "filename": "justenoughbreeding-neoforge-1.21.1-3.1.0.jar",
+      "url": "https://cdn.modrinth.com/data/9Pk89J3g/versions/SMcvKJOF/justenoughbreeding-neoforge-1.21.1-3.1.0.jar",
+      "hashes": {
+        "sha512": "99f190d81b27eda80f998958690cdebfec1fc79b316fd09640f4ec1449616c12ae36c02f88ab528e4fcd7ad7d62431bfb8f691ab7442ba269a0ef8836650e71f",
+        "sha1": "e8d4564ea93a3d6c2004e7bf1501b754af377f87"
+      },
+      "filesize": 585209,
+      "side": "client",
+      "phase": 20,
+      "note": "JEI info wave (#57): shows what each animal breeds with - directly useful here because Naturalist adds a large animal set on top of vanilla. Modrinth client_side=required/server_side=unsupported, MIT, zero dependencies"
+    },
+    {
+      "slug": "just-enough-effect-descriptions-jeed",
+      "project_id": "EO27GKs1",
+      "version_id": "HpxNIA6x",
+      "version_number": "1.21-2.3.2",
+      "filename": "jeed-1.21-2.3.2.jar",
+      "url": "https://cdn.modrinth.com/data/EO27GKs1/versions/HpxNIA6x/jeed-1.21-2.3.2.jar",
+      "hashes": {
+        "sha512": "b9a1715054bb65e5cd1ee4f2add8ea5c368f425f7b185c9ed8f94b441286741fb991fe7494d725bd76e741b4d3da842a779ec1aa6b51c0df70e4358f5ca66b24",
+        "sha1": "144ffaf459b58db14614a7e1ef3425c2594e30b6"
+      },
+      "filesize": 164003,
+      "side": "client",
+      "phase": 20,
+      "note": "JEI info wave (#57): status-effect info pages, covering Ars Nouveau's spell effects and Apotheosis' potion/affix effects. Modrinth client_side=required/server_side=unsupported, zero dependencies. License is all-rights-reserved, which is fine here: the .mrpack references it by Modrinth URL+hash rather than embedding the jar (contrast the CurseForge-hosted mods in #41 that must be bundled)"
+    },
+    {
+      "slug": "just-enough-professions-jep",
+      "project_id": "kB56GtWA",
+      "version_id": "Avs9oGLn",
+      "version_number": "4.0.5",
+      "filename": "JustEnoughProfessions-neoforge-1.21.1-4.0.5.jar",
+      "url": "https://cdn.modrinth.com/data/kB56GtWA/versions/Avs9oGLn/JustEnoughProfessions-neoforge-1.21.1-4.0.5.jar",
+      "hashes": {
+        "sha512": "2d9ecd7dbe8a676447009a6943b99f54bb732d084d220c09b79636293e67596f8e0ac1d1a849ad1077126b5e9da4aff31c5bfd81836459190c63b974500c8363",
+        "sha1": "b97a7420738c2ac020ad15e8f6ac472aad288af2"
+      },
+      "filesize": 24879,
+      "side": "both",
+      "phase": 20,
+      "note": "JEI info wave (#57): maps villager professions to their workstation blocks. Its one required dependency is jei itself (already installed, phase 18). Modrinth server_side=optional -> side:both per this pack's standing rule"
+    },
+    {
+      "slug": "enchantment-descriptions",
+      "project_id": "UVtY3ZAC",
+      "version_id": "OuJDPGSM",
+      "version_number": "21.1.10",
+      "filename": "enchdesc-neoforge-1.21.1-21.1.10.jar",
+      "url": "https://cdn.modrinth.com/data/UVtY3ZAC/versions/OuJDPGSM/enchdesc-neoforge-1.21.1-21.1.10.jar",
+      "hashes": {
+        "sha512": "8932647d23f19ead791a921b0793f61fd7c36601824afef060a55dad9e1ace64f1cb50bd83490d43c9dff3a34661b68b89975f8c4f36b69f36b8e44592d0ad16",
+        "sha1": "9a06a20881c5feb730aa249666cac2871ca99fda"
+      },
+      "filesize": 82629,
+      "side": "both",
+      "phase": 20,
+      "note": "JEI info wave (#57): enchantment descriptions in JEI - worth its dependency cost here specifically because Apotheosis' enchanting overhaul is central to this pack. The only pick in this wave with required deps: prickle + bookshelf-lib (both added below, both LGPL-2.1, both client+server required)"
+    },
+    {
+      "slug": "prickle",
+      "project_id": "aaRl8GiW",
+      "version_id": "EE1FHDyD",
+      "version_number": "21.1.11",
+      "filename": "prickle-neoforge-1.21.1-21.1.11.jar",
+      "url": "https://cdn.modrinth.com/data/aaRl8GiW/versions/EE1FHDyD/prickle-neoforge-1.21.1-21.1.11.jar",
+      "hashes": {
+        "sha512": "154d42795ccf1f3e07714775cdb82fd5db17574319286ced13d86b0456b64e4cf5bb89ffbcbfcefce67b73ed0b83e4e2944e493d79d9a385ff9de23006ee7bf5",
+        "sha1": "5174059ecf97340a0de5ef211b938de26c4eaa36"
+      },
+      "filesize": 84812,
+      "side": "both",
+      "phase": 20,
+      "note": "required by enchantment-descriptions above (Modrinth-declared required dependency, client+server both required)"
+    },
+    {
+      "slug": "bookshelf-lib",
+      "project_id": "uy4Cnpcm",
+      "version_id": "1sdJl7J1",
+      "version_number": "21.1.81",
+      "filename": "bookshelf-neoforge-1.21.1-21.1.81.jar",
+      "url": "https://cdn.modrinth.com/data/uy4Cnpcm/versions/1sdJl7J1/bookshelf-neoforge-1.21.1-21.1.81.jar",
+      "hashes": {
+        "sha512": "78d4577a8e8fbb241216968475dd73f5b9e5efeb7da802b18a4e6c290e49af6cb4a5676e9855d0d8ff3613f967812e4bd363bbb9196c17c954d19454f84b2214",
+        "sha1": "efc4cda6da4dd879f24d057ed0a6413764c9ba40"
+      },
+      "filesize": 328813,
+      "side": "both",
+      "phase": 20,
+      "note": "required by enchantment-descriptions above (Modrinth-declared required dependency, client+server both required)"
     },
     {
       "slug": "time-in-a-bottle-universal",

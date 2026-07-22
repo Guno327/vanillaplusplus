@@ -969,3 +969,281 @@ updated to match. The Modrinth publish workflow/pin itself
 (`publish-modrinth.yml`, `update_nix_release.py`'s `--modrinth-only`) is
 untouched — still useful for the Modrinth *listing* players can install
 from, just no longer what this module defaults to.
+
+## L3 live-join test made to actually run; #49 narrowed, not closed (2026-07-22)
+
+Owner provided permanent access to an Incus cluster so L3 could run
+somewhere with a display, and asked for L3 to become a standard part of
+the test suite. It now reaches `L3 PASS` reproducibly (five clean runs):
+a real client with the full mod set joins the dedicated server, survives a
+45s post-join settle window past Sable's historical ~29s mark, and is not
+sitting on a loading/dirt-message screen.
+
+**Every blocker was in the harness, not the pack.** Five distinct bugs,
+each of which independently prevented a join, listed because several are
+badly counter-intuitive and cost a full ~10-minute client boot apiece to
+find:
+
+1. **`hmc.check.xvfb=true` is the switch that matters, not `-lwjgl`.**
+   HeadlessMC installs its LWJGL redirection layer (stubbing
+   lwjgl-glfw/lwjgl-opengl into no-ops) *by default* — that is its whole
+   purpose. Its `-lwjgl` flag does not select the stub; per its own
+   `help launch` it "Removes lwjgl code, causing Minecraft not to render
+   anything", i.e. more headless, and neither L2 nor L3 ever passed it.
+   The previous revision of `l3_client_join.py` asserted the exact
+   opposite in its docstring and would have stayed broken on any machine.
+   With the property off, the client loads its entire mod set, reports
+   `OpenGL Vendor:` empty and `Backend API: NO CONTEXT`, and dies on
+   Sodium's fence object *while Xvfb is running perfectly*. With it on,
+   `XvfbService` shells out to `ps aux`, logs "Running with xvfb", skips
+   redirection, and the same run reports `OpenGL Renderer: llvmpipe`.
+2. **`connect` takes ip and port as separate arguments.** `connect
+   host:port` reaches hmc-specifics' ConnectCommand fine and then throws
+   inside it — Minecraft's `ServerAddress` hands the string to Guava's
+   `HostAndPort.fromParts()`, which rejects a host that already carries a
+   port. The IllegalArgumentException only appears as a stack trace in the
+   client log, so the symptom is just "never joined".
+3. **The launcher and the game race for the same stdin.** HeadlessMC gives
+   the game its own stdin, so each line written to the FIFO is delivered
+   to whichever process the kernel wakes. Lines landing on the launcher
+   are rejected with "Couldn't find command for '[connect, ...]', did you
+   mean 'help'?" and lost. This reads like a missing mod but is not —
+   launcher-side verbs like `quit` still work, so the relay looks healthy.
+   Fix is to resend until the server confirms the join. `-quit` is *not*
+   the fix: it makes the launcher delete the game's instrumented runtime
+   dir on the way out (only half-fixed by `hmc.keepfiles=true`) and, since
+   it relays the game's stdout, its exit kills the game before it renders
+   a frame.
+4. **The client instance never got `pack/{config,kubejs,defaultconfigs}`.**
+   `build_server.py` syncs these into `server/` and `build_mrpack.py`
+   ships them under `overrides/`, so real players are unaffected — but
+   nothing did the equivalent for the local research instance. The pack
+   registers its own items from `pack/kubejs/startup_scripts`, so the
+   client was kicked mid-handshake with "The server send registries with
+   unknown keys: ResourceKey[minecraft:item / vanillaplusplus:...]".
+   Looks exactly like a pack bug; is purely a stale test instance.
+5. **The server was killed mid-test by its own `timeout 300`.** A
+   hardcoded literal that could not track the other timeouts; the full run
+   (boot + ~3min client load + settle) exceeds it, so the server exited
+   during the post-join phase and the failure surfaced as a missing
+   assertion result rather than "the server died". Now derived from the
+   other constants.
+
+**#49: L3 does not reproduce it. That is not the same as fixed, and it
+must not be closed on this evidence.** The owner reproduced the hang by
+hand on v0.2.1; L3 does not. The environments differ in ways that could
+plausibly matter (Mesa llvmpipe software rendering, loopback networking, a
+freshly generated world), so the honest conclusion is that L3 fails to
+reproduce it, not that the bug is gone. Concrete lead for next session:
+the join log shows Sable's **client**-side UDP channel still going active
+and then closing — #50 disabled the *server* pipeline only.
+
+**Accepted gap**: L3 does not run `/vpp_selftest` as the joined player, so
+selftest.js's player-gated checks still SKIP and remain unexercised
+anywhere in the suite. Both available routes are dead ends with this
+toolchain: from the console `execute run vpp_selftest` works but
+`execute as <player> run vpp_selftest` (and `@a`) silently produces
+nothing — no result, no error, no exception, with the player provably
+online via a `list` probe and a 150s window; from the client,
+hmc-specifics 2.4.0's registered command surface accepts `connect`, `gui`
+and `menu` but rejects `command`, `./...` and even `disconnect`. Recorded
+as a KNOWN GAP in the script rather than faked or silently dropped; worth
+its own issue.
+
+**New tooling**: `scripts/incus_api.py`, a stdlib-only Incus REST client
+(TOFU server-cert pinning, async-operation waiting, websocket-free exec
+via `record-output`, streaming file push). Needed because the dev box has
+no `incus`/`lxc` CLI and no `curl`, and Ubuntu Core offers no apt or root
+to install any. One trap encoded in it: a raw `+` in a query path decodes
+to a space, so anything under `vanilla++` 404s unless the path is quoted.
+
+## ProgressiveStages dropped entirely; progression gated by materials (#49, owner decision, 2026-07-22)
+
+The pin-to-2.1 fix (PR #55) was closed unmerged in favour of removing the mod.
+What settled it was testing the residual item-path variant of the same JEI
+bug on the *pinned 2.1* build: 45s after joining, before any stage grant,
+**0** ingredient-add passes; 30s after `stage grant <player> andesite_age`,
+**7810** passes, each re-adding the same `67 net.minecraft.world.item.
+ItemStack`, still climbing at teardown. `refreshJei()`'s item path re-adds
+every locked item id the player already owns, unconditionally, in both 2.1
+and 3.0.1 — so the pin fixed *joining* and nothing else: the freeze returned
+the moment anyone unlocked their first tier. Older versions are not a way
+out either (`1.3`/`1.2` never call `registerIngredientListener`, so no loop,
+but they also ship no `MultiTrigger*` and no `KubeJSStagesCompat`, both of
+which this pack depends on). **2.1 was the floor and the floor was not high
+enough.**
+
+Owner's call: drop the mod, rely on resource availability and crafting
+recipes. A bug class that cannot return.
+
+**Why this was cheap rather than a rewrite.** KubeJS ships its own stage
+backend: `dev.latvian.mods.kubejs.stages.StageEvents.create()` falls back to
+`TagWrapperStages` (player-NBT-backed, synced via KubeJS's own
+`SyncStagesPayload`) whenever no mod claims `StageCreationEvent` —
+ProgressiveStages was merely one claimant. javap-confirmed against
+kubejs-neoforge-2101.7.2-build.368.jar. So `player.stages`,
+`PlayerEvents.stageAdded` and `/kubejs stages` keep working, and every script
+that reads stages — `quests.js` (its whole "gamestage" task type),
+`mob_scaling.js`, `mobility.js`, `leaderboard.js`, `selftest.js` — needed no
+changes at all.
+
+**What actually changed:**
+
+- `progression_stage_bridge.js` is now the *only* granter of tier stages. It
+  already granted the four item-triggered tiers (it was written for #23,
+  because the mod's own triggers missed crafted items); the three trigger
+  types the mod still owned are ported into it — `PSB_STARTING_STAGES`
+  (rootborn at login), `PSB_DIMENSION_STAGE_TRIGGERS` (the four Stellaris
+  frontier stages, evaluated from the player's current dimension on the
+  existing 20-tick scan), and `PSB_BOSS_STAGE_TRIGGERS` (ender dragon ->
+  starforged_age, via `EntityEvents.death`). The boss grant goes to every
+  player in the dimension, not just the killer: the End fight is a group
+  activity and a single-killer grant would strand everyone else on this
+  pack's one hard tier gateway.
+- `pack/config/ProgressiveStages/*.toml` moved to `pack/progression/*.toml`
+  and `progressivestages.toml` was deleted. The tier files are still the
+  pack's tier manifest (`gen_economy.py` prices off them, unchanged output
+  byte-for-byte after the path move) — they are design data now, read by
+  generators and shipped to nobody, since `build_server.py`/`build_mrpack.py`
+  only sync `config`/`kubejs`/`defaultconfigs`. `triggers.toml` was deleted
+  outright: the bridge's constants ARE the trigger definition now, so keeping
+  a second copy would only invite drift.
+- New `pack/kubejs/server_scripts/tier_gating.js`: 13 recipe edits, each
+  adding ONE tier material to a recipe whose only gate was the deleted lock.
+
+**Which families actually needed an edit — grounded, not guessed.** A recipe
+audit across all 4758 craftable ids in the built server showed most of the
+lock list was already redundant: Create/TFMG/Stellaris/AllTheModium chains
+gate themselves, Refined Storage gates itself through its own basic ->
+improved -> advanced processor chain (`autocrafter` and `wireless_transmitter`
+need an advanced processor; `16k_storage_part` needs an improved one), and
+`weapon_smithing.js`/`storage.js`/`ars_nouveau_armor.js`/`tick_accelerator.js`
+had already re-authored several families whose gates therefore survive
+untouched. **Caveat worth recording**: the first version of that audit
+produced false positives — it flagged `create:track_station` (which actually
+needs `railway_casing`) and `refinedstorage:controller` (it matched RS's
+*recoloring* recipe, not the real one). Every family below was confirmed by
+reading its real recipe JSON out of the jar, not by the heuristic. A proper
+recursive-reachability version of the audit is worth having as a permanent
+tool and is filed as follow-up work, not blocking.
+
+Edited: Waystones (`warp_stone` -> netherite ingot; one edit covers the
+10-id family, since every waystone/sharestone/portstone recipe in the jar
+consumes warp_stone and the three scrolls are inert without a placed
+waystone), Sophisticated Backpacks (`iron_backpack`/`gold_backpack` +
+`stack_upgrade_starter_tier`/`tier_2` — the chains gate everything above
+them; kept the mod's own `backpack_upgrade` recipe type via `event.custom()`
+because that type is what carries stored CONTENTS into the upgraded
+backpack, and a plain shaped recipe would silently delete a player's
+inventory), Building Wands (copper/iron/diamond wand + magic_bag_1/2),
+Tom's Storage upper terminals (crafting/wireless — the *base* terminal stays
+deliberately pulled down to iron tier by `storage.js`), and Create Ore
+Excavation's entry drill.
+
+**Deliberately not reimplemented** (owner chose "pure materials only" when
+asked): mob-spawn gating, dimension-travel blocking, block-interaction rules,
+locked-item name masking, and JEI hiding of locked items. Born in Chaos mobs
+now spawn from world start and the Nether is open from the beginning.
+
+**Verification.** L0 PASS (88 server mods — one fewer, 0 KubeJS
+errors/warnings, no unbaselined WARN/ERROR). L1 PASS 28/28 with three new
+checks: the ported trigger tables are wired, the starting stage grants on a
+live player, and every one of the 13 gated recipes both resolves and actually
+demands its tier material (`Predicate#test` probe against the live recipe
+manager — the same technique the storage.js check uses, since KubeJS's class
+shutter hides `Ingredient`'s own members). L3 with the #49 refresh-loop
+assertion plus the new post-join stage-grant probe is the end-to-end proof
+that the bug class is gone.
+
+## JEI acquisition-info wave, and a silently-dead mob-scaling feature it uncovered (#57, 2026-07-22)
+
+Owner asked for JEI to carry as much "how do I get this?" information as
+possible. Split in two, because two different things know the answer.
+
+**What the game knows — seven addons.** All verified to have real 1.21.1 +
+NeoForge builds and their side markers taken from Modrinth's own
+client_side/server_side fields, per this pack's standing rule:
+
+| mod | side | why |
+| --- | --- | --- |
+| Just Enough Resources | client | ore distribution per dimension/biome, mob + plant drops, dungeon loot, trades |
+| Advanced Loot Info | **both** (server_side=required) | reads the REAL loot tables, so it covers this pack's own `gen_structure_loot.py` output and every modded mob with no per-mod support |
+| JEI WorldGen | both | newest worldgen addon; deliberately overlaps JER — see below |
+| Just Enough Breeding | client | Naturalist adds a large animal set |
+| JEED | client | Ars Nouveau + Apotheosis effects |
+| Just Enough Professions | both | villager workstations; its one required dep is JEI itself |
+| Enchantment Descriptions (+prickle, +bookshelf-lib) | both | Apotheosis' enchanting overhaul is central here — the only pick with a dependency cost |
+
+**Deliberate redundancy, to be resolved in game:** JER's 1.21.1 build is from
+2025-05 and may not see this pack's modded ore generation (Stellaris/TFMG/
+AllTheOres/AllTheModium); JEI WorldGen is from 2026-07 and claims universal
+compatibility. Both are installed so the loser can be dropped on evidence
+rather than guessed at now.
+
+**What only the pack knows — `jei_info.js`.** No addon can explain what this
+pack did to its own recipes, and that is where players actually dead-end:
+`minecraft:iron_pickaxe` has no recipe at all (the #9 tool sweep deleted it to
+funnel players to Silent Gear, whose own JEI plugin documents the Silent Gear
+side perfectly but is not pointed AT from the item you looked up);
+`waystones:warp_stone` demands netherite because #49's `tier_gating.js` put it
+there; `create:andesite_alloy` silently grants a quest-gating stage;
+`alltheores:zinc_ingot` was unified out of its tag by `dedup.js` and is
+consumed by nothing.
+
+`RecipeViewerEvents.addInformation` is posted with `ScriptType.SERVER`
+(javap-confirmed: `recipe/viewer/server/ItemData` posts
+`RecipeViewerEvents.ADD_INFORMATION` with `ScriptType.SERVER` and a
+`ServerAddItemInformationKubeEvent`, synced to the client's viewer), so the
+layer lives in `server_scripts` in the same Rhino scope as the tables it
+reads. Three of its four sources are read from the script that owns the
+behaviour rather than hand-copied — `tool_consolidation_sweep.js` now
+publishes `TCS_REMOVED_TOOL_ITEMS` from its own removal pass (so it covers
+mods added later, which a hand-typed list would miss), `tier_gating.js`
+publishes `TG_TIER_INFO`, and `progression_stage_bridge.js`'s trigger table is
+read directly. Only the dedup redirects are hand-maintained, because
+`dedup.js` is a series of `event.remove(tag, item)` calls with no list to
+read; that one is covered by a selftest check instead.
+
+**The bug this wave uncovered, which is bigger than the wave.** L3's new
+post-join stage-grant probe is the first test in this suite that ever put a
+real player holding a real tier stage next to a real mob spawn. It
+immediately surfaced `EntityEvents.spawned` throwing
+`IllegalArgumentException: 'multiply_base' is not a valid enum constant`.
+
+`mob_scaling.js` passed `'multiply_base'` to KubeJS's
+`entity.modifyAttribute()`, which coerces to vanilla's
+`AttributeModifier.Operation` — whose only valid ids are `add_value`,
+`add_multiplied_base`, `add_multiplied_total`. The spelling came from
+puffish_skills' `attr_reward` vocabulary, where it is correct (see
+`scripts/gen_skill_tree.py`, which still uses it correctly for Puffish's own
+json) — two systems, same semantic, different word. The throw happened
+*before* `setHealth`, the `vpp_difficulty` tag and the star nametag, so:
+**mob difficulty scaling has never worked**, and the death-reward bonus that
+reads that tag never paid out either. Nothing but a server-log ERROR line
+said so — L0 boots with no players, L1 is console-only, and no test had ever
+staged the one situation that triggers it.
+
+Fixed to `add_multiplied_base` behind a named constant
+(`MS_SCALING_OPERATION`) with the trap documented at the use site, plus a
+selftest guard pinning it to the three ids the vanilla enum accepts. Worth
+recording as a lesson about test coverage shape rather than test count: the
+suite was green the entire time this feature was dead, because every tier
+below L3 structurally cannot observe it.
+
+**Verification.** L0 PASS (94 server mods — 88 + the 6 both-side additions,
+0 KubeJS errors/warnings, no unbaselined WARN/ERROR). L1 PASS 31/31,
+including new checks that the info layer generates pages for all four sources
+(driven by a recording stub, since a console-only boot never syncs a recipe
+viewer), that `TG_TIER_INFO` only describes recipes this pack really gates,
+and the mob-scaling operation guard. L2 PASS — the real risk gate for seven
+new JEI plugins: 100 client mods / 124 modids discovered, dependency-resolved
+and mixin-applied with zero mod-loading errors. L3 PASS with the refresh-loop
+assertion at 0 both after join and after a tier grant, and the enum error gone
+from the server log.
+
+**Harness note:** the L3 probe's grant confirmation now reads back
+`kubejs stages list` rather than watching for the "Added '<stage>' stage for
+<player>" line. `StageCommands.addStage` only prints that when `Stages.add()`
+returns true — i.e. when the player did not already hold the stage — and L3
+reuses its world between runs, so from the second run onward the grant is a
+silent no-op and the probe would have skipped forever.

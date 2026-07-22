@@ -68,6 +68,91 @@ mints. #49 remains open (`fix-pushed` + `verify-in-game`) pending a real
 in-game join. The L3 live-join test tier that would automate that check
 is filed as #47 (`awaiting-approval`).
 
+**#49 retested on v0.2.1, still hangs (2026-07-21)**: owner confirmed the
+#50 fix did not resolve the Loading Terrain hang. Re-verified #50 is fully
+active at runtime (javap + a fresh boot log show Sable's UDP pipeline never
+starts - `l0_boot_smoke.sh` now asserts this directly, see below), which
+rules Sable back OUT as the cause - the original diagnosis correlated a
+real bug with the hang but that correlation no longer explains a hang that
+persists with the pipeline provably disabled. #47 approved by the owner in
+the same session; `scripts/tests/l3_client_join.py` added (see "Release
+pipeline" below) to chase the real cause directly via a live join rather
+than more static analysis.
+
+**L3 now runs green end-to-end (2026-07-22)**: owner provided a permanent
+Incus cluster so L3 has a machine with a display (see "L3 test host"
+below). L3 reaches `L3 PASS` reproducibly - a real client with the full
+mod set joins the dedicated server, survives a 45s post-join settle window
+past Sable's historical ~29s mark without disconnecting, and is not
+sitting on a loading/dirt-message screen.
+
+**#49 did NOT reproduce there, which is not the same as fixed.** The owner
+reproduced the hang on v0.2.1 by hand; L3 does not. Something differs
+between the two environments - L3 runs Mesa llvmpipe software rendering,
+connects over loopback, and joins a freshly generated world - so the right
+reading is "L3 does not reproduce it", not "#49 is resolved". **#49 stays
+open and must not be closed on this evidence.** One concrete lead for
+whoever picks it up: the join log shows Sable's *client*-side UDP channel
+still going active (`Starting remote client UDP channel future` /
+`Client UDP channel active`, then inactive/closed a moment later). #50
+disabled the **server** pipeline only; the client half still runs.
+
+Everything that blocked L3 turned out to be harness bugs, not pack bugs -
+five of them, all now fixed and documented inline in the script. The one
+worth knowing without reading the file: HeadlessMC stubs LWJGL out **by
+default**, and its `-lwjgl` flag does *not* select that stub (per its own
+help it "Removes lwjgl code, causing Minecraft not to render anything").
+An earlier revision of this file claimed the opposite. The switch that
+actually matters is the config property `hmc.check.xvfb=true`; without it
+the client loads its whole mod set, reports `Backend API: NO CONTEXT`, and
+dies on a Sodium fence object *even with Xvfb running perfectly*.
+
+One acceptance criterion from #47 is **not** met: L3 does not run
+`/vpp_selftest` as the joined player, so selftest.js's player-gated checks
+still report SKIP and remain unexercised anywhere in the suite. Both
+routes are dead ends with this toolchain (`execute as <player> run ...`
+silently no-ops server-side; hmc-specifics 2.4.0 exposes no usable chat
+verb) - reasoning is recorded at the KNOWN GAP comment in the script.
+Worth its own issue.
+
+**#49 root-caused and fixed by dropping ProgressiveStages (2026-07-22)**:
+the owner's full freeze log ended in an unbounded repeat of JEI's
+`Ingredients are being added at runtime: 249 FluidStack`. ProgressiveStages'
+client JEI plugin registers an ingredient listener that calls
+`scheduleRefresh()`, its queued refresh clears its own re-entry guard before
+running, and the refresh re-adds ingredients through
+`addIngredientsAtRuntime` — which JEI notifies listeners for unconditionally.
+Pinning to 2.1 fixed only *joining*: the item-path variant of the same loop
+fired the moment a tier unlocked (measured on the pinned build: **7810**
+refresh passes in 30s after `andesite_age`). PR #55 (the pin) was closed
+unmerged; the owner's call was to remove the mod entirely and gate
+progression by materials and recipes alone.
+
+That was cheap because KubeJS ships its own persistent stage backend
+(`StageEvents.create()` -> `TagWrapperStages` when no mod claims
+`StageCreationEvent`), so `player.stages` and every script reading it —
+quests, mob scaling, flight, leaderboard, selftest — needed no changes.
+`progression_stage_bridge.js` absorbed the three trigger types the mod still
+owned (starting stage, the four Stellaris dimension stages, ender-dragon ->
+starforged_age); the tier TOMLs moved to `pack/progression/` as generator
+design data; and new `tier_gating.js` adds one tier material to the 13
+recipes whose only gate was the deleted lock (Waystones, backpack/wand
+tiers, Tom's upper terminals, Create Ore Excavation's drill). Mob-spawn
+gating, dimension-travel blocking and locked-item name masking are
+deliberately gone, not reimplemented. Full writeup in `DECISIONS.md`.
+
+Verified L0 PASS (88 mods), L1 PASS 28/28 (three new checks), and L3 PASS
+with two new assertions — a refresh-loop counter and a post-join stage-grant
+probe: **0** ingredient-add passes after granting `andesite_age`, against
+7810 on the pinned-2.1 build.
+
+**No upstream bug report will be filed** (owner decision, 2026-07-22). One was
+written up in full — mechanism, both loop paths, a measured repro and three
+suggested fixes — but this pack no longer ships ProgressiveStages, so chasing
+a fix in someone else's mod buys this project nothing. It is dropped from the
+backlog deliberately, not forgotten; the full analysis lives in `DECISIONS.md`
+if it is ever needed again (e.g. if a future pack wants the mod back).
+
 **GitHub is now ground truth for outstanding bugs and in-game
 verifications** (user directive, 2026-07-10): the project's GitHub repo at
 `https://github.com/Guno327/vanillaplusplus` (remote `origin`) tracks all
@@ -95,6 +180,7 @@ python3 scripts/resolve_mods.py          # manifest.json -> mods.lock.json
 sh scripts/tests/l0_boot_smoke.sh        # build + boot + baseline-diff the log
 python3 scripts/tests/l1_selftest.py     # boot + /vpp_selftest + parse the result
 python3 scripts/tests/l2_client_smoke.py # full client mod set via HeadlessMC
+python3 scripts/tests/l3_client_join.py  # live join against the dedicated server (needs xvfb-run, see below)
 python3 scripts/build_mrpack.py          # client .mrpack
 python3 scripts/build_server_bundle.py   # server .zip
 python3 scripts/update_nix_release.py    # repin nix/release.json to the minted release
@@ -119,6 +205,43 @@ would need to redo that setup — see DESIGN.md's "Release engineering"
 section for the exact working launch invocation, including the two
 harness-specific flags (`sodium.checks.issue2561=false`, `--retries 3`)
 that took real `javap` decompilation to discover).
+
+L3 needs everything L2 does, plus `Xvfb` on PATH (Mesa llvmpipe software
+rendering is sufficient — no GPU) and the `hmc-specifics` HeadlessMC
+control mod, which the script installs itself. It also writes the
+HeadlessMC config properties it depends on (`hmc.check.xvfb`,
+`hmc.keepfiles`) rather than assuming a hand-edited config — see
+`configure_headlessmc()`.
+
+Unlike L2 it cannot run against HeadlessMC's stubbed LWJGL: this pack's
+client mod set creates a real GL fence object every render tick (Sodium),
+which dies immediately without an actual (even software) GL surface. Note
+this is controlled by `hmc.check.xvfb`, **not** by the `-lwjgl` launch
+flag, whose meaning is the opposite of what its name suggests.
+
+## L3 test host (owner-provided, permanent)
+
+L3 is meant to be a standard part of the suite from now on, so the owner
+granted standing access (2026-07-22) to an Incus 7.0.1 cluster at
+`192.168.0.1:8443` (NixOS host, ZFS, lxc+qemu drivers).
+
+- Talk to it with `scripts/incus_api.py` — a stdlib-only Incus REST client.
+  There is no `incus`/`lxc` CLI and no `curl` on the dev box (Ubuntu Core,
+  no apt, no root), which is why this exists rather than shelling out.
+  Client cert lives in `~/.config/incus/`, restricted to project `vpp`;
+  the server cert is pinned TOFU on first contact.
+- Container `vpp-l3`: Ubuntu 24.04, 8 CPU / 12 GiB / 40 GiB on pool
+  `fast`, Xvfb + Mesa llvmpipe, JDK 21.0.11+10 (same build as the pinned
+  `.tools` JDK), the NeoForge 21.1.235 server install, the `~/.minecraft`
+  research instance, and the repo at `/home/ubuntu/vanilla++`.
+- **Run it as user `ubuntu`, never root.** HeadlessMC derives the
+  Minecraft game dir from the JDK's `user.home` (the passwd entry, *not*
+  `$HOME`), so as root it looks in `/root/.minecraft`, finds no versions,
+  and fails at version resolution.
+- `build_server.py` does **not** install NeoForge — `run.sh` and
+  `libraries/` come from a one-off `neoforge-*-installer.jar --installServer`
+  run that is not captured in any script. A fresh machine therefore cannot
+  produce a bootable server from the repo alone. Worth fixing.
 
 ## Post-release backlog
 

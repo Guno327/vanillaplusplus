@@ -272,6 +272,137 @@ stCheck('storage.js early-tier patch: inventory_connector/storage_terminal resol
     return { pass: bad.length === 0, detail: bad.length === 0 ? 'both resolve, no comparator' : bad.join(',') }
 })
 
+// #49 (ProgressiveStages dropped): tier_gating.js is now the ONLY thing
+// keeping these families behind their tier - the mod's lock lists are gone,
+// so if one of these recipes silently stops applying (a mod renames an item,
+// an upstream recipe id changes and the event.remove() no-ops), the item
+// quietly becomes craftable on day one with no error anywhere. Asserts each
+// gated recipe both resolves AND actually demands its tier material, using
+// the same Predicate#test probe as the storage.js check above (KubeJS's
+// class shutter hides Ingredient's own members - see that note).
+const ST_TIER_GATED_RECIPES = [
+    { id: 'vanillaplusplus:warp_stone_induction_tier', tier: 'minecraft:netherite_ingot' },
+    { id: 'vanillaplusplus:iron_backpack_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:gold_backpack_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:stack_upgrade_starter_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:stack_upgrade_tier_2_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:copper_wand_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:iron_wand_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:diamond_wand_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:magic_bag_1_andesite_tier', tier: 'create:andesite_alloy' },
+    { id: 'vanillaplusplus:magic_bag_2_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:crafting_terminal_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:wireless_terminal_brass_tier', tier: 'create:brass_ingot' },
+    { id: 'vanillaplusplus:ore_excavation_drill_andesite_tier', tier: 'create:andesite_alloy' },
+]
+
+stCheck('tier_gating.js: every gated recipe resolves and demands its tier material (#49)', server => {
+    let bad = []
+    for (let i = 0; i < ST_TIER_GATED_RECIPES.length; i++) {
+        let entry = ST_TIER_GATED_RECIPES[i]
+        let opt = server.getRecipeManager().byKey(stRl(entry.id))
+        if (!opt.isPresent()) { bad.push(entry.id + ':missing'); continue }
+        let tierStack = Item.of(entry.tier)
+        let ingredients = opt.get().value().getIngredients().toArray()
+        let demands = false
+        for (let j = 0; j < ingredients.length; j++) {
+            if (ingredients[j].test(tierStack)) { demands = true; break }
+        }
+        if (!demands) bad.push(entry.id + ':missing-' + entry.tier)
+    }
+    return {
+        pass: bad.length === 0,
+        detail: bad.length === 0 ? (ST_TIER_GATED_RECIPES.length + ' gated recipes verified') : bad.join(','),
+    }
+})
+
+// #57: the JEI info layer only fires when a recipe viewer syncs, so a
+// console-only boot never exercises it - which is exactly how it would rot
+// unnoticed (a renamed table, a script that stopped loading, an exception
+// swallowed by the try/catch in the event handler). jeiAddPackInfo() is a
+// plain function for this reason: call it with a recording stub and assert
+// both that it produced pages and that the four sources are each represented.
+stCheck('jei_info.js: pack info pages generate for all four sources (#57)', () => {
+    if (typeof jeiAddPackInfo !== 'function') {
+        return { pass: false, detail: 'jei_info.js did not load into the shared server_scripts scope' }
+    }
+    let seen = {}
+    let stub = { add: (id, lines) => { seen[String(id)] = lines.length } }
+    let pages
+    try {
+        pages = jeiAddPackInfo(stub)
+    } catch (e) {
+        return { pass: false, detail: 'jeiAddPackInfo threw: ' + e }
+    }
+    // One representative id per source. The tool id is deliberately checked
+    // against the sweep's live output rather than hardcoded - if the sweep
+    // stops removing anything, that is itself the regression.
+    let problems = []
+    if (typeof TCS_REMOVED_TOOL_ITEMS === 'undefined' || TCS_REMOVED_TOOL_ITEMS.length === 0) {
+        problems.push('tool sweep removed nothing - no tool info pages possible')
+    } else if (!seen[TCS_REMOVED_TOOL_ITEMS[0]]) {
+        problems.push('no info page for removed tool ' + TCS_REMOVED_TOOL_ITEMS[0])
+    }
+    if (!seen['waystones:warp_stone']) problems.push('no tier-gating info page (waystones:warp_stone)')
+    if (!seen['create:andesite_alloy']) problems.push('no stage-trigger info page (create:andesite_alloy)')
+    if (!seen['alltheores:zinc_ingot']) problems.push('no dedup info page (alltheores:zinc_ingot)')
+    return {
+        pass: problems.length === 0,
+        detail: problems.length === 0 ? (pages + ' info pages across 4 sources') : problems.join('; '),
+    }
+})
+
+// #57: every id TG_TIER_INFO explains must be one tier_gating.js actually
+// re-authors, or the JEI text is describing a gate that isn't there. Checked
+// against the outputs of the very recipe ids the gating check above pins,
+// rather than by scanning the whole recipe manager (which is both slow and,
+// as an earlier revision of this check found the hard way, blocked by KubeJS's
+// class shutter: ItemStack#getItem() exposes no kjs$getId to Rhino).
+stCheck('tier_gating.js: TG_TIER_INFO only describes recipes this pack really gates (#57)', server => {
+    if (typeof TG_TIER_INFO === 'undefined') {
+        return { pass: false, detail: 'TG_TIER_INFO missing from the shared scope' }
+    }
+    let gatedOutputs = {}
+    for (let i = 0; i < ST_TIER_GATED_RECIPES.length; i++) {
+        let opt = server.getRecipeManager().byKey(stRl(ST_TIER_GATED_RECIPES[i].id))
+        if (!opt.isPresent()) continue
+        let result
+        try { result = opt.get().value().getResultItem(server.registryAccess()) } catch (e) { continue }
+        if (result) gatedOutputs[String(result.id)] = true
+    }
+    let bad = []
+    let described = 0
+    for (let i = 0; i < TG_TIER_INFO.length; i++) {
+        for (let j = 0; j < TG_TIER_INFO[i].items.length; j++) {
+            described++
+            if (!gatedOutputs[TG_TIER_INFO[i].items[j]]) {
+                bad.push(TG_TIER_INFO[i].items[j] + ' is described but not gated by any vanillaplusplus recipe')
+            }
+        }
+    }
+    return { pass: bad.length === 0, detail: bad.length === 0 ? (described + ' described items all really gated') : bad.join('; ') }
+})
+
+// Regression guard for the mob-scaling operation-id bug (found 2026-07-22):
+// puffish_skills' attr_reward calls this semantic "multiply_base", vanilla's
+// AttributeModifier.Operation calls it "add_multiplied_base", and passing the
+// former to KubeJS's entity.modifyAttribute() threw on every scaled spawn -
+// killing health/damage scaling, the star nametag AND the death-reward bonus,
+// with nothing but a server-log ERROR to show for it. Static id check: a live
+// one would need a real mob spawning next to a real player, which only L3 can
+// stage.
+stCheck('mob_scaling.js: scaling operation is a real vanilla AttributeModifier id', () => {
+    if (typeof MS_SCALING_OPERATION === 'undefined') {
+        return { pass: false, detail: 'MS_SCALING_OPERATION missing from the shared scope' }
+    }
+    const VALID = ['add_value', 'add_multiplied_base', 'add_multiplied_total']
+    let ok = VALID.indexOf(MS_SCALING_OPERATION) >= 0
+    return {
+        pass: ok,
+        detail: ok ? MS_SCALING_OPERATION : MS_SCALING_OPERATION + ' is not one of ' + VALID.join('/') + " (puffish_skills' vocabulary is not vanilla's)",
+    }
+})
+
 stCheck('Artifacts master tag (artifacts:artifacts) has >= 48 items', server => {
     let registry = stItemRegistry(server)
     let tagKey = ST_TagKeyClass.create(ST_RegistriesClass.ITEM, stRl('artifacts:artifacts'))
@@ -374,16 +505,18 @@ stCheck('mobility: starforged_age stage id resolves on player.stages without thr
 // loaded into the shared Rhino scope (a boot-level wiring check - would
 // have caught e.g. a typo'd filename or a shared-scope name collision
 // silently dropping the whole file), and (2) the table's item->stage
-// mapping still agrees with config/ProgressiveStages/triggers.toml's own
-// [items] section + precision_age's [[multi]] any_of list (both files
-// declare they must be kept in sync; this is what actually enforces that).
-stCheck('progression_stage_bridge: PSB_ITEM_STAGE_TRIGGERS loaded and matches triggers.toml', () => {
+// mapping is still the one this pack's tier table calls for. Until #49
+// dropped ProgressiveStages this cross-checked the mod's own
+// config/ProgressiveStages/triggers.toml, which the bridge mirrored; that
+// file is gone and the bridge's constants ARE the trigger definition now,
+// so this check pins them against an independent copy of the expected
+// mapping instead - same regression value, one less file to drift.
+stCheck('progression_stage_bridge: PSB_ITEM_STAGE_TRIGGERS loaded and matches the tier table', () => {
     if (typeof PSB_ITEM_STAGE_TRIGGERS === 'undefined' || typeof psbApplyItemStageTriggers !== 'function') {
         return { pass: false, detail: 'progression_stage_bridge.js did not load into the shared server_scripts scope' }
     }
-    // Mirrors config/ProgressiveStages/triggers.toml's [items] section
-    // (3 entries) plus precision_age's [[multi]] any_of item list
-    // (1 entry, 2 alternative items) - see that file's own header comment.
+    // The three single-item tier triggers plus precision_age's
+    // either-of-two entry - see progression_stage_bridge.js's header.
     const expected = {
         andesite_age: ['create:andesite_alloy'],
         brass_age: ['create:brass_ingot'],
@@ -403,7 +536,72 @@ stCheck('progression_stage_bridge: PSB_ITEM_STAGE_TRIGGERS loaded and matches tr
     let gotStages = PSB_ITEM_STAGE_TRIGGERS.map(t => t.stage)
     let missingStages = expectedStages.filter(s => gotStages.indexOf(s) < 0)
     missingStages.forEach(s => mismatches.push('missing stage ' + s))
-    return { pass: mismatches.length === 0, detail: mismatches.length === 0 ? (PSB_ITEM_STAGE_TRIGGERS.length + ' triggers match triggers.toml') : mismatches.join('; ') }
+    return { pass: mismatches.length === 0, detail: mismatches.length === 0 ? (PSB_ITEM_STAGE_TRIGGERS.length + ' triggers match the tier table') : mismatches.join('; ') }
+})
+
+// #49 (ProgressiveStages dropped): the starting/dimension/boss triggers the
+// mod used to own are now this bridge's job, and nothing else in the pack
+// would notice if they silently vanished - a player would simply never get
+// rootborn, the four Stellaris frontier stages, or starforged_age, and every
+// quest gated on them would dead-end with no error anywhere. Pins the three
+// constants and asserts the grant functions are callable.
+stCheck('progression_stage_bridge: ported starting/dimension/boss triggers are wired (#49)', () => {
+    if (typeof PSB_STARTING_STAGES === 'undefined'
+        || typeof PSB_DIMENSION_STAGE_TRIGGERS === 'undefined'
+        || typeof PSB_BOSS_STAGE_TRIGGERS === 'undefined') {
+        return { pass: false, detail: 'one or more ported trigger tables missing from the shared scope' }
+    }
+    if (typeof psbApplyStartingStages !== 'function'
+        || typeof psbApplyDimensionStageTriggers !== 'function'
+        || typeof psbApplyBossStageTriggers !== 'function') {
+        return { pass: false, detail: 'one or more ported trigger functions missing from the shared scope' }
+    }
+    let problems = []
+    if (PSB_STARTING_STAGES.length !== 1 || PSB_STARTING_STAGES[0] !== 'rootborn') {
+        problems.push('starting stages: got [' + PSB_STARTING_STAGES.join(',') + '] expected [rootborn]')
+    }
+    const expectedDims = {
+        'stellaris:earth_orbit': 'lunar_frontier',
+        'stellaris:moon': 'martian_frontier',
+        'stellaris:mars': 'inner_system',
+        'stellaris:venus': 'jovian_frontier',
+        'stellaris:mercury': 'jovian_frontier',
+    }
+    const expectedDimIds = Object.keys(expectedDims)
+    if (PSB_DIMENSION_STAGE_TRIGGERS.length !== expectedDimIds.length) {
+        problems.push('dimension triggers: got ' + PSB_DIMENSION_STAGE_TRIGGERS.length + ' expected ' + expectedDimIds.length)
+    }
+    for (let i = 0; i < PSB_DIMENSION_STAGE_TRIGGERS.length; i++) {
+        let t = PSB_DIMENSION_STAGE_TRIGGERS[i]
+        if (expectedDims[t.dimension] !== t.stage) {
+            problems.push('dimension ' + t.dimension + ': got ' + t.stage + ' expected ' + (expectedDims[t.dimension] || 'nothing'))
+        }
+    }
+    if (PSB_BOSS_STAGE_TRIGGERS.length !== 1
+        || PSB_BOSS_STAGE_TRIGGERS[0].entity !== 'minecraft:ender_dragon'
+        || PSB_BOSS_STAGE_TRIGGERS[0].stage !== 'starforged_age') {
+        problems.push('boss trigger is not ender_dragon -> starforged_age')
+    }
+    return {
+        pass: problems.length === 0,
+        detail: problems.length === 0
+            ? ('1 starting + ' + PSB_DIMENSION_STAGE_TRIGGERS.length + ' dimension + ' + PSB_BOSS_STAGE_TRIGGERS.length + ' boss trigger wired')
+            : problems.join('; '),
+    }
+})
+
+stCheck('progression_stage_bridge: starting stage grants on a live player (#49)', (server, player) => {
+    if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
+    if (typeof psbApplyStartingStages !== 'function') {
+        return { pass: false, detail: 'psbApplyStartingStages missing from the shared scope' }
+    }
+    // Idempotent by construction, so this is safe to run against a real
+    // player: it either grants rootborn (fresh player) or no-ops.
+    psbApplyStartingStages(player)
+    return {
+        pass: player.stages.has('rootborn'),
+        detail: player.stages.has('rootborn') ? 'player holds rootborn' : 'rootborn not granted',
+    }
 })
 
 stCheck('progression_stage_bridge: crafted-item trigger grants the stage via player.stages (issue #23 regression guard)', (server, player) => {

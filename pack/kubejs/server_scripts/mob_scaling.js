@@ -115,6 +115,11 @@ function nearestPlayerTierFactor(players, pos) {
     return 1 + reached * 0.1
 }
 
+// Vanilla AttributeModifier.Operation id, NOT puffish_skills' vocabulary -
+// see the trap note at its use site below. selftest.js pins it to the three
+// ids the vanilla enum actually accepts.
+const MS_SCALING_OPERATION = 'add_multiplied_base'
+
 EntityEvents.spawned(event => {
     const entity = event.entity
     if (!MONSTER_TYPES.has(entity.type)) return
@@ -127,11 +132,24 @@ EntityEvents.spawned(event => {
 
     if (difficulty <= 1.01) return // baseline mob, leave it alone - no nametag clutter
 
-    // multiply_base: finalValue = base * (1 + sum of multiply_base modifiers),
-    // same semantics puffish_skills' attr_reward "multiply_base" operation
-    // uses (Phase 3) - passing (difficulty - 1) here scales base by `difficulty`.
-    entity.modifyAttribute('minecraft:generic.max_health', 'vanillaplusplus:mob_scaling_health', difficulty - 1, 'multiply_base')
-    entity.modifyAttribute('minecraft:generic.attack_damage', 'vanillaplusplus:mob_scaling_damage', difficulty - 1, 'multiply_base')
+    // add_multiplied_base: finalValue = base * (1 + sum of these modifiers), so
+    // passing (difficulty - 1) scales base by `difficulty`.
+    //
+    // TRAP, and the bug this line used to be (found 2026-07-22 by L3's new
+    // post-join stage-grant probe, which is the first test in this suite that
+    // ever put a real player with a real tier stage next to a real spawn):
+    // puffish_skills' attr_reward vocabulary calls this same semantic
+    // "multiply_base" - see scripts/gen_skill_tree.py, where that spelling is
+    // correct because it feeds Puffish's OWN json - but KubeJS's
+    // entity.modifyAttribute() coerces to vanilla's
+    // AttributeModifier.Operation enum, whose only valid ids are add_value,
+    // add_multiplied_base and add_multiplied_total. Passing 'multiply_base'
+    // threw IllegalArgumentException on EVERY scaled spawn, before setHealth /
+    // the vpp_difficulty tag / the star nametag ran - so mob scaling silently
+    // did nothing at all, and the death-reward bonus that reads that tag never
+    // paid out either. Nothing outside a server-log ERROR line said so.
+    entity.modifyAttribute('minecraft:generic.max_health', 'vanillaplusplus:mob_scaling_health', difficulty - 1, MS_SCALING_OPERATION)
+    entity.modifyAttribute('minecraft:generic.attack_damage', 'vanillaplusplus:mob_scaling_damage', difficulty - 1, MS_SCALING_OPERATION)
     entity.setHealth(entity.getMaxHealth())
 
     entity.persistentData.putDouble('vpp_difficulty', difficulty)
