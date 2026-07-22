@@ -144,9 +144,14 @@ deliberately gone, not reimplemented. Full writeup in `DECISIONS.md`.
 Verified L0 PASS (88 mods), L1 PASS 28/28 (three new checks), and L3 PASS
 with two new assertions — a refresh-loop counter and a post-join stage-grant
 probe: **0** ingredient-add passes after granting `andesite_age`, against
-7810 on the pinned-2.1 build. Still open on #49: the owner's own in-game
-confirmation, and an upstream bug report (the report is written, but this
-box's fine-grained PAT cannot open issues on another owner's repo).
+7810 on the pinned-2.1 build.
+
+**No upstream bug report will be filed** (owner decision, 2026-07-22). One was
+written up in full — mechanism, both loop paths, a measured repro and three
+suggested fixes — but this pack no longer ships ProgressiveStages, so chasing
+a fix in someone else's mod buys this project nothing. It is dropped from the
+backlog deliberately, not forgotten; the full analysis lives in `DECISIONS.md`
+if it is ever needed again (e.g. if a future pack wants the mod back).
 
 **GitHub is now ground truth for outstanding bugs and in-game
 verifications** (user directive, 2026-07-10): the project's GitHub repo at
