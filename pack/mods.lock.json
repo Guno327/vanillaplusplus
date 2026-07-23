@@ -1660,6 +1660,38 @@
       "side": "both",
       "phase": 22,
       "note": "GitHub issue #14: inventory sorting + 'the like' QoL (sort/fill-stacks/restock/transfer buttons, slot locking, auto-sort-on-open). Evaluated against Inventory Profiles Next (33M downloads/7633 followers, far more popular, but its neoforge-1.21.1-2.2.5 version-metadata shows TWO required deps not yet in this pack - kotlin-for-forge and libipn - a real new dependency surface, including a JVM-language-interop shim, for a QoL-only feature), Inventory Essentials (zero new deps, only required dep is Balm which is already installed phase 12, 1.8M downloads/815 followers, good feature set but no equivalent safety mechanism for non-vanilla container types), and Nemo's Inventory Sorting (zero deps at all, but only 1M downloads/395 followers and client-only/server-unsupported, no server-accelerated mode). Chosen because it needs zero NEW deps (its one required dep, cloth-config, is already installed phase 11) while still being the most-downloaded of the zero-new-dep options (4.4M/1167 followers, actively released through MC 26.2). Modrinth client_side=required/server_side=optional -> side:both per the standing rule (real functional upgrade from server presence: 'server-accelerated near-instant operations' vs. rate-limited client-only ones per the mod's own docs, not just a cosmetic client feature). DIRECT EVIDENCE of pack-fit for the RS/Tom's Storage/Sophisticated-Backpacks 'sorter vs. modded container' conflict class flagged in this task: the mod's own documented default clientsort-server.json ships a `classPolicies` system keyed by the container's Java menu class, with a worked example entry for Create's own `com.simibubi.create.content.equipment.toolbox.ToolboxMenu` showing it auto-disables sorting for a menu type once a validation mismatch is detected (wrong item type/stack size after an operation) - i.e. the mod is explicitly built to detect and safely fall back around exactly the class of non-standard modded container behavior this pack's Tom's Storage/Refined Storage/Sophisticated Backpacks terminals could present, rather than silently duplicating or losing items. pack/config/clientsort-server.json ships that same documented-default JSON (options block verbatim from the mod's own README) with only 'validationActiveServer' flipped from its shipped default (false) to true, since we ARE installing this on the server (side:both) and want that validation/auto-blacklist safety net active from the start rather than opt-in; validateItemType/validateStackSize/validateStackSizeThreshold/alwaysLogUnexpectedResults and classPolicies are left at their documented defaults (no pack-specific per-menu-class entries added - none of our storage mods' menu classes have been confirmed problematic, so pre-guessing class names would be unfounded; verify in-game instead)."
+    },
+    {
+      "slug": "iris",
+      "project_id": "YL57xq9U",
+      "version_id": "KduFYu4t",
+      "version_number": "1.8.14-beta.1+1.21.1-neoforge",
+      "filename": "iris-neoforge-1.8.14-beta.1+mc1.21.1.jar",
+      "url": "https://cdn.modrinth.com/data/YL57xq9U/versions/KduFYu4t/iris-neoforge-1.8.14-beta.1%2Bmc1.21.1.jar",
+      "hashes": {
+        "sha1": "1bd129cf7bce65d6b1c0543045f0620c98a0f885",
+        "sha512": "33fddb430e16222902eac75b8b3d57c381b0f3cc729f3b56c4628df12ca108f23a0b11e2feb167923d6d14d1fc7e8ee1a977ec421b19d1951bdca74c4092b9c5"
+      },
+      "filesize": 2540723,
+      "side": "client",
+      "phase": 23,
+      "note": "GitHub issue #68: shader loader. Pinned to 1.8.14-beta.1 (not stable 1.8.12) because that is the only NeoForge 1.21.1 build compatible with this pack's already-pinned Sodium 0.8.12 (1.8.12 requires Sodium 0.6.13; see manifest.json note and Iris GitHub issues #3134/#3136/#3243). No shaderpack bundled; ships available-but-off, see README.md."
+    },
+    {
+      "slug": "iris-flw-compat",
+      "project_id": "ndHYMY2K",
+      "version_id": "6ZQz5Ow2",
+      "version_number": "1.21.1+2.4.0-release",
+      "filename": "iris-flywheel-compat-NeoForge-2.4.0.jar",
+      "url": "https://cdn.modrinth.com/data/ndHYMY2K/versions/6ZQz5Ow2/iris-flywheel-compat-NeoForge-2.4.0.jar",
+      "hashes": {
+        "sha1": "b8630517b6017f4d075ce594e5ef333b38748029",
+        "sha512": "192e5f00f2c146d2920867d7cd691ecec7ddd2acfb95880cc59084e8949225db92ecfb9221ba7223fc924ec43f2ca861115f83f9dc3f79e14a2f2a8db5287070"
+      },
+      "filesize": 907133,
+      "side": "client",
+      "phase": 23,
+      "note": "GitHub issue #68: fixes Create/Flywheel contraption + ghost-block rendering under Iris shaders (Iris #1414, this addon's own 2.4.0 changelog). Requires Iris + Sodium (both above); optional Create hook activates the fix."
     }
   ]
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build a Prism Launcher-importable .mrpack from pack/mods.lock.json +
-pack/config, pack/kubejs, pack/defaultconfigs.
+pack/config, pack/kubejs, pack/defaultconfigs, pack/shaderpacks.
 
 .mrpack format (Modrinth's pack format, what Prism Launcher imports):
 a zip with modrinth.index.json at the root (mod list with direct download
@@ -11,6 +11,18 @@ matter to both the client (KubeJS's puffish_skills UI, client-side configs)
 and a server. server.properties/user_jvm_args.txt are deliberately left out
 of the mrpack - those are server-only concerns with no meaning for a Prism
 client instance, and are covered separately by build_server.py.
+
+pack/shaderpacks is client-only overrides/shaderpacks/ (Iris reads .zip
+shaderpack files from that folder - GitHub issue #68). The directory is
+absent from this repo on purpose: the shader this issue recommends
+(Sildur's Enhanced Default) is "All Rights Reserved" and Complementary
+Reimagined's own license only permits modpack inclusion under conditions
+we can't attest to for a third party's shaderpack file, so we do not ship
+the file itself - see README.md's Client setup section for the manual
+download step. This dir/OVERRIDE_DIRS entry exists so a shaderpack CAN be
+dropped in and bundled by whoever has redistribution rights to do so
+(same mechanism as config/kubejs/defaultconfigs below), not because one is
+shipped today.
 
 CurseForge-sourced mods work fine for Prism (mods.lock.json stores a plain
 HTTPS URL + hashes for everything, Modrinth or not) but NOT for a Modrinth
@@ -50,7 +62,7 @@ MODRINTH_CDN_HOST = "cdn.modrinth.com"
 MOD_CACHE = ROOT / "pack" / "mods"
 UA = {"User-Agent": "vanilla-plus-plus/0.1 (+github.com/gunnarhovik327)"}
 
-OVERRIDE_DIRS = ("config", "kubejs", "defaultconfigs")
+OVERRIDE_DIRS = ("config", "kubejs", "defaultconfigs", "shaderpacks")
 
 
 def env_for(side: str) -> dict:
