@@ -4458,3 +4458,71 @@ and whether the raised `900`-base XP curve feels right in practice — all
 flagged verify-in-game, consistent with this repo's console-only L1
 boot-test limitation (no real `ServerPlayer` — see `check_skill_trees.py`'s
 own docstring for why this bug class can only be caught statically).
+
+### `vppfixes`: a standing home for third-party mod bugs a mixin has to fix (GitHub #143)
+
+`mods-src/vppfixes/` is the pack's 3rd custom mod (after `vppintegration`
+and `vppquests`, same `mods-src/<modid>/` convention #67 established), but
+a different kind of thing from either: a small, **mixin-only** mod whose
+sole purpose is hosting our own bytecode-level fixes for third-party mod
+bugs/incompatibilities that can't be solved any other way. It's not a
+feature mod — it exists to be as boring and empty as possible, and to grow
+by exactly one mixin each time (and only when) the fix ladder below is
+exhausted.
+
+**The fix ladder — mixin is the last resort, in this order:**
+
+1. **Mod config disables the broken behavior.** If a config toggle exists
+   that turns off the offending code path, use it — zero maintenance,
+   zero bytecode risk.
+2. **Version bump**, if upstream has already fixed it in a newer release
+   that's otherwise compatible with this pack's NeoForge/MC pin.
+3. **Remove or replace the mod**, if it isn't load-bearing for the pack's
+   design (an archetype, a required dependency of one, or otherwise
+   irreplaceable) — the cheapest permanent fix is not needing the buggy
+   code at all.
+4. **A `vppfixes` mixin** — only when 1-3 all fail *and* the mod is
+   load-bearing (can't be removed without breaking a pack pillar). This
+   is deliberately the expensive, fragile option, picked last.
+
+**Discipline every `vppfixes` mixin follows**, no exceptions:
+
+- **String-id/reflection-keyed, never a hard compile dependency** on the
+  target mod — mixins target vanilla/NeoForge classes and match the
+  third-party behavior by registry-id string (or equivalent runtime
+  lookup), so the mixin is a harmless no-op if the target mod is absent
+  and never needs the target mod's jar on the compile classpath.
+- **Pass-through for everything else** — the non-targeted, overwhelming
+  majority case must be untouched (same object, same behavior, no extra
+  allocation beyond one cheap lookup).
+- **Degrade gracefully** — any failure in the patched path logs once and
+  falls back to old (buggy-but-known) behavior; a `vppfixes` mixin must
+  never crash or stall the tick thread, even in the failure case.
+- **Documented** with what it patches and why, in the mixin's own
+  `README.md`/class doc — not just in a commit message — so a future
+  NeoForge bump or an upstream fix lands with the context to remove it.
+- **Re-validated on every NeoForge version bump.** Mixins into vanilla
+  core classes are the most fragile thing this pack ships; a version bump
+  must re-check every `vppfixes` mixin still applies and still targets a
+  real method signature, not assume it silently keeps working.
+- **Reported upstream.** Every `vppfixes` mixin should have a matching bug
+  report filed against the third-party mod it patches, so the fix can
+  eventually land there and the mixin can be deleted — `vppfixes` mixins
+  are meant to be temporary scaffolding, not permanent forks.
+
+**Archetype / fix #1 — GitHub #143**: Ars Nouveau registers its
+`ars_nouveau:spell_resolver` entity-data serializer via
+`EntityDataSerializer.forValueType`, whose `copy()` is identity, then
+stores a live, mutable `SpellResolver` object graph as `SynchedEntityData`
+on `EntityProjectileSpell`/`EntitySpellArrow`. The server tick thread
+mutates that same instance while the entity tracker serializes it on the
+Netty IO thread, racing a `ConcurrentModificationException` that boots the
+tracking client — recurring periodically because spell arrows persist
+stuck in the ground. Config-disable and version-bump were both ruled out
+(no Ars config gates the sync; 5.12.1 was already the newest 1.21.1 build
+with no upstream fix) and Ars Nouveau is a load-bearing archetype mod, so
+step 4 applied: a `SynchedEntityDataMixin` deep-copies just that one
+targeted serializer's value on the tick thread before it can reach the IO
+thread, string-id-keyed on `ars_nouveau:spell_resolver`, pass-through for
+every other value, degrading to a logged no-op on any failure. See
+`mods-src/vppfixes/README.md` for the full fix writeup.
