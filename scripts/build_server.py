@@ -14,9 +14,13 @@ import tomllib
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import version_kubejs  # noqa: E402  (bakes pack/VERSION into a KubeJS constant, shared with build_mrpack.py)
+
 ROOT = Path(__file__).resolve().parent.parent
 LOCKFILE = ROOT / "pack" / "mods.lock.json"
 PACK_TOML = ROOT / "pack" / "pack.toml"
+VERSION_FILE = ROOT / "pack" / "VERSION"
 SERVER = ROOT / "server"
 TOOLS_DIR = ROOT / ".tools"
 JDK_JAVA_BIN = TOOLS_DIR / "jdk-21.0.11+10" / "bin" / "java"
@@ -185,13 +189,37 @@ def main():
             shutil.copytree(src, dst)
             print(f"synced   {sub}/")
 
+    # Client/server version-mismatch notice: bake pack/VERSION into a
+    # KubeJS constant the server_scripts side sends to each joining player.
+    # Written after the kubejs/ sync above (which wipes+recopies that dir
+    # from pack/kubejs every run) so it always survives. See
+    # version_kubejs.py for why this can't just be a committed file under
+    # pack/kubejs/ itself.
+    version_dir = SERVER / "kubejs" / "startup_scripts"
+    version_dir.mkdir(parents=True, exist_ok=True)
+    pack_version = VERSION_FILE.read_text().strip()
+    (version_dir / version_kubejs.GENERATED_FILENAME).write_text(
+        version_kubejs.render_version_script(pack_version, "build_server.py")
+    )
+    print(f"synced   kubejs/startup_scripts/{version_kubejs.GENERATED_FILENAME} (v{pack_version})")
+
     # Performance-tuned JVM args / server.properties (Phase 9) - tracked
     # source files, not the gitignored server/ copies, so the tuning survives
     # a fresh build_server.py run on another machine.
     for filename in ("user_jvm_args.txt", "server.properties"):
         src = ROOT / "pack" / filename
         if src.exists():
-            shutil.copyfile(src, SERVER / filename)
+            if filename == "server.properties":
+                # motd contains the literal token {VPP_VERSION} (see
+                # pack/server.properties' header comment) - substitute it
+                # with pack/VERSION's actual contents so a client the engine
+                # rejects outright (mod-list mismatch, before any KubeJS
+                # event can fire) can still see the required version in the
+                # multiplayer server list, the only channel available to it.
+                text = src.read_text().replace("{VPP_VERSION}", pack_version)
+                (SERVER / filename).write_text(text)
+            else:
+                shutil.copyfile(src, SERVER / filename)
             print(f"synced   {filename}")
 
     print("server/ is up to date")
