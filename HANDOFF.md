@@ -338,6 +338,17 @@ section but not yet filed as GitHub issues.
 
 ## What's done
 
+v0.5.0 follow-up hardening: missing-mod-dependency detection now also runs
+in **fast-tier** (every PR/push via `ci.yml` → `run_all.py`), not just
+`boot.yml`'s weekly/on-dispatch/at-mint runs. New `scripts/gen_mod_
+dependencies.py` (network, run by hand on lockfile changes) produces a
+committed offline snapshot `pack/mod_registries/mod_dependencies.json`;
+new `scripts/ci/check_mod_dependencies_offline.py` validates it's in sync
+with `pack/mods.lock.json` and re-runs the same `resolve()` logic against
+it, entirely offline. See `DESIGN.md`'s "Fast-tier missing-dependency check
+(v0.5.0 follow-up hardening)" section for the full design and how the sync
+guard works.
+
 Everything is implemented, boot-tested, and committed. `TODO.md` items
 1-11 each carry their own DONE summary and pointer to the relevant
 `DESIGN.md` section (or, for items 10/11, `DECISIONS.md`'s dated sections

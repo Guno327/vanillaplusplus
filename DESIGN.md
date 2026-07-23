@@ -3537,3 +3537,62 @@ diffs clean). All three issues need verify-in-game (dynamic lights
 rendering, Curios restoring to original slots on grave pickup, the
 Controls-screen search box) — none of this is testable by the no-server-boot
 CI suite.
+
+### Fast-tier missing-dependency check (v0.5.0 follow-up hardening)
+
+`scripts/ci/check_mod_dependencies.py` (added directly in response to the
+v0.5.0 client-crash regression — see that script's own module docstring for
+the incident) statically resolves every mod's real, jar-derived required
+dependencies against the whole installed set, and is wired into `boot.yml`.
+But `boot.yml` only runs weekly/on-dispatch/at-mint, and it needs the mod
+jars themselves (network download + zipfile read) — fast-tier (`ci.yml` /
+`run_all.py`, every PR and push) is fully offline, no jars, no network. That
+left a window where the exact class of bug that shipped in v0.5.0 (a
+client-only mod hard-requiring a never-installed dependency) could still
+land on a PR and only get caught a week later, or at mint time.
+
+Closed the gap the same way `check_storage_tiers.py` closes its own
+offline/no-network problem for #70 (Sophisticated Storage) — a committed,
+jar-derived static snapshot plus a fast-tier check that validates against
+it and cross-checks the snapshot's own freshness:
+
+- **`scripts/gen_mod_dependencies.py`** (new) — run by hand locally, same
+  workflow as `scripts/resolve_mods.py` / `scripts/gen_mod_registry_
+  snapshot.py`. Reads every mod in `pack/mods.lock.json`, downloads/caches
+  each jar, and calls `check_mod_dependencies.parse_mod_jar` — the SAME
+  parser the jar-reading boot-tier check uses, so there is exactly one
+  `neoforge.mods.toml` parser in this repo — to extract each mod's provided
+  modIds (incl. Jar-in-Jar) and required deps. Writes the result to
+  **`pack/mod_registries/mod_dependencies.json`** (committed), keyed by
+  slug with each mod's `version_number`/`provided`/`required` recorded.
+- **`scripts/ci/check_mod_dependencies_offline.py`** (new) — the fast-tier
+  check, wired into `run_all.py`'s `CHECKS` list right after
+  `check_storage_tiers.py`. Two guards: (1) a SYNC check — the committed
+  snapshot's mod set (by slug) and per-slug `version_number` must exactly
+  match the live `pack/mods.lock.json`; a mod added, removed, or version-
+  bumped without re-running the generator fails here with a "re-run
+  `scripts/gen_mod_dependencies.py`" message, the same discipline
+  `check_storage_tiers.py` already applies to its own registry snapshot.
+  (2) RESOLUTION — the exact same `check_mod_dependencies.resolve()` pure
+  function (imported, not reimplemented) is run against the committed
+  snapshot's provided/required data; any unsatisfied required dependency
+  fails fast-tier immediately, on every PR.
+- Regenerated `pack/mod_dependencies.json` for the current pack (all 114
+  pinned mods) and confirmed `check_mod_dependencies_offline.py` PASSes,
+  matching the jar-reading `check_mod_dependencies.py`'s own PASS on the
+  same pack. Verified the catch side with a synthetic fixture reproducing
+  the exact v0.5.0 shape (a mod providing one modId, required-depending on
+  an unprovided one with `versionRange="*"`) — the offline check correctly
+  fails with a message naming the missing dependency.
+- Unit tests added in `scripts/ci/tests/test_check_mod_dependencies_offline.py`:
+  sync-guard cases (mod added/removed/version-bumped without regenerating,
+  missing snapshot file), resolution cases (satisfied dep, the reeses_
+  sodium_options reproduction, Jar-in-Jar-provided dep, the stellaris
+  malformed-dependency exemption), and a real-repo-snapshot smoke test
+  (skipped if the snapshot isn't present, matching `test_run_all.py`'s
+  `test_real_repo_tree_passes` skip pattern). `scripts/ci/tests/
+  test_run_all.py`'s minimal synthetic pack fixture was also given a
+  matching `mod_dependencies.json` so `run_all`'s own aggregation tests
+  keep passing with the new check in the list.
+- Verified via `python3 scripts/ci/run_all.py` (PASS, now 11 checks) and
+  `python3 -m unittest discover -s scripts/ci/tests` (281 tests, OK).

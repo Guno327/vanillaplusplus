@@ -26,6 +26,7 @@ CHECKS = [
     "check_skill_expressions.py",
     "check_selftest_skill_sync.py",
     "check_storage_tiers.py",
+    "check_mod_dependencies_offline.py",
 ]
 
 
