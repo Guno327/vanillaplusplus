@@ -109,6 +109,66 @@ dimension-entry triggers fire as designed needs a live client — boot-tested
 only that the tier files parse cleanly (stage count went 6 → 10, tier-tagged
 item count 139 → 143, exactly matching the new locked items added).
 
+### Recipe-reachability audit (GitHub #61)
+
+Nothing above is mechanically checked: "you cannot reach brass without
+andesite" is an assertion about this pack's recipes, not a verified
+property. `scripts/audit_progression.py` closes that gap - it walks every
+recipe in the resolved mod jars plus this pack's own KubeJS overrides,
+recursively computes the earliest tier each item is actually craftable at
+(an item's tier is the max, across its hard-required ingredients, of each
+ingredient's own earliest tier - see the script's own docstring for the
+full model, including why the four tier-marker materials are a fixed point
+rather than recursed into), and reports any item whose computed floor is
+*below* what `pack/progression/*.toml` assigns it. It's offline (reads the
+jars directly) rather than an in-game command, run standalone (not wired
+into `run_all.py`, since it needs `server/mods/*.jar` - not always present
+in CI) - see the script's docstring for the full tradeoff.
+
+This exists because a first-pass, less careful version of this same idea
+(during #56) produced false positives by matching recipes on id/output
+substrings instead of a recipe's own declared type and result field -
+flagging `create:track_station` (confused with the unrelated `create:track`
+recipe) and `refinedstorage:controller` (matched against RS's *recoloring*
+recipe, not its real crafting one). The corrected version is regression-
+tested against both cases in `scripts/ci/tests/test_audit_progression.py`.
+
+Run against the pinned jar set, it found the false positives are correctly
+no longer flagged, plus two genuinely under-gated families worth recording
+here since they're real content gaps, not audit noise:
+
+- **Sophisticated Storage's "double chest" upgrade recipes**
+  (`sophisticatedstorage:double_iron_chest`/`double_gold_chest`/
+  `double_diamond_chest`, real ids in the pinned jar) reach iron/gold/
+  diamond *chest* tier from a plain iron/gold/diamond ingot + block, with
+  no Andesite Alloy/Brass Ingot requirement at all - a second, independent
+  upgrade path `tier_gating.js` never touched (it only re-authors the
+  `sophisticatedstorage:iron_chest`/`gold_chest`/`diamond_chest` recipe ids
+  themselves). Barrels and shulker boxes have no double-container
+  equivalent, so they aren't affected - this is chest-specific. Exactly the
+  failure mode #70's own postmortem called out ("the pack's gating pattern
+  assumes one crafting route per gated item") surfacing again in the same
+  feature, one recipe family later.
+- **Refined Storage's entire pre-Induction-Age chain** (Controller, Disk
+  Drive, Grid, Importer/Exporter, 1k-16k storage, all of it) has no
+  KubeJS tier-gating edit at all, on the documented assumption that its
+  own Nether Quartz + diamond-tier Advanced Processor requirement would
+  naturally hold it to Brass Age. That assumption predates #49: with
+  ProgressiveStages' dimension-travel blocking gone (Nether open from world
+  start) and diamond never itself recipe-gated (a mined, not crafted,
+  material), nothing in RS's own recipe chain requires reaching any tier at
+  all. Compounding this, several Create items that are supposed to require
+  the Brass Age (`create:railway_casing`, and everything built from it
+  including `create:track_station`) reference the *tag*
+  `c:ingots/brass` rather than the literal `create:brass_ingot` item -
+  and AllTheOres registers its own `alltheores:brass_ingot` into that same
+  common tag with a from-dust recipe that needs no tier material either,
+  so the tag resolves reachable regardless of which mod's ingot a player
+  uses.
+
+Neither is fixed here - GitHub #61 scoped this as an audit tool, not a
+gating pass; both are real findings for a follow-up KubeJS edit.
+
 ### Resource infinity (added after Phase 2)
 
 `instructions.md` now asks that all resources eventually become automatable
