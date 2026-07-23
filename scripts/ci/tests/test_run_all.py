@@ -26,9 +26,18 @@ def _minimal_valid_pack(root):
         {"slug": "sophisticated-storage", "side": "both", "phase": 11},
         {"slug": "sophisticated-core", "side": "both", "phase": 11},
     ]
+    # loader_installer (issue #64/#82) is now required in BOTH files and must
+    # match (ignoring _note) - see check_lockfile.py / test_check_lockfile.py.
+    installer = {"version": "21.1.235",
+                 "url": "https://maven.neoforged.net/neoforge-21.1.235-installer.jar",
+                 "filename": "neoforge-21.1.235-installer.jar",
+                 "hashes": {"sha256": "c" * 64, "sha512": "d" * 128},
+                 "filesize": 6965992}
     manifest = {"minecraft": "1.21.1", "loader": "neoforge",
+                "loader_installer": dict(installer, _note="source of truth"),
                 "mods": [{"slug": "create", "side": "both", "phase": 0}] + soph_mods}
     lock = {"minecraft": "1.21.1", "loader": "neoforge",
+            "loader_installer": dict(installer),
             "mods": [{"slug": "create", "side": "both", "phase": 0,
                       "filename": "create.jar", "url": "https://cdn.example/create.jar",
                       "hashes": {"sha512": "a" * 128}}] + [
