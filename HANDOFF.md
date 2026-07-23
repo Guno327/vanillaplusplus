@@ -300,6 +300,34 @@ alone; the pack cannot reach a real client join yet.** See
 reasoning and `scripts/ci/tests/test_run_l3_incus.py` for its unit
 coverage.
 
+**STATIC follow-up (client-test-harness hardening, disjoint pass,
+2026-07-23): `scripts/ci/check_mod_dependencies.py` (boot tier) now also
+statically catches v0.5.1's actual failure class** - Java split packages
+(two mods/Jar-in-Jar bundles exporting the same package -
+`java.lang.module.ResolutionException`) and mods declaring an
+`[[accessTransformers]]` file that isn't actually packaged (the incident
+log's other line: `Access transformer file accesstransformer.cfg provided
+by mod irisflw does not exist!`). This closes the gap L3 alone left open:
+L3 proves a specific build boots on real hardware, but only after the fact
+and only on the owner's Incus host; this new check fails the boot tier
+itself (and therefore blocks a mint) the moment a split-package-conflicting
+mod is added, without needing an L3 run to discover it. Validated against
+reality, not synthetic-only: run against `main`'s actual pinned mod set it
+correctly FAILS with the exact `sodium-dynamic-lights` /
+`ars-nouveau`-JIJ'd-`lambdynlights_api` conflict (main still carries the
+v0.5.1 regression - `hotfix/remove-sodium-dynamic-lights-splitpackage`
+above was never merged, pending the two separate join-blocking bugs it
+found); run against that hotfix branch's mod set (sodium-dynamic-lights
+removed) it PASSES clean, 113 mods, zero split-package/AT problems. See
+`check_mod_dependencies.py`'s module docstring for the exact
+de-duplication rule (keyed on each Jar-in-Jar bundle's own declared modId,
+matching NeoForge's real Jar-in-Jar selection - validated against this
+pack's own `create`+`iris-flw-compat` both bundling `flywheel` under
+different Maven coordinates but the same modId, correctly NOT flagged) and
+`scripts/ci/tests/test_check_mod_dependencies.py` for unit coverage
+(fixtures mirror the real sodium-dynamic-lights/lambdynlights/flywheel
+jar shapes).
+
 Re-run in order to reproduce a release build (each step exits nonzero on
 failure, safe to chain with `&&`); artifact naming/contents/versioning are
 covered by DESIGN.md's "Bundle design"/"Versioning" sections, not repeated

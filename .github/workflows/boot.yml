@@ -188,7 +188,22 @@ jobs:
       # This statically resolves EVERY resolved mod's required dependencies
       # (client- AND server-side, incl. Jar-in-Jar) so a missing dep fails
       # the boot tier - and therefore every mint - before it can ship.
-      - name: Check mod dependencies (launch-time missing-dep guard)
+      #
+      # HARDENED (v0.5.1 follow-up, 2026-07-23): this same script now ALSO
+      # statically detects Java SPLIT PACKAGES (v0.5.1's actual failure -
+      # sodium-dynamic-lights directly shades dev.lambdaurora.lambdynlights.
+      # api, ars-nouveau Jar-in-Jars its own copy of the same package ->
+      # java.lang.module.ResolutionException at launch, before any mod code
+      # runs - not a missing dep, so the check above alone never caught it)
+      # and mods declaring an [[accessTransformers]] file that isn't
+      # actually packaged (the incident log's other failure signature:
+      # "Access transformer file accesstransformer.cfg provided by mod
+      # irisflw does not exist!"). Both reuse the jars already downloaded
+      # for the dependency check above - no extra network calls. See
+      # check_mod_dependencies.py's own module docstring + scripts/ci/
+      # tests/test_check_mod_dependencies.py for the full detection rule
+      # and validation against this pack's real mod set.
+      - name: Check mod dependencies (missing-dep + split-package + AT guard)
         run: python3 scripts/ci/check_mod_dependencies.py --mods-dir /tmp/vpp-depcheck-mods
 
       - name: L0 boot smoke test (scripts/tests/l0_boot_smoke.sh)
