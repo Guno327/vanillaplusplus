@@ -216,6 +216,15 @@ def main():
     )
     print(f"synced   kubejs/startup_scripts/{version_kubejs.GENERATED_FILENAME} (v{pack_version})")
 
+    # GitHub issue #94 follow-up: same pack/VERSION value, baked as a plain
+    # text file mods-src/vppintegration's Java PackVersionGate reads at
+    # NeoForge's CONFIGURATION network phase - earlier than any KubeJS
+    # script can run. See version_kubejs.py.
+    config_version_path = SERVER / "config" / version_kubejs.CONFIG_VERSION_RELATIVE_PATH
+    config_version_path.parent.mkdir(parents=True, exist_ok=True)
+    config_version_path.write_text(version_kubejs.render_config_version_file(pack_version))
+    print(f"synced   config/{version_kubejs.CONFIG_VERSION_RELATIVE_PATH} (v{pack_version})")
+
     # Performance-tuned JVM args / server.properties (Phase 9) - tracked
     # source files, not the gitignored server/ copies, so the tuning survives
     # a fresh build_server.py run on another machine.

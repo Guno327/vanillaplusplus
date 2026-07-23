@@ -1,5 +1,6 @@
 package dev.vanillaplusplus.vppintegration;
 
+import dev.vanillaplusplus.vppintegration.network.PackVersionGate;
 import dev.vanillaplusplus.vppintegration.quality.OvergearedSilentGearBridge;
 import dev.vanillaplusplus.vppintegration.quality.QualityBridgeConfig;
 import net.neoforged.bus.api.IEventBus;
@@ -77,6 +78,13 @@ import org.slf4j.LoggerFactory;
  *
  * <p>See this mod's README.md for the full design writeup, confidence levels per
  * hook, and exactly what a real build + in-game session must verify.
+ *
+ * <p>This mod also carries an unrelated second feature, {@link PackVersionGate}
+ * (GitHub issue #94's "before the crash" follow-up): a connection-time
+ * client/server pack-version check that runs during NeoForge's CONFIGURATION
+ * protocol phase, strictly before a mismatched client ever reaches the PLAY
+ * phase/world. See that class's doc for the full feasibility writeup and
+ * exactly which mismatch class it can and cannot cover.
  */
 @Mod(VppIntegration.MODID)
 public final class VppIntegration {
@@ -86,6 +94,8 @@ public final class VppIntegration {
     public VppIntegration(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.SERVER, QualityBridgeConfig.SPEC);
         NeoForge.EVENT_BUS.register(new OvergearedSilentGearBridge());
+        modEventBus.addListener(PackVersionGate::registerPayloads);
+        modEventBus.addListener(PackVersionGate::registerConfigurationTask);
         LOGGER.info("vppintegration loaded: Overgeared quality <-> Silent Gear stats bridge active");
     }
 }
