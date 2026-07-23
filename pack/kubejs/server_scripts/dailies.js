@@ -3,27 +3,27 @@
 const DAY_MS = 86400000
 
 const ITEM_BOUNTIES = [
-  { key: "item_minecraft_cobblestone", itemId: "minecraft:cobblestone", count: 64, category: "mining", xp: 20, label: "Turn in 64x Cobblestone" },
-  { key: "item_minecraft_oak_log", itemId: "minecraft:oak_log", count: 32, category: "building", xp: 20, label: "Turn in 32x Oak Log" },
-  { key: "item_minecraft_coal", itemId: "minecraft:coal", count: 32, category: "mining", xp: 25, label: "Turn in 32x Coal" },
-  { key: "item_minecraft_iron_ingot", itemId: "minecraft:iron_ingot", count: 16, category: "mining", xp: 30, label: "Turn in 16x Iron Ingot" },
-  { key: "item_minecraft_wheat", itemId: "minecraft:wheat", count: 32, category: "building", xp: 20, label: "Turn in 32x Wheat" },
-  { key: "item_create_andesite_alloy", itemId: "create:andesite_alloy", count: 16, category: "building", xp: 30, label: "Turn in 16x Andesite Alloy" },
-  { key: "item_minecraft_copper_ingot", itemId: "minecraft:copper_ingot", count: 16, category: "mining", xp: 30, label: "Turn in 16x Copper Ingot" },
-  { key: "item_minecraft_string", itemId: "minecraft:string", count: 24, category: "swords", xp: 20, label: "Turn in 24x String" },
-  { key: "item_minecraft_leather", itemId: "minecraft:leather", count: 16, category: "swords", xp: 20, label: "Turn in 16x Leather" },
-  { key: "item_minecraft_sand", itemId: "minecraft:sand", count: 64, category: "building", xp: 20, label: "Turn in 64x Sand" },
+  { key: "item_minecraft_cobblestone", itemId: "minecraft:cobblestone", count: 64, category: "adventurer", xp: 20, label: "Turn in 64x Cobblestone" },
+  { key: "item_minecraft_oak_log", itemId: "minecraft:oak_log", count: 32, category: "adventurer", xp: 20, label: "Turn in 32x Oak Log" },
+  { key: "item_minecraft_coal", itemId: "minecraft:coal", count: 32, category: "adventurer", xp: 25, label: "Turn in 32x Coal" },
+  { key: "item_minecraft_iron_ingot", itemId: "minecraft:iron_ingot", count: 16, category: "adventurer", xp: 30, label: "Turn in 16x Iron Ingot" },
+  { key: "item_minecraft_wheat", itemId: "minecraft:wheat", count: 32, category: "adventurer", xp: 20, label: "Turn in 32x Wheat" },
+  { key: "item_create_andesite_alloy", itemId: "create:andesite_alloy", count: 16, category: "adventurer", xp: 30, label: "Turn in 16x Andesite Alloy" },
+  { key: "item_minecraft_copper_ingot", itemId: "minecraft:copper_ingot", count: 16, category: "adventurer", xp: 30, label: "Turn in 16x Copper Ingot" },
+  { key: "item_minecraft_string", itemId: "minecraft:string", count: 24, category: "adventurer", xp: 20, label: "Turn in 24x String" },
+  { key: "item_minecraft_leather", itemId: "minecraft:leather", count: 16, category: "adventurer", xp: 20, label: "Turn in 16x Leather" },
+  { key: "item_minecraft_sand", itemId: "minecraft:sand", count: 64, category: "adventurer", xp: 20, label: "Turn in 64x Sand" },
 ]
 
 const KILL_BOUNTIES = [
-  { key: "kill_minecraft_zombie", entityId: "minecraft:zombie", count: 15, category: "swords", xp: 30, label: "Slay 15x Zombie" },
-  { key: "kill_minecraft_skeleton", entityId: "minecraft:skeleton", count: 15, category: "bows", xp: 30, label: "Slay 15x Skeleton" },
-  { key: "kill_minecraft_spider", entityId: "minecraft:spider", count: 15, category: "swords", xp: 30, label: "Slay 15x Spider" },
-  { key: "kill_minecraft_creeper", entityId: "minecraft:creeper", count: 8, category: "swords", xp: 35, label: "Slay 8x Creeper" },
-  { key: "kill_minecraft_drowned", entityId: "minecraft:drowned", count: 10, category: "swimming", xp: 35, label: "Slay 10x Drowned" },
-  { key: "kill_minecraft_cod", entityId: "minecraft:cod", count: 10, category: "swimming", xp: 25, label: "Slay 10x Cod" },
-  { key: "kill_minecraft_rabbit", entityId: "minecraft:rabbit", count: 10, category: "running", xp: 25, label: "Slay 10x Rabbit" },
-  { key: "kill_minecraft_enderman", entityId: "minecraft:enderman", count: 5, category: "swords", xp: 45, label: "Slay 5x Enderman" },
+  { key: "kill_minecraft_zombie", entityId: "minecraft:zombie", count: 15, category: "adventurer", xp: 30, label: "Slay 15x Zombie" },
+  { key: "kill_minecraft_skeleton", entityId: "minecraft:skeleton", count: 15, category: "adventurer", xp: 30, label: "Slay 15x Skeleton" },
+  { key: "kill_minecraft_spider", entityId: "minecraft:spider", count: 15, category: "adventurer", xp: 30, label: "Slay 15x Spider" },
+  { key: "kill_minecraft_creeper", entityId: "minecraft:creeper", count: 8, category: "adventurer", xp: 35, label: "Slay 8x Creeper" },
+  { key: "kill_minecraft_drowned", entityId: "minecraft:drowned", count: 10, category: "adventurer", xp: 35, label: "Slay 10x Drowned" },
+  { key: "kill_minecraft_cod", entityId: "minecraft:cod", count: 10, category: "adventurer", xp: 25, label: "Slay 10x Cod" },
+  { key: "kill_minecraft_rabbit", entityId: "minecraft:rabbit", count: 10, category: "adventurer", xp: 25, label: "Slay 10x Rabbit" },
+  { key: "kill_minecraft_enderman", entityId: "minecraft:enderman", count: 5, category: "adventurer", xp: 45, label: "Slay 5x Enderman" },
 ]
 
 function getProgress(player, key) {
