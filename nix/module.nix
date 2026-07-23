@@ -1,4 +1,4 @@
-{ release }:
+{ release, modsLock }:
 {
   config,
   lib,
@@ -7,6 +7,52 @@
 }:
 let
   cfg = config.services.vanillaplusplus;
+
+  # GitHub #141: the released server archive no longer bundles third-party
+  # mod jars (see scripts/build_server_bundle.py's own "GitHub #141" design
+  # note) - fetch each one here instead, as its own fixed-output derivation
+  # keyed off the sha512 already pinned in pack/mods.lock.json (read
+  # straight from the source of truth, passed in from flake.nix as
+  # `modsLock` - no generated intermediate file to keep in sync). Every
+  # non-client, non-`local_path` entry needs fetching this way; this
+  # project's own `local_path` (own-copyright) custom mods -- e.g.
+  # `vppintegration`, GitHub #67/#124 -- still ship inside the archive
+  # itself (see the sync script's mods/ reconciliation below for how the
+  # two sources are merged back together).
+  remoteServerMods = builtins.filter (
+    m: m.side != "client" && !(m ? local_path)
+  ) modsLock.mods;
+
+  # A couple of real filenames in pack/mods.lock.json contain characters Nix
+  # store names reject outright (spaces, `[`/`]` -- e.g. "Spice of Life
+  # Onion_NEOFORGE_v1.5.6_mc1.21.1.jar", "born_in_chaos_[Neoforge]_...jar"),
+  # so the fetchurl `name` (which becomes part of the store path) has to be
+  # a sanitized stand-in -- the REAL filename is tracked alongside it and
+  # used for the final copy destination below, not derived from the store
+  # path.
+  sanitizeStoreName = builtins.replaceStrings [ " " "[" "]" ] [ "_" "" "" ];
+
+  modJarEntries = map (m: {
+    filename = m.filename;
+    drv = pkgs.fetchurl {
+      url = m.url;
+      sha512 = m.hashes.sha512;
+      name = sanitizeStoreName m.filename;
+    };
+  }) remoteServerMods;
+
+  # A plain directory of every fetched jar, named exactly as
+  # server/mods/<filename> expects (the REAL filename, not the sanitized
+  # store name above). Each fetchurl derivation is itself a single verified
+  # file (Nix refuses to produce it at all if its sha512 doesn't match), so
+  # this is just a fan-in copy, not a second place any hash checking
+  # happens.
+  modsDir = pkgs.runCommand "vanillaplusplus-mods" { } ''
+    mkdir -p "$out"
+    ${lib.concatMapStringsSep "\n" (
+      e: ''cp ${e.drv} "$out"/${lib.escapeShellArg e.filename}''
+    ) modJarEntries}
+  '';
 
   # Ground-truthed verbatim from server/user_jvm_args.txt (the released
   # bundle's own shipped default): -Xms6G/-Xmx6G + the full Aikar's-flags
@@ -136,7 +182,14 @@ let
       # world/, logs/, crash-reports/, server.properties, eula.txt,
       # user_jvm_args.txt (nix-declared, see below), and our own state
       # files are NEVER touched by this sync -- only the bundle's own
-      # mods/config/kubejs/defaultconfigs/libraries/run.sh/run.bat.
+      # config/kubejs/defaultconfigs/libraries/run.sh/run.bat. `mods` is
+      # ALSO excluded here (GitHub #141): the archive only ever ships this
+      # project's own `local_path` custom mods now (e.g. `vppintegration`,
+      # GitHub #67/#124) -- every third-party jar is fetched separately via
+      # modsDir below -- and an unqualified --delete sync here would wipe
+      # out that Nix-fetched content every time the archive changes. The
+      # reconciliation step below merges both sources back together
+      # correctly.
       ${pkgs.rsync}/bin/rsync -a --delete \
         --exclude=/world \
         --exclude=/logs \
@@ -146,7 +199,20 @@ let
         --exclude=/user_jvm_args.txt \
         --exclude=/cmd_fifo \
         --exclude=/.vpp-installed-archive \
+        --exclude=/mods \
         "$STAGING"/ "$DATA_DIR"/
+
+      # Stash the archive's own mods/ (this project's local_path custom
+      # mods only, e.g. vppintegration -- GitHub #141 stopped shipping
+      # third-party jars there at all) into a location that survives past
+      # $STAGING's teardown below, so the every-start reconciliation step
+      # further down has something stable to read regardless of whether
+      # THIS particular start is the one that just re-synced the archive.
+      rm -rf "$DATA_DIR/.vpp-archive-mods"
+      mkdir -p "$DATA_DIR/.vpp-archive-mods"
+      if [ -d "$STAGING/mods" ]; then
+        ${pkgs.rsync}/bin/rsync -a "$STAGING/mods"/ "$DATA_DIR/.vpp-archive-mods"/
+      fi
 
       # server.properties is deliberately excluded from the rsync above (so
       # upgrades never clobber the operator's live copy) -- stash the
@@ -156,10 +222,44 @@ let
       # consumes it.
       cp "$STAGING/server.properties" "$DATA_DIR/.vpp-shipped-server.properties"
 
+      # Clean up explicitly here (rather than relying solely on the EXIT
+      # trap above) since a second `trap ... EXIT` is set further down for
+      # $MODS_MERGE -- bash traps REPLACE, not stack, so leaving this to the
+      # EXIT trap alone would silently stop cleaning up $STAGING once that
+      # second trap is registered.
+      rm -rf "$STAGING"
+
       echo "$FINGERPRINT" > "$STAMP"
     else
       echo "vanillaplusplus: serverArchive unchanged, skipping unpack+sync"
     fi
+
+    # GitHub #141: reconcile DATA_DIR/mods from its two independent sources
+    # every start, regardless of whether the archive-changed fingerprint
+    # check above actually re-synced anything this boot (e.g. a plain
+    # `nixos-rebuild switch` that only bumped a mod's pin still needs this):
+    #   - modsDir: every third-party mod (${toString (builtins.length remoteServerMods)}
+    #     as of this evaluation), fetched declaratively above as sha512-
+    #     verified pkgs.fetchurl derivations, straight from the Nix store.
+    #   - $DATA_DIR/.vpp-archive-mods: this project's own local_path custom
+    #     mods (e.g. vppintegration), stashed from the archive above.
+    # Building a merge-staging dir and doing ONE rsync --delete from it into
+    # DATA_DIR/mods (rather than two separate --delete rsyncs straight into
+    # DATA_DIR/mods, which would each wipe out the other source's files) is
+    # what keeps mod REMOVAL correct: a mod dropped from
+    # pack/mods.lock.json actually disappears from mods/, from either
+    # source, not just stops being referenced. rsync's own quick-check
+    # (size+mtime) keeps repeat syncs of unchanged Nix store paths cheap,
+    # not a full ~380MB recopy every restart.
+    mkdir -p "$DATA_DIR/mods"
+    MODS_MERGE="$(${pkgs.coreutils}/bin/mktemp -d)"
+    trap 'rm -rf "$MODS_MERGE"' EXIT
+    ${pkgs.rsync}/bin/rsync -a ${modsDir}/ "$MODS_MERGE"/
+    if [ -d "$DATA_DIR/.vpp-archive-mods" ]; then
+      ${pkgs.rsync}/bin/rsync -a "$DATA_DIR/.vpp-archive-mods"/ "$MODS_MERGE"/
+    fi
+    ${pkgs.rsync}/bin/rsync -a --delete "$MODS_MERGE"/ "$DATA_DIR/mods"/
+    rm -rf "$MODS_MERGE"
 
     # eula.txt: the shipped bundle deliberately never pre-accepts this (see
     # README.md / scripts/build_server_bundle.py's own README string) --
@@ -340,8 +440,12 @@ in
       description = ''
         Directory holding all persistent server state: `world/`, `logs/`,
         `crash-reports/`, `server.properties`, `eula.txt`, plus a synced
-        (and upgrade-preserving) copy of the release bundle's `mods/`,
-        `config/`, `kubejs/`, `defaultconfigs/`, `libraries/`.
+        (and upgrade-preserving) copy of the release bundle's `config/`,
+        `kubejs/`, `defaultconfigs/`, `libraries/`. `mods/` is synced
+        separately (GitHub #141): the release bundle no longer ships
+        third-party mod jars at all, so this module fetches each one itself
+        as a declarative, sha512-verified `pkgs.fetchurl` derivation (keyed
+        off `pack/mods.lock.json`) and syncs that into `mods/` instead.
       '';
     };
 

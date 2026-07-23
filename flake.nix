@@ -41,6 +41,15 @@
     let
       release = builtins.fromJSON (builtins.readFile ./nix/release.json);
 
+      # GitHub #141: the released server archive no longer bundles
+      # third-party mod jars (see scripts/build_server_bundle.py) - the
+      # module fetches each one itself as a fixed-output derivation, keyed
+      # off the sha512 already pinned here. Read directly rather than via a
+      # generated intermediate file, so pack/mods.lock.json stays the one
+      # single source of truth for every mod's URL+hash, same as it always
+      # has been for build_server.py/build_mrpack.py.
+      modsLock = builtins.fromJSON (builtins.readFile ./pack/mods.lock.json);
+
       supportedSystems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -62,6 +71,15 @@
       # (a plain `nix build .#server` will NOT work since this is a
       # function of one argument, not a fixed derivation -- there is no
       # pure default zip to build from).
+      #
+      # GitHub #141: the archive this unpacks no longer contains third-party
+      # mod jars at all (see scripts/build_server_bundle.py) -- this helper
+      # does NOT run install_mods.py or fetch the per-mod derivations
+      # nixosModules.default uses, so its output's mods/ will be empty (or
+      # absent). It remains useful purely for inspecting the non-mod
+      # contents of a release archive; use the module (or run
+      # install_mods.py by hand against this package's output) for anything
+      # that needs to actually boot.
       mkServerPackage =
         pkgs: archivePath:
         pkgs.runCommand "vanilla-plus-plus-server-${release.releases.${release.latest}.version}"
@@ -100,7 +118,7 @@
         }
       );
 
-      nixosModules.default = import ./nix/module.nix { inherit release; };
+      nixosModules.default = import ./nix/module.nix { inherit release modsLock; };
       nixosModules.vanillaplusplus = self.nixosModules.default;
     };
 }
