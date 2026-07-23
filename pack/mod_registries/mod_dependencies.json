@@ -2305,7 +2305,25 @@
         }
       ],
       "version_number": "1.21.1-NeoForge-4.1.1"
+    },
+    "vppfixes": {
+      "provided": [
+        "vppfixes"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        }
+      ],
+      "version_number": "1.0.0"
     }
   },
-  "source_lockfile_mod_count": 113
+  "source_lockfile_mod_count": 114
 }

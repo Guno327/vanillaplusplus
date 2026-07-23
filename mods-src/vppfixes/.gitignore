@@ -1,0 +1,19 @@
+# Gradle
+.gradle/
+build/
+# gradle-wrapper.jar (a binary) is intentionally NOT committed - matches this repo's
+# convention (see mods-src/vppintegration/.gitignore). gradlew/gradlew.bat (plain
+# scripts) ARE committed; run `gradle wrapper` once to (re)produce the wrapper jar at
+# gradle/wrapper/gradle-wrapper.jar. See README.md "Build instructions".
+gradle/wrapper/gradle-wrapper.jar
+
+# Local compile-only jars (none are actually needed by this mod - it references only
+# vanilla + NeoForge - but keep the dir + convention consistent with vppintegration).
+libs/*.jar
+
+# IDE
+.idea/
+*.iml
+out/
+eclipse/
+run/
