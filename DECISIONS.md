@@ -1450,3 +1450,98 @@ doesn't work" outcome the original #67 investigation flagged as out of
 bounds. Follow-up (real build environment): run `gradle build` in
 `mods-src/vppintegration/`, then re-run `resolve_mods.py` to add the real
 manifest+lock entries and fold the mod into an actual pack build.
+
+## L3 client boot+join becomes a REQUIRED release gate (owner directive, 2026-07-23)
+
+**Amends the "Release policy" entry above.** That entry said running L3
+before a mint "remains encouraged, not required" because hosted Actions
+runners cannot run it and the CEO's "mint continuously" directive only
+required the hosted fast+boot tiers green. That framing is retired for
+client-affecting changes: **two consecutive releases (v0.5.0, v0.5.1)
+shipped a client-only launch crash** that fast-tier/boot-tier structurally
+cannot see (`side:client` mods never boot on the dedicated server L0/L1
+exercise) - v0.5.0 was a missing client-only dependency, v0.5.1 was
+`sodium-dynamic-lights` and `lambdynlights_api` exporting the same Java
+module package (`java.lang.module.ResolutionException` at client startup,
+before any mod code runs). L2 (HeadlessMC client smoke) also missed both:
+it proves mod discovery/dependency-resolution/mixin-application, which is
+exactly the layer both regressions broke, but neither regression was
+caught before publish because nothing forced L2 or L3 to actually run
+against the shipped state first.
+
+Root cause of *why L3 existed but didn't catch these*: it was fragile to
+drive by hand against the owner's Incus `vpp-l3` host, which is not a git
+checkout - nothing synced the CURRENT pack onto it before a run, so a
+stale-content run could "pass" against a build it never looked at. Fixed
+with `scripts/tests/run_l3_incus.py`: syncs `pack/`+`scripts/` (whole
+trees, not a hand-picked file list - see that script's own docstring for
+why), pre-cleans stale processes/FIFOs from a prior cut-off run, runs
+`run_l3.sh` on the container as `ubuntu`, and prints a trustworthy `L3
+GATE: PASS`/`FAIL` (never trusts exit code alone - see
+`evaluate_result()`).
+
+**New rule, effective immediately:** `python3 scripts/tests/
+run_l3_incus.py` must print `L3 GATE: PASS` before a client-affecting PR
+merges to `main` and before dispatching `mint-release.yml`. This remains
+an **owner/PM-run manual step**, not wired into `mint-release.yml`'s
+`needs:` gates - a hosted GitHub runner has no path to the Incus host and
+no GPU/Xvfb-capable display, so this cannot become hosted CI without a
+different host.
+
+**Confirmed the driver catches the regression it was built for - and then
+some.** Run against `main` (still has `sodium-dynamic-lights`), it
+correctly reports `L3 GATE: FAIL` with the exact `ResolutionException`
+above at client launch, before any mod code runs. Run against
+`hotfix/remove-sodium-dynamic-lights-splitpackage`, that specific crash is
+gone - mod discovery/dependency-resolution/mixin-application all complete
+cleanly, the client reaches the main menu, and (once repointed at a copy
+of the branch with one unrelated fix applied, see below) it connects and
+the server logs the player joining. **The split-package fix itself is
+confirmed correct.**
+
+**However, three full runs this session never reached a clean `L3 GATE:
+PASS`, for reasons the sodium-dynamic-lights removal does not touch** -
+which is exactly the harness doing its job: the pack has real,
+previously-hidden problems that nothing before this session could see,
+because earlier bugs crashed the client before these ones ever had a
+chance to fire.
+
+1. **`baguettelib` is misclassified `side:"server"`.** Modrinth's own
+   metadata says `client_side=unsupported`, which is why it was pinned
+   that way (see its lockfile note, GitHub #107) - but at connect time the
+   server disconnects the client with "Incompatible client! Please use
+   NeoForge 21.1.235" because `baguettelib`'s NeoForge network channel
+   (`baguettelib:example`) is required server-side and absent client-side.
+   Verified by hypothesis: patched a throwaway copy of the hotfix branch's
+   lockfile to `side: "both"` for this one entry (not committed anywhere,
+   not touching `main` or the hotfix branch) and the "Incompatible
+   client!" disconnect went away - the client connected and the server
+   logged the join. **This needs a real fix on `main` before any client
+   can join at all** (bumping the mod itself if a version drops the
+   channel requirement, or `side: "both"`, or reporting upstream) - filed
+   as a follow-up, not fixed in this PR (out of this branch's scope, and
+   not mine to push to `main` directly).
+2. **Even with (1) patched, the join disconnects ~30-33s later both times
+   it was tried** - server log: `io.netty.channel.unix.Errors
+   $NativeIoException: recvAddress(..) failed: Connection reset by peer`,
+   then `lost connection: Disconnected`. This is the *exact* signature
+   HANDOFF.md's "#49 did NOT reproduce there" note already flagged as an
+   open lead and explicitly said not to close: Sable's **client**-side UDP
+   channel (`#50` only disabled the **server** pipeline) opening and
+   closing right around the historical ~29s mark. It reproduced
+   identically on two independent runs (05:00:39 join -> 05:01:12
+   disconnect, and the run before it), so this is not a one-off flake in
+   this session - it is a real, currently-live symptom of the still-open
+   #49 lead.
+
+Net effect: **L3 GATE does not currently reach PASS against any tested
+branch** (`main` fails earlier at the split-package crash; the hotfix
+branch gets past that but is blocked by (1) and then (2)). The
+sodium-dynamic-lights removal is the right fix for what it targets and
+should still merge - it removes a real, confirmed crash - but it is not
+sufficient on its own to produce a passing live client join, and nothing
+in the v0.5.x line has ever actually reached PASS on this harness once it
+stopped being fragile enough to hide these two problems. See HANDOFF.md's
+"RELEASE GATE" note and SPEC.md's release-policy bullet for the
+user-facing runbook, and the follow-up items each need their own fix
+before `L3 GATE: PASS` is achievable again.

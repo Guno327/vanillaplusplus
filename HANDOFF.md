@@ -236,6 +236,70 @@ run green before publish. In practice you cut a release by dispatching
 the local-reproduction / debugging runbook for that same build — the
 workflow is the normal path now.
 
+**RELEASE GATE — required, owner-host, cannot be skipped (client-test-harness
+hardening, follow-up to the v0.5.0/v0.5.1 client-only launch regressions):**
+`mint-release.yml`'s fast-tier + boot-tier gates both boot only the
+*dedicated server* — L0/L1/`check_lockfile`/etc structurally cannot see a
+client-only launch crash, because `side:client` mods never land in
+`server/mods`. Two releases shipped broken anyway because of exactly that
+blind spot: v0.5.0 (a client-only mod hard-requiring a never-installed
+dependency) and v0.5.1 (`sodium-dynamic-lights`/`lambdynlights_api`
+exporting the same Java module package - `java.lang.module.
+ResolutionException` at client startup, before any mod code even runs).
+L3 (`scripts/tests/l3_client_join.py`) already boots a real client against
+this exact failure class, but before this hardening pass it wasn't a
+required step and was fragile to drive by hand against the Incus test host
+(`vpp-l3` is not a git checkout — see "L3 test host" below - so nothing
+before this synced the CURRENT pack onto it, and a stale-content run
+"passes" a build it never actually looked at).
+
+The required step, before merging any client-affecting PR to `main` and
+before dispatching `mint-release.yml`:
+
+```
+python3 scripts/tests/run_l3_incus.py
+```
+
+This one command syncs the current `pack/` + `scripts/` trees onto
+`vpp-l3` (replacing whatever was there), pre-cleans any stale process/FIFO
+left by an earlier run, runs `run_l3.sh` there as `ubuntu`, streams the
+server/client log tails as the run progresses, and prints one of:
+
+```
+L3 GATE: PASS
+L3 GATE: FAIL
+```
+
+**A merge/mint may only proceed on `L3 GATE: PASS`.** This cannot run on a
+hosted GitHub runner - it needs a real (even if software/Xvfb) GL surface
+and the Incus host's fixed `vpp-l3` container, neither of which a hosted
+runner has - so it is an owner/PM-run manual step, not wired into
+`mint-release.yml`'s `needs:` gates.
+
+**Status as of this hardening pass: the driver works and catches real
+regressions, but `L3 GATE: PASS` has not yet been reached against any
+branch.** Run against `main` at the v0.5.1 state: FAILS immediately with
+the exact `ResolutionException` above, confirming the driver catches the
+class of bug it was built for. Run against
+`hotfix/remove-sodium-dynamic-lights-splitpackage`: that crash is gone
+(mod discovery/loading/rendering all complete, client reaches the main
+menu) - **the split-package fix itself is confirmed correct** - but the
+join is then blocked by two SEPARATE, previously-hidden bugs the fix
+doesn't touch: (1) `baguettelib` is pinned `side:"server"` but its
+NeoForge channel is required client-side too, so the server rejects the
+client with "Incompatible client!" at connect time; (2) once that's
+worked around, the join disconnects ~30s later with `Connection reset by
+peer` - the exact signature of the still-open #49 lead (Sable's
+**client**-side UDP channel; `#50` only disabled the **server** side).
+Both reproduced on independent runs, not one-off flakes. See
+DECISIONS.md's dated "L3 client boot+join becomes a REQUIRED release
+gate" entry for the full evidence and follow-up items - **do not promote
+this hotfix branch to `main` on the strength of the split-package fix
+alone; the pack cannot reach a real client join yet.** See
+`scripts/tests/run_l3_incus.py`'s own module docstring for the sync-set
+reasoning and `scripts/ci/tests/test_run_l3_incus.py` for its unit
+coverage.
+
 Re-run in order to reproduce a release build (each step exits nonzero on
 failure, safe to chain with `&&`); artifact naming/contents/versioning are
 covered by DESIGN.md's "Bundle design"/"Versioning" sections, not repeated
@@ -247,6 +311,8 @@ sh scripts/tests/l0_boot_smoke.sh        # build + boot + baseline-diff the log
 python3 scripts/tests/l1_selftest.py     # boot + /vpp_selftest + parse the result
 python3 scripts/tests/l2_client_smoke.py # full client mod set via HeadlessMC
 python3 scripts/tests/l3_client_join.py  # live join against the dedicated server (needs xvfb-run, see below)
+                                          # - on the Incus vpp-l3 host, use the driver instead:
+                                          #   python3 scripts/tests/run_l3_incus.py (see "RELEASE GATE" above)
 python3 scripts/build_mrpack.py          # client .mrpack
 python3 scripts/build_server_bundle.py   # server .zip
 python3 scripts/update_nix_release.py    # repin nix/release.json to the minted release
