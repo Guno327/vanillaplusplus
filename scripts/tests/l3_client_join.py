@@ -119,10 +119,25 @@ JOIN_TIMEOUT_S = 60
 SETTLE_S = 45  # past Sable's historical ~29s UDP-to-TCP failure window (#49) before asserting
 SHUTDOWN_TIMEOUT_S = 40
 # Hard cap for resending `gui` until it actually lands on the game (#62 - see
-# the module docstring and parse_gui_dump()'s docstring for the race). A
+# the module docstring and parse_gui_reply()'s docstring for the race). A
 # check that can silently pass without ever hearing back from the game is
 # worse than no check, so this has to be a fail(), not a longer sleep.
-GUI_TIMEOUT_S = 45
+# Raised from 45s (client-test-harness hardening, #62 round 2): the original
+# budget gave ~5-6 resends at the old 8s cadence below, which measured 0/3 on
+# real Incus L3 runs even though the client was healthy every time (see
+# GUI_RESEND_POLL_S/GUI_RESEND_CHECKS for the other half of this fix - the
+# cadence itself, not just the budget, was too slow to win the FIFO race
+# often enough).
+GUI_TIMEOUT_S = 90
+# How often `gui` is resent while waiting for a landed reply: check every
+# GUI_RESEND_POLL_S seconds, up to GUI_RESEND_CHECKS times, before resending.
+# Tightened from (2s, 4) - an 8s resend cadence - to (1s, 2) - a 2s cadence -
+# so GUI_TIMEOUT_S's larger budget above turns into ~45 resend attempts
+# instead of ~5-6, matching `connect`'s own already-proven-reliable
+# resend-until-answered treatment (see its own loop below) rather than
+# something weaker just because this check comes later in the run.
+GUI_RESEND_POLL_S = 1
+GUI_RESEND_CHECKS = 2
 # Hard cap on the server process, derived rather than hardcoded: it has to
 # outlive every phase that follows the boot, or it exits mid-test and the
 # failure surfaces somewhere far away. A hardcoded 300s here used to kill the
@@ -143,6 +158,12 @@ FATAL_CLIENT_RE = re.compile(r'ModLoadingException|Exception in thread "main"|Co
 # reply with this literal prefix; nothing else in this pack's client log
 # produces it.
 GUI_SCREEN_PREFIX = "Screen: "
+# The OTHER possible landed `gui` reply (jar-verified against the same
+# AbstractGuiCommand.execute() javap pass, decompiled fresh against the
+# actually-installed hmc-specifics-1.21.1-2.4.0-neoforge-release.jar -
+# EQUALLY a successful relay, not a non-answer - see parse_gui_reply()'s
+# docstring for why this is in fact the EXPECTED reply for a healthy join.
+GUI_NO_SCREEN_TEXT = "Minecraft is currently not displaying a Gui."
 # ModernFix logs this exactly once, when the main menu is up and interactive -
 # the only unambiguous "client is ready for commands" marker in this pack's
 # client log. ModernFix is a hard dependency of the pack (pack/mods.lock.json),
@@ -400,6 +421,78 @@ def parse_gui_dump(log_slice):
     if idx == -1:
         return None
     return log_slice[idx:]
+
+
+def parse_gui_reply(log_slice):
+    r"""Classify the most recent LANDED `gui` relay in a client-log slice -
+    the #62 fix, round 2 (client-test-harness hardening).
+
+    parse_gui_dump() above only recognizes one of the two successful replies
+    AbstractGuiCommand.execute() can produce (see its own docstring for the
+    javap ground truth): a "Screen: " dump when a GuiScreen is active. The
+    OTHER branch of that same decompiled method - re-verified fresh here
+    against the actually-installed hmc-specifics-1.21.1-2.4.0-neoforge-
+    release.jar - calls `Minecraft.getScreen()`, finds it null, and logs the
+    literal GUI_NO_SCREEN_TEXT instead. Both are real, landed relays; only a
+    line lost to the launcher (`Couldn't find command for '[gui]', did you
+    mean '...'?`, on the LAUNCHER's own output, never in this file) produces
+    neither.
+
+    Treating ONLY the screen-dump branch as a pass (main()'s original #62
+    fix) was itself a bug: a healthy client with no menu open - the
+    overwhelmingly common real-world state - answers with GUI_NO_SCREEN_TEXT,
+    not a dump, so that branch could time out on a perfectly fine client if
+    `gui` simply never happened to land during a rare open-menu moment.
+    Ground-truthed the hard way: 3 consecutive real L3 runs on the Incus host
+    all received GUI_NO_SCREEN_TEXT - a genuinely landed, confirmed relay -
+    and all 3 still reported L3 FAIL under the old parse_gui_dump()-only
+    check. This function fixes that by accepting either.
+
+    Critically, this does NOT weaken the #49 regression check: the
+    ReceivingLevelScreen/GenericDirtMessageScreen loading/dirt screens the
+    caller asserts against are themselves real, non-null GuiScreen instances
+    - Minecraft only clears the active screen to null (producing
+    GUI_NO_SCREEN_TEXT) once it actually finishes loading into a world - so
+    a client stuck on either of those screens can only ever be reported via
+    the ("screen", ...) branch below, never ("none", ...). A client that
+    answers "not displaying a Gui" cannot simultaneously be stuck loading.
+
+    Returns:
+      - ("screen", dump_text) - a "Screen: " dump landed; the caller must
+        still check dump_text for the loading/dirt screen classes.
+      - ("none", GUI_NO_SCREEN_TEXT) - the client confirmed no active screen,
+        equally a pass.
+      - None - neither has landed yet in this slice; the caller should
+        resend `gui` and keep waiting.
+
+    Only the LAST landed reply of either kind is used (mirrors
+    parse_gui_dump()'s own last-marker-wins reasoning), so duplicate
+    deliveries after the first confirmed reply are harmless.
+
+    >>> parse_gui_reply("Screen: net.minecraft.client.gui.screens.TitleScreen\nButtons:\n")
+    ('screen', 'Screen: net.minecraft.client.gui.screens.TitleScreen\nButtons:\n')
+    >>> parse_gui_reply("Minecraft is currently not displaying a Gui.")
+    ('none', 'Minecraft is currently not displaying a Gui.')
+    >>> parse_gui_reply("Couldn't find command for '[gui]', did you mean 'help'?") is None
+    True
+    >>> parse_gui_reply("") is None
+    True
+    >>> mixed = ("Minecraft is currently not displaying a Gui.\n"
+    ...          "Screen: net.minecraft.client.gui.screens.TitleScreen\n")
+    >>> parse_gui_reply(mixed)
+    ('screen', 'Screen: net.minecraft.client.gui.screens.TitleScreen\n')
+    >>> mixed2 = ("Screen: net.minecraft.client.gui.screens.TitleScreen\n"
+    ...           "Minecraft is currently not displaying a Gui.\n")
+    >>> parse_gui_reply(mixed2)
+    ('none', 'Minecraft is currently not displaying a Gui.')
+    """
+    screen_idx = log_slice.rfind(GUI_SCREEN_PREFIX)
+    none_idx = log_slice.rfind(GUI_NO_SCREEN_TEXT)
+    if screen_idx == -1 and none_idx == -1:
+        return None
+    if screen_idx > none_idx:
+        return ("screen", log_slice[screen_idx:])
+    return ("none", GUI_NO_SCREEN_TEXT)
 
 
 def assert_no_refresh_loop(since_offset, window_s, phase):
@@ -664,38 +757,64 @@ def _run_l3_boot_and_join(env):
         # asserted on whatever was in the log slice - on a lost line that
         # slice was simply empty, the regex below never matched, and the
         # check "passed" without ever having heard back from the game. A
-        # check that cannot fail is worse than no check. parse_gui_dump()
-        # holds the jar-verified ground truth for what a landed reply looks
-        # like; extra copies of `gui` that land after the first confirmed
-        # reply are harmless (it always keys on the last dump in the slice).
+        # check that cannot fail is worse than no check.
+        #
+        # #62 round 2 (client-test-harness hardening): the first fix's
+        # resend loop was structurally sound but had two remaining bugs,
+        # both found by ground-truthing real Incus L3 runs rather than
+        # assuming the fix was complete:
+        #   1. It only accepted a "Screen: " dump as a pass, but the OTHER
+        #      landed reply - GUI_NO_SCREEN_TEXT, meaning no active screen -
+        #      is EQUALLY a successful relay and is in fact the EXPECTED
+        #      answer for a healthy client with no menu open (see
+        #      parse_gui_reply()'s docstring for the jar-verified reasoning,
+        #      and why this can never mask the #49 loading/dirt-screen
+        #      symptom this check exists to catch). 3 consecutive real runs
+        #      landed exactly that reply and still reported FAIL.
+        #   2. The resend cadence (send, then wait up to 4x2s=8s before
+        #      resending) gave only ~5-6 attempts across the old 45s
+        #      budget - too few shots at a race with no guaranteed winner.
+        #      GUI_TIMEOUT_S/GUI_RESEND_POLL_S/GUI_RESEND_CHECKS above now
+        #      give ~45 attempts across 90s, matching `connect`'s own
+        #      already-proven-reliable cadence instead of a weaker one just
+        #      because this check runs later in the script.
+        # parse_gui_reply() holds the jar-verified ground truth for both
+        # kinds of landed reply; extra copies of `gui` that land after the
+        # first confirmed reply are harmless (it always keys on the last one
+        # in the slice).
         pre_len_client = len(read(CLIENT_LOG))
         gui_deadline = time.time() + GUI_TIMEOUT_S
-        gui_dump = None
+        gui_reply = None
         while time.time() < gui_deadline:
             send_client_command("gui")
-            for _ in range(4):
-                gui_dump = parse_gui_dump(read(CLIENT_LOG)[pre_len_client:])
-                if gui_dump:
+            for _ in range(GUI_RESEND_CHECKS):
+                gui_reply = parse_gui_reply(read(CLIENT_LOG)[pre_len_client:])
+                if gui_reply:
                     break
-                time.sleep(2)
-            if gui_dump:
+                time.sleep(GUI_RESEND_POLL_S)
+            if gui_reply:
                 break
-        if gui_dump is None:
+        if gui_reply is None:
             fail(
-                f"the client never answered a single `gui` command with a screen dump "
-                f"within {GUI_TIMEOUT_S}s - every attempt was either lost to the launcher "
-                f"or produced nothing (#62: see this script's module docstring for the "
-                f"FIFO race, and parse_gui_dump() for the exact ground-truthed success "
-                f"format this looked for). This is a harness failure, not a #49 pass - "
-                f"see {CLIENT_LOG}."
+                f"the client never answered a single `gui` command (screen dump or "
+                f"{GUI_NO_SCREEN_TEXT!r}) within {GUI_TIMEOUT_S}s - every attempt was either "
+                f"lost to the launcher or produced nothing (#62: see this script's module "
+                f"docstring for the FIFO race, and parse_gui_reply() for the exact "
+                f"ground-truthed success formats this looked for). This is a harness "
+                f"failure, not a #49 pass - see {CLIENT_LOG}."
             )
-        print(gui_dump.strip())
-        if re.search(r"ReceivingLevelScreen|GenericDirtMessageScreen", gui_dump):
-            fail(
-                "client is still showing a loading/dirt-message screen after the settle "
-                f"window - this IS the #49 symptom reproducing. See {CLIENT_LOG} for the "
-                f"full run."
-            )
+        gui_kind, gui_text = gui_reply
+        if gui_kind == "none":
+            print(f"== L3: gui confirms {gui_text!r} - client is in-world with no active "
+                  f"screen (a healthy join's expected state) ==")
+        else:
+            print(gui_text.strip())
+            if re.search(r"ReceivingLevelScreen|GenericDirtMessageScreen", gui_text):
+                fail(
+                    "client is still showing a loading/dirt-message screen after the settle "
+                    f"window - this IS the #49 symptom reproducing. See {CLIENT_LOG} for the "
+                    f"full run."
+                )
 
         # KNOWN GAP (2026-07-22, #65): driving the /vpp_selftest COMMAND itself
         # as the joined player is not reachable with this toolchain - two
