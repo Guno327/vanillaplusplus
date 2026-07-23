@@ -156,7 +156,21 @@ EntityEvents.spawned(event => {
 
     const starCount = Math.min(Math.floor((difficulty - 1) / 0.3) + 1, STAR_COLORS.length)
     const color = STAR_COLORS[starCount - 1]
-    entity.setCustomName(Text.of('*'.repeat(starCount)).color(color))
+
+    // #101: this used to be entity.setCustomName(Text.of('*'.repeat(starCount))...)
+    // - i.e. it REPLACED the customName outright with a bare string of
+    // asterisks. Minecraft uses getName()/customName verbatim both for the
+    // above-head nametag AND for death messages ("%s was slain by %s"
+    // substitutes the killed entity's getName()), so that one line clobbered
+    // both: every scaled mob's nameplate AND its death message became just
+    // "**". Fix: capture the mob's real default name first (entity.getName()
+    // is still untouched here - nothing has called setCustomName on this
+    // entity yet, so it's the vanilla translated species name, e.g.
+    // "Zombie") and append the star rating as a suffix instead of replacing
+    // it, so both the nameplate and death message read e.g. "Zombie **".
+    const baseName = entity.getName()
+    const starSuffix = Text.of(' ' + '*'.repeat(starCount)).color(color)
+    entity.setCustomName(Text.of(baseName).append(starSuffix))
     entity.setCustomNameVisible(true)
 })
 

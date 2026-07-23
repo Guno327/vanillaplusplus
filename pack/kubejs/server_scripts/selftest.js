@@ -561,6 +561,35 @@ stCheck('progression audit (#61) diagnostic: alltheores:brass_ingot cross-mod by
         detail: bypassRecipeIds.length > 0
             ? ('GAP CONFIRMED LIVE - c:ingots/brass accepts alltheores:brass_ingot (unrelated mod, no tier gate of its own) via: ' + bypassRecipeIds.join(','))
             : 'gap appears fixed - create:brass_casing no longer accepts alltheores:brass_ingot',
+// #91 (reopened): material_sinks.js routes five previously-dead AllTheOres
+// gear items into real recipe families - same failure mode as the tier
+// gates above (a renamed jar recipe id or removed item would silently
+// un-gate/un-sink the material with no error), same Predicate#test probe.
+const ST_MATERIAL_SINK_RECIPES = [
+    { id: 'vanillaplusplus:raw_basic_processor_tin_gear', sink: 'alltheores:tin_gear' },
+    { id: 'vanillaplusplus:raw_improved_processor_silver_gear', sink: 'alltheores:silver_gear' },
+    { id: 'vanillaplusplus:raw_advanced_processor_platinum_gear', sink: 'alltheores:platinum_gear' },
+    { id: 'vanillaplusplus:magnet_upgrade_osmium_gear', sink: 'alltheores:osmium_gear' },
+    { id: 'vanillaplusplus:advanced_magnet_upgrade_iridium_gear', sink: 'alltheores:iridium_gear' },
+]
+
+stCheck('material_sinks.js: every #91 sink recipe resolves and demands its gear (#91)', server => {
+    let bad = []
+    for (let i = 0; i < ST_MATERIAL_SINK_RECIPES.length; i++) {
+        let entry = ST_MATERIAL_SINK_RECIPES[i]
+        let opt = server.getRecipeManager().byKey(stRl(entry.id))
+        if (!opt.isPresent()) { bad.push(entry.id + ':missing'); continue }
+        let sinkStack = Item.of(entry.sink)
+        let ingredients = opt.get().value().getIngredients().toArray()
+        let demands = false
+        for (let j = 0; j < ingredients.length; j++) {
+            if (ingredients[j].test(sinkStack)) { demands = true; break }
+        }
+        if (!demands) bad.push(entry.id + ':missing-' + entry.sink)
+    }
+    return {
+        pass: bad.length === 0,
+        detail: bad.length === 0 ? (ST_MATERIAL_SINK_RECIPES.length + ' sink recipes verified') : bad.join(','),
     }
 })
 
@@ -1090,14 +1119,13 @@ function stPayCoins(player, totalSpurs) {
     }
 }
 
-function stRunSelftest(ctx) {
-    let server = ctx.source.server
-    let player = ctx.source.isPlayer() ? ctx.source.getPlayerOrException() : null
-
-    function output(line) {
-        ctx.source.sendSystemMessage(ST_ComponentClass.literal(line))
-    }
-
+// Extracted so the test-only stage-grant hook below (#65) can run the exact
+// same ST_CHECKS loop against a real ServerPlayer, instead of maintaining a
+// second, driftable copy of it. Pure: takes server/player, returns the raw
+// pass/skip/fail-tagged results plus the three counts - no output side
+// effect, so both the command handler (chat) and the test hook (server log)
+// can format it their own way.
+function stRunSelftestChecks(server, player) {
     let results = []
     for (let i = 0; i < ST_CHECKS.length; i++) {
         let c = ST_CHECKS[i]
@@ -1115,16 +1143,30 @@ function stRunSelftest(ctx) {
     let skipped = 0
     for (let i = 0; i < results.length; i++) {
         let r = results[i]
-        let tag
-        if (r.skip) { tag = 'SKIP'; skipped++ }
-        else if (r.pass) { tag = 'PASS'; passed++ }
-        else { tag = 'FAIL'; failed++ }
-        output(`[${tag}] ${r.name} - ${r.detail}`)
+        if (r.skip) { r.tag = 'SKIP'; skipped++ }
+        else if (r.pass) { r.tag = 'PASS'; passed++ }
+        else { r.tag = 'FAIL'; failed++ }
     }
-    let executed = passed + failed
-    let status = failed === 0 ? 'PASS' : 'FAIL'
-    output(`VPP_SELFTEST: ${status} (${passed}/${executed}, ${skipped} skipped)`)
-    return passed
+    return { results: results, passed: passed, failed: failed, skipped: skipped }
+}
+
+function stRunSelftest(ctx) {
+    let server = ctx.source.server
+    let player = ctx.source.isPlayer() ? ctx.source.getPlayerOrException() : null
+
+    function output(line) {
+        ctx.source.sendSystemMessage(ST_ComponentClass.literal(line))
+    }
+
+    let run = stRunSelftestChecks(server, player)
+    for (let i = 0; i < run.results.length; i++) {
+        let r = run.results[i]
+        output(`[${r.tag}] ${r.name} - ${r.detail}`)
+    }
+    let executed = run.passed + run.failed
+    let status = run.failed === 0 ? 'PASS' : 'FAIL'
+    output(`VPP_SELFTEST: ${status} (${run.passed}/${executed}, ${run.skipped} skipped)`)
+    return run.passed
 }
 
 ServerEvents.commandRegistry(event => {
@@ -1141,4 +1183,71 @@ ServerEvents.commandRegistry(event => {
             }
         })
     )
+})
+
+// ---------------------------------------------------------------------------
+// GitHub #65 (test-only player-gated check coverage): every player-gated
+// ST_CHECKS entry above (`if (!player) return { skip: true, ... }`) reports
+// SKIP under every existing test tier, because none of them can drive
+// `/vpp_selftest` AS the joined player - see the KNOWN GAP note in
+// scripts/tests/l3_client_join.py for the two routes already tried and
+// ruled out (console `execute as <player> run ...` silently no-ops under
+// KubeJS's own registered command; hmc-specifics 2.4.0 exposes no client
+// chat verb to type the command). This hook is the route #65 itself
+// proposed instead: run the exact same ST_CHECKS loop the moment a real
+// ServerPlayer is granted a sentinel, test-only stage, so an L3 harness can
+// exercise the player-gated checks by granting that stage post-join - the
+// same mechanism (`kubejs stages add <player> <stage>`) L3 already uses for
+// its own tier-stage probe, and the same PlayerEvents.stageAdded binding
+// mobility.js already relies on elsewhere in this pack.
+//
+// Ground truth (javap against kubejs-neoforge-2101.7.2-build.368.jar,
+// dev/latvian/mods/kubejs/stages/Stages.class): the interface's default
+// add(String) method - which is what both `player.stages.add(...)` and the
+// `kubejs stages add` console command call - posts PlayerEvents.STAGE_ADDED
+// with a `new StageChangedEvent(getPlayer(), this, stage)` BEFORE returning,
+// for any Stages implementation (TagWrapperStages here, since
+// ProgressiveStages itself is gone per #49 - see this file's sibling
+// progression_stage_bridge.js). getPlayer() is whatever real
+// net.minecraft.world.entity.player.Player the Stages instance was created
+// against, i.e. the actual joined player, not a console/command-block
+// source - exactly what every player-gated check above needs and what
+// stRunSelftestChecks() takes as its `player` argument.
+//
+// Guarded from ever firing in normal play by construction, not by an env
+// var/system property this test-only Rhino code would have to read:
+// ST_TEST_HOOK_STAGE is not one of ST_TIER_IDS, not one of
+// progression_stage_bridge.js's PSB_*_TIER_IDS/PSB_*_TRIGGERS stage ids, and
+// is granted nowhere else in this codebase - the only other place this
+// exact string appears is scripts/tests/l3_client_join.py, the L3 harness
+// that deliberately grants it post-join. A player who is never handed this
+// specific id by that harness never triggers this listener at all, the same
+// safety argument mobility.js's own STAGE-keyed stageAdded/stageRemoved
+// handlers already rely on for a real (non-test) stage.
+//
+// Reports to the SERVER LOG (console.info), not chat: there is no ctx.source
+// here (this fires from a stage-grant event, not a command invocation), and
+// the server log is exactly what L3 already greps for its other post-grant
+// confirmations (see send_server_command()/read(SERVER_LOG) in
+// l3_client_join.py). VPP_SELFTEST_HOOK_LINE: prefixes each per-check line
+// and VPP_SELFTEST_HOOK: prefixes the summary so both are unambiguous to
+// grep for and can never collide with the command path's own
+// VPP_SELFTEST:/`[TAG] name - detail` chat output.
+const ST_TEST_HOOK_STAGE = 'vpp_test_selftest_hook'
+
+PlayerEvents.stageAdded(ST_TEST_HOOK_STAGE, event => {
+    try {
+        let player = event.player
+        let server = player.level.server
+        let run = stRunSelftestChecks(server, player)
+        for (let i = 0; i < run.results.length; i++) {
+            let r = run.results[i]
+            console.info(`VPP_SELFTEST_HOOK_LINE: [${r.tag}] ${r.name} - ${r.detail}`)
+        }
+        let executed = run.passed + run.failed
+        let status = run.failed === 0 ? 'PASS' : 'FAIL'
+        console.info(`VPP_SELFTEST_HOOK: ${status} (${run.passed}/${executed}, ${run.skipped} skipped)`)
+    } catch (e) {
+        console.error('[vpp selftest test-hook] top-level EXCEPTION: ' + e + (e && e.stack ? ('\n' + e.stack) : ''))
+    }
 })

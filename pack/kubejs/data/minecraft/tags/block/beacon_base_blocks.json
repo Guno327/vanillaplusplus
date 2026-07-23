@@ -1,0 +1,24 @@
+{
+  "values": [
+    "alltheores:electrum_block",
+    "alltheores:invar_block",
+    "alltheores:lumium_block",
+    "alltheores:signalum_block",
+    "alltheores:enderium_block",
+    "alltheores:platinum_block",
+    "alltheores:osmium_block",
+    "alltheores:silver_block",
+    "alltheores:bronze_block",
+    "alltheores:zinc_block",
+    "alltheores:tin_block",
+    "alltheores:lead_block",
+    "alltheores:iridium_block",
+    "alltheores:ruby_block",
+    "alltheores:sapphire_block",
+    "alltheores:peridot_block",
+    "alltheores:fluorite_block",
+    "alltheores:cinnabar_block",
+    "alltheores:salt_block",
+    "alltheores:sulfur_block"
+  ]
+}

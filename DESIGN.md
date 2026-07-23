@@ -978,7 +978,18 @@ fundamentally a tier-ladder extension).
   star-rating custom name (color-coded gray→dark_red) as the "look at it
   and tell" indicator — a nametag rather than a fancier visual (glow
   outline/particles) since that's what's reliably implementable via
-  KubeJS scripting without client-side rendering work. `EntityEvents.death`
+  KubeJS scripting without client-side rendering work. **Bug #101, fixed**:
+  the star rating was originally set via
+  `entity.setCustomName(Text.of('*'.repeat(starCount))...)`, which REPLACES
+  customName outright rather than adding to it — Minecraft uses
+  getName()/customName verbatim both for the nameplate and for death
+  messages, so every scaled mob's name became a bare string of asterisks
+  everywhere, including "You were killed by **". Fixed by capturing
+  `entity.getName()` (the untouched default species name, since nothing has
+  set a customName on the entity yet at that point) and appending the star
+  rating as a suffix instead of replacing it, so both nameplate and death
+  message now read e.g. "Zombie **" — difficulty is still visible at a
+  glance, but the real name survives. `EntityEvents.death`
   grants bonus Numismatics currency proportional to how far above baseline
   the killed mob's difficulty was, covering "rewards scale with difficulty."
   **Verification gap, disclosed**: this only exercises at actual mob-spawn
@@ -1129,6 +1140,199 @@ green, jar-confirmed item ids and recipe jsons); the hammer actually
 appearing in JEI with a working recipe needs a live client/world to
 confirm — flagged as a `verify-in-game` follow-up.
 
+**GitHub issue #86 follow-up — Create crushing-wheel ingot→dust recipes,
+for automation.** Owner, after the ore-hammer restore above: "Ore Hammer
+is craftable now but I still want crushing wheel + ingot → dust recipe to
+automate this process early." The ore hammer is a manual crafting-grid
+tool; crushing wheels (Andesite Age, this pack's first Create milestone —
+see the progression table above) are Create's early automatable
+alternative, so this adds a parallel `create:crushing` path without
+touching the hammer's own recipes. Added 23 new files under
+`pack/kubejs/data/create/recipe/crushing/` (`<metal>_ingot.json`), one per
+metal that has a native `alltheores:ore_hammers` `dust_from_ingot` recipe:
+aluminum, brass, bronze, constantan, copper, electrum, enderium, gold,
+invar, iridium, iron, lead, lumium, netherite, nickel, osmium, platinum,
+signalum, silver, steel, tin, uranium, zinc — every metal the ore hammer
+covers, so every manual path now also has an automated one. Each recipe
+takes the same `c:ingots/<metal>` tag the native hammer recipe consumes
+(jar-confirmed: AllTheOres' own jar ships the `c:ingots/*` tags for its 19
+non-vanilla metals; `copper`/`gold`/`iron`/`netherite` resolve to the
+vanilla/NeoForge-shipped `c:ingots/*` tags, same tag the hammer recipe
+already relies on) and outputs `1× alltheores:<metal>_dust` — **1:1, no
+count multiplier**, `processing_time: 200` (matching the furnace
+`cookingtime: 200` AllTheOres already uses for the reverse `dust_smelting`
+conversion). This 1:1 yield is load-bearing: jar-confirmed AllTheOres
+ships a `c:dusts/<metal>` → `1× <metal>_ingot` furnace smelting recipe for
+the exact same 23 metals, so ingot→dust at anything above 1:1 would open
+an infinite ingot→dust→smelt→ingot×N duplication loop. At 1:1 the round
+trip is neutral (1 ingot in, 1 ingot out, modulo crushing-wheel power
+cost and furnace fuel/time), mirroring the ore hammer's own 1:1 balance
+exactly — no new duplication risk introduced. No Create JS recipe DSL was
+used (`event.recipes.createCrushing(...)`); this pack's existing
+convention for Create/AllTheOres recipe additions (`creative_crate.json`/
+`creative_motor.json` already under `pack/kubejs/data/create/recipe/`, the
+createoreexcavation recipes elsewhere in this doc) is plain `create:crushing`
+recipe JSON dropped straight into `pack/kubejs/data/create/recipe/`, so
+this follows the same pattern rather than introducing a new one.
+Tier note: because the input is an ingot the player already possesses
+(not a new ore-acquisition path), even late-game metals like netherite or
+uranium being crushable "early" isn't a progression skip — it just adds an
+automation option for dust the player could already hand-craft with the
+hammer at that same point; no edge case needed gating. Verified statically
+only (`run_all.py` and the unittest suite both green, 23 new JSON files
+parsing clean, all `c:ingots/*` tags and `alltheores:*_dust` ids
+cross-checked against the installed `alltheores`/`create` jars, no
+existing `create:crushing` recipe id collisions). Crushing wheels actually
+processing these ingots and JEI showing the recipe both need a live
+client/world — flagged `verify-in-game`.
+
+**GitHub issue #91 fix — many ATO gems/ores/ingots had no use outside
+Silent Gear (or, for a few, no use at all).** Adjacent to #86: with the
+gear overhaul's `blacksmithing.js` sweep having removed every vanilla
+tool/weapon/armor recipe, an ATO (AllTheOres) metal or gem's only route
+into gear is Silent Gear recognizing its `c:ingots/*`/`c:gems/*` tag as a
+material. Cross-checked every ATO ore against the installed Silent Gear
+jar's own 132 built-in materials (`data/silentgear/silentgear_materials/`)
+plus this pack's TFMG/Stellaris compat recipes (`tfmg_stellaris_compat`)
+and found three buckets, not one: (1) most ATO metals (aluminum, nickel,
+steel, uranium, constantan, copper/iron/gold/diamond) already have a real
+non-Silent-Gear sink — Stellaris rocket/RTG/rover recipes or vanilla/Create
+ubiquity — not a bug; (2) 12 metals (bronze, electrum, invar, lead, lumium,
+osmium, platinum, signalum, silver, tin, zinc, enderium) genuinely have
+**no use anywhere in this pack except Silent Gear smithing** — exactly the
+reporter's complaint; (3) worse, 7 materials (the `iridium` ingot and the
+`ruby`/`sapphire`/`peridot`/`fluorite`/`cinnabar` gems) have **no use at
+all, not even Silent Gear** — Silent Gear's own material list has no entry
+for any of them (confirmed by grepping its 132 material jsons for their
+tags), a genuine gap in the mod's own bundled coverage, not something this
+pack broke.
+
+**Fix, two parts, no mod added.** First, closed bucket (3)'s real
+zero-use bug the same way this pack already generates every other Silent
+Gear material (`vpp_`-prefixed, avoiding the same silent-key-collision risk
+documented in the gear-overhaul section above): six new files in
+`pack/kubejs/data/silentgear/silentgear_materials/` (`vpp_iridium`,
+`vpp_ruby`, `vpp_sapphire`, `vpp_peridot`, `vpp_fluorite`,
+`vpp_cinnabar`), each keyed off the real `c:ingots/iridium`/`c:gems/*` tag
+ATO already populates. Stats aren't invented: `vpp_iridium` copies
+Silent Gear's own `platinum.json` verbatim (same real harvest-tier
+requirement — both need a diamond tool, confirmed via ATO's own
+`minecraft:needs_diamond_tool` tag) rather than guessing a "better than
+platinum" curve with no way to playtest it; the three gems needing only a
+stone tool (`ruby`/`sapphire`/`peridot`, per ATO's `needs_stone_tool` tag)
+copy Silent Gear's own `amethyst.json` (same real tier); the two needing an
+iron tool (`fluorite`/`cinnabar`, per ATO's `needs_iron_tool` tag) copy
+`quartz.json`. Second, for bucket (2) — and extended to bucket (3) plus
+ATO's `salt`/`sulfur` (two more true dead-ends, not gems/ores/ingots in the
+strict sense but the same failure) — added a genuinely non-Silent-Gear
+sink usable by every one of those 20 materials at once: their storage
+blocks (`alltheores:*_block`, all pre-existing, already textured) added to
+vanilla's own `minecraft:beacon_base_blocks` tag (new
+`pack/kubejs/data/minecraft/tags/block/beacon_base_blocks.json`, merge-only
+since no `replace` key is set, so vanilla's iron/gold/diamond/emerald/
+netherite bases are untouched). Deliberately the lowest-risk option
+available without adding a mod: pure data, zero new assets, doesn't skip or
+duplicate any tier (a beacon still needs a full pyramid + a Wither kill
+either way), and unlike inventing decorative slab/stair/wall block sets it
+needs no new textures this sandbox can't render or verify. Not done:
+editing Stellaris/TFMG's own rocket recipes to swap in more of these
+metals as alternate ingredients — that changes another mod's own balance
+surface and was judged out of scope for a materials-sink fix (flagged, not
+attempted). Verified statically only (`run_all.py` and the unittest suite
+both green, 517 JSON files parsing clean including the 7 new files, all
+tag/material ids cross-checked against the real installed
+`alltheores`/`silent-gear` jars); Silent Gear actually accepting the 6 new
+materials in its crafting UI and the new beacon bases lighting a real
+beacon both need a live client — flagged `verify-in-game`.
+
+**GitHub issue #91 REOPENED — the ingot-level fix above was insufficient.**
+Owner's own words: "There is still no use for lots of items like silver
+gears which is one of the only things made with silver... integrate their
+use into important recipes so that harvesting a variety of materials is
+encouraged." Re-investigated from scratch, jar-verified across all 95
+installed mods (extracted every jar under `server/mods/`, grepped every
+recipe json for the `c:ingots|gems|dusts|storage_blocks/*` common tags per
+metal — not assumed from mod names or #102's prior writeup):
+
+- **Every ATO metal's INGOT already has a real, unconditional sink** once
+  you look past Silent Gear: ATO's own `alloy_blending_from_dust` shapeless
+  recipes (plain crafting-table dust blending) produce brass/bronze/
+  constantan/electrum/enderium/invar/lumium/signalum/steel with no missing-
+  mod condition — unlike ATO's `alloy_smelting`/`alloysmelter`/`arcfurnace`
+  recipe types for the same alloys, which are **all** conditioned on
+  `mod_loaded: enderio` or `immersiveengineering`, neither installed, so
+  those specific recipe files are silent dead weight (a real finding, but
+  harmless — the dust-blending path already covers the same alloys).
+  TFMG independently uses lead/nickel/aluminum in real machine parts
+  (`electrode_holder`, `converter`, `transformer`, `accumulator`,
+  `chemical_vat`, `engine_cylinder`, factory-floor/scaffolding/wire
+  building blocks); Create itself uses zinc natively (andesite alloy,
+  brass ingot, chain drive, package filter); Stellaris uses uranium in
+  `radioactive_generator`/`radioactive_motor`. None of these were dead
+  ends — #102's writeup undercounted them.
+- **What is genuinely, universally dead**, confirmed by grepping every one
+  of the 95 jars' recipes for the `c:gears/*`/`c:plates/*`/`c:rods/*` tags:
+  ATO's own metal-press byproducts. ~75 items (gear/plate/rod × 25 metals),
+  and not one recipe anywhere — not this pack's, not any of the 95 mods' —
+  ever consumes any of them. ATO only ever *outputs* them (its own metal
+  press recipe), because upstream they exist for Mekanism/Thermal/
+  Immersive-Engineering-style machine crafting, none of which this pack
+  installs. This is exactly what "silver gears" names, and it's uniform
+  across every metal — fixing silver alone would leave the identical class
+  of dead end for every other one.
+
+**Fix, first tranche, no mod added** (`pack/kubejs/server_scripts/
+material_sinks.js`): routed five of these dead gears into existing,
+already-desirable, already tier-gated recipe families this pack controls,
+as an *additional* required ingredient alongside the stock ones (never a
+cheaper alternate path — nothing is bypassed, a recipe only gains one more
+demand) and always by exact item id, never a `c:` tag (the #61 audit's
+tag-bypass class: a tag pull risks being silently satisfiable by some
+other mod's own cheap item sharing that tag, defeating the point of gating
+on *this* specific dead-end item):
+
+- Refined Storage's raw processor chain (`raw_basic_processor` /
+  `raw_improved_processor` / `raw_advanced_processor`) is the single most
+  load-bearing "important recipe" family in the pack —
+  `tier_gating.js`'s own header notes `advanced_processor` alone gates
+  `autocrafter`/`wireless_transmitter`/`network_receiver`/
+  `network_transmitter`/`relay`/`wireless_grid`. Each raw processor's stock
+  recipe is shapeless around one vanilla tier material (iron/gold/diamond);
+  a matching-tier ATO gear slots in as that stage's "solder/conductor/
+  precious-contact" component, preserving the iron→gold→diamond order the
+  stock recipe already encodes: `raw_basic_processor` (+iron) gains
+  `alltheores:tin_gear`, `raw_improved_processor` (+gold) gains
+  `alltheores:silver_gear` (the reporter's own named material), and
+  `raw_advanced_processor` (+diamond) gains `alltheores:platinum_gear`.
+- Sophisticated Storage's Magnet Upgrade / Advanced Magnet Upgrade (real,
+  desirable QoL upgrades, tier-chained — the advanced tier consumes a base
+  `magnet_upgrade` as its own ingredient) gain `alltheores:osmium_gear` and
+  `alltheores:iridium_gear` respectively — osmium for the dense/magnetic
+  flavor of the base upgrade, iridium (this pack's rarest, most purely
+  decorative leftover metal) for the tier above it. Both keep the mod's own
+  `sophisticatedcore:upgrade_next_tier` custom recipe type (same precedent
+  `tier_gating.js` already set for this mod's `storage_tier_upgrade` type),
+  re-authored with one added ingredient apiece and the stock pattern/other
+  ingredients otherwise unchanged.
+
+**Deliberately not touched this tranche** (confirmed to already have a real
+sink, not a dead end — see the survey above): zinc, lead/nickel/aluminum,
+uranium, and the six #102 gem materials (Silent Gear tool material +
+beacon base already covers ruby/sapphire/peridot/fluorite/cinnabar/
+iridium). The remaining gear/plate/rod dead weight across the other 20
+metals (copper/iron/gold/bronze/constantan/electrum/enderium/invar/
+lumium/signalum/steel/uranium/diamond/netherite/…) is real but lower
+priority than the five picked here (silver named explicitly by the
+reporter; tin/osmium/platinum next-worst per the investigation) — left for
+a follow-up tranche rather than padding this one with recipes that don't
+map to something a player actually wants to craft. Verified statically
+only (`run_all.py` + the 227-test unittest suite both green; every new
+item id cross-checked against the installed `alltheores` jar's own lang
+file; every edited recipe's stock shape/ingredients read directly from the
+installed `refinedstorage`/`sophisticatedstorage` jars, not assumed) — the
+new ingredients actually resolving in a real crafting grid and JEI showing
+the gear as required both need a live client, flagged `verify-in-game`.
+
 ### Gear overhaul: unified smithing/boss-drop progression + expanded melee variety (post-Phase 9)
 
 After all 9 original phases shipped, a follow-up request tightened the
@@ -1275,6 +1479,79 @@ verified (item ids cross-checked against the installed jar's own recipe
 outputs, capability JSON schema matched field-for-field against Epic
 Fight's shipped vanilla/native captures) but real animation/combat-feel
 correctness needs a live client — see Verification.
+
+**GitHub issues #84/#108 follow-up — Epic Fight keybind capture + katana
+skill.** Two regressions traced to the capability registration directly
+above, both ground-truthed via CFR-decompiling the installed
+`epic-fight-21.17.3.1` jar and the `epic-tweaks` addon jar (no decompiler
+was available for prior work in this pack; a JDK already vendored at
+`.tools/jdk-21.0.11+10` plus the CFR decompiler made a full source-level
+read possible this round — recommended for any future Epic Fight/Java-mod
+bytecode investigation instead of raw string-dumping .class files).
+
+*#84 — holding a Silent Gear weapon blocked Q-drop and hotbar number keys
+until death.* Root cause: `ClientConfig.combatCategorizedItems` (config key
+`ingame.combat_preferred_items`) is Epic Fight's own list of "this item
+counts as combat gear" items; it starts empty and is auto-populated exactly
+once, at first client boot, by `ItemsPreferenceScreen.resetItems()`, which
+sweeps every item whose Epic Fight item-stack capability is `instanceof
+WeaponCapability`. Giving Silent Gear weapons an Epic Fight weapon
+capability (directly above) means they get swept into this list too. The
+`epic-tweaks` addon's `autoswitch_mode` (auto-enter `PlayerMode.EPICFIGHT`
+on equipping any such item) and `enforce_mode` (cancel the player's own
+"Switch Mode" keypress while holding one — `PlayerPatchMixin#onToggleMode`)
+default to `true`, so holding the weapon now locks the player into Epic
+Fight Mode with no way to manually leave. Epic Fight's own
+`ControlEngine.handleEpicFightKeyMappings()` (every client tick, gated on
+`PlayerMode == EPICFIGHT`) cancels the vanilla Q-drop keybind
+(`MixinLocalPlayer#epicfight$onDrop`) and all 9 hotbar-slot keybinds
+(`ControlEngine#disableHotbarSlotPresses`) whenever
+`ControlEngine#isSwitchOrDropBlocked()` is true — true during any active
+attack/dodge/guard animation, or for ~1s after the last combat input
+(`hotbarLocked`), both self-clearing on their own. Confirmed via a full
+bytecode string dump of `ClientConfig`/`CommonConfig`/`ServerConfig` that
+Epic Fight itself ships **no config toggle** for this drop/hotbar
+cancellation (`CanceledVanillaActions` only gates right-click interact/
+item-use, unrelated — this was also already noted, correctly, in the
+`epic-tweaks` manifest entry from GitHub #69). Fixed by shipping
+`pack/config/epictweaks-client.toml` with `enforce_mode = false`
+(`autoswitch_mode` left at its default `true`): the player's "Switch Mode"
+keybind now works while holding a combat-preferred item, so they can drop
+back to Vanilla Mode on demand to free Q/hotbar instantly and re-enter
+combat mode for the next swing, instead of being locked in for the entire
+time the weapon is held. Disclosed: this does not touch the transient ~1s
+lock during an actual attack/dodge/guard animation — that part is Epic
+Fight's own hardcoded combat-timing mechanic with no exposed config, and
+applies identically to every Epic Fight weapon (vanilla or Silent Gear),
+not something #89 introduced. Verify-in-game.
+
+*#108 — Silent Gear katana granted no skill.* Ground-truthed via
+`EpicFightItemCapabilityPresets.class`: each weapon capability `"type"`
+(e.g. `epicfight:uchigatana`, `epicfight:tachi`) is a full Java-registered
+preset bundling category, moveset-per-style, *and* a baked-in weapon-innate
+skill from the moveset (`EpicFightMovesets.class`) — `"type"` alone
+determines the skill, the per-item capability JSON has no separate skill
+field to set. The katana's prior mapping, `epicfight:uchigatana`, actually
+does carry a skill (`BATTOJUTSU` + its passive) via the `UCHIGATANA_BASE`
+moveset — but it's a quick-draw/sheathing skill, not the tachi skill the
+issue asks for. Since a capability file can only select one integrated
+type (moveset + skill come as a pair, can't be mixed), `katana.json`'s
+`"type"` is changed to `epicfight:tachi` (`TACHI_2H` moveset →
+`RUSHING_TEMPO` innate skill), matching real Epic Fight tachi items
+(`diamond_tachi.json` etc.) exactly. `attributes.common` is bumped from
+`{impact: 0.6, max_strikes: 1}` (an exact copy of Epic Fight's own
+`uchigatana.json`) to `{impact: 2.0, max_strikes: 2}` (Epic Fight's own
+`iron_tachi.json` values), following the same "iron-tier Epic Fight file as
+the flat baseline" convention already used by this pack's `dagger.json`/
+`spear.json`. Audited the rest of #89's mappings for the same gap: sword/
+machete (`epicfight:sword` → `SWEEPING_EDGE`/`DANCING_EDGE`), dagger/knife
+(`epicfight:dagger` → `EVISCERATE`/`BLADE_RUSH`), spear (`epicfight:spear`
+→ `HEARTPIERCER`/`GRASPING_SPIRE`), mace (`epicfight:axe` →
+`THE_GUILLOTINE`), and trident (`epicfight:trident`, its own innate skill)
+all already carry a real innate skill via their assigned moveset — no
+further changes needed. bow/crossbow are skill-less by design, matching
+Epic Fight's own native bow/crossbow presets (not a gap introduced by
+#89). Verify-in-game.
 
 ### Utility overhaul: tool tier-gating fix, Paxel, gear traits, building wand, backpacks (post-gear-overhaul)
 
@@ -3181,3 +3458,82 @@ and embedded in both artifact filenames — bump it once at the next release
 cut rather than hunting for hardcoded version strings in multiple places
 (the bug this replaced: `build_mrpack.py` hardcoded `"0.9.0"` and had
 silently drifted from reality before this release wave).
+
+### GitHub issues #103 (dynamic lights), #107 (Curios not restored by
+### Gravestone), #104 (searchable keybinds)
+
+**#103, dynamic lights don't work.** instructions.md's world-interactivity
+section explicitly lists "Dynamic lights" as a requirement (`- Dynamic
+lights` under "The world should be as interactable as possible"), and no
+dynamic-lights mod existed in `pack/manifest.json` at all before this
+change — a genuine gap, not a misconfiguration. Added **Sodium Dynamic
+Lights** (`sodium-dynamic-lights`, phase 25) + its one required dep,
+**Sodium Options API** (`sodium-options-api`, phase 25). Chosen over
+LambDynamicLights' own "Unofficial NeoForge" port (stale relative to this
+pack's Sodium line per its own listing) and Create: Dynamic Lights
+(Create-item-only scope) because Sodium Dynamic Lights' own
+`mixins.sodiumdynamiclights.json`, ground-truthed via jar extraction,
+mixes directly into `net.caffeinemc.mods.sodium`'s real
+`ArrayLightDataCache`/`FlatLightPipeline`/`LightDataAccess`/
+`SodiumOptionsGUI` classes — a confirmed match for this pack's actual
+rendering stack (real Sodium `mc1.21.1-0.8.12-neoforge`, phase 18, plus
+Iris `1.8.14-beta.1`, phase 23 — this pack runs Sodium, not Embeddium).
+Both new mods are `side: client` (Modrinth client_side=required/
+server_side=unsupported for both), no server-side footprint. No config
+shipped — tuning happens via the mod's own in-game options page (reachable
+through the ground-truthed `SodiumOptionsGuiMixin`).
+
+**#107, Gravestone doesn't return Curios to their slots.** Ground-truthed
+against the actually-installed `gravestone-neoforge-1.21.1-1.0.37.jar`
+(phase 22, added issue #13): its own `neoforge.mods.toml` declares no
+Curios dependency, and jar extraction confirms zero `curio`-named
+classes/resources anywhere in its 198 entries — henkelmax's Gravestone Mod
+has **no Curios integration at all**, so there is no config toggle to flip
+(option (a) from the task doesn't exist). Fixed via option (b): a
+dedicated compat addon, **Gravestone x Curios API Compat**
+(`gravestone-x-curios-api-compat`, phase 25, pinned to 4.0.2) + its
+required dep **BaguetteLib** (`baguettelib`, phase 25). Pinned to 4.0.2
+specifically (over the older 3.0.1/2.1.0 releases) because its changelog
+targets this exact complaint verbatim — "Individual slot tracking ensuring
+curios restore to their original positions" — a rewrite over the older
+versions' simpler restore logic. Ground-truthed via jar extraction: its
+two required mixins (`GraveStoneBlockMixin`, `CurioStacksHandlerMixin`)
+target henkelmax's actual `GraveStoneBlock` class and Curios' own
+`CurioStacksHandler` class directly, confirming a genuine, targeted
+integration rather than a generic reimplementation; its declared deps
+(`gravestone [1.0.24,)`, `curios [9.0.0,)`, `baguettelib [1.0.0,)`) are all
+satisfied by this pack's installed versions (1.0.37, 9.5.1, 2.0.3
+respectively). Both new mods are `side: server` (client_side=unsupported/
+server_side=required for both) — Curios restoration on grave-break is
+server-authoritative inventory logic, same layer as Gravestone's own core
+mechanism. A full mod swap (option (c)) was evaluated and rejected as
+unnecessary and far more disruptive than this small, purpose-built addon;
+not pursued.
+
+**#104, searchable keybinds (feature, approved, lowest priority of the
+three).** Added **Controlling** (`controlling`, phase 25, pinned 19.0.5) +
+its one required dep, **Searchables** (`searchables`, phase 25) — the
+owner named "Controlling" directly as the example to evaluate. Chosen over
+the newer, purpose-built "Keybind Search" mod because Controlling has
+33M+ Modrinth downloads, an MIT license (vs. Keybind Search's CC
+BY-NC-4.0, a non-commercial restriction inconsistent with every other mod
+in this pack), and an active release history through this exact
+`neoforge-1.21.1-19.0.5` build. Ground-truthed via jar extraction of its
+own `neoforge.mods.toml`: all three of its dependencies (`neoforge
+[21.1.94,)`, `minecraft [1.21.1]`, `searchables [1.0.1,)`) are declared
+`side = "CLIENT"`, matching Modrinth's client_side=required/
+server_side=unsupported classification — both new mods are `side:
+client`. No config shipped; it's a pure UI affordance added to the
+existing Controls screen.
+
+All six new manifest entries verified via `python3 scripts/ci/run_all.py`
+(PASS) and `check_lockfile.py` (manifest↔lock consistent, `loader_installer`
+pin intact, no unintended version bumps to other mods — `resolve_mods.py`
+incidentally picked up newer `sophisticated-core`/`sophisticated-backpacks`/
+`sophisticated-storage` releases on this run since those three have no
+`pin_version`; reverted to their prior pinned lockfile entries, matching
+this project's established convention for keeping unrelated lockfile
+diffs clean). All three issues need verify-in-game (dynamic lights
+rendering, Curios restoring to original slots on grave pickup, the
+Controls-screen search box) — none of this is testable by the no-server-boot
+CI suite.

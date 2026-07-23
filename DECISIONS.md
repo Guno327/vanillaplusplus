@@ -1393,3 +1393,60 @@ craft recipes therefore silently orphaned the whole ore/ingot→dust pipeline
 duplication path introduced). Full design rationale in DESIGN.md's #86
 entry. Static-verified (`run_all.py` green, jar-confirmed ids/recipes); the
 hammer crafting + JEI recipe display still needs `verify-in-game`.
+
+## #67 — custom-mods convention established: `mods-src/<modid>/` (2026-07-23)
+
+**Governance precedent, not just a #67 implementation note.** The prior #67
+investigation (see DESIGN.md) concluded the Overgeared quality x Silent Gear
+material bridge is not achievable as data/config/KubeJS — Silent Gear's
+material assignment is a data component only its own recipe/stat code
+populates, and Overgeared's forging recipes are static single-item results
+with no way to carry it across. The owner authorized an exception to this
+pack's "no new mods" rule specifically to hand-roll a small Java compat
+mod, and set a **new standing rule alongside it: every custom-built mod for
+this pack gets its own independent, Modrinth-publishable source tree**, not
+inline Java mixed into `pack/`. This entry records that convention, using
+the first such mod (`vppintegration`, the #67 bridge) as the worked
+example — the next custom mod slots in beside it the same way.
+
+**Layout.** `mods-src/<modid>/` is a fully self-contained NeoForge 1.21.1
+project: its own `build.gradle`/`settings.gradle`/`gradle.properties`,
+`src/main/java` + `src/main/resources` (mods.toml, mixins config, datapack
+JSON), its own `README.md` (what it does, why it exists, build
+instructions) and `LICENSE` (MIT, chosen since neither this pack nor its
+other mod choices dictate a license for pack-original code). Nothing under
+`mods-src/` is pack-specific glue that only makes sense inline — each
+directory there must stand alone as a publishable mod.
+
+**How a locally-built jar enters the pack build.** Every other mod in
+`pack/manifest.json` is a resolved remote URL+hash (Modrinth, or CurseForge
+CDN for the two mods with redistribution permission - see
+`scripts/resolve_mods.py`'s own docstring). A `mods-src/` jar has no remote
+host at all, so a third manifest `"source"` was added: `"local"`, paired
+with a `"local_path"` field (repo-relative path to the already-`gradle
+build`-produced jar, e.g. `mods-src/vppintegration/build/libs/
+vppintegration-1.0.0.jar`). `resolve_mods.py`'s new `resolve_one_local()`
+hashes whatever real jar already sits at that path (it does NOT invoke
+gradle itself — this pipeline has never shelled out to a build tool for any
+mod source) and writes a normal lock entry, with `"url"` set to the
+repo-relative path string rather than an HTTP URL (satisfies
+`check_lockfile.py`'s "non-empty url" rule without claiming a fetchable
+one). `build_server.py` and `build_mrpack.py` both special-case
+`local_path` present to copy that file directly instead of downloading —
+`build_mrpack.py` additionally always treats a local mod as **bundled**
+(embedded under the `.mrpack`'s `overrides/mods/`) since there is no
+Modrinth-allowlisted host to reference by URL, same mechanism already used
+for the two CurseForge-hosted mods.
+
+**Not yet activated.** `vppintegration`'s source, build config, README, and
+LICENSE are complete (PR #TODO), and the three pack scripts above support
+`"source": "local"` end-to-end, but `pack/manifest.json`/`mods.lock.json`
+do NOT yet have a `vppintegration` entry: the sandbox that authored the mod
+had no JDK at all (not just no network), so no real jar exists yet to hash.
+Adding a manifest entry without a real corresponding jar would either fail
+`check_lockfile.py`'s consistency check or require a fabricated hash
+pointing at nothing — both rejected as exactly the "ship something that
+doesn't work" outcome the original #67 investigation flagged as out of
+bounds. Follow-up (real build environment): run `gradle build` in
+`mods-src/vppintegration/`, then re-run `resolve_mods.py` to add the real
+manifest+lock entries and fold the mod into an actual pack build.

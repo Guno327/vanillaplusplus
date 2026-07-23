@@ -1,0 +1,138 @@
+plugins {
+    id "java-library"
+    id "eclipse"
+    id "idea"
+    id "maven-publish"
+    id "net.neoforged.moddev" version "2.0.78"
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = neo_version
+
+    parchment {
+        minecraftVersion = minecraft_version
+        mappingsVersion = "2024.11.17"
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+        }
+        server {
+            server()
+            systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            programArgument "--nogui"
+        }
+        data {
+            data()
+            programArguments.addAll "--mod", mod_id, "--all", "--output",
+                    file("src/generated/resources/").getAbsolutePath(),
+                    "--existing", file("src/main/resources/").getAbsolutePath()
+        }
+        configureEach {
+            systemProperty "forge.logging.markers", ""
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir "src/generated/resources" }
+
+repositories {
+    // Overgeared is only published on Modrinth; Modrinth exposes its CDN through a
+    // Maven-compatible facade at api.modrinth.com/maven (group id "maven.modrinth",
+    // artifact = the project slug) - no CurseForge API key needed, same reasoning
+    // scripts/resolve_mods.py's own docstring gives for why this pack resolves
+    // Modrinth mods directly rather than through an authenticated API.
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content { includeGroup "maven.modrinth" }
+    }
+    mavenCentral()
+}
+
+dependencies {
+    // Silent Gear + Silent Lib are NOT published to any public Maven repo (verified:
+    // no group under maven.blamejared.com, Modrinth's maven facade, or Maven Central
+    // resolves either artifact) - the only real distribution channel is the Modrinth
+    // *download*, which is what pack/mods.lock.json already pins and hashes. Compile
+    // against the exact jars this pack ships (server/mods/silent-gear-*.jar,
+    // server/mods/silent-lib-*.jar) via a flat local repo instead of guessing a maven
+    // coordinate that doesn't exist. A real CI build must first copy those two jars
+    // (or download the exact pinned Modrinth version - see pack/mods.lock.json for
+    // the URL/hash) into mods-src/vppintegration/libs/ before running gradle; see
+    // this project's own README.md "Build instructions".
+    // Exact filenames match pack/mods.lock.json's "filename" field for these two
+    // slugs as of this mod's authoring - update both together on a pack-side bump.
+    compileOnly files("libs/silent-gear-1.21.1-neoforge-${silent_gear_version}.jar")
+    compileOnly files("libs/silent-lib-1.21.1-neoforge-${silent_lib_version}.jar")
+
+    // Overgeared IS on Modrinth's maven facade above. Confirmed via a real build
+    // (this mod's README "Build instructions"): the Modrinth maven facade indexes
+    // artifacts by Modrinth's own "version_number" string, not the bare mod
+    // version - for this project that's "<mc_version>-<mod_version>"
+    // (e.g. "1.21.1-1.6.16"), verified against
+    // https://api.modrinth.com/v2/project/overgeared/version.
+    compileOnly "maven.modrinth:overgeared:${minecraft_version}-${overgeared_version}"
+
+    // mixinextras' real Maven Central group id is io.github.llamalad7, not
+    // org.spongepowered (confirmed via a real build: org.spongepowered 404s on
+    // Maven Central for this artifact; io.github.llamalad7 resolves).
+    annotationProcessor "io.github.llamalad7:mixinextras-common:0.4.1"
+    implementation "io.github.llamalad7:mixinextras-neoforge:0.4.1"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.release = 21
+}
+
+tasks.named("processResources", ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(["META-INF/neoforge.mods.toml"]) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+publishing {
+    publications {
+        register("mavenJava", MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = "file://${project.projectDir}/repo"
+        }
+    }
+}

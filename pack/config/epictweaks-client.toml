@@ -1,0 +1,47 @@
+
+#Forces vanilla rendering in first person view while not
+#holding a 'combat preferred' item (for non-combat motions).
+#Default: true
+filter_animation_first_person = true
+#If enabled the player cannot manually switch to vanilla mode while holding a
+#'combat preferred' item or to combat mode while not holding a 'combat preferred' item.
+#This option has no effect if the 'canSwitchPlayerMode' gamerule is disabled.
+#Default: true
+#
+#GitHub issue #84 (regression from PR #89): flipped to false. Ground-truthed via
+#CFR decompile of the installed epic-fight-21.17.3.1 + epic-tweaks jars: giving
+#Silent Gear weapons an Epic Fight weapon capability (#89) auto-registers them
+#into EpicFight's own ClientConfig.combatCategorizedItems set (config key
+#ingame.combat_preferred_items - populated once at first client boot by
+#ItemsPreferenceScreen.resetItems(), which sweeps every item whose EF item-stack
+#capability is instanceof WeaponCapability). With enforce_mode=true, epic-tweaks'
+#PlayerPatchMixin#onToggleMode cancels the player's own "Switch Mode" keypress
+#while holding any such item, so once autoswitch_mode (left true below) auto-
+#enters Epic Fight Mode on equip, the player is locked into it for as long as
+#they hold the weapon. Epic Fight's own ControlEngine.handleEpicFightKeyMappings
+#(runs every client tick, only while PlayerPatch.PlayerMode == EPICFIGHT) cancels
+#the vanilla Q-drop keybind (MixinLocalPlayer#epicfight$onDrop) and all 9 hotbar-
+#slot keybinds (ControlEngine#disableHotbarSlotPresses) whenever
+#ControlEngine#isSwitchOrDropBlocked() is true - true during any active attack/
+#dodge/guard animation (EntityState#canSwitchHoldingItem(), self-clearing) OR for
+#~1s after the last combat input (the hotbarLocked flag, also self-clearing) -
+#with no way out while mode-locked in. There is no toggle anywhere in Epic
+#Fight's own ClientConfig/CommonConfig/ServerConfig to disable this drop/hotbar
+#cancellation directly (confirmed via full bytecode string dump of all three
+#config classes - CanceledVanillaActions only gates right-click interact/
+#item-use cancellation, unrelated). Flipping enforce_mode to false restores the
+#player's own "Switch Mode" keybind as an escape hatch: tap it to drop back to
+#Vanilla Mode on demand (Q/number-keys work again immediately) and tap it again
+#to re-enter combat mode for the moveset mapping from #89. autoswitch_mode is
+#left true so combat mode (and #89's moveset mapping) still engages automatically
+#the instant the weapon is equipped/attacked with - only the "can never leave
+#while holding it" lock is relaxed. The transient ~1s lock during an actual
+#attack/dodge/guard swing is untouched by this - that part is Epic Fight's own
+#hardcoded combat-timing mechanic (not configurable) and applies identically to
+#every Epic Fight weapon, vanilla or Silent Gear. Verify-in-game.
+enforce_mode = false
+#If enabled the player will automatically switch to epic fight mode when switching to
+#a 'combat preferred' item and back to vanilla mode when switching to any other item.
+#This option has no effect if the 'canSwitchPlayerMode' gamerule is disabled.
+#Default: true
+autoswitch_mode = true
