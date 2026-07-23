@@ -351,9 +351,11 @@ they ran.
 **The pack is in beta — releases are never minted at 1.0.0 until the owner
 lifts the hold.** `scripts/ci/next_version.py` hard-refuses any `>= 1.0.0`
 version (so a SemVer `major` bump from the current 0.x line fails the mint
-by design), and every release ships as a `prerelease`. While in beta, a
-notable/breaking wave is cut as a `minor` bump (0.y+1.0) and a routine one
-as a `patch` bump (0.y.z+1).
+by design), and every release ships as a `prerelease`. Release cadence is
+defined by content: a release that adds **any new feature** is a **"major
+release"** cut as `0.x.0 → 0.(x+1).0` (the workflow's `minor` bump), while
+a **bug-fixes-only** release is a **"minor bump"** cut as
+`0.x.y → 0.x.(y+1)` (the workflow's `patch` bump).
 
 ## Repo layout
 
