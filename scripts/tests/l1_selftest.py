@@ -21,6 +21,9 @@ import sys
 import time
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+import boot_lock  # noqa: E402  (see scripts/tests/lib/boot_lock.py - #80)
+
 ROOT = Path(__file__).resolve().parent.parent.parent
 SERVER = ROOT / "server"
 JDK_BIN = ROOT / ".tools" / "jdk-21.0.11+10" / "bin"
@@ -56,10 +59,10 @@ def strip_ansi(text):
     return re.sub(r"\x1b\[[0-9;]*m", "", text)
 
 
-def main():
-    print(f"== L1: log file for this run: {LOG} ==")
-    run_build_server()
-
+def _run_boot_and_test():
+    """Everything that actually contends for the shared machine's CPU/RAM -
+    run while holding the machine-wide boot lock (#80), with BOOT_TIMEOUT_S
+    timed from lock acquisition, not from script/process start."""
     if FIFO.exists():
         FIFO.unlink()
     subprocess.run(["mkfifo", str(FIFO)], check=True)
@@ -71,6 +74,10 @@ def main():
     print("== L1: boot server (nogui) ==")
     with open(LOG, "w") as logf:
         tail_proc = subprocess.Popen(["tail", "-f", str(FIFO)], stdout=subprocess.PIPE, cwd=SERVER)
+        # Guarantee this reader dies with the process - on normal exit, an
+        # uncaught exception, or a signal - so a cut-off session never
+        # leaves an orphaned `tail -f cmd_fifo` holding the FIFO open (#80).
+        boot_lock.register_process_cleanup(tail_proc, extra_pkill_pattern=f"tail -f {FIFO}")
         server_proc = subprocess.Popen(
             ["timeout", "240", "sh", "run.sh", "nogui"],
             cwd=SERVER, stdin=tail_proc.stdout, stdout=logf, stderr=subprocess.STDOUT, env=env,
@@ -152,6 +159,18 @@ def main():
         tail_proc.terminate()
 
     print("L1 PASS: /vpp_selftest reported PASS, clean stop")
+
+
+def main():
+    print(f"== L1: log file for this run: {LOG} ==")
+    run_build_server()
+
+    print("== L1: acquire machine-wide boot lock (queues behind any other worktree's boot tier) ==")
+    with boot_lock.BootLock():
+        # BOOT_TIMEOUT_S starts counting inside _run_boot_and_test(), i.e.
+        # AFTER lock acquisition - per #80, queueing behind another
+        # worktree's boot must never itself cause a timeout failure.
+        _run_boot_and_test()
     sys.exit(0)
 
 

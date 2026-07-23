@@ -25,6 +25,11 @@ WORKTREE_TAG="$(basename "$ROOT")_$(printf '%s' "$ROOT" | cksum | cut -d' ' -f1)
 LOG="/tmp/vpp_l0_boot_smoke_${WORKTREE_TAG}.log"
 FIFO="$ROOT/server/cmd_fifo"
 
+# Machine-wide advisory lock shared by every boot tier (L0-L3, shell and
+# Python alike) so concurrent worktrees on this machine queue behind each
+# other instead of competing for real CPU/RAM during a boot (#80).
+. "$ROOT/scripts/tests/lib/boot_lock.sh"
+
 fail() {
     echo "L0 FAIL: $1" >&2
     exit 1
@@ -65,6 +70,13 @@ echo "== L0: agree to the EULA for this throwaway test boot only =="
 # nobody ever saw a fresh-checkout boot fail on this until now.
 echo "eula=true" > "$ROOT/server/eula.txt"
 
+echo "== L0: acquire machine-wide boot lock (queues behind any other worktree's boot tier) =="
+acquire_boot_lock
+# Cleans up the FIFO reader and releases the lock on every exit path -
+# normal, fail()'s exit 1, or a signal (#80: an orphaned `tail -f cmd_fifo`
+# must never survive a cut-off session).
+trap 'release_boot_lock; cleanup_fifo_reader "$FIFO"' EXIT INT TERM HUP
+
 echo "== L0: boot server (nogui, 240s timeout) =="
 cd "$ROOT/server" || fail "cannot cd to server/"
 rm -f cmd_fifo
@@ -73,6 +85,9 @@ PATH="$JDK:$PATH"
 export PATH
 (tail -f cmd_fifo | timeout 240 sh run.sh nogui > "$LOG" 2>&1 &)
 
+# BOOT_TIMEOUT_S (200s below) starts counting here, AFTER lock acquisition -
+# per #80, queueing behind another worktree's boot must never itself cause
+# a timeout failure.
 echo "== L0: poll for Done/fatal-error markers (up to 200s) =="
 i=0
 MATCHED=""

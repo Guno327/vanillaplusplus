@@ -31,6 +31,9 @@ import sys
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
+import boot_lock  # noqa: E402  (see scripts/tests/lib/boot_lock.py - #80)
+
 ROOT = Path(__file__).resolve().parent.parent.parent
 LOCKFILE = ROOT / "pack" / "mods.lock.json"
 MANIFEST = ROOT / "pack" / "manifest.json"
@@ -221,8 +224,14 @@ def main():
     client_mods = [m for m in lock["mods"] if m["side"] != "server"]
 
     assemble_mods_dir(client_mods)
+    print("== L2: acquire machine-wide boot lock (queues behind any other worktree's boot tier) ==")
     try:
-        output = run_launch()
+        # LAUNCH_TIMEOUT_S (passed to subprocess.run below) only starts
+        # counting once run_launch() actually runs, i.e. AFTER lock
+        # acquisition - per #80, queueing behind another worktree's boot
+        # must never itself cause a timeout failure.
+        with boot_lock.BootLock():
+            output = run_launch()
     except subprocess.TimeoutExpired as e:
         output = (e.stdout or "") + (e.stderr or "")
         LOG.write_text(output)
