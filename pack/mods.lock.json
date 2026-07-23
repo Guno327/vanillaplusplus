@@ -1758,22 +1758,6 @@
       "note": "GitHub issue #69 item 4: dedicated inventory trash slot (drag an item in, it's deleted) plus delete keybinds. By far the most popular candidate for this ask (4.6M downloads/850 followers vs. Mobile Trashcan's 2.5K/4 and Trashapack's 1.4K/1) and needs no new dependency surface: its one required dep (Modrinth version-metadata) is Balm, already installed since phase 12 for clientsort. Modrinth client_side=required/server_side=required -> side:both (matches the jar: it's a Balm-framework config-synced mod, not purely cosmetic). Config (TrashSlotConfigData, ground-truthed via bytecode disassembly of its <init> field-initializer instructions - no decompiler available): instantDeletion=false, enableDeleteKeysInCreative=true, enableHints=true, allowDeletionWhileTrashSlotIsInvisible=false, deletionDenyList=empty, all left at their real shipped defaults - instantDeletion=false in particular means dropped items still go through the normal short despawn window rather than vanishing the instant they touch the slot, a sensible accidental-delete safety margin to keep. deletionDenyList (comma-separated modid:name list) is deliberately left empty rather than pre-populated with this pack's boss-unique drops: same reasoning as the #7 creative_crate note elsewhere in this project - there is no existing registry of 'genuinely unique, must-never-trash' item ids to check against in this codebase, so guessing a list would be unfounded; left for a follow-up if an accidental-trash incident is ever reported."
     },
     {
-      "slug": "sodium-dynamic-lights",
-      "project_id": "PxQSWIcD",
-      "version_id": "XI0WLXdn",
-      "version_number": "neoforge-1.21.1-1.0.10",
-      "filename": "sodiumdynamiclights-neoforge-1.0.10-1.21.1.jar",
-      "url": "https://cdn.modrinth.com/data/PxQSWIcD/versions/XI0WLXdn/sodiumdynamiclights-neoforge-1.0.10-1.21.1.jar",
-      "hashes": {
-        "sha512": "ec19a81cf2dfde255990a457d8f6d7375df53cb94190dce71c4bfe5d5263f4862027ce4aa0af20cb11d56c7c031d5e149b3bdf95bec6343e5bd4552450b14c0a",
-        "sha1": "02e9bc7ba28147cdf2d608ecf4f2c1eab34b4652"
-      },
-      "filesize": 299353,
-      "side": "client",
-      "phase": 25,
-      "note": "GitHub issue #103 (BUG): dynamic lights don't work - instructions.md's world-interactivity section explicitly lists 'Dynamic lights' as a requirement, and no dynamic-lights mod was previously installed at all (confirmed: no 'light' mod in manifest.json besides apotheosis' unrelated Invader spawn-beacon). Chosen over LambDynamicLights' own 'Unofficial NeoForge' port (last updated for an older Sodium line per its own listing) and Create: Dynamic Lights (Create-item-only scope, not general dynamic lights) - Sodium Dynamic Lights is 'a fork of LambDynLights to work with Sodium on Neoforge 1.21+' per its own neoforge.mods.toml description, and is the only candidate whose mixins directly target THIS pack's actual rendering stack: ground-truthed via jar extraction, its mixins.sodiumdynamiclights.json injects into net.caffeinemc.mods.sodium's real ArrayLightDataCache/FlatLightPipeline/LightDataAccess/SodiumOptionsGUI classes (this pack runs real Sodium mc1.21.1-0.8.12-neoforge, phase 18, plus Iris 1.8.14-beta.1, phase 23 - not Embeddium), so this is a confirmed working match for the installed renderer rather than a same-named-but-incompatible fork. Modrinth client_side=required/server_side=unsupported -> side:client. Version-metadata's two required deps are sodium (AANobbMI, already installed) and sodium-options-api (Es5v4eyq, added directly above) - no other dependency surface. All 21 of its mixins are declared under the mixins.json's 'client' key (none server-side), consistent with side:client. No config file shipped - the mod's own in-game options screen (via Sodium's options GUI, confirmed by the SodiumOptionsGuiMixin ground-truthed above) is the only way to tune per-entity-type light levels, appropriate for a client-only cosmetic/QoL feature; verify-in-game that dynamic lights now render for held/dropped light sources (torches, glowstone, etc.) under both plain Sodium and with Iris shaders active."
-    },
-    {
       "slug": "searchables",
       "project_id": "fuuu3xnx",
       "version_id": "iEE85X0w",
