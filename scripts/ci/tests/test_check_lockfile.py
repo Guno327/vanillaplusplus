@@ -30,14 +30,54 @@ def _lock_mod(slug, side="both", phase=0, filename=None, url=None, sha512="a" * 
     return entry
 
 
+def _installer(note="source of truth"):
+    """The manually-pinned NeoForge server installer (issue #64/#82). Now
+    required in BOTH manifest and lock; check_lockfile compares them ignoring
+    any _-prefixed annotation keys, so `note` may differ between the two."""
+    return {
+        "version": "21.1.235",
+        "url": "https://maven.neoforged.net/neoforge-21.1.235-installer.jar",
+        "filename": "neoforge-21.1.235-installer.jar",
+        "hashes": {"sha256": "c" * 64, "sha512": "d" * 128},
+        "filesize": 6965992,
+        "_note": note,
+    }
+
+
 class TestCheckLockfileLogic(unittest.TestCase):
     def test_consistent_manifest_and_lock_pass(self):
         manifest = {"minecraft": "1.21.1", "loader": "neoforge",
+                    "loader_installer": _installer(),
                     "mods": [_mod("create"), _mod("jei", side="client", phase=1)]}
         lock = {"minecraft": "1.21.1", "loader": "neoforge",
+                "loader_installer": _installer(),
                 "mods": [_lock_mod("create"), _lock_mod("jei", side="client", phase=1)]}
         errors = check_lockfile.check_lockfile(manifest, lock)
         self.assertEqual(errors, [])
+
+    def test_lock_missing_loader_installer_is_reported(self):
+        # The exact regression that shipped: resolve_mods.py regenerated the
+        # lock without the pin and build_server.py couldn't bootstrap.
+        manifest = {"loader_installer": _installer(), "mods": [_mod("create")]}
+        lock = {"mods": [_lock_mod("create")]}  # pin dropped
+        errors = check_lockfile.check_lockfile(manifest, lock)
+        self.assertTrue(any("loader_installer" in e and "mods.lock.json is missing" in e for e in errors))
+
+    def test_loader_installer_functional_mismatch_is_reported(self):
+        manifest = {"loader_installer": _installer(), "mods": [_mod("create")]}
+        drifted = _installer()
+        drifted["version"] = "21.1.999"  # a real, functional difference
+        lock = {"loader_installer": drifted, "mods": [_lock_mod("create")]}
+        errors = check_lockfile.check_lockfile(manifest, lock)
+        self.assertTrue(any("loader_installer differs" in e for e in errors))
+
+    def test_loader_installer_note_only_difference_is_ignored(self):
+        # _note is a human annotation and legitimately differs between the
+        # manifest (source of truth) and the generated lock.
+        manifest = {"loader_installer": _installer(note="lives here, the source"), "mods": [_mod("create")]}
+        lock = {"loader_installer": _installer(note="copied from manifest"), "mods": [_lock_mod("create")]}
+        errors = check_lockfile.check_lockfile(manifest, lock)
+        self.assertEqual([e for e in errors if "loader_installer" in e], [])
 
     def test_slug_missing_from_lock_is_reported(self):
         manifest = {"mods": [_mod("create"), _mod("jei")]}
@@ -92,8 +132,9 @@ class TestCheckLockfileLogic(unittest.TestCase):
         # every entry regardless of manifest "source" - a curseforge-
         # sourced manifest entry still needs filename/url/hashes.sha512 in
         # the lock, same as any other.
-        manifest = {"mods": [_mod("ftb-quests", source="curseforge", cf_project_slug="ftb-quests-forge")]}
-        lock = {"mods": [_lock_mod("ftb-quests")]}
+        manifest = {"loader_installer": _installer(),
+                    "mods": [_mod("ftb-quests", source="curseforge", cf_project_slug="ftb-quests-forge")]}
+        lock = {"loader_installer": _installer(), "mods": [_lock_mod("ftb-quests")]}
         errors = check_lockfile.check_lockfile(manifest, lock)
         self.assertEqual(errors, [])
 
@@ -110,8 +151,8 @@ class TestCheckLockfileCli(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             self._write_pack(
                 tmp,
-                {"mods": [_mod("create")]},
-                {"mods": [_lock_mod("create")]},
+                {"loader_installer": _installer(), "mods": [_mod("create")]},
+                {"loader_installer": _installer(), "mods": [_lock_mod("create")]},
             )
             self.assertEqual(check_lockfile.main([tmp]), 0)
 
