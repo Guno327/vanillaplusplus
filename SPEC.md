@@ -153,9 +153,18 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   - Queued, now unblocked by #70 but still serialized against each other
     (all three rewrite `pack/manifest.json` + the generated lockfile):
     #69 (QoL pass 2: right-click harvest, 25% sleep-skip, ladder climbing,
-    inventory trash can) — **in development**; then #67 (Overgeared
-    forging minigames integrated with Silent Gear quality) and #68 (bundle
-    Iris + a recommended minimalist shader in the client pack).
+    inventory trash can) — **in development**; then #68 (bundle Iris + a
+    recommended minimalist shader in the client pack). #67 (Overgeared
+    forging minigames integrated with Silent Gear quality) was
+    investigated and found **infeasible as a data/config/KubeJS-only
+    change** — Overgeared's forging output is static per-recipe (no
+    dynamic-material ingredient like Silent Gear's own part system), and
+    Silent Gear's material/stat data lives in a private `DataComponentType`
+    (`MATERIAL_LIST`) neither mod's recipe assembly propagates across the
+    boundary. Mod NOT added; see DESIGN.md's "GitHub issue #67
+    investigation" section for the full finding and a rescope
+    recommendation (Java compat addon, or a Silent-Gear-native trait
+    instead of a second mod).
 - Deployment: NixOS module in `flake.nix` + `nix/`. Defaults to a
   declarative `pkgs.fetchurl` straight from the pinned release's GitHub
   asset (`nix/release.json`'s repo/tag/assetName/sha256, unconditionally

@@ -2965,6 +2965,108 @@ rendering in this specific modded 1.21.1 stack rather than just the isolated
 repro in Iris #1414 — flag for a follow-up in-game check same as this pack's
 other client-only unverified items.
 
+### GitHub issue #67 investigation: Overgeared + Silent Gear quality — infeasible as data/config/KubeJS-only, mod NOT added
+
+Investigated adding **Overgeared** (forging-minigame tool/armor crafting,
+per-item "ForgingQuality" poor→master) so all Silent Gear tool/weapon
+construction routes through it and quality edits Silent Gear's final
+material-derived stats. **Conclusion: the core ask is not achievable with
+data/config/KubeJS alone, and forcing it would ship broken or silently
+non-functional items, so nothing was wired up and the mod was not added to
+`pack/manifest.json`.** This is a disclosed infeasibility finding, not a
+partial implementation.
+
+**What was actually verified** (real jar/source, not guessed): downloaded
+and hashed the real Modrinth NeoForge 1.21.1 jar (`overgeared-1.21.1-
+1.6.16.jar`, released 2026-06-22, zero listed dependencies — confirmed
+against `api.modrinth.com`), and cross-checked its `data/overgeared/`
+datapack contents plus decompiled-via-`strings` bytecode from both that jar
+and the installed `silent-gear-1.21.1-neoforge-4.2.1.1.jar` (same jar this
+pack already ships, see gear overhaul section above). Also pulled the mod's
+own GitHub source (`phuccom000/Overgeared`, branch `1.21.1`, which matches
+the real jar's NeoForge 1.21.1/data-component-based API, as opposed to the
+`master` branch's stale pre-1.20.5 Forge `Multimap`-based mixin code — a
+real trap if taken at face value).
+
+**Two independent findings, one good, one blocking:**
+
+1. **The quality→stat-bonus layer is genuinely pure data**, and would work
+   on *any* item regardless of who made it. `QualityAttributeHandler`
+   (`event/QualityAttributeHandler.java`) subscribes to NeoForge's own
+   `ItemAttributeModifierEvent` at `LOWEST` priority and adjusts whatever
+   attribute-modifier list is already present on `event.getModifiers()` —
+   this event fires generically for every item's attribute resolution
+   *after* that item's own logic (vanilla or modded) has already computed
+   its base modifiers, so it would transparently layer on top of Silent
+   Gear's own per-material stat computation. Targets (`data/overgeared/
+   quality_attributes/*.json`) can be an explicit item id, an item tag, or
+   a broad `weapon`/`armor` category — all plain JSON, no Java, and this is
+   exactly the mod's own shipped mechanism (`weapon_attack_damage.json`
+   etc.), not something invented for this integration.
+
+2. **But nothing can ever populate Overgeared's quality flag on a Silent
+   Gear item in the first place**, which makes (1) moot for this pack.
+   Two compounding, verified facts:
+   - Overgeared's forging recipes (`overgeared:forging`, `ForgingRecipe.
+     java`) are **static, one-recipe-per-material** JSON — the `result` is
+     a fixed item id baked into the recipe file. Unlike Silent Gear's own
+     `silentgear:compound_part`/`silentgear:gear_crafting` recipe types
+     (`PartMaterialIngredient`, decompiled from the installed jar), which
+     dynamically accept *any* registered Silent Gear material and compute
+     the output part's stats from whichever ingot was actually used at
+     craft time, Overgeared has no equivalent dynamic-material ingredient.
+     It could not "forge any of our 7 material tiers into a Silent Gear
+     part" without one hand-authored recipe per (part type × material)
+     whose `result` field would need to embed Silent Gear's own material
+     assignment directly in the recipe JSON.
+   - That material assignment is **not** an inert NBT string Overgeared
+     could copy — it's Silent Gear's own custom `DataComponentType`
+     (`SgDataComponents.MATERIAL_LIST`, confirmed via `strings` against
+     `CoreGearPart.class`) with a codec only Silent Gear's own recipe
+     classes populate correctly. Hand-authoring that payload inside an
+     Overgeared recipe's static `result` JSON would be guessing at a
+     private, undocumented codec with no way to verify the guess statically
+     — exactly the "ship something that doesn't work" outcome flagged as
+     out of bounds. Symmetrically, Silent Gear's own assembly recipe
+     (`ShapedGearRecipe`/`ShapelessCompoundPartRecipe`, decompiled) builds
+     its output stack from scratch from its own known component types and
+     has no generic "copy every foreign component off the input stacks"
+     step, so even if Overgeared *could* tag a quality value onto one of
+     the raw material inputs, that tag does not survive into the finished
+     tool through Silent Gear's own crafting.
+   - There is also a design-level conflict independent of the above: this
+     pack's gear overhaul (see above) enforces "every weapon/tool/armor
+     piece comes from exactly two sources — Silent Gear's smithing, or a
+     boss drop," with every vanilla-tier recipe removed specifically to
+     make that hold. Overgeared is architecturally its own closed
+     replacement for vanilla's wood/stone/copper/iron/steel tool tiers
+     (bridging into vanilla diamond/netherite via its own smithing-upgrade
+     recipes) with its own item registry — installing it as-is would either
+     sit completely unused (nothing routes through it) or reopen a second,
+     parallel gear-progression track this pack has twice now deliberately
+     closed off.
+
+**Recommendation for a real #67**: either (a) treat this as needing an
+actual small Java compat addon that bridges Overgeared's `ForgingQuality`
+component across Silent Gear's `MATERIAL_LIST`/assembly boundary (the
+missing piece both directions above), or (b) rescope the ask to something
+Silent Gear already owns end-to-end without a second mod — e.g. Silent
+Gear's own data-driven trait system (already used for `reach`/`magnetic`/
+`widen`/etc. in the utility overhaul above) could grow a genuine
+craft-time "quality roll" trait if that's an acceptable substitute for a
+literal forging minigame. Not implemented here since inventing a
+replacement mechanic wasn't in scope for this investigation — flagged for
+owner/PM decision.
+
+**Not done, and why**: `pack/manifest.json`/`pack/mods.lock.json` were
+deliberately left untouched — a trial add-then-revert was done during
+investigation (to hash the real jar via `scripts/resolve_mods.py` and
+confirm no dependency surprises) but reverted once the blocking finding
+above was confirmed, since shipping the mod with no working integration and
+no other use in this pack would be dead weight contradicting the "every
+manifest edit should do something real" bar the rest of this file holds
+itself to.
+
 ### Versioning
 
 `pack/VERSION` is the single source of truth, read by both build scripts
