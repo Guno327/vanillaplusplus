@@ -1,0 +1,6 @@
+{
+  "climbUpSpeed": 0.6,
+  "climbDownSpeed": -0.6,
+  "climbMode": "INPUT_FIRST",
+  "sneakStopsDescent": true
+}
