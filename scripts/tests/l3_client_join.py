@@ -734,40 +734,48 @@ def _run_l3_boot_and_join(env):
         summary_m = re.search(
             r"VPP_SELFTEST_HOOK: (PASS|FAIL) \((\d+)/(\d+), (\d+) skipped\)", hook_log
         )
+        # #65 STATUS (2026-07-23): the first real Incus L3 run of this hook
+        # (PR #132 head 7e25f85) DISCONFIRMED it - the sentinel grant did not
+        # produce a VPP_SELFTEST_HOOK: summary live, even with the player
+        # provably joined the whole window. Until the hook is proven to fire
+        # live (diagnostic tracked in #65), this probe is NON-BLOCKING: like
+        # the STAGE_PROBE above, a missing/failed/all-SKIP result is a loud
+        # WARNING, not an L3 gate failure. The gate's real release criterion is
+        # the client boot+join already asserted earlier in this run; a
+        # not-yet-working test-scaffold probe must not hold a green build (see
+        # #133 for the owner decision that set this policy). Re-arm as a hard
+        # gate in the same place once #65's hook is confirmed firing live.
         if not summary_m:
-            fail(
-                f"selftest.js's #65 test-only stage-grant hook never logged a "
-                f"VPP_SELFTEST_HOOK: summary line within {SELFTEST_HOOK_SETTLE_S}s of granting "
-                f"'{SELFTEST_HOOK_STAGE}' to {joined_username} - either PlayerEvents.stageAdded "
-                f"didn't fire (grant didn't land, or the hook isn't wired) or it threw before "
-                f"finishing. See {SERVER_LOG}."
+            print(
+                f"== L3 WARNING (#65 KNOWN GAP): the stage-grant hook logged no "
+                f"VPP_SELFTEST_HOOK: summary within {SELFTEST_HOOK_SETTLE_S}s of granting "
+                f"'{SELFTEST_HOOK_STAGE}' to {joined_username} - PlayerEvents.stageAdded "
+                f"apparently didn't fire live (grant may not have landed) or the hook threw "
+                f"before finishing. NON-BLOCKING per #133. See {SERVER_LOG}. =="
             )
-        hook_status, hook_passed, hook_executed, hook_skipped = summary_m.groups()
-        print(f"== L3: selftest.js player-gated hook reported {hook_status} "
-              f"({hook_passed}/{hook_executed}, {hook_skipped} skipped) ==")
-        for line in hook_log.splitlines():
-            if "VPP_SELFTEST_HOOK" in line:
-                print(line)
-        if hook_status != "PASS":
-            fail(
-                f"selftest.js's player-gated checks FAILED under the #65 stage-grant hook "
-                f"(a real joined player was behind them, so this is a genuine failure, not a "
-                f"SKIP) - see {SERVER_LOG}."
-            )
-        # The entire point of #65 is that these stop reporting SKIP once a real
-        # player is behind them - if every one of them still reports SKIP here,
-        # the hook fired but somehow without a usable player (e.g. a future
-        # refactor breaking the event.player wiring), defeating its whole
-        # purpose, and that is worth failing loudly on rather than passing
-        # vacuously.
-        non_skip = [t for t in hook_lines if t[0] != "SKIP"]
-        if not non_skip:
-            fail(
-                f"every check still reported SKIP under the #65 stage-grant hook too - the "
-                f"hook fired but apparently without a usable player. See {SERVER_LOG}."
-            )
-        print(f"== L3: {len(non_skip)}/{len(hook_lines)} selftest checks ran PASS/FAIL "
-              f"(not SKIP) under a real joined player (#65) ==")
+        else:
+            hook_status, hook_passed, hook_executed, hook_skipped = summary_m.groups()
+            print(f"== L3: selftest.js player-gated hook reported {hook_status} "
+                  f"({hook_passed}/{hook_executed}, {hook_skipped} skipped) ==")
+            for line in hook_log.splitlines():
+                if "VPP_SELFTEST_HOOK" in line:
+                    print(line)
+            if hook_status != "PASS":
+                print(
+                    f"== L3 WARNING (#65): player-gated checks reported {hook_status} under the "
+                    f"stage-grant hook - NON-BLOCKING per #133; investigate via #65. "
+                    f"See {SERVER_LOG}. =="
+                )
+            non_skip = [t for t in hook_lines if t[0] != "SKIP"]
+            if not non_skip:
+                print(
+                    f"== L3 WARNING (#65): every check still reported SKIP under the stage-grant "
+                    f"hook - the hook fired but apparently without a usable player. "
+                    f"NON-BLOCKING per #133. See {SERVER_LOG}. =="
+                )
+            else:
+                print(f"== L3: {len(non_skip)}/{len(hook_lines)} selftest checks ran PASS/FAIL "
+                      f"(not SKIP) under a real joined player (#65) ==")
 
     finally:
         print("== L3: teardown ==")
@@ -776,10 +784,11 @@ def _run_l3_boot_and_join(env):
 
     print(
         f"L3 PASS: a real client joined, survived a {SETTLE_S}s post-join settle window past "
-        f"#49's historical failure window, was not stuck on a loading/dirt-message screen, and "
-        f"had selftest.js's player-gated checks run (not SKIP) via the #65 stage-grant hook. "
-        f"Does NOT drive the /vpp_selftest COMMAND itself as the joined player - see the KNOWN "
-        f"GAP note in this script for why."
+        f"#49's historical failure window, and was not stuck on a loading/dirt-message screen. "
+        f"The #65 player-gated-check hook is exercised but NON-BLOCKING (see #133/#65): it "
+        f"currently does not fire live, so its result is reported as a WARNING above rather than "
+        f"gating this verdict. Does NOT drive the /vpp_selftest COMMAND itself as the joined "
+        f"player - see the KNOWN GAP note in this script for why."
     )
 
 
