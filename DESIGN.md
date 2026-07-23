@@ -3217,6 +3217,14 @@ most likely to actually break a release (server-side data/recipe/loot
 regressions, client-only mod-loading crashes). Left as explicit post-release
 backlog — see TODO.md.
 
+**Superseded (2026-07-23)**: this paragraph is historical - L3
+(`scripts/tests/l3_client_join.py`) shipped in a later wave, runs on the
+owner's permanent Incus host, and is now a **required** release gate (not
+optional post-release backlog) after two releases shipped client-only
+launch crashes L0-L2 structurally cannot see (v0.5.0's missing dependency,
+v0.5.1's split-package `ResolutionException`). See HANDOFF.md's "RELEASE
+GATE" note and `scripts/tests/run_l3_incus.py`.
+
 ### The honest L2/L3 boundary
 
 L0-L2 together prove: the server boots clean with no fatal errors and no
