@@ -41,6 +41,7 @@ Does NOT touch pack/manifest.json or pack/mods.lock.json itself - it only
 makes sure the jar resolve_one_local() is about to hash is real and current.
 """
 import json
+import hashlib
 import os
 import re
 import subprocess
@@ -53,6 +54,17 @@ MODS_SRC = ROOT / "mods-src"
 LOCKFILE = ROOT / "pack" / "mods.lock.json"
 LOCAL_JDK = ROOT / ".tools" / "jdk-21.0.11+10"
 UA = {"User-Agent": "vanilla-plus-plus/0.1 (+github.com/gunnarhovik327)"}
+
+# Pinned SHA-256 of gradle/wrapper/gradle-wrapper.jar per Gradle version, as
+# published at gradle/gradle's own `v<version>` tag. ensure_gradle_wrapper_jar()
+# downloads this jar and then ./gradlew EXECUTES it, so pinning the digest turns
+# the docstring's one-time "verified byte-identical" claim into an enforced
+# guarantee: any drift or tampering at the source hard-fails the build instead
+# of silently running an unexpected binary on the release/boot CI path. To add a
+# version: fetch the jar from the same tag, sha256 it, and record it here.
+GRADLE_WRAPPER_JAR_SHA256 = {
+    "8.10.0": "2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046",
+}
 
 
 def _lockfile_mods_by_slug():
@@ -118,11 +130,29 @@ def ensure_gradle_wrapper_jar(mod_dir):
     version = m.group(1)
     if version.count(".") == 1:
         version += ".0"
+    expected_sha256 = GRADLE_WRAPPER_JAR_SHA256.get(version)
+    if expected_sha256 is None:
+        raise SystemExit(
+            f"{mod_dir.name}: no pinned gradle-wrapper.jar SHA-256 for Gradle "
+            f"{version} in GRADLE_WRAPPER_JAR_SHA256. Refusing to download-and-"
+            f"execute an unverified wrapper jar. Add the pinned digest for this "
+            f"version (fetch from the v{version} tag, sha256 it) before building."
+        )
     url = f"https://raw.githubusercontent.com/gradle/gradle/v{version}/gradle/wrapper/gradle-wrapper.jar"
     print(f"  gradle wrapper jar missing - fetching {url}", file=sys.stderr)
     req = urllib.request.Request(url, headers=UA)
     with urllib.request.urlopen(req, timeout=60) as r:
-        wrapper_jar.write_bytes(r.read())
+        data = r.read()
+    actual_sha256 = hashlib.sha256(data).hexdigest()
+    if actual_sha256 != expected_sha256:
+        raise SystemExit(
+            f"{mod_dir.name}: gradle-wrapper.jar SHA-256 mismatch for Gradle "
+            f"{version}\n  expected {expected_sha256}\n  got      {actual_sha256}\n"
+            f"Refusing to execute an unexpected wrapper binary. If this is a "
+            f"legitimate upstream change, verify it and update "
+            f"GRADLE_WRAPPER_JAR_SHA256."
+        )
+    wrapper_jar.write_bytes(data)
 
 
 def build_one(mod_dir):
