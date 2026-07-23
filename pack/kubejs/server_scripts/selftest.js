@@ -354,35 +354,65 @@ stCheck('tier_gating.js: every gated recipe resolves and demands its tier materi
 // false positives #61 exists to stop: `create:track_station` (previously
 // misidentified via an unrelated recipe/filename match) and
 // `refinedstorage:controller` (previously matched against RS's own
-// `refinedstorage:recoloring` variant, not its real crafting recipe). These
-// two checks verify BOTH cases live, against the actually-booted
-// `RecipeManager` - the ground truth after every KubeJS edit has applied -
-// using the exact `byKey(id)` + `getIngredients()` + `Ingredient#test(stack)`
-// pattern the tier-gating check above already proved reliable. Querying by
-// the recipe's own known-correct id (not a substring/filename heuristic)
-// is what rules the original misidentification bug out structurally: RS's
-// recoloring recipes live under distinct ids (e.g.
-// `refinedstorage:coloring/light_blue_controller`), never `refinedstorage:
-// controller` itself, so looking that id up can't land on the wrong recipe.
+// `refinedstorage:recoloring` variant, not its real crafting recipe).
+//
+// SECOND ROUND (PM review, live boot.yml run against this branch): the
+// first version of the track_station check hardcoded recipe id
+// `create:track_station` - but Create doesn't key its crafting recipe ids
+// after the output item; the real id (confirmed against data/create/recipe/
+// crafting/kinetics/track_station.json in the pinned create-6.0.10 jar) is
+// `create:crafting/kinetics/track_station`. That hardcoded-id assumption is
+// the EXACT bug class #61 exists to eliminate, just surfacing as a hard
+// FAIL instead of a false positive this time. Fixed by resolving recipes
+// robustly, by OUTPUT item (`stFindRecipesByOutput` below - iterates
+// `getRecipeManager().getRecipes()` and keeps whichever recipe(s) actually
+// declare the target as their result via `getResultItem(registryAccess())`,
+// the same call the #57 TG_TIER_INFO check above already proved works),
+// rather than guessing an id scheme. `refinedstorage:controller` keeps its
+// `byKey()` lookup below - RS's own ids are flat (`refinedstorage:
+// controller`, confirmed against the jar) and NOT vulnerable to this bug,
+// and switching it to output-based lookup would reintroduce the ORIGINAL
+// #56 false positive: the recoloring recipe's own declared result is also
+// literally `refinedstorage:controller` (its "restore to base colour"
+// case), so an output-based scan for that id would match it too. Looking
+// up the real recipe's own known id sidesteps that; `stFindRecipesByOutput`
+// is for cases (like Create's) where the id scheme itself can't be
+// guessed.
+function stFindRecipesByOutput(server, itemId) {
+    let matches = []
+    let recipes = server.getRecipeManager().getRecipes().toArray()
+    for (let i = 0; i < recipes.length; i++) {
+        let holder = recipes[i]
+        let result
+        try {
+            result = holder.value().getResultItem(server.registryAccess())
+        } catch (e) {
+            continue // recipe type doesn't implement getResultItem() - not this one
+        }
+        if (result && String(result.id) === itemId) matches.push(holder)
+    }
+    return matches
+}
+
 stCheck('progression audit (#61): create:track_station resolves to its real recipe (needs railway_casing)', server => {
-    let opt = server.getRecipeManager().byKey(stRl('create:track_station'))
-    if (!opt.isPresent()) return { pass: false, detail: 'recipe missing - id changed upstream?' }
-    let ingredients
-    try {
-        ingredients = opt.get().value().getIngredients().toArray()
-    } catch (e) {
-        return { pass: false, detail: 'getIngredients() unsupported on this recipe type: ' + e }
+    let matches = stFindRecipesByOutput(server, 'create:track_station')
+    if (matches.length === 0) {
+        return { pass: false, detail: 'no recipe found with output create:track_station - cannot confirm, re-check upstream (Create version drift?)' }
     }
     let railwayCasingStack = Item.of('create:railway_casing')
     let demandsRailwayCasing = false
-    for (let j = 0; j < ingredients.length; j++) {
-        if (ingredients[j].test(railwayCasingStack)) { demandsRailwayCasing = true; break }
+    for (let i = 0; i < matches.length && !demandsRailwayCasing; i++) {
+        let ingredients
+        try { ingredients = matches[i].value().getIngredients().toArray() } catch (e) { continue }
+        for (let j = 0; j < ingredients.length; j++) {
+            if (ingredients[j].test(railwayCasingStack)) { demandsRailwayCasing = true; break }
+        }
     }
     return {
         pass: demandsRailwayCasing,
         detail: demandsRailwayCasing
-            ? 'confirmed: requires create:railway_casing (not the unrelated create:track recipe)'
-            : 'does NOT require railway_casing - recipe changed upstream, re-verify #61s findings',
+            ? ('confirmed: ' + matches.length + ' recipe(s) produce create:track_station and at least one requires create:railway_casing (not the unrelated create:track recipe)')
+            : ('found ' + matches.length + ' recipe(s) for create:track_station but none require railway_casing - recipe changed upstream, re-verify #61s findings'),
     }
 })
 
@@ -417,22 +447,28 @@ stCheck('progression audit (#61): refinedstorage:controller resolves to its real
 // confirmed here against the LIVE, post-KubeJS RecipeManager per PM review
 // of PR #106. Recorded in DESIGN.md's "Recipe-reachability audit" section;
 // GitHub #61 scoped this as an audit tool, not a gating fix, so these
-// checks always pass=true (they report the current live state in `detail`
-// either way) rather than fail L1 for a known, tracked content gap someone
-// still needs to fix with a follow-up KubeJS edit. If a future fix closes
-// one of these, `detail` will say so - update the assertion to require
-// `demandsTier`/`!bypassable` at that point so this stops just reporting
-// and starts actually gating.
+// checks pass=true whenever they successfully CONFIRM the live state
+// (whether that's "gap present" or "gap fixed") - they report, they don't
+// gate a known, tracked content issue someone still needs to fix with a
+// follow-up KubeJS edit. Second-round PM review (live boot.yml run) found
+// one of these was passing VACUOUSLY on a wrong hardcoded recipe id - fixed
+// by making "target recipe/ids not found at all" a hard FAIL in every one
+// of these, never a silent pass; only "found the recipe(s) and read their
+// ingredients" is allowed to report pass:true, regardless of which state it
+// reports in `detail`. If a future fix closes one of these gaps, `detail`
+// will say so - flip the assertion to require `demandsTier`/`!bypassable`
+// at that point so this stops just reporting and starts actually gating.
 stCheck('progression audit (#61) diagnostic: sophisticatedstorage double-chest upgrade path vs the Andesite/Brass Age gate', server => {
     let ids = ['sophisticatedstorage:double_iron_chest', 'sophisticatedstorage:double_gold_chest', 'sophisticatedstorage:double_diamond_chest']
     let tierStacks = [Item.of('create:andesite_alloy'), Item.of('create:brass_ingot')]
     let bypassed = []
-    let missing = []
+    let checked = 0
     for (let i = 0; i < ids.length; i++) {
         let opt = server.getRecipeManager().byKey(stRl(ids[i]))
-        if (!opt.isPresent()) { missing.push(ids[i]); continue }
+        if (!opt.isPresent()) continue
         let ingredients
-        try { ingredients = opt.get().value().getIngredients().toArray() } catch (e) { missing.push(ids[i] + ':unsupported'); continue }
+        try { ingredients = opt.get().value().getIngredients().toArray() } catch (e) { continue }
+        checked++
         let demandsTier = false
         for (let j = 0; j < ingredients.length; j++) {
             for (let k = 0; k < tierStacks.length; k++) {
@@ -441,11 +477,14 @@ stCheck('progression audit (#61) diagnostic: sophisticatedstorage double-chest u
         }
         if (!demandsTier) bypassed.push(ids[i])
     }
+    if (checked === 0) {
+        return { pass: false, detail: 'none of ' + ids.join(',') + ' resolved - cannot confirm, re-check ids (mod version drift?)' }
+    }
     return {
         pass: true,
         detail: bypassed.length > 0
-            ? ('GAP CONFIRMED LIVE - reaches iron/gold/diamond chest tier with no tier material via: ' + bypassed.join(','))
-            : (missing.length === ids.length ? 'all double-chest recipe ids missing - cannot confirm, re-check ids' : 'gap appears fixed - flip this check to require demandsTier'),
+            ? ('GAP CONFIRMED LIVE (' + checked + '/' + ids.length + ' checked) - reaches iron/gold/diamond chest tier with no tier material via: ' + bypassed.join(','))
+            : ('gap appears fixed (' + checked + '/' + ids.length + ' checked) - flip this check to require demandsTier'),
     }
 })
 
@@ -453,11 +492,13 @@ stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age ch
     let ids = ['refinedstorage:controller', 'refinedstorage:disk_drive', 'refinedstorage:grid']
     let tierStacks = [Item.of('create:andesite_alloy'), Item.of('create:brass_ingot'), Item.of('create:refined_radiance'), Item.of('create:shadow_steel'), Item.of('minecraft:netherite_ingot')]
     let ungated = []
+    let checked = 0
     for (let i = 0; i < ids.length; i++) {
         let opt = server.getRecipeManager().byKey(stRl(ids[i]))
         if (!opt.isPresent()) continue
         let ingredients
         try { ingredients = opt.get().value().getIngredients().toArray() } catch (e) { continue }
+        checked++
         let demandsTier = false
         for (let j = 0; j < ingredients.length; j++) {
             for (let k = 0; k < tierStacks.length; k++) {
@@ -466,35 +507,60 @@ stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age ch
         }
         if (!demandsTier) ungated.push(ids[i])
     }
+    if (checked === 0) {
+        return { pass: false, detail: 'none of ' + ids.join(',') + ' resolved - cannot confirm, re-check ids (mod version drift?)' }
+    }
     return {
         pass: true,
         detail: ungated.length > 0
-            ? ('GAP CONFIRMED LIVE - no recipe tier material anywhere in: ' + ungated.join(','))
-            : 'gap appears fixed - flip this check to require demandsTier for all three',
+            ? ('GAP CONFIRMED LIVE (' + checked + '/' + ids.length + ' checked) - no recipe tier material anywhere in: ' + ungated.join(','))
+            : ('gap appears fixed (' + checked + '/' + ids.length + ' checked) - flip this check to require demandsTier for all'),
     }
 })
 
+// Second-round PM review fix: the original version of this check hardcoded
+// recipe id `create:brass_casing_from_log`, missing the
+// `item_application/` path segment Create's real id includes (confirmed
+// against data/create/recipe/item_application/brass_casing_from_log.json
+// in the pinned jar - the id is `create:item_application/
+// brass_casing_from_log`) - and, worse, reported `pass: true` even though
+// the recipe lookup failed and nothing was actually confirmed. Fixed the
+// same way as the track_station check above: resolve by OUTPUT item
+// (`create:brass_casing`, which both of Create's two alternate recipes for
+// it - from_log and from_wood - produce) instead of guessing an id, and
+// hard FAIL if no matching recipe is found rather than silently passing.
 stCheck('progression audit (#61) diagnostic: alltheores:brass_ingot cross-mod bypass of the create:brass_ingot gate via c:ingots/brass', server => {
-    let opt = server.getRecipeManager().byKey(stRl('create:brass_casing_from_log'))
-    if (!opt.isPresent()) return { pass: true, detail: 'create:brass_casing_from_log missing - cannot confirm, re-check id (mod version drift?)' }
-    let ingredients
-    try {
-        ingredients = opt.get().value().getIngredients().toArray()
-    } catch (e) {
-        return { pass: true, detail: 'getIngredients() unsupported on this recipe type: ' + e }
+    let matches = stFindRecipesByOutput(server, 'create:brass_casing')
+    if (matches.length === 0) {
+        return { pass: false, detail: 'no recipe found with output create:brass_casing - cannot confirm, re-check upstream (Create version drift?)' }
     }
-    let acceptsCreateBrass = false
-    let acceptsAllTheOresBrass = false
-    for (let j = 0; j < ingredients.length; j++) {
-        if (ingredients[j].test(Item.of('create:brass_ingot'))) acceptsCreateBrass = true
-        if (ingredients[j].test(Item.of('alltheores:brass_ingot'))) acceptsAllTheOresBrass = true
+    let bypassRecipeIds = []
+    let anyAcceptsCreateBrass = false
+    let introspected = 0
+    for (let i = 0; i < matches.length; i++) {
+        let ingredients
+        try { ingredients = matches[i].value().getIngredients().toArray() } catch (e) { continue }
+        introspected++
+        let acceptsCreateBrass = false
+        let acceptsAllTheOresBrass = false
+        for (let j = 0; j < ingredients.length; j++) {
+            if (ingredients[j].test(Item.of('create:brass_ingot'))) acceptsCreateBrass = true
+            if (ingredients[j].test(Item.of('alltheores:brass_ingot'))) acceptsAllTheOresBrass = true
+        }
+        if (acceptsCreateBrass) anyAcceptsCreateBrass = true
+        if (acceptsAllTheOresBrass) bypassRecipeIds.push(String(matches[i].id()))
     }
-    let bypassable = acceptsCreateBrass && acceptsAllTheOresBrass
+    if (introspected === 0) {
+        return { pass: false, detail: 'found ' + matches.length + ' recipe(s) for create:brass_casing but none exposed getIngredients() - cannot confirm' }
+    }
+    if (!anyAcceptsCreateBrass && bypassRecipeIds.length === 0) {
+        return { pass: false, detail: 'found ' + introspected + ' recipe(s) for create:brass_casing but none accept create:brass_ingot or alltheores:brass_ingot - cannot confirm, ingredient shape may have changed' }
+    }
     return {
         pass: true,
-        detail: bypassable
-            ? 'GAP CONFIRMED LIVE - c:ingots/brass accepts both create:brass_ingot and alltheores:brass_ingot (unrelated mod, no tier gate of its own)'
-            : ('acceptsCreateBrass=' + acceptsCreateBrass + ' acceptsAllTheOresBrass=' + acceptsAllTheOresBrass + ' - gap appears fixed or alltheores tag changed'),
+        detail: bypassRecipeIds.length > 0
+            ? ('GAP CONFIRMED LIVE - c:ingots/brass accepts alltheores:brass_ingot (unrelated mod, no tier gate of its own) via: ' + bypassRecipeIds.join(','))
+            : 'gap appears fixed - create:brass_casing no longer accepts alltheores:brass_ingot',
     }
 })
 

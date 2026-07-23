@@ -124,11 +124,33 @@ pinning the exact false positives a first-pass audit (during #56) produced
 by matching recipes on id/output substrings instead of a recipe's own
 declared type and result field - `create:track_station` (confused with the
 unrelated `create:track` recipe) and `refinedstorage:controller` (matched
-against RS's *recoloring* recipe, not its real crafting one). Looking each
-up by its own known-correct recipe id - not a substring/filename heuristic
-- rules that failure mode out structurally: RS's recoloring recipes live
-under distinct ids (`refinedstorage:coloring/light_blue_controller` etc.),
-never `refinedstorage:controller` itself.
+against RS's *recoloring* recipe, not its real crafting one).
+
+**A live boot.yml run against this branch (PM review) caught a second,
+related bug**: the first cut of the `track_station` check assumed Create
+names its recipe ids after the output item (`create:track_station`) - it
+does not; the real id (confirmed against `data/create/recipe/crafting/
+kinetics/track_station.json` in the pinned jar) is
+`create:crafting/kinetics/track_station`. That's the exact "assume recipe
+id == item id" bug class #61 exists to eliminate, just now hard-failing
+L1 instead of false-positiving offline - and the `alltheores:brass_ingot`
+diagnostic had the same bug (`create:brass_casing_from_log` vs the real
+`create:item_application/brass_casing_from_log`) plus a worse flaw: it
+reported `pass: true` even though its target recipe was never found,
+because "cannot confirm" fell through to a vacuous pass. Both are fixed by
+resolving robustly instead of guessing an id scheme: `stFindRecipesByOutput`
+iterates the live `RecipeManager` and keeps whichever recipe(s) actually
+declare the target as their `getResultItem(registryAccess())` result (the
+same call the #57 `TG_TIER_INFO` check already used successfully), and
+every #61 check now hard-FAILs if it can't locate/introspect its target -
+"cannot confirm" is never again a silent pass. `refinedstorage:controller`
+keeps its `byKey()` lookup (RS's own ids are flat and confirmed working);
+switching it to output-based lookup would have reintroduced the *original*
+#56 bug, since the recoloring recipe's own declared result is also
+literally `refinedstorage:controller` in its "restore to base colour" case
+- looking up the real recipe's own known-correct id is what rules that out,
+exactly as it did the first time; `stFindRecipesByOutput` is only needed
+where (like Create's) the id scheme itself can't be guessed.
 
 Three more checks are **diagnostics, not gates** (always `pass: true`,
 reporting the live state in `detail`) confirming genuinely under-gated
@@ -182,14 +204,17 @@ now leads with this) - useful for a human skimming for candidates to
 hand-verify, unit-tested for its JSON-parsing core, but explicitly not
 wired into any gate and not a source of truth on its own.
 
-**Sandbox caveat**: this session cannot boot a NeoForge server (no install
-available here), so the new selftest.js checks above are statically wired
-using the exact Rhino/Java API surface the pre-existing, already-passing
-tier-gating check in the same file uses (`server.getRecipeManager()`,
-`RecipeHolder#value()#getIngredients()`, `Ingredient#test(ItemStack)`,
-`Item.of(id)`) but have not been confirmed by an actual L1 boot run. A real
-`python3 scripts/tests/l1_selftest.py` (or full boot) still needs to run
-this before it's fully trusted.
+**Sandbox caveat**: this session cannot boot a NeoForge server itself (no
+install available here); a live `boot.yml` run on a hosted runner (PM
+review) confirmed the command runs and the 3 diagnostics correctly report
+live state, and caught the `track_station`/`brass_casing` id bug above. The
+fix for that bug (`stFindRecipesByOutput`) has NOT yet been re-confirmed by
+an actual boot - it's statically wired using the exact Rhino/Java API
+surface already proven live in this same run (`getRecipeManager()`,
+`getResultItem(registryAccess())`, `getIngredients()`,
+`Ingredient#test(ItemStack)`), and brace-balance/`lint_rhino.py` checked
+locally, but still needs one more real `python3 scripts/tests/l1_selftest.py`
+(or `boot.yml`) run to fully confirm.
 
 ### Resource infinity (added after Phase 2)
 
