@@ -415,7 +415,12 @@ jobs:
         # Must run after the release actually exists (it reads the
         # release back via the API - see that script's own docstring),
         # which is exactly where we are in this job now.
-        run: python3 scripts/update_nix_release.py --tag "$TAG"
+        # --set-latest: every mint appends the new release to the registry AND
+        # moves the `latest` alias to it (owner directive, 2026-07-23) - a freshly
+        # minted release is the recommended one. If a release is later found broken
+        # in-game, move `latest` back to the last-good tag with
+        # `scripts/update_nix_release.py --set-latest-to <tag>`.
+        run: python3 scripts/update_nix_release.py --tag "$TAG" --set-latest
 
       - name: Trigger Modrinth publish explicitly
         # See this file's header, "KNOWN GITHUB LIMITATION #1": the

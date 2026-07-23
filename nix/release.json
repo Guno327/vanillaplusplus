@@ -1,7 +1,7 @@
 {
   "_comment": "Registry of every published release's server-bundle asset. `releases` maps each release tag -> its GitHub asset (assetName) + pinned sha256 (SRI, what pkgs.fetchurl verifies) + sha256Hex (plain, for the module's warn-on-mismatch check) + size + neoforgeVersion. `latest` is an ALIAS naming whichever tag is the current RECOMMENDED release; nix/module.nix's `releaseTag` option defaults to \"latest\" and resolves through it. `repo` is the public GitHub owner/name the assets are fetched from. Every mint APPENDS its release here via scripts/update_nix_release.py; moving `latest` is a deliberate separate act (--set-latest / --set-latest-to <tag>). Do not hand-edit hashes except in emergencies; re-run the script to confirm.",
   "repo": "Guno327/vanillaplusplus",
-  "latest": "v0.5.2",
+  "latest": "v0.5.3",
   "releases": {
     "v0.1.0": {
       "version": "0.1.0",
