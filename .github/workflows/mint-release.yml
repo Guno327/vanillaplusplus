@@ -9,6 +9,19 @@ name: Mint Release
 # fully functional at all times ... run CI, then create release
 # artifacts and publish them with a compiled list of changes."
 #
+# RELEASE POLICY (CEO directive, 2026-07-23; DECISIONS.md "Release
+# policy"): agents may dispatch this workflow to mint releases - major,
+# minor, or patch - continuously throughout development. There is NO
+# owner-prompt or label gate. The ONLY hard restriction is that a full
+# test run must pass before publishing, which this workflow already
+# enforces structurally: the mint-release job `needs:` both `fast-tier`
+# and `boot-tier` below, so nothing is built or published unless the
+# complete automated hosted suite (unit + static + L0 boot + L1 selftest)
+# is green. `prerelease` remains a labeling choice (safe default true),
+# not an approval gate - flip it to false for a GA. This supersedes the
+# retired "releases are manual-only / owner-prompt-only" framing that the
+# rest of that verbatim quote above predates.
+#
 # Inputs:
 #   bump        - major | minor | patch (required, no default - the
 #                 person cutting the release must consciously pick one;

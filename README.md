@@ -275,8 +275,11 @@ puts the issue on the right track below).
 **Bug reports** move through `needs-triage` -> `triaged` ->
 `fix-in-progress` -> `fix-pushed`. Once triaged, a fix is developed and
 boot-tested before it's pushed; `fix-pushed` means a fix exists (branch/PR)
-and is ready for review, not necessarily merged to `main` yet. Closing an
-issue as fixed-and-released is always a manual call by the repo owner.
+and is ready for review, not necessarily merged to `main` yet. A fix is
+considered released once it rides a minted release cut from `main` after
+the fix merged; agents may mint that release continuously (see the release
+policy below), so closing an issue as fixed-and-released no longer waits on
+a manual owner call.
 
 **Feature requests** move through `needs-investigation` -> `investigated`
 -> `awaiting-approval` -> `approved` -> `in-development`. Every request
@@ -296,8 +299,16 @@ combat feel, or actually flying between planets). These aren't bugs or
 features and don't carry a state machine; they're closed once someone
 verifies the checklist in-game.
 
-**Releases are always cut manually by the repo owner** — no label or
-automation ever publishes a release on its own.
+**Releases may be minted continuously during development** — any
+maintainer agent may cut a release (major, minor, or patch) at any point
+by dispatching `mint-release.yml` from `main`. The one hard requirement is
+that a **full test run must pass before publishing**: the workflow builds
+and publishes nothing unless the fast tier (unit tests + static checks) and
+boot tier (L0 boot smoke + L1 `/vpp_selftest`) are both green. There is no
+owner-prompt or label gate beyond that (CEO directive, 2026-07-23 — see
+`DECISIONS.md`). The L2/L3 human-in-the-loop tiers can't run on hosted
+runners; every release's notes disclose that boundary rather than implying
+they ran.
 
 ## Repo layout
 
