@@ -574,6 +574,28 @@ const ST_MATERIAL_SINK_RECIPES = [
     { id: 'vanillaplusplus:raw_advanced_processor_platinum_gear', sink: 'alltheores:platinum_gear' },
     { id: 'vanillaplusplus:magnet_upgrade_osmium_gear', sink: 'alltheores:osmium_gear' },
     { id: 'vanillaplusplus:advanced_magnet_upgrade_iridium_gear', sink: 'alltheores:iridium_gear' },
+    // #91 second tranche - the remaining 19 metals' gear byproduct, routed
+    // into Sophisticated Storage's upgrade ladder and Refined Storage's
+    // machine/storage ladder (see material_sinks.js's tranche-two header).
+    { id: 'vanillaplusplus:feeding_upgrade_copper_gear', sink: 'alltheores:copper_gear' },
+    { id: 'vanillaplusplus:void_upgrade_bronze_gear', sink: 'alltheores:bronze_gear' },
+    { id: 'vanillaplusplus:jukebox_upgrade_brass_gear', sink: 'alltheores:brass_gear' },
+    { id: 'vanillaplusplus:hopper_upgrade_iron_gear', sink: 'alltheores:iron_gear' },
+    { id: 'vanillaplusplus:stonecutter_upgrade_nickel_gear', sink: 'alltheores:nickel_gear' },
+    { id: 'vanillaplusplus:crafting_upgrade_aluminum_gear', sink: 'alltheores:aluminum_gear' },
+    { id: 'vanillaplusplus:advanced_feeding_upgrade_gold_gear', sink: 'alltheores:gold_gear' },
+    { id: 'vanillaplusplus:advanced_void_upgrade_invar_gear', sink: 'alltheores:invar_gear' },
+    { id: 'vanillaplusplus:advanced_hopper_upgrade_steel_gear', sink: 'alltheores:steel_gear' },
+    { id: 'vanillaplusplus:construction_core_zinc_gear', sink: 'alltheores:zinc_gear' },
+    { id: 'vanillaplusplus:destruction_core_lead_gear', sink: 'alltheores:lead_gear' },
+    { id: 'vanillaplusplus:exporter_constantan_gear', sink: 'alltheores:constantan_gear' },
+    { id: 'vanillaplusplus:importer_uranium_gear', sink: 'alltheores:uranium_gear' },
+    { id: 'vanillaplusplus:relay_diamond_gear', sink: 'alltheores:diamond_gear' },
+    { id: 'vanillaplusplus:64k_storage_part_electrum_gear', sink: 'alltheores:electrum_gear' },
+    { id: 'vanillaplusplus:autocrafter_signalum_gear', sink: 'alltheores:signalum_gear' },
+    { id: 'vanillaplusplus:wireless_transmitter_lumium_gear', sink: 'alltheores:lumium_gear' },
+    { id: 'vanillaplusplus:network_transmitter_enderium_gear', sink: 'alltheores:enderium_gear' },
+    { id: 'vanillaplusplus:network_receiver_netherite_gear', sink: 'alltheores:netherite_gear' },
 ]
 
 stCheck('material_sinks.js: every #91 sink recipe resolves and demands its gear (#91)', server => {
