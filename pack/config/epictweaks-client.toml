@@ -2,7 +2,25 @@
 #Forces vanilla rendering in first person view while not
 #holding a 'combat preferred' item (for non-combat motions).
 #Default: true
-filter_animation_first_person = true
+#
+#client-test-harness hardening (2026-07-23): flipped to false alongside
+#autoswitch_mode below - same NoSuchFieldError crash (see autoswitch_mode's own
+#comment for the full mechanism), a THIRD independent site. javap decompilation
+#of RenderEngineMixin#inject__epicfight$renderHand (woven into Epic Fight's
+#RenderEngine.renderHand, a NeoForge RenderHandEvent listener that fires on
+#every rendered frame, not gated by any tick/mode-switch trigger) shows it
+#checks getFilterAnimationFirstPerson() (this flag) - together with
+#isEpicFightMode(), also true-gated - before reaching the same missing
+#ClientConfig.combatPreferredItems field. grep of the installed jar confirms
+#exactly three classes reference that field at all (LocalPlayerPatchMixin,
+#PlayerPatchMixin, RenderEngineMixin); the other two are already closed by
+#autoswitch_mode=false and enforce_mode=false (the latter pre-existing, #84) -
+#this is the last one. With all three flags false, epic-tweaks' mode-switching
+#feature set is effectively a no-op (the player can still toggle Epic Fight/
+#Vanilla Mode manually via its own keybind), which is the correct tradeoff
+#until epic-tweaks ships a build compatible with a post-2025-09 Epic Fight
+#(Modrinth has no newer 1.21.1/neoforge build as of this pack's current pin).
+filter_animation_first_person = false
 #If enabled the player cannot manually switch to vanilla mode while holding a
 #'combat preferred' item or to combat mode while not holding a 'combat preferred' item.
 #This option has no effect if the 'canSwitchPlayerMode' gamerule is disabled.
