@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.vanillaplusplus.vppfixes.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "vppfixes.refmap.json",
+  "mixins": [
+    "SynchedEntityDataMixin"
+  ],
+  "client": [],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

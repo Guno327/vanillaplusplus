@@ -82,7 +82,7 @@ REMOTE_USER = "ubuntu"
 # shipped) and a missed addition fails silently - the container just runs
 # stale code with no error. Both trees are small (~1.2MB / ~400KB) so the
 # blanket sync costs nothing.
-SYNC_DIRS = ("pack", "scripts")
+SYNC_DIRS = ("pack", "scripts", "mods-src")
 EXCLUDE_DIR_NAMES = {"__pycache__"}
 EXCLUDE_SUFFIXES = (".pyc", ".pyo")
 
@@ -218,13 +218,19 @@ def sync_to_l3(api: Incus, verbose=True) -> int:
         api.push_file(INSTANCE, tarball, REMOTE_TARBALL, project=PROJECT, mode="0644", uid=0, gid=0)
 
         if verbose:
-            print("== L3 driver: extracting + swapping pack/ and scripts/ into place ==")
+            print("== L3 driver: extracting + swapping " + "/ ".join(SYNC_DIRS) + "/ into place ==")
+        # Swap each synced dir atomically. Loop over SYNC_DIRS so local-mod
+        # dirs (mods-src/) land too, and skip any that this branch doesn't have.
+        swap = "; ".join(
+            f'rm -rf {REMOTE_ROOT}/{d}; '
+            f'[ -d {REMOTE_STAGING}/{d} ] && mv {REMOTE_STAGING}/{d} {REMOTE_ROOT}/{d} && '
+            f'chown -R {REMOTE_USER}:{REMOTE_USER} {REMOTE_ROOT}/{d} || true'
+            for d in SYNC_DIRS
+        )
         remote_cmd = (
             f"set -e; "
             f"tar xzf {REMOTE_TARBALL} -C {REMOTE_STAGING}; "
-            f"rm -rf {REMOTE_ROOT}/pack {REMOTE_ROOT}/scripts; "
-            f"mv {REMOTE_STAGING}/pack {REMOTE_STAGING}/scripts {REMOTE_ROOT}/; "
-            f"chown -R {REMOTE_USER}:{REMOTE_USER} {REMOTE_ROOT}/pack {REMOTE_ROOT}/scripts; "
+            f"{swap}; "
             f"rm -f {REMOTE_TARBALL}; rm -rf {REMOTE_STAGING}"
         )
         api.run(INSTANCE, ["sh", "-c", remote_cmd], project=PROJECT, quiet=not verbose)
