@@ -1,0 +1,18 @@
+#If Sable should attempt to establish a UDP connection with the server, to receive sub-level movement data over a UDP channel
+#client-test-harness hardening (2026-07-23): flipped from the mod's shipped default
+#(true) to false, belt-and-suspenders alongside pack/config/sable-common.toml's
+#matching attempt_udp_networking=false. javap-ground-truthed against the
+#installed sable-neoforge-2.0.3 jar (dev.ryanhcode.sable.SableClientConfig,
+#registered under ModConfig.Type.CLIENT by SableNeoForgeClient): this is a
+#SEPARATE config from the common one above - it gates
+#ClientboundSableUDPActivationPacket.handle() on the CLIENT side, i.e. whether
+#THIS client acts on a server's "start authenticating over UDP" instruction,
+#independently of whatever the server's own attempt_udp_networking says. The
+#common-side fix alone (server never sends the activation packet) is already
+#sufficient to close the ~30s post-join "Connection reset by peer" disconnect
+#this hardening pass root-caused (see sable-common.toml's comment for the full
+#mechanism), but this client-side flag closes the same hole independently, in
+#case a future server ever ships with the common flag reverted. Added in Sable
+#2.0.0 specifically for this ("Add a client config for attempt_udp_networking",
+#per the mod's own Modrinth changelog).
+attempt_udp_networking = false

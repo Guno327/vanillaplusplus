@@ -49,7 +49,30 @@ sub_level_punch_cooldown_ticks = 3
 #else below is the real shipped default.
 disable_udp_pipeline = true
 #If Sable should attempt to authenticate with clients and send them sub-level movement data over UDP
-attempt_udp_networking = true
+#client-test-harness hardening (2026-07-23): flipped from the mod's shipped default
+#(true) to false - disable_udp_pipeline above does NOT actually cover this. javap-
+#ground-truthed against the installed sable-neoforge-2.0.3 jar: disable_udp_pipeline
+#only gates ServerConnectionListenerMixin's per-player UDP LISTENER setup (server
+#never binds a UDP socket), but SableUDPServer's activation-packet send (the code
+#that tells a joining client "go ahead and authenticate over UDP", via
+#ClientboundSableUDPActivationPacket) is gated ONLY by this attempt_udp_networking
+#flag, independently of disable_udp_pipeline - so with the old true/true
+#combination the server was still telling every client to authenticate over UDP
+#against a listener that was never started. The client's own ConnectionMixin
+#unconditionally opens an outbound UDP channel on every connect (no config check
+#at all in that code path - "Starting remote client UDP channel future" in the
+#client log), then acts on the server's activation packet and waits for an
+#auth response that can never arrive; L3's real client-join tier caught the
+#result directly: every client disconnected ~30-33s post-join with
+#"io.netty.channel.unix.Errors$NativeIoException: recvAddress(..) failed:
+#Connection reset by peer" - the exact ~29s window #49's original report
+#described, now root-caused precisely rather than just reproduced. Setting this
+#to false stops the server from ever sending that activation packet, so the
+#client's already-open (and otherwise harmless/inert) UDP channel is never asked
+#to do anything and the main connection survives. See pack/config/sable-
+#client.toml for the matching client-side belt-and-suspenders setting (added
+#in Sable 2.0.0 specifically for this purpose, per the mod's own changelog).
+attempt_udp_networking = false
 #If Sable should log when saving sub-levels for a dimension.
 sub_level_saving_log_message = true
 #If Sable should use verbose logging for its serialization system and the holding chunk-map. Not recommended- for debugging purposes only.
