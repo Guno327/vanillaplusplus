@@ -40,6 +40,21 @@ public final class QuestProgressAttachment {
     private final Set<ResourceLocation> completed = new HashSet<>();
     /** Keyed by {@code questId + "#" + taskIndex} -> progress count toward that task's target. */
     private final Map<String, Integer> taskProgress = new HashMap<>();
+    /**
+     * Set once {@link dev.vanillaplusplus.vppquests.quest.QuestLegacyMigration}
+     * has run for this player (DESIGN.md's #109 Phase B, identity-mapping
+     * migration) - makes the migration idempotent across relogs/server
+     * restarts instead of re-scanning the legacy save file every login.
+     */
+    private boolean legacyMigrated = false;
+
+    public boolean isLegacyMigrated() {
+        return legacyMigrated;
+    }
+
+    public void markLegacyMigrated() {
+        legacyMigrated = true;
+    }
 
     public boolean isComplete(ResourceLocation questId) {
         return completed.contains(questId);
@@ -67,11 +82,13 @@ public final class QuestProgressAttachment {
 
     public static final Codec<QuestProgressAttachment> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.listOf().fieldOf("completed").forGetter(a -> List.copyOf(a.completed)),
-            Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("taskProgress").forGetter(a -> Map.copyOf(a.taskProgress))
-    ).apply(instance, (completedList, progressMap) -> {
+            Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("taskProgress").forGetter(a -> Map.copyOf(a.taskProgress)),
+            Codec.BOOL.optionalFieldOf("legacyMigrated", false).forGetter(a -> a.legacyMigrated)
+    ).apply(instance, (completedList, progressMap, legacyMigrated) -> {
         QuestProgressAttachment attachment = new QuestProgressAttachment();
         attachment.completed.addAll(completedList);
         attachment.taskProgress.putAll(progressMap);
+        attachment.legacyMigrated = legacyMigrated;
         return attachment;
     }));
 

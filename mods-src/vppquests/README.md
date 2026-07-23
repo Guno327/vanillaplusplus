@@ -12,12 +12,17 @@ established (`mods-src/vppintegration/` is the first worked example): a
 fully self-contained, independently Modrinth-publishable project, not
 pack-specific glue.
 
-**This is Phase A only** - the mod scaffold, data model, and a first-pass
-GUI. See the parent repo's `DESIGN.md` ("GitHub issue #109" sections) and
-PR #111 for the full architecture proposal, migration plan, and phasing
-(A: scaffold, B: migration, C: cutover, D: questline rebuild, E: optional
-achievements/dailies fold-in). Phases B-D require explicit owner sign-off
-and are **not** part of this mod yet.
+**This is Phase A + Phase B (identity-mapping migration) only** - the mod
+scaffold, data model, first-pass GUI, and the migration that carries a
+player's already-completed legacy quests forward. See the parent repo's
+`DESIGN.md` ("GitHub issue #109" sections) for the full architecture
+proposal, migration plan, and phasing (A: scaffold, B: migration, C:
+cutover, D: questline rebuild, E: optional achievements/dailies fold-in).
+Phases C-D require explicit owner sign-off and are **not** part of this
+mod yet - notably, `pack/kubejs/server_scripts/quests.js` is untouched and
+still the pack's active quest system (this mod is not yet wired into
+`pack/manifest.json`); Phase B only adds the one-way migration path so
+cutover (Phase C) has somewhere safe to land later.
 
 ## What Phase A includes
 
@@ -56,7 +61,37 @@ and are **not** part of this mod yet.
   migrated pack content (Phase A explicitly does not migrate the existing
   62 quests; see "What Phase A does NOT include" below).
 
-## What Phase A does NOT include yet
+## What Phase B includes
+
+- **`quest/QuestLegacyMigration.java`** - on a player's first login after
+  this mod is installed, reads `quests.js`'s legacy save file directly
+  (ground-truthed via jar inspection of the pinned
+  `kubejs-neoforge-2101.7.2-build.368.jar`: KubeJS mixes `persistentData`
+  onto `MinecraftServer` and round-trips it through a plain compressed-NBT
+  file at `<world save>/kubejs_persistent_data.nbt`, resolved via
+  `LevelResource`/`MinecraftServer#getWorldPath` - no KubeJS dependency
+  needed to read it, it's vanilla NBT), extracts the
+  `vpp_quests_progress` compound quests.js itself writes, and marks the
+  same quest ids complete in `QuestProgressAttachment` - a strict identity
+  mapping (same ids, no reinterpretation), matching DESIGN.md's Phase B
+  description exactly. Idempotent via a `legacyMigrated` flag on the
+  attachment (now part of its Codec). Because a migrated quest is marked
+  complete *before* `QuestProgressTracker` ever evaluates it, rewards are
+  never double-granted - the tracker's existing "skip if already complete"
+  check does that for free, so no separate "rewards already granted" flag
+  was needed.
+- **Known Phase B limitation (disclosed):** only the per-player fallback
+  progress key (`quests.js`'s `"player:" + uuid`) is migrated. Team-keyed
+  progress (`"team:" + partyId`, when Open Parties and Claims is present)
+  is not, because this mod's `QuestProgressAttachment` is itself
+  per-player-only in Phase A (see its own class doc) - migrating a
+  party-keyed compound has nowhere to land until that seam exists. This is
+  a UX regression for team players only (they'd re-complete a few quests),
+  never a correctness/reward-duplication bug. Revisit once a later phase
+  wires the same `getPartyKey(player)` re-key GitHub #32 already proved out
+  for `quests.js`.
+
+## What Phase A/B does NOT include yet
 
 - **The real dependency-graph canvas.** `QuestScreen` is a list view, not a
   pannable node-and-edge tree. A true DAG rendering (nodes with icons,
@@ -81,10 +116,13 @@ and are **not** part of this mod yet.
   pack-side bridge (or an optional soft-dependency mixin, mirroring
   `vppintegration`'s own pattern) can hook it without changing this mod's
   public API.
-- **Migration, cutover, and the questline rebuild** (Phases B-D) -
-  untouched. `pack/manifest.json`, `pack/kubejs/server_scripts/quests.js`/
+- **Cutover and the questline rebuild** (Phases C-D) - untouched.
+  `pack/manifest.json`, `pack/kubejs/server_scripts/quests.js`/
   `achievements.js`/`dailies.js`, and the advancement-generation code are
-  all unmodified.
+  all unmodified; quests.js remains the pack's actual active quest system
+  and keeps writing to the same legacy save file Phase B's migration reads
+  from (both systems can coexist - this mod is not installed in the pack
+  yet, see "Build instructions").
 
 ## Build instructions
 

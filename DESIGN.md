@@ -4026,14 +4026,52 @@ own risk-mitigation recommendation to ship that before attempting a
 pannable dependency-graph canvas.
 
 **Explicitly NOT done in Phase A** (per the task's own scope boundary, not
-an oversight): no wiring into `pack/manifest.json`, no migration of the
-existing 62 quests, no changes to `quests.js`/`achievements.js`/
-`dailies.js`/the advancement-based GUI layer, no real pannable DAG-canvas
-rendering (nodes+edges) — the list view is the deliberate stand-in — and no
-party/team progress-sharing seam (the attachment is per-player only; a
-`getPartyKey(player)` re-key is flagged in the attachment's own class doc
-as the same one-function change GitHub #32 already proved out for
-`quests.js`). Phase B (migration, identity mapping) is also now underway in this same
-PR — see the "Phase B status" note further below. Phases C (cutover)
-and D (questline rebuild) remain deferred pending explicit owner
-sign-off, unchanged from the phasing above.
+an oversight): no wiring into `pack/manifest.json`, no port of the
+existing 62 quests' *content* into `vppquests`' own JSON schema (three tiny
+example quests ship instead, as parser/registry fixtures — the phasing's
+"verbatim content port" sub-step of Phase A remains open, tracked
+separately from progress migration below), no changes to
+`quests.js`/`achievements.js`/`dailies.js`/the advancement-based GUI layer,
+no real pannable DAG-canvas rendering (nodes+edges) — the list view is the
+deliberate stand-in — and no party/team progress-sharing seam (the
+attachment is per-player only; a `getPartyKey(player)` re-key is flagged in
+the attachment's own class doc as the same one-function change GitHub #32
+already proved out for `quests.js`).
+
+### GitHub issue #109 — custom questing mod: Phase B status (identity-mapping migration shipped)
+
+Phase B (identity-mapping *progress* migration — distinct from the
+still-open quest-*content* port noted above) is also implemented in this
+PR: `quest/QuestLegacyMigration.java` reads `quests.js`'s legacy save file
+directly on a player's first login — ground-truthed via jar inspection of
+the pinned `kubejs-neoforge-2101.7.2-build.368.jar` rather than guessed:
+KubeJS mixes `persistentData` onto `MinecraftServer`
+(`MinecraftServerMixin`) and its `KubeJSServerEventHandler` round-trips it
+to a single compressed-NBT file, `LevelResource("kubejs_persistent_data.nbt")`
+— resolved via `MinecraftServer#getWorldPath`, the same way any other
+root-level save file (e.g. `level.dat`) resolves — so no KubeJS dependency
+is needed in this standalone mod to read it, it's plain vanilla NBT.
+`quests.js`'s own `vpp_quests_progress` compound is parsed and every
+already-complete quest id is marked complete in the new
+`QuestProgressAttachment` (a strict identity mapping — same ids, no
+reinterpretation, matching the design's own Phase B description). A new
+`legacyMigrated` boolean on the attachment's Codec makes this idempotent
+across relogs/restarts. Marking a quest complete *before*
+`QuestProgressTracker` ever evaluates it means rewards are never
+double-granted for free (the tracker already skips already-complete
+quests) — no separate "rewards already granted" flag was needed, simpler
+than the original design sketch anticipated.
+
+**Known Phase B limitation** (disclosed): only `quests.js`'s per-player
+fallback key (`"player:" + uuid`) is migrated — team-keyed progress
+(`"team:" + partyId`, via Open Parties and Claims) is not, because
+`QuestProgressAttachment` is itself per-player-only in Phase A (see above).
+This is a UX regression for team players (a few quests need re-completing)
+but never a reward-duplication bug, and should be revisited once a later
+phase wires the same party-key seam GitHub #32 already proved out for
+`quests.js`. Old-system safety net (per the phasing's Phase B description)
+is automatic here: `quests.js` is completely untouched by this change, so
+it keeps running and keeps writing the same legacy file for as long as
+Phase C leaves it installed. Phases C (cutover) and D (questline rebuild)
+remain deferred pending explicit owner sign-off, unchanged from the
+phasing above.
