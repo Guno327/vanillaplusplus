@@ -35,6 +35,23 @@ import json
 
 GENERATED_FILENAME = "generated_version.js"
 
+# GitHub issue #94 follow-up ("warning before the crash from no mods"):
+# the same pack/VERSION value, baked as a plain text file instead of a
+# KubeJS constant, so mods-src/vppintegration's Java code (which runs
+# during NeoForge's CONFIGURATION network phase - before any KubeJS
+# script has a chance to run, and before a mismatched client ever reaches
+# the PLAY phase/world) can read it too. See
+# mods-src/vppintegration/.../network/PackVersionGate.java for the
+# consumer and the full design writeup. Written under config/ (not
+# kubejs/) on both sides, at the same "generated at build time, never
+# committed" point as GENERATED_FILENAME above, for the same reason.
+CONFIG_VERSION_RELATIVE_PATH = "vppplusplus/pack_version.txt"
+
+
+def render_config_version_file(version: str) -> str:
+    """Render the plain-text contents of CONFIG_VERSION_RELATIVE_PATH."""
+    return version + "\n"
+
 
 def render_version_script(version: str, source: str) -> str:
     """Render the generated startup script contents. `source` names the

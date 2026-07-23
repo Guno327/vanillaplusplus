@@ -183,6 +183,15 @@ def main():
             version_kubejs.render_version_script(PACK_VERSION, "build_mrpack.py"),
         )
 
+        # GitHub issue #94 follow-up: same pack/VERSION value, baked as a
+        # plain text file mods-src/vppintegration's Java PackVersionGate
+        # reads at NeoForge's CONFIGURATION network phase - earlier than
+        # any KubeJS script can run. See version_kubejs.py.
+        z.writestr(
+            f"overrides/config/{version_kubejs.CONFIG_VERSION_RELATIVE_PATH}",
+            version_kubejs.render_config_version_file(PACK_VERSION),
+        )
+
     size_mb = OUT_FILE.stat().st_size / (1024 * 1024)
     sha1 = hashlib.sha1(OUT_FILE.read_bytes()).hexdigest()
     print(f"wrote {OUT_FILE} ({len(index['files'])} downloaded + {len(bundled)} bundled mods, {size_mb:.2f} MB, sha1={sha1})")
