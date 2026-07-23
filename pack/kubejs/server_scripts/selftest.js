@@ -209,23 +209,21 @@ stCheck('SkillsAPI: all 23 skill categories retained their full 34-node skill co
 stCheck('Numismatics: bank account/balance reachable for a player', (server, player) => {
     if (!ST_NumismaticsClass) return { pass: false, detail: 'Numismatics class unavailable' }
     if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
-    // getAccount(player.getUUID()), not getAccount(player) - client-test-
-    // harness hardening (2026-07-23): GlobalBankManager overloads BOTH
-    // getAccount(Player) and getAccount(UUID) (javap-confirmed against
-    // CreateNumismatics-1.0.20+neoforge-mc1.21.1.jar); calling the
+    // getAccount(player.uuid), not getAccount(player) - GlobalBankManager
+    // overloads BOTH getAccount(Player) and getAccount(UUID) (javap-confirmed
+    // against CreateNumismatics-1.0.20+neoforge-mc1.21.1.jar); calling the
     // Player-typed overload with a REAL ServerPlayer throws Rhino's
     // "InternalError: ... is ambiguous" - unreachable from L1's console-only
     // testing (player is always null there, hitting the skip above first),
-    // only from a genuine connected player, which is exactly what L3's #65
-    // stage-grant hook exists to exercise. This crashed the entire hook
-    // (the per-check try/catch in stRunSelftestChecks() never even got to
-    // convert it to a FAIL result - the ambiguity error propagated out from
-    // underneath, aborting the whole `kubejs stages add` command with
-    // Minecraft's own generic "An unexpected error occurred trying to
-    // execute that command", before this check or any check after it could
-    // run). The UUID overload is unambiguous and returns the identical
-    // account (both key the same underlying store).
-    let account = ST_NumismaticsClass.BANK.getAccount(player.getUUID())
+    // only from a genuine connected player. The UUID overload is unambiguous
+    // and returns the identical account (both key the same underlying
+    // store). `player.uuid` (a property on KubeJS's ServerPlayer wrapper),
+    // not `player.getUUID()` - the latter is not a callable Rhino method on
+    // this wrapper (ground-truthed: "TypeError: Cannot find function getUUID
+    // in object ServerPlayer..." from a real L3 run under the #65
+    // `vpp_selftest_player` command); `.uuid` is this codebase's own
+    // established accessor (leaderboard.js/skills.js/quests.js).
+    let account = ST_NumismaticsClass.BANK.getAccount(player.uuid)
     let balance = account.getBalance()
     return { pass: typeof balance === 'number' && balance >= 0, detail: 'balance=' + balance }
 })

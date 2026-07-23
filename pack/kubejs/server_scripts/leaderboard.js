@@ -211,11 +211,16 @@ function computeWealth(player) {
     total += countCoins(player.getEnderChestInventory())
     if (NumismaticsClass) {
         try {
-            // getAccount(player.getUUID()), not getAccount(player) - see the
+            // getAccount(player.uuid), not getAccount(player) - see the
             // module docstring's CORRECTED note: the Player-typed overload is
             // ambiguous for a real ServerPlayer under Rhino; the UUID overload
-            // is unambiguous and returns the identical account.
-            let account = NumismaticsClass.BANK.getAccount(player.getUUID())
+            // is unambiguous and returns the identical account. `player.uuid`
+            // (a property), not `player.getUUID()` - the latter is not a
+            // callable Rhino method on KubeJS's ServerPlayer wrapper
+            // (ground-truthed via a real L3 run: "TypeError: Cannot find
+            // function getUUID..."); `.uuid` is this file's own accessor
+            // elsewhere (see cache.put(String(player.uuid), ...) above).
+            let account = NumismaticsClass.BANK.getAccount(player.uuid)
             total += account.getBalance()
         } catch (e) {
             console.error('[vpp leaderboard] bank balance read failed for ' + player.username + ': ' + e)
