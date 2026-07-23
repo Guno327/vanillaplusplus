@@ -64,6 +64,30 @@
 //       TFMG oil-pumpjack MULTIBLOCK MACHINE components (3 of the 4 are
 //       placeable blocks, confirmed via the jar's own blockstate files),
 //       matched only by the "hammer" substring - not handheld tools.
+//     - alltheores:bronze_ore_hammer / copper_ore_hammer / invar_ore_hammer /
+//       iron_ore_hammer / platinum_ore_hammer: GitHub #86 fix, correcting
+//       the original #9 pass below. Decompiling AllTheOres' own
+//       OreHammer.class (net/allthemods/alltheores/content/items/
+//       OreHammer.java) shows these are plain Item subclasses with no tool
+//       tier and no attack damage - the only override is
+//       getCraftingRemainingItem, i.e. a durability-ticking CRAFTING-GRID
+//       INGREDIENT (same shape as a vanilla bucket), not a wieldable
+//       pickaxe/weapon. Their sole function, confirmed via the jar's own
+//       recipe jsons, is filling the `alltheores:ore_hammers` tag slot in
+//       ~90 shapeless dust_from_ingot/dust_from_ore/dust_from_raw recipes
+//       across ~30 materials - several (electrum, invar, constantan,
+//       lumium, signalum, enderium, iridium, cinnabar, fluorite, peridot)
+//       have NO other dust source in this pack (Create's crushing wheels
+//       only turn ORE into crushed-ore for ore-doubling; they have no
+//       ingot/generic-dust recipe type at all). Stripping the hammer's own
+//       craft recipe left it permanently unobtainable, silently orphaning
+//       that entire ore/ingot->dust pipeline - the actual bug reported in
+//       #86 ("ore hammer has no recipe" / "can't crush ingots to dust").
+//       Exempting these 5 ids restores their unmodified native AllTheOres
+//       recipes (same durability-consuming crafting-table tool as
+//       upstream, 1:1 ingot-in/dust-out, no new duplication path) instead
+//       of bolting on a parallel Create-crushing-wheel mechanic Create
+//       never shipped. See DECISIONS.md for the dated entry.
 //
 //   Genuinely removed by this sweep (verified via a real boot + a
 //   temporary per-id log, see DECISIONS.md's dated entry): TFMG aluminum/
@@ -74,9 +98,7 @@
 //   remove there), Create Stuff & Additions brass/copper/zinc/rose_quartz/
 //   experience/blazing tools + the Blazing Cleaver + the Portable Drill
 //   (27 - also matches the reporter's "copper" example), Stellaris steel
-//   axe/hoe/pickaxe/shovel/sword (5), AllTheOres bronze/copper/invar/iron/
-//   platinum ore hammers (5 - a real tiered mining-tool ladder, the same
-//   category of alternate progression this design forbids), Apotheosis'
+//   axe/hoe/pickaxe/shovel/sword (5), Apotheosis'
 //   own stone->iron->golden->diamond vanilla-tool smithing-upgrade ladder
 //   (15 - a second, previously-missed bypass of blacksmithing.js's vanilla
 //   tool removal, using Apotheosis' own smithing templates instead of
@@ -126,6 +148,13 @@ const TOOL_EXEMPT_ITEM_IDS = [
     'tfmg:pumpjack_hammer',
     'tfmg:pumpjack_hammer_connector',
     'tfmg:large_pumpjack_hammer_connector',
+    // GitHub #86: crafting-grid dust-processing tools, not wieldable
+    // pickaxes/weapons - see the exemptions comment above.
+    'alltheores:bronze_ore_hammer',
+    'alltheores:copper_ore_hammer',
+    'alltheores:invar_ore_hammer',
+    'alltheores:iron_ore_hammer',
+    'alltheores:platinum_ore_hammer',
 ]
 
 // Oddball removals the name pattern can't safely express: items that ARE

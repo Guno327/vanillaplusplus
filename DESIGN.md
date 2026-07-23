@@ -992,6 +992,36 @@ being boot-tested throughout every phase of this project — `server/` (via
 `build_server.py`) *is* the runnable Linux server package, so nothing new
 was needed there beyond the performance tuning above.
 
+**GitHub issue #86 fix — ore hammer had no recipe, orphaning the
+ore/ingot→dust pipeline.** Reporter hit AllTheOres' ore hammer being
+uncraftable and, separately, no way to crush ingots to dust via Create's
+crushing wheels. Root cause: the #9 tool-consolidation sweep
+(`tool_consolidation_sweep.js`) misclassified AllTheOres' 5 ore hammers
+(bronze/copper/invar/iron/platinum) as an "alternate mining-tool ladder"
+and stripped their own crafting recipes. Decompiling AllTheOres'
+`OreHammer.class` shows they're actually plain `Item` subclasses with no
+tool tier or attack damage — the only override is
+`getCraftingRemainingItem`, i.e. a durability-ticking crafting-grid
+ingredient (like a bucket), not a wieldable pickaxe/weapon competing with
+Silent Gear. Their sole in-jar purpose is filling the
+`alltheores:ore_hammers` tag slot in ~90 shapeless `dust_from_ingot`/
+`dust_from_ore`/`dust_from_raw` recipes across ~30 materials — several
+(electrum, invar, constantan, lumium, signalum, enderium, iridium,
+cinnabar, fluorite, peridot) have **no other dust source in this pack**,
+since Create's own crushing wheels only turn raw ore into crushed-ore for
+ore-doubling and have no ingot/generic-dust recipe type at all. Stripping
+the hammer's recipe silently orphaned that entire pipeline. **Fix**: added
+the 5 ore-hammer item ids to `tool_consolidation_sweep.js`'s
+`TOOL_EXEMPT_ITEM_IDS` (same pattern already used for `tfmg:oil_hammer`
+etc.), restoring their unmodified native AllTheOres recipes — a
+root-cause correction of the sweep's over-broad name match, not a new
+parallel Create-crushing-wheel mechanic. No duplication risk: the
+hammer's dust recipes are the mod's own 1:1 ingot/ore-in, dust-out
+conversions, unchanged from upstream. Verified statically (`run_all.py`
+green, jar-confirmed item ids and recipe jsons); the hammer actually
+appearing in JEI with a working recipe needs a live client/world to
+confirm — flagged as a `verify-in-game` follow-up.
+
 ### Gear overhaul: unified smithing/boss-drop progression + expanded melee variety (post-Phase 9)
 
 After all 9 original phases shipped, a follow-up request tightened the
