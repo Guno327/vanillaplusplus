@@ -1,9 +1,9 @@
 {
 	"attributes": {
 		"common": {
-			"impact": 0.6,
-			"max_strikes": 1
+			"impact": 2.0,
+			"max_strikes": 2
 		}
 	},
-	"type": "epicfight:uchigatana"
+	"type": "epicfight:tachi"
 }
