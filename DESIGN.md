@@ -1226,6 +1226,82 @@ installed `refinedstorage`/`sophisticatedstorage` jars, not assumed) — the
 new ingredients actually resolving in a real crafting grid and JEI showing
 the gear as required both need a live client, flagged `verify-in-game`.
 
+**GitHub issue #91, second tranche — the remaining ~20 metals' gear
+byproduct.** The PM flagged tranche one's "gear-in-recipe" approach to the
+owner for confirmation as the pack's permanent material-sink style; that
+confirmation is still pending, so this tranche proceeds with the identical
+technique for consistency but keeps every edit independently, cleanly
+reversible. Re-verified the dead-byproduct claim from scratch (fresh
+extraction of all 95 installed jars, not trusting the tranche-one writeup)
+by grepping every recipe json for the `c:gears/*`, `c:plates/*`, `c:rods/*`
+tags, and found two corrections narrower than tranche one's writeup implied:
+`c:gears/*` genuinely has zero consumers anywhere outside AllTheOres' own
+tag-definition file across all 95 mods — every ATO gear for every metal
+really is still dead, no exceptions — but `c:plates/*` and `c:rods/*` are
+not uniformly dead the way described: TFMG's own accumulator/converter/
+electrode_holder/transformer recipes consume `#c:plates/lead`/`nickel`/
+`aluminum` (a tag ATO's own `lead_plate`/`nickel_plate`/`aluminum_plate`
+satisfies too, since neither mod's tag file sets `replace`), and Stellaris'
+rover/rocket_station_block recipes consume `#c:rods/steel` the same way —
+real, pre-existing, tag-based sinks this pack doesn't own or touch. This
+tranche therefore only ever adds `_gear` items (the uncontested-dead class),
+never plate or rod.
+
+Extended `material_sinks.js` with the same technique — one exact-item-id
+gear added as an *additional* required ingredient to an existing,
+already-desirable recipe, never a `c:` tag, never a cheaper alt-path — for
+the 19 metals left over after tranche one (copper, zinc, lead, aluminum,
+bronze, brass, iron, nickel, constantan, uranium, gold, invar, steel,
+electrum, signalum, lumium, diamond, enderium, netherite). Split across two
+mod families rather than one recipe or one family: Sophisticated Storage's
+upgrade ladder (9 recipes — the same family tranche one used for
+osmium/iridium) and Refined Storage's own machine/storage ladder (10
+recipes — construction_core/destruction_core → importer/exporter → storage
+capacity parts → autocrafter/relay/wireless & network transmission, the
+same "single most load-bearing recipe family" `tier_gating.js` already
+documents). Metals are bucketed into four tiers by their real AllTheOres
+harvest-tool tag (`needs_stone_tool`/`needs_iron_tool`/`needs_diamond_tool`,
+the same source tranche one used for tin/silver/platinum) or, for alloys
+with no ore of their own, by their component metals' tier, then routed into
+a recipe already gated at a matching or later tier — never earlier, so an
+iron-tier metal is never required by a recipe this pack already has at
+copper tier and a diamond-tier metal is never required by an iron-tier one.
+Three Sophisticated Storage pairs deliberately chain a low metal into the
+higher metal across the same base/advanced upgrade family, mirroring
+tranche one's tin→silver and osmium→iridium chains: feeding_upgrade
+(copper) → advanced_feeding_upgrade (gold), void_upgrade (bronze) →
+advanced_void_upgrade (invar), hopper_upgrade (iron) →
+advanced_hopper_upgrade (steel — the literal iron→steel upgrade).
+
+Every touched recipe keeps its full stock ingredient list; nothing removed
+or substituted, one gear added apiece. The 9 Sophisticated Storage recipes
+each had one unused blank cell already in the stock jar's pattern (the same
+shape tranche one exploited in `magnet_upgrade`), so their shape is
+untouched. Refined Storage's 10 are a mix: 5 were already
+`minecraft:crafting_shapeless` in the stock jar (construction_core,
+destruction_core, importer, exporter, relay) and just get the gear appended;
+the other 5 (64k_storage_part, autocrafter, wireless_transmitter,
+network_transmitter, network_receiver) had every one of their 3x3 grid's
+nine cells already filled in the stock recipe, so each is re-authored as an
+equivalent shapeless recipe — every stock ingredient kept at its exact stock
+count (repeated entries where the stock pattern repeated a letter),
+positional constraint dropped, one gear added. That is a strict relaxation
+(every arrangement that used to craft still works, plus every other
+arrangement), not a nerf, and the only way to add a further ingredient to a
+recipe whose stock shape left no free cell. Extended
+`ST_MATERIAL_SINK_RECIPES` in `selftest.js` with all 19 new entries (same
+`Predicate#test` probe as tranche one). Verified statically only
+(`run_all.py` + the 227-test unittest suite both green; all 19 new gear item
+ids cross-checked against the installed `alltheores` jar's own lang file;
+every edited recipe's stock shape/ingredient count read directly from the
+installed `refinedstorage`/`sophisticatedstorage` jars, not assumed — the
+`tfmg`/`stellaris` jars were only consulted for the plate/rod correction
+above, not for any recipe edited here; no recipe id in this tranche
+collides with one `tier_gating.js` or tranche one already edits) — the new
+ingredients actually resolving in a
+real crafting grid and JEI showing each gear as required both need a live
+client, flagged `verify-in-game`.
+
 ### Gear overhaul: unified smithing/boss-drop progression + expanded melee variety (post-Phase 9)
 
 After all 9 original phases shipped, a follow-up request tightened the
