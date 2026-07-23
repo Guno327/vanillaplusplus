@@ -678,7 +678,11 @@ schema).
 (10 — the reporter's example; TFMG's steel tools ship upstream-disabled as
 `minecraft:empty` and never registered), Create S&A brass/copper/zinc/
 rose_quartz/experience/blazing tools + Blazing Cleaver + Portable Drill
-(28), Stellaris steel tools (5), AllTheOres ore hammers (5), Apotheosis'
+(28), Stellaris steel tools (5), AllTheOres ore hammers (5 — **later
+RE-EXEMPTED by #86, see the dated entry at the bottom of this file**: they
+turned out to be crafting-grid dust-processing ingredients, not mining
+tools, and removing them orphaned the entire ore/ingot→dust pipeline),
+Apotheosis'
 own stone->iron->golden->diamond tool smithing-upgrade ladder (15 — a
 second missed bypass of the vanilla tool removal), Apothic Enchanting's
 craftable Inert Trident + its infusion into a real `minecraft:trident`
@@ -1330,3 +1334,28 @@ Concretely:
 
 See [[project-github-issues-workflow]] memory — its "never cut/publish a
 release until the user manually prompts" rule is superseded by this entry.
+
+## #86 fix — ore hammers RE-EXEMPTED from the #9 tool sweep (2026-07-23)
+
+Partially reverses the "AllTheOres ore hammers (5)" removal in the #9
+tool-consolidation entry above (see the annotated line in that entry).
+**Not a change of the #9 design intent** — that sweep exists to remove
+alternate *mining-tool* ladders that compete with Silent Gear, and it did
+so correctly for everything else. The ore hammers were simply
+misclassified: decompiling AllTheOres' `OreHammer.class` shows they are
+plain `Item` subclasses with no tool tier and no attack damage — their only
+override is `getCraftingRemainingItem`, i.e. a durability-ticking
+crafting-grid ingredient (bucket-shaped), not a wieldable pickaxe/weapon.
+Their sole purpose is filling the `alltheores:ore_hammers` tag slot in ~90
+native `dust_from_ingot`/`dust_from_ore`/`dust_from_raw` recipes across ~30
+materials, several of which (electrum, invar, constantan, lumium, signalum,
+enderium, iridium, cinnabar, fluorite, peridot) have **no other dust source
+in this pack** (Create's crushing wheels only double raw ore → crushed-ore;
+there is no ingot/generic-dust recipe type). Stripping the hammers' own
+craft recipes therefore silently orphaned the whole ore/ingot→dust pipeline
+— the bug reported in #86. Fix: added the 5 ids to
+`tool_consolidation_sweep.js`'s `TOOL_EXEMPT_ITEM_IDS` (same mechanism as
+`tfmg:oil_hammer`), restoring the mod's unmodified 1:1 conversions (no
+duplication path introduced). Full design rationale in DESIGN.md's #86
+entry. Static-verified (`run_all.py` green, jar-confirmed ids/recipes); the
+hammer crafting + JEI recipe display still needs `verify-in-game`.
