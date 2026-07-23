@@ -32,17 +32,19 @@ import org.slf4j.LoggerFactory;
  * semi-public API surface, not by hand-authoring a guess at Silent Gear's private
  * codec in JSON:
  * <ul>
- *   <li>{@link dev.vanillaplusplus.vppintegration.mixin.ForgingQualityHelperMixin}
- *   hooks the single, unambiguous method Overgeared already uses to stamp quality
- *   onto a freshly-forged item ({@code ForgingQualityHelper.applyForgingQuality}).
- *   When the item being stamped is a Silent Gear {@code GearItem} whose part list
- *   still holds the placeholder material this mod's forging recipes ship (see
- *   below), the mixin rebuilds the item's real material assignment from whichever
- *   ingot the player actually forged with, using Silent Gear's own
- *   {@code SgDataComponents.MATERIAL_LIST} component and
+ *   <li>{@link dev.vanillaplusplus.vppintegration.mixin.AbstractSmithingAnvilBlockEntityMixin}
+ *   hooks {@code AbstractSmithingAnvilBlockEntity.craftItem()} (confirmed via a
+ *   real build/javap: it's a no-arg method on the block entity itself, not a
+ *   separate {@code ForgingQualityHelper} class as an earlier draft of this doc
+ *   assumed - {@code applyForgingQuality(ItemStack, ForgingQuality)} is a public
+ *   static method on {@code AbstractSmithingAnvilBlockEntity}). When the item
+ *   just placed in the anvil's output is a Silent Gear {@code GearItem} whose
+ *   part list still holds the placeholder material this mod's forging recipes
+ *   ship (see below), the mixin rebuilds the item's real material assignment
+ *   from whichever ingot the player actually forged with, using Silent Gear's
+ *   own {@code SgDataComponents.MATERIAL_LIST} component and
  *   {@code GearData.recalculateGearData} to recompute stats the same way Silent
- *   Gear's own recipes do - then re-stamps the quality component Overgeared was
- *   about to apply, since the stack was just rebuilt.</li>
+ *   Gear's own recipes do.</li>
  *   <li>{@code data/overgeared/recipe/forging/*.json} (one per Silent Gear part
  *   type x this pack's material tier) gives the Overgeared anvil a forging recipe
  *   for every Silent Gear part, with a placeholder result the mixin above
@@ -50,12 +52,18 @@ import org.slf4j.LoggerFactory;
  *   format cannot express "whichever material tier was actually forged", so the
  *   correction has to happen in Java regardless of the JSON shape.</li>
  *   <li>{@link OvergearedSilentGearBridge} listens on Silent Gear's own public
- *   {@code GetPropertyModifiersEvent} to add a quality-derived bonus to Silent
+ *   {@code GearRecalculateEvent.Post} - fired right after Silent Gear finishes
+ *   writing an item's computed stats into its {@code GEAR_PROPERTIES} data
+ *   component (confirmed via javap-read bytecode ordering in {@code GearData}) -
+ *   to (a) rewrite that data component, adding a quality-derived bonus to Silent
  *   Gear's DURABILITY/HARVEST_SPEED properties (reusing Overgeared's own
- *   per-quality config bonus values for symmetry with its native items), and on
- *   Silent Gear's {@code GearRecalculateEvent.Post} to stamp a fixed default
- *   quality onto any Silent Gear item that reaches a finished state without ever
- *   touching the Overgeared anvil (pattern-crafted parts, non-metal/non-forged
+ *   per-quality config bonus values for symmetry with its native items; an
+ *   earlier draft of this bridge instead hooked {@code
+ *   GetPropertyModifiersEvent}, but a real build proved that event's modifiers
+ *   list is immutable for NumberProperty-backed properties - see that class's
+ *   doc for the full javap evidence), and (b) stamp a fixed default quality onto
+ *   any Silent Gear item that reaches a finished state without ever touching the
+ *   Overgeared anvil (pattern-crafted parts, non-metal/non-forged
  *   assemblies) - so the attribute-bonus layer above is meaningful for every
  *   Silent Gear item this pack can produce, not only forged ones. Combat stats
  *   (attack damage, armor, attack speed) need NO code here at all: Silent Gear

@@ -33,16 +33,21 @@ modpack it was built for.
   and a mixin
   (`dev.vanillaplusplus.vppintegration.mixin.AbstractSmithingAnvilBlockEntityMixin`)
   that corrects the material at craft time using Silent Gear's own real
-  material-detection API (`MaterialInstance.fromItem`), then asks Silent Gear
-  to recompute stats (`GearData.recalculateGearData`) - not a guess at the
+  material-detection API (`MaterialInstance.from(ItemStack)`, which already
+  returns the built `MaterialInstance` in one call), then asks Silent Gear to
+  recompute stats (`GearData.recalculateGearData`) - not a guess at the
   private codec.
 - Silent Gear's own non-vanilla-attribute stats (durability, harvest speed -
-  its own `GearPropertyMap`/`GetPropertyModifiersEvent` system, separate from
+  its own `GearPropertyMap`/`GearPropertiesData` system, separate from
   vanilla Attributes) get a quality-scaled bonus from
   `dev.vanillaplusplus.vppintegration.quality.OvergearedSilentGearBridge`,
   reusing Overgeared's own per-quality config bonus values
   (`ServerConfig.*_DURABILITY_BONUS` / `*_MINING_SPEED_BONUS`) for symmetry
-  with Overgeared's native items.
+  with Overgeared's native items. This bridge rewrites the item's computed
+  `GEAR_PROPERTIES` data component directly from `GearRecalculateEvent.Post`
+  (after Silent Gear has already written it) rather than hooking
+  `GetPropertyModifiersEvent` - see "What changed after a real build" below
+  for why.
 - Silent Gear items that reach a finished state WITHOUT ever touching an
   Overgeared anvil (pattern-crafted parts, non-metal assemblies, or any other
   Silent Gear crafting path the pack keeps open) get a fixed default quality
@@ -60,42 +65,66 @@ See `VppIntegration.java`'s class doc for the fully detailed per-hook design
 writeup, including confidence levels and exactly what still needs real-build
 verification.
 
-## What's verified vs. what needs a real build
+## What's verified vs. what still needs an in-game check
 
-This mod's source was authored in a sandbox with **no JDK at all** (not just
-no network) - `javap`/`cfr`/`fernflower` were unavailable, so every class
-name, field, and method signature cited above and in code comments was
-confirmed via `strings` against the actual installed jars
-(`silent-gear-1.21.1-neoforge-4.2.1.1.jar`,
-`silent-lib-1.21.1-neoforge-10.6.0.jar`, and a downloaded
-`overgeared-1.21.1-1.6.16.jar`) - real class/method *names* are confirmed,
-but exact bytecode descriptors (parameter types, generic bounds) could not be.
-Every place this matters is marked `TODO(real-build)` in the source. A real
-build environment must:
+This mod now **compiles cleanly and produces a jar** (`./gradlew build`
+succeeds end-to-end, including NeoForge/Minecraft dependency resolution,
+decompile/patch/recompile, and this mod's own `compileJava` - see "Build
+instructions" below). The mod's source was originally authored in a sandbox
+with no JDK/network at all, where every class/method signature was guessed
+from `strings` output; that sandbox's guesses have since been corrected
+against the real, resolved dependency jars using `javap -p -c`. All
+`TODO(real-build)` markers have been resolved and removed. What changed:
 
-1. Have a JDK 21 and run `./gradlew build` (needs network access to
-   `api.modrinth.com/maven` for the Overgeared compile dependency, and the two
-   Silent Gear jars copied into `libs/` - see "Build instructions" below).
-2. Run `javap -p` (or decompile with a real tool) against
-   `AbstractSmithingAnvilBlockEntity.craftItem`, `ForgingQualityHelper.
-   applyForgingQuality`, `MaterialInstance.fromItem`/`.of`,
-   `GetPropertyModifiersEvent`, and `GearProperties.DURABILITY`/
-   `HARVEST_SPEED`'s field types, to confirm every signature this mod's
-   mixin/event listeners assume.
-3. Boot a real client+server with all three mods to verify:
-   - The mixin actually applies (no `MixinApplyError`) and the corrected
-     material list is visible in the item's tooltip.
-   - `GetPropertyModifiersEvent` actually fires per-part with a way to
-     recover the parent gear ItemStack's quality (flagged as the least
-     certain hook in `OvergearedSilentGearBridge`'s class doc - if the event
-     doesn't carry that context, the fallback is capturing quality via
-     `GearRecalculateEvent.Pre` into a thread-local, which is what this mod
-     already does, but the *correctness* of that thread-local approach under
-     Silent Gear's real threading/recursion behavior needs a live check).
-   - `c:melee_weapon_tools` / `c:armors` are tags Silent Gear's items
-     actually carry (the attribute-bonus JSON assumes this).
-   - The example forging recipes for copper/iron sword/pickaxe/axe heads
-     work end-to-end in the actual anvil minigame.
+- `MaterialInstance.fromItem(ItemStack) -> Material` **does not exist**. The
+  real API is `MaterialInstance.from(ItemStack) -> MaterialInstance` (nullable),
+  which already does the material lookup *and* wraps it - no separate
+  `MaterialInstance.of(Material)` call needed. Fixed in
+  `AbstractSmithingAnvilBlockEntityMixin`.
+- `AbstractSmithingAnvilBlockEntity.craftItem` takes **no parameters** (not
+  `craftItem(ServerPlayer)`). The acting player is read off the block
+  entity's own `protected Player player` field via a `@Shadow` field instead
+  of an injected method parameter. Fixed in the same mixin.
+- `GetPropertyModifiersEvent.getPropertyKey()` returns a `PropertyKey<T, V>`
+  wrapper, not the raw `GearProperty` - comparing it directly against
+  `GearProperties.DURABILITY.get()` is a compile error (`incomparable types`).
+  The unwrap is `PropertyKey.property()`.
+- **The bigger, runtime-level finding**: even with that unwrap fixed,
+  `GetPropertyModifiersEvent.getModifiers()` is **not a mutable list** in the
+  case this mod cares about. `javap -p -c` on `CoreGearPart` (the real
+  caller) shows the event's `modifiers` list comes from
+  `GearProperty.reduce(context, collection)`, whose base implementation is
+  `List.copyOf(collection)` (immutable), and `NumberProperty` (the type behind
+  `DURABILITY`/`HARVEST_SPEED`) does not override `reduce()`. Calling
+  `.add(...)` on that list would have compiled but thrown
+  `UnsupportedOperationException` at runtime on the very first Silent Gear
+  stat recalculation. `OvergearedSilentGearBridge` no longer hooks this event
+  at all - it now rewrites the item's `SgDataComponents.GEAR_PROPERTIES` data
+  component directly from `GearRecalculateEvent.Post` (confirmed via
+  `javap -p -c` on `GearData` that this event fires *after* that component is
+  written), the same "read/replace a data component directly" idiom the
+  material-correction mixin already uses. See `OvergearedSilentGearBridge`'s
+  class doc for the full bytecode evidence.
+- The Modrinth Maven facade indexes Overgeared by its Modrinth
+  `version_number` (`1.21.1-1.6.16`), not the bare mod version (`1.6.16`) -
+  and `mixinextras-{common,neoforge}`'s real Maven Central group id is
+  `io.github.llamalad7`, not `org.spongepowered`. Both fixed in `build.gradle`.
+
+Still needs a real client+server boot with all three mods to verify (no
+static analysis substitutes for this):
+
+- The mixin actually applies at runtime (no `MixinApplyError`) and the
+  corrected material list is visible in the item's tooltip.
+- `GearRecalculateEvent.Post`'s ordering relative to the `GEAR_PROPERTIES`
+  write holds for every recalculation path in practice (bytecode-confirmed
+  for the direct call path; Silent Gear's traits/enchant hooks could
+  theoretically re-trigger recalculation after this listener runs, which
+  would just mean the quality bonus gets recomputed on top of a fresh base -
+  not obviously wrong, but unverified live).
+- `c:melee_weapon_tools` / `c:armors` are tags Silent Gear's items actually
+  carry (the attribute-bonus JSON assumes this).
+- The example forging recipes for copper/iron sword/pickaxe/axe heads work
+  end-to-end in the actual anvil minigame.
 
 ## Extending to the pack's full material ladder
 
@@ -120,25 +149,33 @@ design needed:
 
 ## Build instructions
 
-This sandbox had **no JDK/Gradle installed at all**, so `gradle/wrapper/
-gradle-wrapper.jar` (a binary) could not be generated here - only
-`gradle-wrapper.properties` (pinning Gradle 8.10) is committed. A real build
-environment must run `gradle wrapper` once with any local Gradle install to
-produce the jar, or just use a system Gradle directly instead of `./gradlew`:
+Confirmed working end-to-end (JDK 21, Gradle 8.10, network access to
+`services.gradle.org`, `api.modrinth.com`, and `repo1.maven.org`/
+`maven.neoforged.net` for the NeoForge/Minecraft/mixinextras dependencies):
 
 ```sh
 cd mods-src/vppintegration
 mkdir -p libs
 cp /path/to/silent-gear-1.21.1-neoforge-4.2.1.1.jar libs/
 cp /path/to/silent-lib-1.21.1-neoforge-10.6.0.jar libs/
-gradle wrapper        # one-time, generates gradle-wrapper.jar
-./gradlew build        # or: gradle build
+./gradlew build
 ```
 
-The built jar lands at `build/libs/vppintegration-1.0.0.jar`. See the parent
-repo's `README.md` ("Custom mods" in the repo layout table) and
-`scripts/resolve_mods.py`/`pack/manifest.json` for how that jar is wired into
-the Vanilla++ pack build (`"source": "local"` manifest entries).
+`gradlew`/`gradlew.bat` are committed, but `gradle/wrapper/gradle-wrapper.jar`
+(a binary) is gitignored. If it's missing, generate it once with any local
+Gradle 8.x install: `gradle wrapper --gradle-version 8.10`, then re-run
+`./gradlew build`.
+
+`JAVA_HOME` must point at a JDK 21 (`java.toolchain.languageVersion = 21` in
+`build.gradle`). The first build decompiles/patches/recompiles NeoForge
+itself (a one-time ~2 minute step per Gradle user-home cache); rebuilds after
+that are seconds. The built jar lands at
+`build/libs/vppintegration-1.0.0.jar`. See the parent repo's `README.md`
+("Custom mods" in the repo layout table) and
+`scripts/resolve_mods.py`/`pack/manifest.json` for how that jar would be
+wired into the Vanilla++ pack build (`"source": "local"` manifest entries) -
+wiring this jar in is a separate, deliberate decision (it needs an in-game
+boot test first), not something this build step does on its own.
 
 ## License
 

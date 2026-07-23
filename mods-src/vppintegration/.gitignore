@@ -1,11 +1,12 @@
 # Gradle
 .gradle/
 build/
-# gradle-wrapper.jar is intentionally NOT committed - see README.md "Build
-# instructions" (no JDK/Gradle was available to generate it when this mod
-# was authored). A real build environment runs `gradle wrapper` once to
-# produce it locally; that generated jar is still gitignored here since a
-# vendored wrapper jar isn't otherwise this repo's convention.
+# gradle-wrapper.jar (a binary) is intentionally NOT committed - vendoring a
+# binary wrapper jar isn't otherwise this repo's convention. gradlew/gradlew.bat
+# (plain shell/bat scripts) ARE committed so a build environment doesn't need
+# its own Gradle install just to bootstrap this one; see README.md "Build
+# instructions" for the one-time `gradle wrapper` step that (re)produces the
+# jar the committed scripts expect at gradle/wrapper/gradle-wrapper.jar.
 gradle/wrapper/gradle-wrapper.jar
 
 # Local compile-only jars copied in per README.md "Build instructions" -
