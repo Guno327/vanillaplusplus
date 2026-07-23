@@ -1758,22 +1758,6 @@
       "note": "GitHub issue #69 item 4: dedicated inventory trash slot (drag an item in, it's deleted) plus delete keybinds. By far the most popular candidate for this ask (4.6M downloads/850 followers vs. Mobile Trashcan's 2.5K/4 and Trashapack's 1.4K/1) and needs no new dependency surface: its one required dep (Modrinth version-metadata) is Balm, already installed since phase 12 for clientsort. Modrinth client_side=required/server_side=required -> side:both (matches the jar: it's a Balm-framework config-synced mod, not purely cosmetic). Config (TrashSlotConfigData, ground-truthed via bytecode disassembly of its <init> field-initializer instructions - no decompiler available): instantDeletion=false, enableDeleteKeysInCreative=true, enableHints=true, allowDeletionWhileTrashSlotIsInvisible=false, deletionDenyList=empty, all left at their real shipped defaults - instantDeletion=false in particular means dropped items still go through the normal short despawn window rather than vanishing the instant they touch the slot, a sensible accidental-delete safety margin to keep. deletionDenyList (comma-separated modid:name list) is deliberately left empty rather than pre-populated with this pack's boss-unique drops: same reasoning as the #7 creative_crate note elsewhere in this project - there is no existing registry of 'genuinely unique, must-never-trash' item ids to check against in this codebase, so guessing a list would be unfounded; left for a follow-up if an accidental-trash incident is ever reported."
     },
     {
-      "slug": "sodium-options-api",
-      "project_id": "Es5v4eyq",
-      "version_id": "lrsX3TMS",
-      "version_number": "neoforge-1.21.1-1.0.10",
-      "filename": "sodiumoptionsapi-neoforge-1.0.10-1.21.1.jar",
-      "url": "https://cdn.modrinth.com/data/Es5v4eyq/versions/lrsX3TMS/sodiumoptionsapi-neoforge-1.0.10-1.21.1.jar",
-      "hashes": {
-        "sha512": "f2f022183f300961d7d0503461daa59e3e606c32f189f1cb3307edaf765986c541929205b7bf6f40c4c88319696e9d863c1bf711bd441dc9b7081c198ddb445b",
-        "sha1": "5d014d031fa77ab600e07835b032ef4dcb79b442"
-      },
-      "filesize": 309122,
-      "side": "client",
-      "phase": 25,
-      "note": "GitHub issue #103: required dep for sodium-dynamic-lights below (Modrinth version-metadata lists it as the one other required dependency alongside Sodium itself for the neoforge-1.21.1-1.0.10 build). Modrinth client_side=required/server_side=unsupported -> side:client, LGPL-3.0-only. Ground-truthed via jar extraction: sodium-dynamic-lights' own compiled classes reference Sodium's real GUI classes (net.caffeinemc.mods.sodium.client.gui.SodiumOptionsGUI) directly but show no compiled reference to this library's own package anywhere in its constant pool - the coupling may be soft/reflective rather than a hard compile-time need. Included anyway to match Modrinth's declared-required metadata: it is a tiny, zero-dependency (only requires Sodium itself, already installed phase 18), client-only options-menu-integration shim with no plausible downside or load-order risk."
-    },
-    {
       "slug": "sodium-dynamic-lights",
       "project_id": "PxQSWIcD",
       "version_id": "XI0WLXdn",
