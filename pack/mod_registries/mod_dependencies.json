@@ -1721,24 +1721,6 @@
       ],
       "version_number": "mc1.21.1-0.8.12-neoforge"
     },
-    "sodium-dynamic-lights": {
-      "provided": [
-        "sodiumdynamiclights"
-      ],
-      "required": [
-        {
-          "enforced": true,
-          "modId": "minecraft",
-          "versionRange": "[1.21.1,)"
-        },
-        {
-          "enforced": true,
-          "modId": "minecraft",
-          "versionRange": "[1.21.1,)"
-        }
-      ],
-      "version_number": "neoforge-1.21.1-1.0.10"
-    },
     "sophisticated-backpacks": {
       "provided": [
         "sophisticatedbackpacks"
@@ -2325,5 +2307,5 @@
       "version_number": "1.21.1-NeoForge-4.1.1"
     }
   },
-  "source_lockfile_mod_count": 114
+  "source_lockfile_mod_count": 113
 }
