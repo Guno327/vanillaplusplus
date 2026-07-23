@@ -54,6 +54,15 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
   before publish**, which `mint-release.yml` enforces structurally via
   `needs:`. Cut releases as meaningful work lands. (Directives 2026-07-23;
   see `DECISIONS.md` "Release policy".)
+- **Additional required gate, not automatable in hosted CI: `python3
+  scripts/tests/run_l3_incus.py` must print `L3 GATE: PASS` on the Incus
+  `vpp-l3` host before a client-affecting PR merges to `main` and before
+  dispatching `mint-release.yml`.** Fast-tier/boot-tier only ever boot the
+  dedicated *server*, so a client-only launch crash is structurally
+  invisible to them — this is exactly how v0.5.0 (missing client-only
+  dependency) and v0.5.1 (`sodium-dynamic-lights` split-package
+  `ResolutionException`) both shipped. See HANDOFF.md's "RELEASE GATE"
+  note under "Release pipeline" for the one-command runbook.
 - **BETA HOLD — never mint 1.0.0 until the owner lifts it.** The pack stays
   a beta prerelease; keep `prerelease=true` on every cut. `next_version.py`
   hard-refuses any `>= 1.0.0` version (unless `--allow-ga`, which the

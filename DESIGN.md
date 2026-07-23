@@ -152,38 +152,68 @@ literally `refinedstorage:controller` in its "restore to base colour" case
 exactly as it did the first time; `stFindRecipesByOutput` is only needed
 where (like Create's) the id scheme itself can't be guessed.
 
-Three more checks are **diagnostics, not gates** (always `pass: true`,
+Three more checks were **diagnostics, not gates** (always `pass: true`,
 reporting the live state in `detail`) confirming genuinely under-gated
 families against that same live `RecipeManager` - real content gaps, not
-fixed here since #61 scoped this as an audit tool, not a gating pass:
+fixed at the time since #61 scoped this as an audit tool, not a gating
+pass. **All three are now closed by GitHub #127** (the in-game #61 audit
+confirmed them live and filed the follow-up fix); the checks below were
+flipped from "report the gap" to "hard-fail if it reopens" in the same
+`selftest.js` region:
 
 - **Sophisticated Storage's "double chest" upgrade recipes**
   (`sophisticatedstorage:double_iron_chest`/`double_gold_chest`/
-  `double_diamond_chest`, real ids in the pinned jar) reach iron/gold/
+  `double_diamond_chest`, real ids in the pinned jar) reached iron/gold/
   diamond *chest* tier from a plain iron/gold/diamond ingot + block, with
   no Andesite Alloy/Brass Ingot requirement at all - a second, independent
-  upgrade path `tier_gating.js` never touched (it only re-authors the
+  upgrade path `tier_gating.js` never touched (it only re-authored the
   `sophisticatedstorage:iron_chest`/`gold_chest`/`diamond_chest` recipe ids
   themselves). Barrels and shulker boxes have no double-container
-  equivalent, so they aren't affected - this is chest-specific. Exactly the
-  failure mode #70's own postmortem called out ("the pack's gating pattern
-  assumes one crafting route per gated item") surfacing again in the same
-  feature, one recipe family later.
+  equivalent, so they aren't affected - this was chest-specific. Exactly
+  the failure mode #70's own postmortem called out ("the pack's gating
+  pattern assumes one crafting route per gated item") surfacing again in
+  the same feature, one recipe family later. **#127 fix**: re-authored
+  `double_iron_chest` (and the further `double_iron_chest_from_copper_chest`
+  path the jar also ships) to require an Andesite Alloy, and `double_gold_
+  chest` to require a Brass Ingot, same shape-preserving "swap one ring
+  slot for the tier material" convention as the rest of this file.
+  `double_diamond_chest` needs no edit - it chains off `gold_chest`
+  (now gated either way it's reached) - matching this file's established
+  chain-gate reasoning.
 - **Refined Storage's entire pre-Induction-Age chain** (Controller, Disk
-  Drive, Grid, Importer/Exporter, 1k-16k storage, all of it) has no
+  Drive, Grid, Importer/Exporter, 1k-16k storage, all of it) had no
   KubeJS tier-gating edit at all, on the documented assumption that its
   own Nether Quartz + diamond-tier Advanced Processor requirement would
   naturally hold it to Brass Age. That assumption predates #49: with
   ProgressiveStages' dimension-travel blocking gone (Nether open from world
   start) and diamond never itself recipe-gated (a mined, not crafted,
-  material), nothing in RS's own recipe chain requires reaching any tier at
-  all.
+  material), nothing in RS's own recipe chain required reaching any tier at
+  all. **#127 fix**: rather than patch each of the ~24 RS block recipes
+  individually, gated the one ingredient they all share -
+  `refinedstorage:machine_casing` - with a Brass Ingot (swapped in for the
+  original's plain `c:stones` filler), the same "gate the chain's first
+  crossing" pattern already used for Sophisticated Backpacks/Storage. This
+  closes Controller/Disk Drive/Grid plus the Autocrafter, storage blocks,
+  Interface, Wireless Transmitter, Relay, and the rest of the
+  machine-casing family in one edit. Flagged for owner review: this is a
+  design call about *how strict* to gate RS's early chain (one shared
+  chokepoint vs. patching Importer/Exporter/cable/disks individually,
+  which stay reachable without `machine_casing` and so remain ungated on
+  their own - inert without a Controller/Disk Drive to plug into, but
+  technically craftable pre-Brass-Age).
 - **`create:railway_casing`** (and everything built from it, including
   `create:track_station`) references the *tag* `c:ingots/brass` rather than
   the literal `create:brass_ingot` item - and AllTheOres registers its own
   `alltheores:brass_ingot` into that same common tag with a from-dust
-  recipe that needs no tier material either, so the tag resolves reachable
-  regardless of which mod's ingot a player uses. A real cross-mod bypass.
+  recipe that needs no tier material either, so the tag resolved reachable
+  regardless of which mod's ingot a player used. A real cross-mod bypass.
+  **#127 fix**: re-authored `create:brass_casing`'s two recipes
+  (`from_log`/`from_wood`) to require the literal `create:brass_ingot` item
+  instead of the `c:ingots/brass` tag - the narrowest fix available, since
+  it leaves AllTheOres' own brass sub-economy (gears/plates/rods/blocks)
+  untouched and only closes the one recipe the bypass actually mattered
+  for. Gating `alltheores:brass_ingot` itself was considered and rejected
+  as more disruptive than necessary for this bug.
 
 **Why the deliverable is live, not offline** (corrected after PM review of
 PR #106): the first version of this work was `scripts/audit_progression.py`
@@ -3292,6 +3322,14 @@ the highest-cost layer to build, and L0–L2 already cover the failure modes
 most likely to actually break a release (server-side data/recipe/loot
 regressions, client-only mod-loading crashes). Left as explicit post-release
 backlog — see TODO.md.
+
+**Superseded (2026-07-23)**: this paragraph is historical - L3
+(`scripts/tests/l3_client_join.py`) shipped in a later wave, runs on the
+owner's permanent Incus host, and is now a **required** release gate (not
+optional post-release backlog) after two releases shipped client-only
+launch crashes L0-L2 structurally cannot see (v0.5.0's missing dependency,
+v0.5.1's split-package `ResolutionException`). See HANDOFF.md's "RELEASE
+GATE" note and `scripts/tests/run_l3_incus.py`.
 
 ### The honest L2/L3 boundary
 

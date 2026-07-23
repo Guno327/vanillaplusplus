@@ -94,6 +94,23 @@ try {
 } catch (e) {
     console.error('[vpp selftest] Numismatics class failed to load: ' + e)
 }
+// javap-confirmed (dev.ithundxr.createnumismatics.content.backend.
+// GlobalBankManager, CreateNumismatics-1.0.20+neoforge-mc1.21.1.jar):
+// getAccount(UUID) is a bare accounts.get(uuid) - it returns null for a
+// player with no bank account yet (ground-truthed via a real L3 run: a
+// fresh test player throws "Cannot call method getBalance of null").
+// getAccount(Player) is the one that actually get-or-creates
+// (getOrCreateAccount(player.getUUID(), Type.PLAYER)), but calling it
+// directly from Rhino with a real ServerPlayer throws "InternalError: ...
+// is ambiguous" against the UUID overload. Calling getOrCreateAccount(UUID,
+// Type) directly sidesteps both problems: unambiguous (single overload) and
+// really get-or-create.
+let ST_BankAccountTypeClass = null
+try {
+    ST_BankAccountTypeClass = Java.loadClass('dev.ithundxr.createnumismatics.content.backend.BankAccount$Type')
+} catch (e) {
+    console.error('[vpp selftest] Numismatics BankAccount$Type failed to load: ' + e)
+}
 let ST_OpenPACServerAPIClass = null
 try {
     ST_OpenPACServerAPIClass = Java.loadClass('xaero.pac.common.server.api.OpenPACServerAPI')
@@ -208,8 +225,18 @@ stCheck('SkillsAPI: all 23 skill categories retained their full 34-node skill co
 
 stCheck('Numismatics: bank account/balance reachable for a player', (server, player) => {
     if (!ST_NumismaticsClass) return { pass: false, detail: 'Numismatics class unavailable' }
+    if (!ST_BankAccountTypeClass) return { pass: false, detail: 'Numismatics BankAccount$Type class unavailable' }
     if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
-    let account = ST_NumismaticsClass.BANK.getAccount(player)
+    // getOrCreateAccount(player.uuid, Type.PLAYER), not getAccount(player) or
+    // getAccount(player.uuid) - see ST_BankAccountTypeClass's own comment
+    // above for the full javap-verified reasoning: getAccount(Player) is
+    // ambiguous for Rhino against a real ServerPlayer, and getAccount(UUID)
+    // is a bare map lookup that returns null for a player with no account
+    // yet (both ground-truthed against real L3 runs). getOrCreateAccount is
+    // the single unambiguous overload that actually creates one. `.uuid`
+    // (a property on KubeJS's ServerPlayer wrapper), not `.getUUID()` - the
+    // latter is not callable from Rhino on this wrapper.
+    let account = ST_NumismaticsClass.BANK.getOrCreateAccount(player.uuid, ST_BankAccountTypeClass.PLAYER)
     let balance = account.getBalance()
     return { pass: typeof balance === 'number' && balance >= 0, detail: 'balance=' + balance }
 })
@@ -442,23 +469,21 @@ stCheck('progression audit (#61): refinedstorage:controller resolves to its real
     }
 })
 
-// #61 diagnostics (NOT health gates - see note): three genuinely under-gated
-// families the corrected offline audit + manual jar verification found,
-// confirmed here against the LIVE, post-KubeJS RecipeManager per PM review
-// of PR #106. Recorded in DESIGN.md's "Recipe-reachability audit" section;
-// GitHub #61 scoped this as an audit tool, not a gating fix, so these
-// checks pass=true whenever they successfully CONFIRM the live state
-// (whether that's "gap present" or "gap fixed") - they report, they don't
-// gate a known, tracked content issue someone still needs to fix with a
-// follow-up KubeJS edit. Second-round PM review (live boot.yml run) found
-// one of these was passing VACUOUSLY on a wrong hardcoded recipe id - fixed
-// by making "target recipe/ids not found at all" a hard FAIL in every one
-// of these, never a silent pass; only "found the recipe(s) and read their
-// ingredients" is allowed to report pass:true, regardless of which state it
-// reports in `detail`. If a future fix closes one of these gaps, `detail`
-// will say so - flip the assertion to require `demandsTier`/`!bypassable`
-// at that point so this stops just reporting and starts actually gating.
-stCheck('progression audit (#61) diagnostic: sophisticatedstorage double-chest upgrade path vs the Andesite/Brass Age gate', server => {
+// #61 diagnostics turned #127 regression gates: the same three genuinely
+// under-gated families the corrected offline audit + manual jar
+// verification found (confirmed live against the post-KubeJS RecipeManager
+// per PM review of PR #106) are now closed by tier_gating.js (#127) - see
+// DESIGN.md's "Recipe-reachability audit" section for the fix mechanism
+// (Sophisticated Storage: gate the double-chest upgrade recipes directly;
+// Refined Storage: gate the shared refinedstorage:machine_casing
+// chokepoint; the brass tag: re-author create:brass_casing's two recipes
+// off the literal create:brass_ingot item instead of c:ingots/brass). These
+// three checks now hard-FAIL if the gap reopens (a future mod update
+// changing a recipe id/shape, or a regression re-removing the KubeJS edit),
+// same "cannot confirm is never a silent pass" discipline as the two
+// checks above - only now `demandsTier`/`!bypassable` is the assertion,
+// not just a report.
+stCheck('progression audit (#61/#127): sophisticatedstorage double-chest upgrade path is Andesite/Brass Age gated', server => {
     let ids = ['sophisticatedstorage:double_iron_chest', 'sophisticatedstorage:double_gold_chest', 'sophisticatedstorage:double_diamond_chest']
     let tierStacks = [Item.of('create:andesite_alloy'), Item.of('create:brass_ingot')]
     let bypassed = []
@@ -475,20 +500,24 @@ stCheck('progression audit (#61) diagnostic: sophisticatedstorage double-chest u
                 if (ingredients[j].test(tierStacks[k])) demandsTier = true
             }
         }
-        if (!demandsTier) bypassed.push(ids[i])
+        // double_diamond_chest chains off gold_chest (itself now gated) and
+        // needs no tier material of its own - same chain-gate reasoning as
+        // the rest of tier_gating.js, so it's expected to report "no direct
+        // tier material" without that meaning it's bypassable.
+        if (!demandsTier && ids[i] !== 'sophisticatedstorage:double_diamond_chest') bypassed.push(ids[i])
     }
     if (checked === 0) {
         return { pass: false, detail: 'none of ' + ids.join(',') + ' resolved - cannot confirm, re-check ids (mod version drift?)' }
     }
     return {
-        pass: true,
+        pass: bypassed.length === 0,
         detail: bypassed.length > 0
-            ? ('GAP CONFIRMED LIVE (' + checked + '/' + ids.length + ' checked) - reaches iron/gold/diamond chest tier with no tier material via: ' + bypassed.join(','))
-            : ('gap appears fixed (' + checked + '/' + ids.length + ' checked) - flip this check to require demandsTier'),
+            ? ('REGRESSION - reaches chest tier with no tier material via: ' + bypassed.join(','))
+            : ('gated (' + checked + '/' + ids.length + ' checked) - #127 fix holds'),
     }
 })
 
-stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age chain vs any tier material gate', server => {
+stCheck('progression audit (#61/#127): refinedstorage pre-Induction-Age chain is Brass Age gated (via machine_casing)', server => {
     let ids = ['refinedstorage:controller', 'refinedstorage:disk_drive', 'refinedstorage:grid']
     let tierStacks = [Item.of('create:andesite_alloy'), Item.of('create:brass_ingot'), Item.of('create:refined_radiance'), Item.of('create:shadow_steel'), Item.of('minecraft:netherite_ingot')]
     let ungated = []
@@ -499,10 +528,41 @@ stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age ch
         let ingredients
         try { ingredients = opt.get().value().getIngredients().toArray() } catch (e) { continue }
         checked++
+        // #127 gates the shared refinedstorage:machine_casing chokepoint
+        // rather than patching controller/disk_drive/grid directly, so the
+        // tier material itself won't appear in THEIR ingredient lists - it
+        // appears one level down, in machine_casing's own (re-authored)
+        // recipe. Resolve that one hop rather than assuming a direct
+        // ingredient, the same "don't assume, resolve the real chain" rule
+        // #61 exists to enforce.
         let demandsTier = false
+        let usesMachineCasing = false
+        let machineCasingStack = Item.of('refinedstorage:machine_casing')
         for (let j = 0; j < ingredients.length; j++) {
             for (let k = 0; k < tierStacks.length; k++) {
                 if (ingredients[j].test(tierStacks[k])) demandsTier = true
+            }
+            if (ingredients[j].test(machineCasingStack)) usesMachineCasing = true
+        }
+        if (!demandsTier && usesMachineCasing) {
+            // #127 re-authors machine_casing under a vanillaplusplus: recipe id
+            // (event.remove of refinedstorage:machine_casing, then a new shaped
+            // recipe that still OUTPUTS refinedstorage:machine_casing), so
+            // byKey('refinedstorage:machine_casing') no longer resolves the
+            // recipe. Resolve by OUTPUT item instead - the same "resolve by
+            // output, never guess a recipe id" rule the create:brass_casing
+            // check below already relies on (and the exact failure mode #61
+            // exists to catch: this check silently read as ungated because the
+            // one-hop lookup keyed off a since-removed id).
+            let casingMatches = stFindRecipesByOutput(server, 'refinedstorage:machine_casing')
+            for (let m = 0; m < casingMatches.length; m++) {
+                let casingIngredients
+                try { casingIngredients = casingMatches[m].value().getIngredients().toArray() } catch (e) { continue }
+                for (let j = 0; j < casingIngredients.length; j++) {
+                    for (let k = 0; k < tierStacks.length; k++) {
+                        if (casingIngredients[j].test(tierStacks[k])) demandsTier = true
+                    }
+                }
             }
         }
         if (!demandsTier) ungated.push(ids[i])
@@ -511,10 +571,10 @@ stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age ch
         return { pass: false, detail: 'none of ' + ids.join(',') + ' resolved - cannot confirm, re-check ids (mod version drift?)' }
     }
     return {
-        pass: true,
+        pass: ungated.length === 0,
         detail: ungated.length > 0
-            ? ('GAP CONFIRMED LIVE (' + checked + '/' + ids.length + ' checked) - no recipe tier material anywhere in: ' + ungated.join(','))
-            : ('gap appears fixed (' + checked + '/' + ids.length + ' checked) - flip this check to require demandsTier for all'),
+            ? ('REGRESSION - no tier material anywhere in (direct or via machine_casing): ' + ungated.join(','))
+            : ('gated (' + checked + '/' + ids.length + ' checked, via refinedstorage:machine_casing) - #127 fix holds'),
     }
 })
 
@@ -529,7 +589,7 @@ stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age ch
 // (`create:brass_casing`, which both of Create's two alternate recipes for
 // it - from_log and from_wood - produce) instead of guessing an id, and
 // hard FAIL if no matching recipe is found rather than silently passing.
-stCheck('progression audit (#61) diagnostic: alltheores:brass_ingot cross-mod bypass of the create:brass_ingot gate via c:ingots/brass', server => {
+stCheck('progression audit (#61/#127): create:brass_casing no longer accepts alltheores:brass_ingot via c:ingots/brass', server => {
     let matches = stFindRecipesByOutput(server, 'create:brass_casing')
     if (matches.length === 0) {
         return { pass: false, detail: 'no recipe found with output create:brass_casing - cannot confirm, re-check upstream (Create version drift?)' }
@@ -557,10 +617,10 @@ stCheck('progression audit (#61) diagnostic: alltheores:brass_ingot cross-mod by
         return { pass: false, detail: 'found ' + introspected + ' recipe(s) for create:brass_casing but none accept create:brass_ingot or alltheores:brass_ingot - cannot confirm, ingredient shape may have changed' }
     }
     return {
-        pass: true,
+        pass: bypassRecipeIds.length === 0,
         detail: bypassRecipeIds.length > 0
-            ? ('GAP CONFIRMED LIVE - c:ingots/brass accepts alltheores:brass_ingot (unrelated mod, no tier gate of its own) via: ' + bypassRecipeIds.join(','))
-            : 'gap appears fixed - create:brass_casing no longer accepts alltheores:brass_ingot',
+            ? ('REGRESSION - c:ingots/brass accepts alltheores:brass_ingot (unrelated mod, no tier gate of its own) via: ' + bypassRecipeIds.join(','))
+            : ('gated (' + introspected + ' recipe(s) checked, all require the literal create:brass_ingot) - #127 fix holds'),
     }
 })
 
@@ -1218,61 +1278,83 @@ ServerEvents.commandRegistry(event => {
 // scripts/tests/l3_client_join.py for the two routes already tried and
 // ruled out (console `execute as <player> run ...` silently no-ops under
 // KubeJS's own registered command; hmc-specifics 2.4.0 exposes no client
-// chat verb to type the command). This hook is the route #65 itself
-// proposed instead: run the exact same ST_CHECKS loop the moment a real
-// ServerPlayer is granted a sentinel, test-only stage, so an L3 harness can
-// exercise the player-gated checks by granting that stage post-join - the
-// same mechanism (`kubejs stages add <player> <stage>`) L3 already uses for
-// its own tier-stage probe, and the same PlayerEvents.stageAdded binding
-// mobility.js already relies on elsewhere in this pack.
+// chat verb to type the command).
 //
-// Ground truth (javap against kubejs-neoforge-2101.7.2-build.368.jar,
-// dev/latvian/mods/kubejs/stages/Stages.class): the interface's default
-// add(String) method - which is what both `player.stages.add(...)` and the
-// `kubejs stages add` console command call - posts PlayerEvents.STAGE_ADDED
-// with a `new StageChangedEvent(getPlayer(), this, stage)` BEFORE returning,
-// for any Stages implementation (TagWrapperStages here, since
-// ProgressiveStages itself is gone per #49 - see this file's sibling
-// progression_stage_bridge.js). getPlayer() is whatever real
-// net.minecraft.world.entity.player.Player the Stages instance was created
-// against, i.e. the actual joined player, not a console/command-block
-// source - exactly what every player-gated check above needs and what
-// stRunSelftestChecks() takes as its `player` argument.
+// #65's original route (this comment's prior revision) granted a sentinel,
+// test-only stage (`vpp_test_selftest_hook`) and ran these checks from a
+// PlayerEvents.stageAdded(...) hook, on the theory that Stages.add()'s
+// default add(String) method posts PlayerEvents.STAGE_ADDED with the real
+// joined ServerPlayer before returning (javap-confirmed against
+// kubejs-neoforge-2101.7.2-build.368.jar's Stages.class). That part was
+// right, but two engineers proved the exception this whole mechanism was
+// built to route around - `kubejs stages add <player> <stage>` throwing
+// server-side ("An unexpected error occurred trying to execute that
+// command") against a real connected client - is INSIDE KubeJS's own
+// Stages.add(), specifically its AddStagePayload broadcast to that client,
+// and fires BEFORE this file's stageAdded hook (or its try/catch) ever
+// runs. The paired `stages remove` and a real tier-stage grant
+// (andesite_age) both work fine against the same client; only the sentinel
+// stage-ADD path throws, and only with a client attached. There is no
+// stage-side fix available from Rhino script code for a throw inside
+// KubeJS's own native broadcast, so #65 now runs these checks from a plain
+// server COMMAND instead - no stage grant, no AddStagePayload broadcast, no
+// exception.
 //
-// Guarded from ever firing in normal play by construction, not by an env
-// var/system property this test-only Rhino code would have to read:
-// ST_TEST_HOOK_STAGE is not one of ST_TIER_IDS, not one of
-// progression_stage_bridge.js's PSB_*_TIER_IDS/PSB_*_TRIGGERS stage ids, and
-// is granted nowhere else in this codebase - the only other place this
-// exact string appears is scripts/tests/l3_client_join.py, the L3 harness
-// that deliberately grants it post-join. A player who is never handed this
-// specific id by that harness never triggers this listener at all, the same
-// safety argument mobility.js's own STAGE-keyed stageAdded/stageRemoved
-// handlers already rely on for a real (non-test) stage.
+// `/vpp_selftest_player` takes no Brigadier ArgumentType (this pack has
+// never proven Commands.argument(...)/Arguments.* interop - see
+// skill_respec.js's own comment on that decision) - it runs the existing
+// player-gated checks against every currently connected ServerPlayer
+// instead, via `server.players`, the same for-of target already proven
+// elsewhere in this pack (mob_scaling.js/leaderboard.js/quests.js/
+// progression_stage_bridge.js). In L3's single-client harness that is
+// exactly the one joined player STAGE_PROBE and everything else in this
+// script already exercises.
 //
-// Reports to the SERVER LOG (console.info), not chat: there is no ctx.source
-// here (this fires from a stage-grant event, not a command invocation), and
-// the server log is exactly what L3 already greps for its other post-grant
-// confirmations (see send_server_command()/read(SERVER_LOG) in
-// l3_client_join.py). VPP_SELFTEST_HOOK_LINE: prefixes each per-check line
-// and VPP_SELFTEST_HOOK: prefixes the summary so both are unambiguous to
-// grep for and can never collide with the command path's own
-// VPP_SELFTEST:/`[TAG] name - detail` chat output.
-const ST_TEST_HOOK_STAGE = 'vpp_test_selftest_hook'
-
-PlayerEvents.stageAdded(ST_TEST_HOOK_STAGE, event => {
-    try {
-        let player = event.player
-        let server = player.level.server
-        let run = stRunSelftestChecks(server, player)
-        for (let i = 0; i < run.results.length; i++) {
-            let r = run.results[i]
-            console.info(`VPP_SELFTEST_HOOK_LINE: [${r.tag}] ${r.name} - ${r.detail}`)
+// Reports to the SERVER LOG (console.info) with the same
+// VPP_SELFTEST_HOOK_LINE:/VPP_SELFTEST_HOOK: prefixes L3
+// (scripts/tests/l3_client_join.py) already greps for, unchanged from the
+// prior stage-hook mechanism, so both are unambiguous to grep for and can
+// never collide with the command path's own VPP_SELFTEST:/`[TAG] name -
+// detail` chat output.
+function stRunSelftestPlayerHook(server) {
+    let anyPlayers = false
+    for (const player of server.players) {
+        anyPlayers = true
+        try {
+            let run = stRunSelftestChecks(server, player)
+            for (let i = 0; i < run.results.length; i++) {
+                let r = run.results[i]
+                console.info(`VPP_SELFTEST_HOOK_LINE: [${r.tag}] ${r.name} - ${r.detail}`)
+            }
+            let executed = run.passed + run.failed
+            let status = run.failed === 0 ? 'PASS' : 'FAIL'
+            console.info(`VPP_SELFTEST_HOOK: ${status} (${run.passed}/${executed}, ${run.skipped} skipped)`)
+        } catch (e) {
+            console.error('[vpp selftest player-hook] top-level EXCEPTION for ' + player.username + ': ' + e + (e && e.stack ? ('\n' + e.stack) : ''))
         }
-        let executed = run.passed + run.failed
-        let status = run.failed === 0 ? 'PASS' : 'FAIL'
-        console.info(`VPP_SELFTEST_HOOK: ${status} (${run.passed}/${executed}, ${run.skipped} skipped)`)
-    } catch (e) {
-        console.error('[vpp selftest test-hook] top-level EXCEPTION: ' + e + (e && e.stack ? ('\n' + e.stack) : ''))
     }
+    return anyPlayers
+}
+
+ServerEvents.commandRegistry(event => {
+    let { commands: Commands } = event
+
+    event.register(
+        Commands.literal('vpp_selftest_player').executes(ctx => {
+            try {
+                let server = ctx.source.server
+                let any = stRunSelftestPlayerHook(server)
+                if (!any) {
+                    ctx.source.sendSystemMessage(ST_ComponentClass.literal('VPP_SELFTEST_HOOK: no connected players to run player-gated checks against'))
+                    return 0
+                }
+                ctx.source.sendSystemMessage(ST_ComponentClass.literal('VPP_SELFTEST_HOOK: ran player-gated checks against all connected players - see server log'))
+                return 1
+            } catch (e) {
+                console.error('[vpp selftest player-hook] top-level EXCEPTION: ' + e + (e && e.stack ? ('\n' + e.stack) : ''))
+                ctx.source.sendSystemMessage(ST_ComponentClass.literal('VPP_SELFTEST_HOOK: FAIL (top-level exception, see server log: ' + e + ')'))
+                return 0
+            }
+        })
+    )
 })

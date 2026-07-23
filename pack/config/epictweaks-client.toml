@@ -2,7 +2,25 @@
 #Forces vanilla rendering in first person view while not
 #holding a 'combat preferred' item (for non-combat motions).
 #Default: true
-filter_animation_first_person = true
+#
+#client-test-harness hardening (2026-07-23): flipped to false alongside
+#autoswitch_mode below - same NoSuchFieldError crash (see autoswitch_mode's own
+#comment for the full mechanism), a THIRD independent site. javap decompilation
+#of RenderEngineMixin#inject__epicfight$renderHand (woven into Epic Fight's
+#RenderEngine.renderHand, a NeoForge RenderHandEvent listener that fires on
+#every rendered frame, not gated by any tick/mode-switch trigger) shows it
+#checks getFilterAnimationFirstPerson() (this flag) - together with
+#isEpicFightMode(), also true-gated - before reaching the same missing
+#ClientConfig.combatPreferredItems field. grep of the installed jar confirms
+#exactly three classes reference that field at all (LocalPlayerPatchMixin,
+#PlayerPatchMixin, RenderEngineMixin); the other two are already closed by
+#autoswitch_mode=false and enforce_mode=false (the latter pre-existing, #84) -
+#this is the last one. With all three flags false, epic-tweaks' mode-switching
+#feature set is effectively a no-op (the player can still toggle Epic Fight/
+#Vanilla Mode manually via its own keybind), which is the correct tradeoff
+#until epic-tweaks ships a build compatible with a post-2025-09 Epic Fight
+#(Modrinth has no newer 1.21.1/neoforge build as of this pack's current pin).
+filter_animation_first_person = false
 #If enabled the player cannot manually switch to vanilla mode while holding a
 #'combat preferred' item or to combat mode while not holding a 'combat preferred' item.
 #This option has no effect if the 'canSwitchPlayerMode' gamerule is disabled.
@@ -44,4 +62,33 @@ enforce_mode = false
 #a 'combat preferred' item and back to vanilla mode when switching to any other item.
 #This option has no effect if the 'canSwitchPlayerMode' gamerule is disabled.
 #Default: true
-autoswitch_mode = true
+#
+#client-test-harness hardening (2026-07-23): flipped to false - this is a HARD
+#CRASH, not a QoL tradeoff. javap decompilation of the installed epic-tweaks
+#1.2.0 jar's LocalPlayerPatchMixin#updateHeldItem (woven into Epic Fight's own
+#LocalPlayerPatch, runs on every entity tick via
+#VanillaEntityEventHooks.preTick) shows it reads
+#getAutoSwitchMode() first and returns immediately if false (bytecode offset
+#0-6: ifeq -> return) - but when true, the very next thing it does is
+#`getstatic yesman/epicfight/config/ClientConfig.combatPreferredItems` - a
+#field that does NOT EXIST on the currently-pinned epic-fight-21.17.3.1's
+#ClientConfig (confirmed via javap field listing: it has been renamed/
+#restructured to COMBAT_CATEGORIZED_ITEMS at some point between epic-tweaks
+#1.2.0's release, 2025-09-09, and Epic Fight's current pin, 2026-05-31 - epic-
+#tweaks has had no update since to follow that rename, and Modrinth lists no
+#newer neoforge-1.21.1 build to bump to). The result is a
+#java.lang.NoSuchFieldError thrown on EVERY entity tick that reaches this
+#method (any tick with a local player present) - L3's real client-join tier
+#caught this directly: it manifested as the client crashing outright roughly
+#30s after every join (a net.minecraft.ReportedException "Ticking entity"),
+#which LOOKED identical to the historical #49 Sable ~29s symptom in server-
+#side logs (the abrupt TCP "Connection reset by peer" as the JVM died) but is
+#a completely unrelated bug, ground-truthed by finding the exact same
+#NoSuchFieldError already present in every prior L3 client-log capture this
+#session, including ones taken before any Sable config was touched. Setting
+#autoswitch_mode=false skips the crashing branch entirely (confirmed the only
+#call site reading combatPreferredItems is behind this exact check) at the
+#cost of the auto-switch-on-equip convenience #89 relied on - the player can
+#still enter/exit Epic Fight Mode manually via the "Switch Mode" keybind
+#(enforce_mode is already false per #84, so nothing blocks that toggle).
+autoswitch_mode = false

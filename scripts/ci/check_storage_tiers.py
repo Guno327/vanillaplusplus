@@ -62,6 +62,19 @@ RECIPE_SERIALIZER_TYPES = {
     "double_chest_tier_upgrade_shapeless",
     "barrel_material",
 }
+# #127: the "double chest" upgrade recipes tier_gating.js re-authors are
+# recipe IDS the mod ships under its own namespace (data/sophisticatedstorage/
+# recipe/double_iron_chest.json etc) - real, but naming a RECIPE, not a
+# registered item/block, so (same reasoning as RECIPE_SERIALIZER_TYPES above)
+# they'd never appear in a snapshot built from blockstates/models directories
+# even though tier_gating.js's event.remove({id: ...})/event.custom() calls
+# genuinely reference them. Confirmed against the pinned jar's own recipe
+# jsons, not guessed.
+RECIPE_ONLY_IDS = {
+    "double_iron_chest",
+    "double_iron_chest_from_copper_chest",
+    "double_gold_chest",
+}
 # Template-literal ids built at runtime from `${type}` interpolation in
 # tier_gating.js (SOPH_STORAGE_TYPES.forEach(...)) - not visible to the
 # regex above as literal text, so their expansions are added explicitly.
@@ -276,7 +289,7 @@ def check_tier_gating_js(root, snapshot, stage_display_names, errors):
                 continue
             seen.add(m.group(1))
         for bare in sorted(seen):
-            if bare in RECIPE_SERIALIZER_TYPES:
+            if bare in RECIPE_SERIALIZER_TYPES or bare in RECIPE_ONLY_IDS:
                 continue
             if bare not in known_all:
                 errors.append(
