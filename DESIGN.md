@@ -1102,6 +1102,43 @@ strictly above the craftable ceiling) is verifiable statically via boot
 tests and decompiled source, but "equally effective in real combat"
 fundamentally needs a live client to confirm.
 
+**GitHub issue #84 fix — Silent Gear's own generic weapon items had no Epic
+Fight capability at all.** Part 3 above only covers the 5 Epic Fight custom
+weapon types re-tiered as new `vanillaplusplus:` items. It did not cover
+Silent Gear's *own* weapon gear types (`silentgear:sword`, `dagger`,
+`knife`, `katana`, `machete`, `spear`, `mace`, `trident`, `bow`,
+`crossbow` — confirmed exhaustively via `GearTypes.class` decompilation:
+its `melee_weapon`/`ranged_weapon`/`hybrid_weapon` categories), which stay
+single generic items (material comes from NBT, not the item id) and are
+legitimately craftable in this pack either via Blacksmithing's redirected
+vanilla-tier sword/bow/crossbow recipes (`pack/kubejs/server_scripts/
+blacksmithing.js`) or Silent Gear's own native blueprint system for the
+rest. Epic Fight resolves weapon capabilities per item id (with a
+regex-based `item_keyword` fallback requiring a `<tier>_<type>` naming
+shape, e.g. `.*_sword`) — since Silent Gear's items are just `sword`,
+`katana`, etc. with no tier prefix, neither an explicit capability file nor
+the regex fallback ever matched, so every Silent Gear weapon fell back to
+no capability at all (fist/punch animation, no two-handed stance) exactly
+as reported. Fixed by adding one capability file per item directly under
+`data/silentgear/capabilities/weapons/` (namespace must match the *folder*,
+same lesson as Part 3's `epicfight` vs `vanillaplusplus` bug above) mapping
+each to the closest Epic Fight type: `sword`/`machete` → `epicfight:sword`,
+`dagger`/`knife` → `epicfight:dagger`, `katana` → `epicfight:uchigatana`,
+`spear` → `epicfight:spear` (its native one_hand/two_hand toggle, this is
+what actually fixes the "two-handed status" complaint), `mace` →
+`epicfight:axe` (matching vanilla's own `mace.json` → `epicfight:axe`
+mapping, decompiled from the epic-fight jar), `trident` →
+`epicfight:trident`, `bow`/`crossbow` → `epicfight:bow`/`epicfight:crossbow`
+(exact copies of vanilla's own capability values, since Silent Gear's own
+material stats already handle the tier scaling that vanilla bakes into the
+item id). `silentgear:slingshot` has no Epic Fight analog and is left
+uncovered (disclosed gap, not a regression — it never worked before
+either). **Disclosed limitation**: same as Part 3, this is statically
+verified (item ids cross-checked against the installed jar's own recipe
+outputs, capability JSON schema matched field-for-field against Epic
+Fight's shipped vanilla/native captures) but real animation/combat-feel
+correctness needs a live client — see Verification.
+
 ### Utility overhaul: tool tier-gating fix, Paxel, gear traits, building wand, backpacks (post-gear-overhaul)
 
 A follow-up to the combat/gearing overhaul above, applying the same rigor
