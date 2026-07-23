@@ -143,7 +143,22 @@ def resolve(mods):
 
 def _load_jar_bytes(mod, mods_dir, offline):
     """Read the mod jar from the local cache; download+cache it if missing
-    (unless offline)."""
+    (unless offline).
+
+    GitHub #143 (mirrors #124 on dev): a "source": "local" mod (this pack's own
+    hand-rolled mods-src/<modid>/ jars) has no fetchable "url" at all - its "url"
+    is the repo-relative "local_path" string instead, exactly the convention
+    build_server.py and build_mrpack.py already special-case. Read it directly
+    off disk rather than attempting a download (its "url" is not an HTTP(S) URL,
+    so urlopen would raise "unknown url type")."""
+    if mod.get("local_path"):
+        src = REPO_ROOT / mod["local_path"]
+        if not src.is_file():
+            raise FileNotFoundError(
+                f"{mod['slug']}: local_path {mod['local_path']!r} not found - "
+                f"build it first (cd {Path(mod['local_path']).parents[2]} && ./gradlew build)"
+            )
+        return src.read_bytes()
     dest = mods_dir / mod["filename"]
     if dest.is_file():
         return dest.read_bytes()
