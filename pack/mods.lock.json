@@ -262,10 +262,10 @@
       "url": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "local_path": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "hashes": {
-        "sha1": "8d11156a6e0179629c54c4ef43547297cf7bc2c3",
-        "sha512": "c77914bdc312121380455e4ca490539d6cd1679af8796b760b9238667801c733265429fde30fa363cfb3d9d6553e719ba7579aafe2e2b83c0cfe4ee575d7e3e5"
+        "sha1": "fad7ef1c38570ff8978e0a8458f858f1ce29cd23",
+        "sha512": "7e1b87311e5f029baa5e6ac45226ad05fd9ea8d6acae60802bf2d51be3d7c479fc2a991573a7b0401103a33180ba6178ec82db9a0717f49df339e792bfc3d818"
       },
-      "filesize": 13306,
+      "filesize": 19371,
       "side": "both",
       "phase": 7,
       "note": "GitHub #67: hand-rolled Overgeared x Silent Gear quality bridge (mods-src/vppintegration/, see its README.md). Requires both silent-gear and overgeared above at their pinned versions. Ships 6 example forging recipes (copper/iron sword/pickaxe/axe heads) as a first working slice; full material-tier coverage (steel, ATM chain, cold-forging for gemstones) is a follow-up, see mods-src/vppintegration/README.md's 'Extending to the pack's full material ladder'."
@@ -343,8 +343,8 @@
       "url": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "local_path": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "hashes": {
-        "sha1": "27f0f3ca50bb00a5278399de60c311e0f0ecf473",
-        "sha512": "b951cc26fbf23beb5512921e49f018ac6ac067ba4b546f115efe52f735285a5e33c3c70c6f6056f5f1f84bfe7d47088f006b87a563c9256bb8306936083d4f85"
+        "sha1": "bb51e20086182011400ca75300e4e27f497da680",
+        "sha512": "02521a04109f4a2410ee441cb0367292f4a2840c9b7383d119db2c44353dc1b9020cab20de4745b933ed055f6ac7885c2f3593fb2407c2cd7342c9405427456b"
       },
       "filesize": 6449,
       "side": "both",
@@ -1864,10 +1864,10 @@
       "url": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
       "local_path": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
       "hashes": {
-        "sha1": "31ec0c241335be9563b8acec711d251628f51777",
-        "sha512": "218f0eb7ed0e5105a98f5e73d4b37be6c410d2dbddddbe4e9381ea1ccbc5e2699a56a549929baa138d29173829b4d0c36799979d02d7652575156f5c652f7634"
+        "sha1": "5dda08770a94bbdf736e338e6d43c1763da6badc",
+        "sha512": "270b019e43c2a38208befb20a9636b35399dd90845fd23346ad4bc55061db0440290e440c3b844831ff0d6e202575fbc7a3f8a7572649f5d6aa09988d49202cc"
       },
-      "filesize": 57667,
+      "filesize": 54281,
       "side": "both",
       "phase": 26,
       "note": "GitHub #109 Phase C (cutover): wires the hand-rolled vppquests custom questing mod (mods-src/vppquests/, see its README.md and DESIGN.md's '#109' sections) into the pack so it actually loads, following the mods-src/<modid>/ convention #67 established (vppintegration is the other worked example). Both sides required - QuestScreen's GUI and keybind are client-rendered, but QuestRegistry/QuestReloadListener/QuestProgressAttachment/QuestProgressTracker/QuestLegacyMigration are server-authoritative. Ships Phase A (scaffold: data model, data attachment, networking, first-pass list-view GUI) + Phase B (QuestLegacyMigration: one-time identity-mapping carry-forward of a player's already-complete quests out of quests.js's legacy save file) + the deferred half of Phase A (scripts/gen_vppquests_data.py ports the real 62-quest/10-chapter book into pack/kubejs/data/vanillaplusplus/vppquests/{chapter,quest}/**, replacing the 3 placeholder example quests the scaffold originally shipped). DELIBERATE INTERIM STATE (not yet a full cutover - see DESIGN.md's Phase C description, which gates removing the legacy system on Phase B's migration being 'confirmed correct in practice'; no live server has boot-verified that yet in this sandbox): pack/kubejs/server_scripts/quests.js/achievements.js/dailies.js and the advancement-generation code are all left installed and running exactly as before - both quest UIs (this mod's QuestScreen and the old vanilla-advancement GUI) are simultaneously present until an in-game pass confirms the migration is correct, at which point removing the legacy system is the actual Phase C completion. No dependency requirements of its own (a standalone, Modrinth-publishable mod per its own README - zero required deps in its neoforge.mods.toml)."

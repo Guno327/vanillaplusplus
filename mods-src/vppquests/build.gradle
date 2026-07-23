@@ -95,3 +95,11 @@ publishing {
         }
     }
 }
+
+// #145: make the mod jar byte-reproducible so its lockfile-pinned hash is
+// stable across independent Gradle builds (was nondeterministic: timestamps +
+// file ordering differed every build, breaking mods.lock.json sha verification).
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
