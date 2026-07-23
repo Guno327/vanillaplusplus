@@ -13,16 +13,16 @@ from pathlib import Path
 CI_DIR = Path(__file__).resolve().parent
 REPO_ROOT = CI_DIR.parent.parent
 
-# Order matters only for readability; check_quests.py is listed after
-# validate_snbt.py since it depends on the same SNBT parser being sane.
+# check_quests.py/check_advancements.py (the legacy KubeJS quest tracker +
+# its vanilla-advancement GUI layer, GitHub #33/#36/#66) were REMOVED as
+# part of #109's cutover - quests.js was reported broken end to end and
+# vppquests (check_vppquests.py) replaces it entirely, not alongside it.
 CHECKS = [
     "validate_json.py",
     "validate_snbt.py",
     "check_lockfile.py",
     "lint_rhino.py",
-    "check_quests.py",
     "check_vppquests.py",
-    "check_advancements.py",
     "check_skill_trees.py",
     "check_skill_expressions.py",
     "check_selftest_skill_sync.py",
