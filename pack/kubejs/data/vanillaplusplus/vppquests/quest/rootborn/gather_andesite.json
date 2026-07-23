@@ -1,0 +1,34 @@
+{
+  "chapter": "vanillaplusplus:rootborn",
+  "title": "Into Create's Material Chain",
+  "description": [
+    "Craft or pick up Andesite Alloy - Create's own entry material, and the trigger for Andesite Age."
+  ],
+  "icon": "create:andesite_alloy",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:rootborn/stone_age",
+    "vanillaplusplus:rootborn/first_hunt"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "create:andesite_alloy",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 2
+    },
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 20
+    }
+  ]
+}

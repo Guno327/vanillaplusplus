@@ -1,0 +1,36 @@
+{
+  "chapter": "vanillaplusplus:induction_age",
+  "title": "Conquer the End",
+  "description": [
+    "Kill the Ender Dragon. The overworld, Nether, and End are done - this is the real trigger for Starforged Age."
+  ],
+  "icon": "minecraft:dragon_head",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:induction_age/autocrafting",
+    "vanillaplusplus:induction_age/storage_ceiling",
+    "vanillaplusplus:induction_age/jetpack_ceiling",
+    "vanillaplusplus:induction_age/teleport",
+    "vanillaplusplus:induction_age/steam_flight",
+    "vanillaplusplus:induction_age/gear_ceiling"
+  ],
+  "tasks": [
+    {
+      "type": "kill",
+      "entity": "minecraft:ender_dragon",
+      "count": 1
+    }
+  ],
+  "rewards": [
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 4
+    },
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 600
+    }
+  ]
+}

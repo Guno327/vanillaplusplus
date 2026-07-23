@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:precision_age",
+  "title": "Wings",
+  "description": [
+    "Find an Elytra in an End City - it's not craftable, just gated behind reaching this tier and finding one."
+  ],
+  "icon": "minecraft:elytra",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:precision_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "minecraft:elytra",
+      "count": 1,
+      "consume": false,
+      "onlyFromCrafting": false
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 90
+    },
+    {
+      "type": "item",
+      "item": "numismatics:sprocket",
+      "count": 1
+    }
+  ]
+}

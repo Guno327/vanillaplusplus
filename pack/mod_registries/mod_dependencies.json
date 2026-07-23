@@ -2021,6 +2021,24 @@
       ],
       "version_number": "1.0.0"
     },
+    "vppquests": {
+      "provided": [
+        "vppquests"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        }
+      ],
+      "version_number": "0.1.0"
+    },
     "waystones": {
       "provided": [
         "waystones"
@@ -2336,5 +2354,5 @@
       "version_number": "1.21.1-NeoForge-4.1.1"
     }
   },
-  "source_lockfile_mod_count": 114
+  "source_lockfile_mod_count": 115
 }

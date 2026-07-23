@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:precision_age",
+  "title": "The Netherite Knife",
+  "description": [
+    "Craft a Farmer's Delight netherite knife (a smithing upgrade from the diamond knife) - the ceiling of this pack's food-diet knife line, keeping your bonus-hearts diet variety topped up through Precision Age's grind."
+  ],
+  "icon": "farmersdelight:netherite_knife",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:precision_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "farmersdelight:netherite_knife",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 90
+    },
+    {
+      "type": "item",
+      "item": "numismatics:sprocket",
+      "count": 1
+    }
+  ]
+}

@@ -4227,89 +4227,107 @@ D, E can land any time after A.
    approve the phasing/scope above explicitly (not just the general idea)
    before Phase A implementation starts.
 
-### GitHub issue #109 — custom questing mod: Phase A status (scaffold shipped)
+### GitHub issue #109 — custom questing mod: cutover complete (vppquests is now the sole quest system)
+
+**Final status, superseding the Phase A/B/C status notes this section used
+to carry individually** (kept as one consolidated note rather than three,
+since the earlier Phase B migration work described below was itself
+removed as part of this cutover - a Phase B "status" section describing
+now-deleted code would be misleading kept separate).
 
 The full architecture proposal (data model, GUI, party-sharing seam,
-migration plan, questline-rebuild methodology, phasing A-E, and the
-owner's open questions) is written up in the "design proposal" section
-immediately above (originally PR #111, folded into this same PR once
-#111 was closed as subsumed — see that issue for the history). This
-note only records what Phase A (mod scaffold + data model + GUI foundation) actually shipped, per
-the issue's own phasing: **A blocks B blocks C blocks D**, and only Phase A
-is in scope until the owner signs off on the rest.
+questline-rebuild methodology, and the owner's original open questions) is
+still written up in the "design proposal" section above (originally PR
+#111) - treat its migration-plan and phasing (A-E) subsections as
+historical: the owner short-circuited that phasing once real-world use
+surfaced a different priority (see below).
 
-`mods-src/vppquests/` now exists as a compiling, standalone NeoForge 1.21.1
-mod (own `build.gradle`/`gradlew`, same `mods-src/<modid>/` convention #67
-established, verified with `./gradlew build` against the real NeoForge
-21.1.235 API — no guessed signatures left in): the quest/chapter/task/
-reward data model (5 task types, 5 reward types, plus the new
-`criticalPath` flag, mirroring `quests.js`'s existing schema so a future
-migration is a straight port); a `SimplePreparableReloadListener`-based
-registry that parses `data/<namespace>/vppquests/quest/**` and
-`.../chapter/*.json` on datapack load/`/reload`; a `QuestProgressAttachment`
-data attachment (NeoForge's capability replacement) with a tick-driven
-tracker that evaluates item/kill/dimension/checkmark tasks and grants
-item/xp/command/toast rewards (disclosed simplifications: "does the player
-currently hold/satisfy X," not event-based tracking, matching this pack's
-existing item-task precedent; `gamestage` tasks/rewards are intentionally
-unwired since this mod is meant to stay standalone/pack-agnostic per its
-own README, not because the field is unsupported); definitions/progress
-client sync over two `CustomPacketPayload`s; and a first-pass GUI
-(`QuestScreen`, opened via a keybind) — a list-per-chapter view with a
-detail panel showing description + live task progress, per this issue's
-own risk-mitigation recommendation to ship that before attempting a
-pannable dependency-graph canvas.
+**What actually shipped, across three PRs:**
+1. **Scaffold** (#123): `mods-src/vppquests/` as a compiling, standalone
+   NeoForge 1.21.1 mod - the quest/chapter/task/reward data model, a
+   `SimplePreparableReloadListener`-based registry, a
+   `QuestProgressAttachment` data attachment with a tick-driven tracker,
+   client sync payloads, and a first-pass list-view GUI (`QuestScreen`,
+   opened via a keybind).
+2. **Wiring + content port** (#144): `pack/manifest.json` gained a
+   `vppquests` entry (`source: "local"`, phase 26, `side: "both"`) so the
+   mod actually loads, and `scripts/gen_vppquests_data.py` ported the
+   existing 62-quest/10-chapter book (content only, not the delivery
+   mechanism) into `vppquests`' own JSON schema. At this point both the old
+   KubeJS quest tracker and the new mod ran side by side, with a
+   `QuestLegacyMigration` step carrying old completed-quest ids forward on
+   login - the standard "old system stays installed as a safety net" caution
+   this file's phase-plan/release-engineering sections apply to every
+   cutover.
+3. **Full cutover** (this section): the owner reported in 0.5.2 that the
+   old system (`quests.js`, GitHub #33 + its #36/#66 vanilla-advancement
+   GUI bolt-on) was **broken end to end** - progress wasn't being
+   recognized at all, for anyone. That changes the calculus entirely: there
+   was no working system left to preserve a safety net for, and no correct
+   progress left worth migrating. The owner directed, verbatim: drop quest
+   porting/migration, implement the complete custom quest system, don't
+   worry about keeping or porting the existing (broken) quests. A separate,
+   standing protocol change landed alongside this: in-game verification is
+   no longer a pre-merge gate for any feature before 1.0.0 - "we can move
+   forward without an in-game test of this system - it will be tested once
+   a release is minted," so this cutover was not held back waiting for a
+   live-server pass the way the wiring PR's own open question had asked
+   about.
 
-**Explicitly NOT done in Phase A** (per the task's own scope boundary, not
-an oversight): no wiring into `pack/manifest.json`, no port of the
-existing 62 quests' *content* into `vppquests`' own JSON schema (three tiny
-example quests ship instead, as parser/registry fixtures — the phasing's
-"verbatim content port" sub-step of Phase A remains open, tracked
-separately from progress migration below), no changes to
-`quests.js`/`achievements.js`/`dailies.js`/the advancement-based GUI layer,
-no real pannable DAG-canvas rendering (nodes+edges) — the list view is the
-deliberate stand-in — and no party/team progress-sharing seam (the
-attachment is per-player only; a `getPartyKey(player)` re-key is flagged in
-the attachment's own class doc as the same one-function change GitHub #32
-already proved out for `quests.js`).
+   **Removed** (not deprecated-in-place): `pack/kubejs/server_scripts/
+   quests.js`, `scripts/gen_quests.py` (the KubeJS-tracker + vanilla-
+   advancement generator), the 62 generated advancement JSON files under
+   `pack/kubejs/data/vanillaplusplus/advancement/quests/`, their two CI
+   checks (`check_quests.py`/`check_advancements.py`, dropped from
+   `run_all.py`'s `CHECKS` list along with their unit test files), the
+   quest-specific block of `stCheck`s in `selftest.js` (the ones exercising
+   `quests.js`'s own globals - `progression_stage_bridge`'s unrelated
+   checks right above that block were untouched), and
+   `QuestLegacyMigration.java` plus the `legacyMigrated` Codec field it
+   needed on `QuestProgressAttachment` - there is no more legacy system to
+   migrate from, so carrying that dead code forward would have been exactly
+   the kind of "migrate a broken thing's state" work the owner said to
+   skip.
 
-### GitHub issue #109 — custom questing mod: Phase B status (identity-mapping migration shipped)
+   **Kept**: the 62-quest/10-chapter *content* (which wasn't what was
+   broken) - `scripts/gen_vppquests_data.py` is now fully self-contained
+   (the task/reward builder functions and `CHAPTER_DEFS`/`build_*` chapter
+   data were copied in from the last version of the now-deleted
+   `gen_quests.py`, verbatim, not re-transcribed) rather than importing
+   from a module that no longer exists. Regenerating produced byte-identical
+   output to what was already committed, confirming no content drift from
+   the copy. A new fast-tier check, `scripts/ci/check_vppquests.py`,
+   replaces `check_quests.py`/`check_advancements.py`'s role, validating
+   this same content in its new home.
 
-Phase B (identity-mapping *progress* migration — distinct from the
-still-open quest-*content* port noted above) is also implemented in this
-PR: `quest/QuestLegacyMigration.java` reads `quests.js`'s legacy save file
-directly on a player's first login — ground-truthed via jar inspection of
-the pinned `kubejs-neoforge-2101.7.2-build.368.jar` rather than guessed:
-KubeJS mixes `persistentData` onto `MinecraftServer`
-(`MinecraftServerMixin`) and its `KubeJSServerEventHandler` round-trips it
-to a single compressed-NBT file, `LevelResource("kubejs_persistent_data.nbt")`
-— resolved via `MinecraftServer#getWorldPath`, the same way any other
-root-level save file (e.g. `level.dat`) resolves — so no KubeJS dependency
-is needed in this standalone mod to read it, it's plain vanilla NBT.
-`quests.js`'s own `vpp_quests_progress` compound is parsed and every
-already-complete quest id is marked complete in the new
-`QuestProgressAttachment` (a strict identity mapping — same ids, no
-reinterpretation, matching the design's own Phase B description). A new
-`legacyMigrated` boolean on the attachment's Codec makes this idempotent
-across relogs/restarts. Marking a quest complete *before*
-`QuestProgressTracker` ever evaluates it means rewards are never
-double-granted for free (the tracker already skips already-complete
-quests) — no separate "rewards already granted" flag was needed, simpler
-than the original design sketch anticipated.
+   **`achievements.js`/`dailies.js` were explicitly checked and left
+   untouched.** These are separate features (lifetime achievements, daily
+   bounties) that happen to sit next to `quests.js` in the same directory
+   but share no code with it - both grep clean for every quest-specific
+   helper (`getProgressKey`, `questsEnsureCompound`, `isQuestComplete`,
+   etc.) and instead use their own `player.persistentData`-based
+   persistence. Both already grant GitHub #120's unified `adventurer`
+   skill-XP category, unrelated to and unaffected by this cutover - no XP
+   reconciliation was needed because there was nothing shared to
+   reconcile.
 
-**Known Phase B limitation** (disclosed): only `quests.js`'s per-player
-fallback key (`"player:" + uuid`) is migrated — team-keyed progress
-(`"team:" + partyId`, via Open Parties and Claims) is not, because
-`QuestProgressAttachment` is itself per-player-only in Phase A (see above).
-This is a UX regression for team players (a few quests need re-completing)
-but never a reward-duplication bug, and should be revisited once a later
-phase wires the same party-key seam GitHub #32 already proved out for
-`quests.js`. Old-system safety net (per the phasing's Phase B description)
-is automatic here: `quests.js` is completely untouched by this change, so
-it keeps running and keeps writing the same legacy file for as long as
-Phase C leaves it installed. Phases C (cutover) and D (questline rebuild)
-remain deferred pending explicit owner sign-off, unchanged from the
-phasing above.
+`vppquests` is now the pack's sole quest system: no legacy fallback, no
+migration path, no dual GUI. Its own `criticalPath` flag, party-sharing
+seam, gamestage bridge, and a real pannable dependency-graph canvas all
+remain unimplemented follow-ups (see `mods-src/vppquests/README.md`'s
+"does NOT include yet" section) - none of them block this cutover, since
+the mod's existing list-view GUI and tick-driven tracker are a complete,
+working replacement for what `quests.js` used to do (when it worked).
+
+Verified: `./gradlew build`/`clean build` (mods-src/vppquests, JDK 21)
+succeed; `python3 scripts/ci/run_all.py` - 10/10 checks PASS (down from 12:
+`check_quests.py`/`check_advancements.py` removed, none replace them since
+`check_vppquests.py` already covers the surviving content); `python3 -m
+unittest discover -s scripts/ci/tests` - 311 tests OK (down from 336: the
+removed checks' own test files are gone). No in-game/boot-tier gate was
+required before this landed, per the owner's standing protocol change
+above - boot-tier verification happens at whoever runs it against this
+branch, same as every other feature until 1.0.0.
 
 ### Skill trees converged into one unified tree (GitHub #116)
 

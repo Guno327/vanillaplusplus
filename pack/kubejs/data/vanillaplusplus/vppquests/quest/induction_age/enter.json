@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:induction_age",
+  "title": "Enter the Induction Age",
+  "description": [
+    "Full storage-network automation: 64k capacity and native pattern-based autocrafting are online."
+  ],
+  "icon": "minecraft:netherite_ingot",
+  "frame": "goal",
+  "dependencies": [
+    "vanillaplusplus:precision_age/final_ingot"
+  ],
+  "tasks": [
+    {
+      "type": "gamestage",
+      "stage": "induction_age"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 600
+    },
+    {
+      "type": "item",
+      "item": "minecraft:netherite_ingot",
+      "count": 1
+    }
+  ]
+}

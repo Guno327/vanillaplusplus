@@ -1,0 +1,26 @@
+{
+  "chapter": "vanillaplusplus:rootborn",
+  "title": "First Blood",
+  "description": [
+    "Kill a zombie. Combat matters from here on - Swords XP feeds directly into the RPG skill tree."
+  ],
+  "icon": "minecraft:iron_sword",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:rootborn/welcome"
+  ],
+  "tasks": [
+    {
+      "type": "kill",
+      "entity": "minecraft:zombie",
+      "count": 1
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 10
+    }
+  ]
+}

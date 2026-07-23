@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:precision_age",
+  "title": "Enter the Precision Age",
+  "description": [
+    "Create's own endgame alloys are done. Netherite gear and The End are open."
+  ],
+  "icon": "create:sturdy_sheet",
+  "frame": "goal",
+  "dependencies": [
+    "vanillaplusplus:brass_age/master_alloy"
+  ],
+  "tasks": [
+    {
+      "type": "gamestage",
+      "stage": "precision_age"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 300
+    },
+    {
+      "type": "item",
+      "item": "create:sturdy_sheet",
+      "count": 1
+    }
+  ]
+}

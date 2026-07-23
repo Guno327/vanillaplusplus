@@ -1,0 +1,35 @@
+{
+  "chapter": "vanillaplusplus:martian_frontier",
+  "title": "Red Planet",
+  "description": [
+    "Travel to Mars - the real trigger for Inner System."
+  ],
+  "icon": "minecraft:redstone_block",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:martian_frontier/petrochemical"
+  ],
+  "tasks": [
+    {
+      "type": "dimension",
+      "dimension": "stellaris:mars"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "item",
+      "item": "numismatics:crown",
+      "count": 2
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 2
+    },
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 1800
+    }
+  ]
+}

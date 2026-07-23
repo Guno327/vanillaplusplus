@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:brass_age",
+  "title": "Train Control",
+  "description": [
+    "Craft a Track Station - Create's own Trains are a full Brass Age package now."
+  ],
+  "icon": "create:track_station",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:brass_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "create:track_station",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 50
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 4
+    }
+  ]
+}

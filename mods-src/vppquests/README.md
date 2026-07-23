@@ -2,9 +2,7 @@
 
 A small, standalone NeoForge 1.21.1 mod providing the Vanilla++ modpack's
 own quest book - a real dependency-graph GUI plus in-game progress
-tracking, eventually replacing the pack's current chat-command-only KubeJS
-quest tracker (`pack/kubejs/server_scripts/quests.js`, GitHub #33) and its
-vanilla-advancement GUI layer (#36/#37/#66).
+tracking. This is now the pack's **sole** quest system.
 
 Built for the [Vanilla++ modpack](https://github.com/Guno327/vanillaplusplus)
 (GitHub issue #109), following the `mods-src/<modid>/` convention #67
@@ -12,29 +10,38 @@ established (`mods-src/vppintegration/` is the first worked example): a
 fully self-contained, independently Modrinth-publishable project, not
 pack-specific glue.
 
-**This is Phase A + Phase B (identity-mapping migration) only** - the mod
-scaffold, data model, first-pass GUI, and the migration that carries a
-player's already-completed legacy quests forward. See the parent repo's
-`DESIGN.md` ("GitHub issue #109" sections) for the full architecture
-proposal, migration plan, and phasing (A: scaffold, B: migration, C:
-cutover, D: questline rebuild, E: optional achievements/dailies fold-in).
-Phases C-D require explicit owner sign-off and are **not** part of this
-mod yet - notably, `pack/kubejs/server_scripts/quests.js` is untouched and
-still the pack's active quest system (this mod is not yet wired into
-`pack/manifest.json`); Phase B only adds the one-way migration path so
-cutover (Phase C) has somewhere safe to land later.
+## History and the cutover
 
-## What Phase A includes
+This mod replaces two earlier, licensing-forced rewrites of the pack's
+quest system: FTB Quests (Phase 4, dropped for redistribution-rights
+reasons), then a bespoke KubeJS tracker (`quests.js`, GitHub #33) with a
+vanilla-advancement GUI bolted on top (#36/#66) since no other free GUI
+option existed at the time. The owner reported in 0.5.2 that this second
+system was broken end to end - progress wasn't being recognized at all -
+and once this mod was ready to actually load in the pack, directed a full
+cutover rather than more patching of dead code: **`quests.js`, its
+advancement-generation code, the generated advancement JSON files, and
+their CI checks are all REMOVED, not deprecated-in-place.** There is no
+legacy-progress migration either - the owner explicitly said not to worry
+about carrying old quest/progress data forward, so every player starts
+fresh in `vppquests`. `achievements.js` and `dailies.js` are separate
+features (lifetime achievements, daily bounties) with no dependency on the
+removed quest infra - both were checked and left completely untouched.
+
+`pack/manifest.json` now wires this mod into the pack for real
+(`source: "local"`, phase 26, `side: "both"` - client for the GUI/keybind,
+server for the registry/attachment/tracker).
+
+## What this mod includes
 
 - **Data model** (`quest/Quest.java`, `QuestChapter.java`, `QuestTask.java`,
   `QuestReward.java`) - a quest is a JSON file under
   `data/<namespace>/vppquests/quest/<chapter>/<slug>.json`, with a real
   multi-parent `dependencies` list (an actual DAG, not vanilla
-  advancements' single-parent collapse), the same 5 task types / 5 reward
-  types `quests.js` already implements (`item`/`kill`/`dimension`/
-  `gamestage`/`checkmark` tasks; `item`/`xp`/`command`/`gamestage`/`toast`
-  rewards), plus a new `criticalPath` flag for the eventual questline
-  rebuild's "blindly followable" spine.
+  advancements' single-parent collapse), 5 task types
+  (`item`/`kill`/`dimension`/`gamestage`/`checkmark`) and 5 reward types
+  (`item`/`xp`/`command`/`gamestage`/`toast`), plus a `criticalPath` flag
+  reserved for a future critical-path-spine questline redesign.
 - **Registry + reload listener** (`quest/QuestReloadListener.java`,
   `QuestRegistry.java`) - a `SimplePreparableReloadListener` that parses
   every quest/chapter JSON on datapack load and `/reload`, same
@@ -53,61 +60,38 @@ cutover (Phase C) has somewhere safe to land later.
   whenever server state changes, so the GUI never round-trips per frame.
 - **GUI** (`client/gui/QuestScreen.java`, opened via the `K` keybind) - a
   list-per-chapter view with a detail panel (description + live
-  "N/M" task progress), per this issue's own risk-mitigation
-  recommendation to ship that first rather than block Phase A on a full
-  pannable dependency-graph canvas.
-- `src/main/resources/data/vppquests/vppquests/` ships three tiny example
-  quest/chapter JSON files as parser/registry test fixtures - **not**
-  migrated pack content (Phase A explicitly does not migrate the existing
-  62 quests; see "What Phase A does NOT include" below).
+  "N/M" task progress). A pannable node-and-edge dependency-graph canvas
+  is the single largest remaining GUI task - not built yet.
 
-## What Phase B includes
+## Quest content
 
-- **`quest/QuestLegacyMigration.java`** - on a player's first login after
-  this mod is installed, reads `quests.js`'s legacy save file directly
-  (ground-truthed via jar inspection of the pinned
-  `kubejs-neoforge-2101.7.2-build.368.jar`: KubeJS mixes `persistentData`
-  onto `MinecraftServer` and round-trips it through a plain compressed-NBT
-  file at `<world save>/kubejs_persistent_data.nbt`, resolved via
-  `LevelResource`/`MinecraftServer#getWorldPath` - no KubeJS dependency
-  needed to read it, it's vanilla NBT), extracts the
-  `vpp_quests_progress` compound quests.js itself writes, and marks the
-  same quest ids complete in `QuestProgressAttachment` - a strict identity
-  mapping (same ids, no reinterpretation), matching DESIGN.md's Phase B
-  description exactly. Idempotent via a `legacyMigrated` flag on the
-  attachment (now part of its Codec). Because a migrated quest is marked
-  complete *before* `QuestProgressTracker` ever evaluates it, rewards are
-  never double-granted - the tracker's existing "skip if already complete"
-  check does that for free, so no separate "rewards already granted" flag
-  was needed.
-- **Known Phase B limitation (disclosed):** only the per-player fallback
-  progress key (`quests.js`'s `"player:" + uuid`) is migrated. Team-keyed
-  progress (`"team:" + partyId`, when Open Parties and Claims is present)
-  is not, because this mod's `QuestProgressAttachment` is itself
-  per-player-only in Phase A (see its own class doc) - migrating a
-  party-keyed compound has nowhere to land until that seam exists. This is
-  a UX regression for team players only (they'd re-complete a few quests),
-  never a correctness/reward-duplication bug. Revisit once a later phase
-  wires the same `getPartyKey(player)` re-key GitHub #32 already proved out
-  for `quests.js`.
+`scripts/gen_vppquests_data.py` is the single, self-contained source of
+truth for this mod's 62-quest/10-chapter book, generating data-driven JSON
+under `pack/kubejs/data/vanillaplusplus/vppquests/{chapter,quest}/**`
+(this mod's `QuestReloadListener` reads the merged datapack
+`ResourceManager`, not just its own jar resources, so content lives in the
+pack's existing datapack tree, not baked into the mod). The content
+originated in the now-removed `gen_quests.py`/`quests.js` - it wasn't what
+was broken, so it was kept and is now generated directly in this mod's own
+schema rather than imported from the deleted legacy generator. Validated
+by `scripts/ci/check_vppquests.py` (10 chapters / 62 quests / 87
+dependency edges). `criticalPath` is left `false`/absent throughout - that
+flag is reserved for a future questline redesign, not this content.
 
-## What Phase A/B does NOT include yet
+Re-run `python3 scripts/gen_vppquests_data.py` any time this content needs
+to change - it's the one place to edit it.
+
+## What this mod does NOT include yet
 
 - **The real dependency-graph canvas.** `QuestScreen` is a list view, not a
-  pannable node-and-edge tree. A true DAG rendering (nodes with icons,
-  multi-parent dependency lines drawn between them, per-chapter panning)
-  is the single largest remaining GUI task - explicitly flagged as the
-  biggest implementation risk in DESIGN.md's #109 proposal.
+  pannable node-and-edge tree.
 - **A persistent tracker HUD overlay** ("next quest" affordance without
-  opening the full screen) - not built in this scaffold.
+  opening the full screen).
 - **Party/team progress-sharing.** `QuestProgressAttachment` is keyed
-  per-player entity only. The design's requirement (completion is
-  party-shared, rewards are strictly per-player) needs a
-  `getPartyKey(player)` seam calling Open Parties and Claims'
-  `getPartyByMember(UUID)` - the same one-function-change precedent GitHub
-  #32 already established for `quests.js`'s `getProgressKey()`. Flagged in
-  `QuestProgressAttachment`'s own class doc; not wired here since no
-  party/gameplay-system code is in this task's scope.
+  per-player entity only. A `getPartyKey(player)` seam calling Open
+  Parties and Claims' `getPartyByMember(UUID)` would be needed for
+  team-shared completion (rewards would stay per-player) - not wired in
+  yet, flagged in `QuestProgressAttachment`'s own class doc.
 - **A gamestage bridge.** `gamestage` tasks/rewards round-trip through the
   data model/JSON/network layers but are never satisfied/granted by
   `QuestProgressTracker` - deliberately, since wiring a hard dependency on
@@ -116,13 +100,11 @@ cutover (Phase C) has somewhere safe to land later.
   pack-side bridge (or an optional soft-dependency mixin, mirroring
   `vppintegration`'s own pattern) can hook it without changing this mod's
   public API.
-- **Cutover and the questline rebuild** (Phases C-D) - untouched.
-  `pack/manifest.json`, `pack/kubejs/server_scripts/quests.js`/
-  `achievements.js`/`dailies.js`, and the advancement-generation code are
-  all unmodified; quests.js remains the pack's actual active quest system
-  and keeps writing to the same legacy save file Phase B's migration reads
-  from (both systems can coexist - this mod is not installed in the pack
-  yet, see "Build instructions").
+- **A redesigned/expanded questline.** The current 62-quest book is a
+  straight carry-over of the old system's content; a larger, more granular
+  rewrite (enumerating every progression milestone, using the
+  `criticalPath` flag for a "blindly followable" spine) is a possible
+  future direction, not started here.
 
 ## Build instructions
 
@@ -141,10 +123,12 @@ Gradle 8.x install: `gradle wrapper --gradle-version 8.10`, then re-run
 `./gradlew build`.
 
 `JAVA_HOME` must point at a JDK 21 (`java.toolchain.languageVersion = 21` in
-`build.gradle`). The built jar lands at `build/libs/vppquests-0.1.0.jar`.
-This mod is **not** wired into `pack/manifest.json` - it's a standalone
-scaffold, not yet installed in the pack (see "What Phase A does NOT
-include yet").
+`build.gradle`, and this repo's own `.tools/jdk-21.0.11+10` if present).
+The built jar lands at `build/libs/vppquests-0.1.0.jar`, which
+`pack/manifest.json`'s `vppquests` entry (`source: "local"`, phase 26,
+`side: "both"`) points at - `scripts/build_local_mods.py` builds it
+automatically before `scripts/resolve_mods.py` hashes it into
+`pack/mods.lock.json`, same as `vppintegration`.
 
 Every NeoForge API used here (`SimplePreparableReloadListener`,
 `FileToIdConverter`, `AttachmentType`, `RegisterPayloadHandlersEvent`/

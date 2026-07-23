@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:andesite_age",
+  "title": "The Mage's Path",
+  "description": [
+    "Craft an Ars Nouveau wand - the entry point into this pack's spell-crafting magic system."
+  ],
+  "icon": "ars_nouveau:wand",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:andesite_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "ars_nouveau:wand",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 30
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 2
+    }
+  ]
+}

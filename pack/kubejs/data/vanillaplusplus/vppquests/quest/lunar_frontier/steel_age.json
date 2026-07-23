@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:lunar_frontier",
+  "title": "The Steel Age",
+  "description": [
+    "Smelt a TFMG Steel Ingot - the mod's own core metallurgy chain, rung 2 of the endgame automation ladder."
+  ],
+  "icon": "tfmg:steel_ingot",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:lunar_frontier/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "tfmg:steel_ingot",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 150
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 4
+    }
+  ]
+}

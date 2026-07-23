@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:inner_system",
+  "title": "The Electrical Age",
+  "description": [
+    "Craft a TFMG Converter - bridges TFMG's own power grid into Create/FE, rung 4 of the endgame automation ladder."
+  ],
+  "icon": "tfmg:converter",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:inner_system/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "tfmg:converter",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 200
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 6
+    }
+  ]
+}

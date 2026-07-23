@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:starforged_age",
+  "title": "Rocket Parts",
+  "description": [
+    "Craft a Rocket Engine (Stellaris) - one of the core components of your first rocket."
+  ],
+  "icon": "stellaris:rocket_engine",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:starforged_age/aluminum_age"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "stellaris:rocket_engine",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 100
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 4
+    }
+  ]
+}

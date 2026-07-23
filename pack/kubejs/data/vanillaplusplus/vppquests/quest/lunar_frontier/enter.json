@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:lunar_frontier",
+  "title": "Enter the Lunar Frontier",
+  "description": [
+    "You've reached orbit. The Moon is next."
+  ],
+  "icon": "stellaris:rocket",
+  "frame": "goal",
+  "dependencies": [
+    "vanillaplusplus:starforged_age/launch"
+  ],
+  "tasks": [
+    {
+      "type": "gamestage",
+      "stage": "lunar_frontier"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 1500
+    },
+    {
+      "type": "item",
+      "item": "allthemodium:unobtainium_ingot",
+      "count": 1
+    }
+  ]
+}

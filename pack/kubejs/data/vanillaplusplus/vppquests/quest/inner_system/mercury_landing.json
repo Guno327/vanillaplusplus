@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:inner_system",
+  "title": "Swift Planet (optional)",
+  "description": [
+    "Travel to Mercury - either inner planet triggers Jovian Frontier, so this and Venus are both optional."
+  ],
+  "icon": "minecraft:magma_block",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:inner_system/electrical_age"
+  ],
+  "tasks": [
+    {
+      "type": "dimension",
+      "dimension": "stellaris:mercury"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 200
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 6
+    }
+  ]
+}

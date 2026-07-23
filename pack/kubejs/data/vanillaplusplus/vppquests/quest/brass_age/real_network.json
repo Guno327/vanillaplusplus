@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:brass_age",
+  "title": "A Real Network",
+  "description": [
+    "Craft a Refined Storage Controller - the heart of the powered network that replaces Tom's Storage from here on."
+  ],
+  "icon": "refinedstorage:controller",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:brass_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "refinedstorage:controller",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 50
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 4
+    }
+  ]
+}

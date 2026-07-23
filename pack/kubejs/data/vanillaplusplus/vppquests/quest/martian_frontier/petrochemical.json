@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:martian_frontier",
+  "title": "The Petrochemical Age",
+  "description": [
+    "Refine a bucket of Diesel (TFMG) - rung 3 of the endgame automation ladder."
+  ],
+  "icon": "tfmg:diesel_bucket",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:martian_frontier/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "tfmg:diesel_bucket",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 180
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 5
+    }
+  ]
+}

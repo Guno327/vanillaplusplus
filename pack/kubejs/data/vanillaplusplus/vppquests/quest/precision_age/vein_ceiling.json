@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:precision_age",
+  "title": "The Netherite Drill",
+  "description": [
+    "Craft the Netherite Drill - Create Ore Excavation's own tool ceiling, and what it takes to pull allthemodium/vibranium/unobtainium out of the ground."
+  ],
+  "icon": "createoreexcavation:netherite_drill",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:precision_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "createoreexcavation:netherite_drill",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 90
+    },
+    {
+      "type": "item",
+      "item": "numismatics:sprocket",
+      "count": 1
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "chapter": "vanillaplusplus:rootborn",
+  "title": "Stone Age",
+  "description": [
+    "Craft your first pickaxe through Silent Gear (any material) - the first real tool upgrade."
+  ],
+  "icon": "minecraft:stone_pickaxe",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:rootborn/welcome"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "silentgear:pickaxe",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 10
+    }
+  ]
+}

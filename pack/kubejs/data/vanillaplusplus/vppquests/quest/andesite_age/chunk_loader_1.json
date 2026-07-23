@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:andesite_age",
+  "title": "Andesite Chunk Loader",
+  "description": [
+    "Craft the Andesite Chunk Loader (Create: Power Loader). It only force-loads chunks while spun under real kinetic power."
+  ],
+  "icon": "create_power_loader:andesite_chunk_loader",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:andesite_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "create_power_loader:andesite_chunk_loader",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 30
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 2
+    }
+  ]
+}

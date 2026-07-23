@@ -9,7 +9,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -21,11 +20,20 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  * server tick. Kept as one small event-handler class (matches
  * {@code vppintegration}'s precedent of one focused bridge class per
  * concern) rather than folding this into {@link VppQuests}'s constructor.
+ *
+ * <p><b>No legacy-progress migration.</b> An earlier revision of this mod
+ * had a {@code QuestLegacyMigration} step here that carried a player's
+ * already-complete quests forward out of the old KubeJS quest tracker's
+ * save file. GitHub #109's cutover removed it: the owner reported the old
+ * system was broken end to end (progress wasn't being recognized at all),
+ * so there was nothing correct left to migrate, and the owner explicitly
+ * asked not to carry old quest/progress data forward - {@code vppquests}
+ * is the sole quest system now, starting fresh for every player.
  */
 @EventBusSubscriber(modid = VppQuests.MODID)
 public final class ServerQuestEvents {
 
-    private static final int EVALUATE_EVERY_N_TICKS = 20; // once per second - matches quests.js's own tick-scan cadence
+    private static final int EVALUATE_EVERY_N_TICKS = 20; // once per second - a steady, cheap tick-scan cadence
 
     private static int tickCounter = 0;
 
@@ -37,7 +45,6 @@ public final class ServerQuestEvents {
     @SubscribeEvent
     static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            QuestLegacyMigration.migrate(serverPlayer); // DESIGN.md's #109 Phase B, before the first sync so migrated progress ships in it
             syncAllToPlayer(serverPlayer);
         }
     }
@@ -57,11 +64,6 @@ public final class ServerQuestEvents {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             QuestProgressTracker.evaluate(player);
         }
-    }
-
-    @SubscribeEvent
-    static void onServerStopping(ServerStoppingEvent event) {
-        QuestLegacyMigration.resetCache(); // so a later server start in the same process re-reads the legacy file fresh
     }
 
     private static void syncAllToPlayer(ServerPlayer player) {
