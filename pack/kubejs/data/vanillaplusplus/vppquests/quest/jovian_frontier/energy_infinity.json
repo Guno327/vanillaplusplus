@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:jovian_frontier",
+  "title": "Infinite Energy",
+  "description": [
+    "Craft a Create Creative Motor - a genuinely endless source of Rotational Force, bridged to FE the same way every earlier power step in this pack has been."
+  ],
+  "icon": "create:creative_motor",
+  "frame": "challenge",
+  "dependencies": [
+    "vanillaplusplus:jovian_frontier/combustion_age"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "create:creative_motor",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 300
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 7
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:induction_age",
+  "title": "64k Storage",
+  "description": [
+    "Craft a 64k Storage Part - the ceiling of this pack's Refined Storage capacity chase (until the Jovian Frontier capstone)."
+  ],
+  "icon": "refinedstorage:64k_storage_part",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:induction_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "refinedstorage:64k_storage_part",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 150
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 1
+    }
+  ]
+}

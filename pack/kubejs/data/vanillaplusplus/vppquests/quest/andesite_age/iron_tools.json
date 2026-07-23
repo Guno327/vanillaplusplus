@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:andesite_age",
+  "title": "Iron Tools",
+  "description": [
+    "Craft another Silent Gear pickaxe with this tier's material - the real mining-speed upgrade this tier unlocks."
+  ],
+  "icon": "minecraft:iron_pickaxe",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:andesite_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "silentgear:pickaxe",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 30
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 2
+    }
+  ]
+}

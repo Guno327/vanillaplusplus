@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:andesite_age",
+  "title": "Enter the Andesite Age",
+  "description": [
+    "Iron tools and Create's own machinery are open. This chapter is your Andesite Age checklist."
+  ],
+  "icon": "create:andesite_alloy",
+  "frame": "goal",
+  "dependencies": [
+    "vanillaplusplus:rootborn/gather_andesite"
+  ],
+  "tasks": [
+    {
+      "type": "gamestage",
+      "stage": "andesite_age"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 80
+    },
+    {
+      "type": "item",
+      "item": "create:andesite_alloy",
+      "count": 1
+    }
+  ]
+}

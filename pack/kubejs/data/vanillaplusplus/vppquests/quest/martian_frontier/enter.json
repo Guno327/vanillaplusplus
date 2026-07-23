@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:martian_frontier",
+  "title": "Enter the Martian Frontier",
+  "description": [
+    "The Moon is conquered. Mars is next."
+  ],
+  "icon": "minecraft:redstone",
+  "frame": "goal",
+  "dependencies": [
+    "vanillaplusplus:lunar_frontier/moon_landing"
+  ],
+  "tasks": [
+    {
+      "type": "gamestage",
+      "stage": "martian_frontier"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 1800
+    },
+    {
+      "type": "item",
+      "item": "tfmg:diesel_bucket",
+      "count": 1
+    }
+  ]
+}

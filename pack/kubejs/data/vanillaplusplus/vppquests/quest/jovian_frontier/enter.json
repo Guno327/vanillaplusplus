@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:jovian_frontier",
+  "title": "Enter the Jovian Frontier",
+  "description": [
+    "The inner system is conquered. Jupiter - the current edge of Stellaris' explorable system - is the final frontier."
+  ],
+  "icon": "minecraft:end_crystal",
+  "frame": "goal",
+  "dependencies": [
+    "vanillaplusplus:inner_system/electrical_age"
+  ],
+  "tasks": [
+    {
+      "type": "gamestage",
+      "stage": "jovian_frontier"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 2400
+    },
+    {
+      "type": "item",
+      "item": "allthemodium:unobtainium_vibranium_alloy_ingot",
+      "count": 1
+    }
+  ]
+}

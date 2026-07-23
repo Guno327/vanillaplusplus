@@ -1,0 +1,41 @@
+{
+  "chapter": "vanillaplusplus:brass_age",
+  "title": "The Master Alloy",
+  "description": [
+    "Craft a Sturdy Sheet from Refined Radiance or Shadow Steel - Create's own top-tier alloy, and the door to Precision Age."
+  ],
+  "icon": "create:sturdy_sheet",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:brass_age/diamond_gear",
+    "vanillaplusplus:brass_age/real_network",
+    "vanillaplusplus:brass_age/alternator",
+    "vanillaplusplus:brass_age/automation_arm",
+    "vanillaplusplus:brass_age/jetpack_2",
+    "vanillaplusplus:brass_age/chunk_loader_2",
+    "vanillaplusplus:brass_age/tiab",
+    "vanillaplusplus:brass_age/trains",
+    "vanillaplusplus:brass_age/diet_upgrade"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "create:sturdy_sheet",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "item",
+      "item": "numismatics:sprocket",
+      "count": 1
+    },
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 150
+    }
+  ]
+}

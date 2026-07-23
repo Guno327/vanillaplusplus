@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:starforged_age",
+  "title": "Enter the Starforged Age",
+  "description": [
+    "The overworld, Nether, and End are conquered. Space travel begins - and you can now toggle persistent flight outright."
+  ],
+  "icon": "minecraft:nether_star",
+  "frame": "goal",
+  "dependencies": [
+    "vanillaplusplus:induction_age/dragon"
+  ],
+  "tasks": [
+    {
+      "type": "gamestage",
+      "stage": "starforged_age"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 1200
+    },
+    {
+      "type": "item",
+      "item": "minecraft:nether_star",
+      "count": 1
+    }
+  ]
+}

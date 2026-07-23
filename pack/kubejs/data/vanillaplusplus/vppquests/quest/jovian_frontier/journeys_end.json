@@ -1,0 +1,31 @@
+{
+  "chapter": "vanillaplusplus:jovian_frontier",
+  "title": "Journey's End",
+  "description": [
+    "Every tier from Rootborn to Jupiter, done. Future updates may extend the ladder further out into the solar system - this book will grow to meet them."
+  ],
+  "icon": "minecraft:nether_star",
+  "frame": "challenge",
+  "dependencies": [
+    "vanillaplusplus:jovian_frontier/storage_infinity",
+    "vanillaplusplus:jovian_frontier/energy_infinity",
+    "vanillaplusplus:jovian_frontier/resource_infinity"
+  ],
+  "tasks": [
+    {
+      "type": "checkmark"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "item",
+      "item": "numismatics:crown",
+      "count": 3
+    },
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 2400
+    }
+  ]
+}

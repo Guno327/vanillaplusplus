@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:brass_age",
+  "title": "Sharper Knives",
+  "description": [
+    "Craft a Farmer's Delight diamond knife - this is the real tier this pack's food-diet knife line reaches Brass Age (gold/diamond both unlock here; iron was Andesite Age, netherite is Precision Age)."
+  ],
+  "icon": "farmersdelight:diamond_knife",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:brass_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "farmersdelight:diamond_knife",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 50
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 4
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:jovian_frontier",
+  "title": "Infinite Storage",
+  "description": [
+    "Craft a Refined Storage Creative Storage Block - genuinely infinite item capacity, the true ceiling of the storage chase started back at Andesite Age."
+  ],
+  "icon": "refinedstorage:creative_storage_block",
+  "frame": "challenge",
+  "dependencies": [
+    "vanillaplusplus:jovian_frontier/combustion_age"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "refinedstorage:creative_storage_block",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 300
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 7
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "chapter": "vanillaplusplus:andesite_age",
+  "title": "Into the Brass Age",
+  "description": [
+    "Craft or pick up a Brass Ingot - Create's mid-game alloy, and the trigger for Brass Age."
+  ],
+  "icon": "create:brass_ingot",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:andesite_age/iron_tools",
+    "vanillaplusplus:andesite_age/dumb_storage",
+    "vanillaplusplus:andesite_age/jetpack_1",
+    "vanillaplusplus:andesite_age/chunk_loader_1",
+    "vanillaplusplus:andesite_age/vein_hunting",
+    "vanillaplusplus:andesite_age/ars_wand"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "create:brass_ingot",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 4
+    },
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 80
+    }
+  ]
+}

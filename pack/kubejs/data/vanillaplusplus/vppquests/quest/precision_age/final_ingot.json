@@ -1,0 +1,38 @@
+{
+  "chapter": "vanillaplusplus:precision_age",
+  "title": "The Final Ingot",
+  "description": [
+    "Craft or pick up a Netherite Ingot - the temporary trigger for Induction Age, until a real narrative trigger replaces it."
+  ],
+  "icon": "minecraft:netherite_ingot",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:precision_age/netherite_gear",
+    "vanillaplusplus:precision_age/wireless",
+    "vanillaplusplus:precision_age/jetpack_3",
+    "vanillaplusplus:precision_age/elytra",
+    "vanillaplusplus:precision_age/diet_upgrade",
+    "vanillaplusplus:precision_age/vein_ceiling"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "minecraft:netherite_ingot",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 1
+    },
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 300
+    }
+  ]
+}

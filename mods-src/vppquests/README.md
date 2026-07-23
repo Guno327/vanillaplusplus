@@ -12,17 +12,25 @@ established (`mods-src/vppintegration/` is the first worked example): a
 fully self-contained, independently Modrinth-publishable project, not
 pack-specific glue.
 
-**This is Phase A + Phase B (identity-mapping migration) only** - the mod
-scaffold, data model, first-pass GUI, and the migration that carries a
-player's already-completed legacy quests forward. See the parent repo's
+**This is Phase A + Phase B (identity-mapping migration) + the wiring half
+of Phase C** - the mod scaffold, data model, first-pass GUI, the migration
+that carries a player's already-completed legacy quests forward, the real
+62-quest content port, and this mod now actually loading in the pack
+(`pack/manifest.json`, `side: both`, phase 26). See the parent repo's
 `DESIGN.md` ("GitHub issue #109" sections) for the full architecture
 proposal, migration plan, and phasing (A: scaffold, B: migration, C:
 cutover, D: questline rebuild, E: optional achievements/dailies fold-in).
-Phases C-D require explicit owner sign-off and are **not** part of this
-mod yet - notably, `pack/kubejs/server_scripts/quests.js` is untouched and
-still the pack's active quest system (this mod is not yet wired into
-`pack/manifest.json`); Phase B only adds the one-way migration path so
-cutover (Phase C) has somewhere safe to land later.
+
+**Phase C is intentionally NOT complete** - DESIGN.md gates actually
+*removing* `quests.js`/`achievements.js`/`dailies.js`/the
+advancement-generation code on Phase B's migration being "confirmed
+correct in practice," and no live server has boot-verified that yet in
+this sandbox. So both quest UIs run side-by-side for now: `quests.js` is
+untouched and still active, `vppquests` loads alongside it and migrates
+progress on login, and the actual removal is deferred to a follow-up once
+an in-game pass confirms the migration works. Phase D (the all-new,
+~150-250-quest questline rebuild) still requires explicit owner sign-off
+and is not part of this mod.
 
 ## What Phase A includes
 
@@ -56,10 +64,29 @@ cutover (Phase C) has somewhere safe to land later.
   "N/M" task progress), per this issue's own risk-mitigation
   recommendation to ship that first rather than block Phase A on a full
   pannable dependency-graph canvas.
-- `src/main/resources/data/vppquests/vppquests/` ships three tiny example
-  quest/chapter JSON files as parser/registry test fixtures - **not**
-  migrated pack content (Phase A explicitly does not migrate the existing
-  62 quests; see "What Phase A does NOT include" below).
+- The mod's own `src/main/resources/data/vppquests/vppquests/` example
+  fixtures have been **removed** now that real content exists (see "Real
+  quest content" below) - keeping a fake "Example Chapter" in a loaded
+  mod's quest book would confuse players.
+
+## Real quest content (the deferred half of Phase A, ported now)
+
+`scripts/gen_vppquests_data.py` ports the actual 62-quest, 10-chapter book
+(the same content `scripts/gen_quests.py` generates for `quests.js`) into
+`vppquests`' own schema, as data-driven JSON under
+`pack/kubejs/data/vanillaplusplus/vppquests/{chapter,quest}/**` (this
+mod's `QuestReloadListener` reads the merged datapack `ResourceManager`,
+not just its own jar resources, so real content lives in the pack's
+existing datapack tree next to `advancement/quests/`, not baked into the
+mod - see that script's own module docstring). A strict identity mapping:
+same ids (transformed `"chapter__slug"` -> `chapter/slug` file paths), same
+tasks/rewards/dependencies, same counts (62 quests / 10 chapters / 87
+dependency edges - verified equal to `check_quests.py`'s own real-repo
+counts via the new `scripts/ci/check_vppquests.py` fast-tier check).
+`criticalPath` is left `false`/absent for all of them - that flag is for
+Phase D's all-new critical-path spine, not this verbatim port. Re-run
+`python3 scripts/gen_vppquests_data.py` any time `gen_quests.py`'s content
+changes to keep both books in sync.
 
 ## What Phase B includes
 
@@ -116,13 +143,15 @@ cutover (Phase C) has somewhere safe to land later.
   pack-side bridge (or an optional soft-dependency mixin, mirroring
   `vppintegration`'s own pattern) can hook it without changing this mod's
   public API.
-- **Cutover and the questline rebuild** (Phases C-D) - untouched.
-  `pack/manifest.json`, `pack/kubejs/server_scripts/quests.js`/
-  `achievements.js`/`dailies.js`, and the advancement-generation code are
-  all unmodified; quests.js remains the pack's actual active quest system
-  and keeps writing to the same legacy save file Phase B's migration reads
-  from (both systems can coexist - this mod is not installed in the pack
-  yet, see "Build instructions").
+- **The actual removal half of Phase C, and all of Phase D.**
+  `pack/kubejs/server_scripts/quests.js`/`achievements.js`/`dailies.js` and
+  the advancement-generation code are all still present and unmodified;
+  quests.js remains the pack's actual active quest system and keeps
+  writing to the same legacy save file Phase B's migration reads from -
+  both systems coexist by design until an in-game pass confirms the
+  migration works, at which point removing the legacy system is the real
+  Phase C completion. The all-new, much larger questline rebuild (Phase D,
+  ~150-250 quests) is untouched and requires explicit owner sign-off.
 
 ## Build instructions
 
@@ -141,10 +170,12 @@ Gradle 8.x install: `gradle wrapper --gradle-version 8.10`, then re-run
 `./gradlew build`.
 
 `JAVA_HOME` must point at a JDK 21 (`java.toolchain.languageVersion = 21` in
-`build.gradle`). The built jar lands at `build/libs/vppquests-0.1.0.jar`.
-This mod is **not** wired into `pack/manifest.json` - it's a standalone
-scaffold, not yet installed in the pack (see "What Phase A does NOT
-include yet").
+`build.gradle`, and this repo's own `.tools/jdk-21.0.11+10` if present).
+The built jar lands at `build/libs/vppquests-0.1.0.jar`, which
+`pack/manifest.json`'s `vppquests` entry (`source: "local"`, phase 26,
+`side: "both"`) now points at - `scripts/build_local_mods.py` builds it
+automatically before `scripts/resolve_mods.py` hashes it into
+`pack/mods.lock.json`, same as `vppintegration`.
 
 Every NeoForge API used here (`SimplePreparableReloadListener`,
 `FileToIdConverter`, `AttachmentType`, `RegisterPayloadHandlersEvent`/

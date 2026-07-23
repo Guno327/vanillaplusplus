@@ -4300,6 +4300,92 @@ Phase C leaves it installed. Phases C (cutover) and D (questline rebuild)
 remain deferred pending explicit owner sign-off, unchanged from the
 phasing above.
 
+### GitHub issue #109 — custom questing mod: Phase C status (mod wired in + real content ported; legacy system NOT yet removed)
+
+Owner cleared #109 to proceed with no further sign-off gate beyond specific
+flagged questions, so this PR continues past Phase B into Phase C. Two
+things landed, one deliberately did not:
+
+1. **The mod now actually loads.** `pack/manifest.json` gained a
+   `vppquests` entry (`source: "local"`, `local_path:
+   mods-src/vppquests/build/libs/vppquests-0.1.0.jar`, `side: "both"`,
+   phase 26 — client for `QuestScreen`/the keybind, server for
+   `QuestRegistry`/`QuestProgressAttachment`/`QuestProgressTracker`/
+   `QuestLegacyMigration`), same `mods-src/<modid>/` convention #67
+   established (`vppintegration` is the other worked example) —
+   `scripts/build_local_mods.py` already auto-discovers and builds any
+   `mods-src/<modid>/` tree with a `build.gradle`, so no changes to that
+   script or `resolve_mods.py` were needed, only the manifest entry itself.
+   `pack/mods.lock.json` and `pack/mod_registries/mod_dependencies.json`
+   were regenerated accordingly (115 mods now; `check_mod_dependencies_
+   offline.py` confirms `vppquests`' two required deps — neoforge and
+   minecraft, boilerplate from its own `neoforge.mods.toml`, it depends on
+   nothing else — are satisfied). Note: regenerating the lockfile via a
+   fresh `resolve_mods.py` run also rebuilt `vppintegration` and drifted
+   5 unrelated, `pin_version`-less mods (`toms-storage`, `architectury-
+   api`, `sophisticated-core/-backpacks/-storage`) to newer upstream
+   releases and a non-reproducible `vppintegration` jar hash (Gradle jars
+   embed build timestamps, so byte-for-byte reproducibility across
+   separate `gradle build` invocations was never guaranteed) — all reverted
+   to their prior committed lockfile values before this landed, same
+   "keep unrelated lockfile diffs clean" convention this file's #104/#107/
+   #103 wave already established. (The hash drift is harmless in practice
+   either way — `build_server.py`'s local-mod path copies straight from
+   `local_path` unconditionally, never gates on the lockfile's recorded
+   hash matching a fresh rebuild, same as `vppintegration` already relied
+   on.)
+2. **The real 62-quest content is ported.** `scripts/gen_vppquests_data.py`
+   (new) reuses `scripts/gen_quests.py`'s own `CHAPTER_DEFS`/`build_*`
+   functions directly (not re-transcribed) and emits the same book — 10
+   chapters, 62 quests, 87 dependency edges, verified equal via a new
+   fast-tier check, `scripts/ci/check_vppquests.py` — as data-driven JSON
+   under `pack/kubejs/data/vanillaplusplus/vppquests/{chapter,quest}/**`.
+   This lives in the pack's existing datapack tree, not baked into the mod
+   jar, because `QuestReloadListener` reads the merged datapack
+   `ResourceManager` (the same view every other reload listener in this
+   pack sees), matching the "generate, don't hand-type, reload like
+   everything else" discipline every other content path here follows. A
+   strict identity mapping: same ids (`"chapter__slug"` -> `chapter/slug`
+   file paths), same tasks/rewards/dependencies, `criticalPath` left
+   absent (that flag is for Phase D's new critical-path spine, not this
+   verbatim port). The mod's own 3 placeholder example quest/chapter
+   fixtures were removed now that real content covers the same
+   parser-exercise purpose and a fake "Example Chapter" showing up
+   in-game to real players would be confusing. Per DESIGN.md's own
+   phasing this content port is actually the deferred second half of
+   *Phase A* ("port today's 62 quests unchanged... so the mod itself gets
+   validated against known-good content"), not Phase D (Phase D is the
+   all-new, much larger questline *rebuild*, ~150-250 quests) — flagging
+   the naming mismatch with how this round's task described it ("Phase D:
+   port the real 62 quests") since the technical work is unambiguous even
+   though the phase label doesn't match this file's own phasing scheme.
+
+**Deliberately NOT done — the actual cutover.** DESIGN.md's own Phase C
+description gates *removing* `quests.js`/`achievements.js`/`dailies.js`/
+the advancement-generation code on Phase B's migration being "confirmed
+correct in practice" — no live server has boot-verified the migration
+against real player data yet (this sandbox cannot boot a full client
+through the GUI). Removing the pack's actual, currently-working quest
+system before that confirmation would violate the design's own stated
+precondition, so `quests.js` and friends are left completely untouched and
+still active; both quest UIs (this mod's `QuestScreen` and the old
+vanilla-advancement GUI) coexist for players until an in-game pass
+confirms `QuestLegacyMigration` carries progress forward correctly. **Open
+question for the owner:** once that in-game verification happens, should
+the legacy system's removal land as its own follow-up PR (recommended —
+keeps the risky "delete the working system" step reviewable on its own),
+or would you rather it be bundled into whatever PR does the verification?
+Either way, this PR does not touch that removal.
+
+Verified: `./gradlew build`/`./gradlew clean build` (mods-src/vppquests,
+JDK 21) succeed; `python3 scripts/ci/run_all.py` — 12/12 checks PASS
+(`check_vppquests.py` is new); `python3 -m unittest discover -s
+scripts/ci/tests` — 336 tests OK (55 new, from `test_check_vppquests.py`).
+In-game verification (this mod's GUI/keybind actually rendering with real
+content, the legacy migration carrying real progress forward, and a full
+boot-tier pass) remains outstanding — flagged for whoever runs the
+boot-tier check against this branch.
+
 ### Skill trees converged into one unified tree (GitHub #116)
 
 Owner feedback: 23 category tabs (GitHub #71) got unwieldy to navigate.
