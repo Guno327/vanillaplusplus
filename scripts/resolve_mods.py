@@ -25,13 +25,23 @@ remote host for these - the manifest entry's "local_path" field must point at
 a jar a real `gradle build` in that mod's own tree already produced; see
 resolve_one_local() below for exactly what gets hashed and how build_server.py/
 build_mrpack.py consume the result differently from a downloaded mod.
+
+GitHub #67 (wiring vppintegration in): this script's main() now runs
+scripts/build_local_mods.py FIRST, before resolving anything - it's the "make
+the jar exist" step resolve_one_local() itself deliberately never did (see
+that function's own docstring). Pass --skip-build to opt out (e.g. iterating
+on non-local manifest entries without a JDK handy); every hosted CI workflow
+that calls this script wants the build to happen, so the default is on.
 """
+import argparse
 import hashlib
 import json
 import sys
 import urllib.parse
 import urllib.request
 from pathlib import Path
+
+import build_local_mods
 
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / "pack" / "manifest.json"
@@ -174,6 +184,18 @@ def resolve_one_curseforge(slug, entry):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--skip-build",
+        action="store_true",
+        help="skip scripts/build_local_mods.py (don't gradle-build mods-src/ trees before "
+             "resolving) - only safe if every \"source\": \"local\" manifest entry's jar is "
+             "already built and current, since resolve_one_local() just hashes whatever's there",
+    )
+    args = parser.parse_args()
+    if not args.skip_build:
+        build_local_mods.main()
+
     manifest = json.loads(MANIFEST.read_text())
     minecraft = manifest["minecraft"]
     loader = manifest["loader"]

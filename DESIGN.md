@@ -3556,14 +3556,30 @@ literal forging minigame. Not implemented here since inventing a
 replacement mechanic wasn't in scope for this investigation — flagged for
 owner/PM decision.
 
-**Not done, and why**: `pack/manifest.json`/`pack/mods.lock.json` were
-deliberately left untouched — a trial add-then-revert was done during
-investigation (to hash the real jar via `scripts/resolve_mods.py` and
-confirm no dependency surprises) but reverted once the blocking finding
-above was confirmed, since shipping the mod with no working integration and
-no other use in this pack would be dead weight contradicting the "every
-manifest edit should do something real" bar the rest of this file holds
-itself to.
+**Not done, and why (superseded — see below)**: `pack/manifest.json`/
+`pack/mods.lock.json` were deliberately left untouched — a trial
+add-then-revert was done during investigation (to hash the real jar via
+`scripts/resolve_mods.py` and confirm no dependency surprises) but reverted
+once the blocking finding above was confirmed, since shipping the mod with
+no working integration and no other use in this pack would be dead weight
+contradicting the "every manifest edit should do something real" bar the
+rest of this file holds itself to.
+
+**UPDATE (2026-07-23, wiring #67 in for real)**: option (a) above was built
+— `mods-src/vppintegration/` (GitHub #97/#117) is the hand-rolled Java
+bridge across exactly the `MATERIAL_LIST`/assembly boundary this
+investigation flagged as the blocker, and both **overgeared** and
+**vppintegration** are now real `pack/manifest.json`/`mods.lock.json`
+entries, confirmed via an actual L0 boot (server reaches `Done(`, mixin
+applies, all 6 example forging recipes register with zero errors, 0 KubeJS
+errors/warnings). See `DECISIONS.md`'s "#67" entry for the full activation
+writeup, including two real defects the boot test caught and fixed (a wrong
+Silent Gear item id in the sword recipes, and a config-not-yet-loaded crash
+in the stats bridge). Ships the 6 example recipes as a first working slice;
+the full material-tier ladder (steel through Allthemodium/Vibranium/
+Unobtainium, cold-forging for gemstones) remains a follow-up — see
+`mods-src/vppintegration/README.md`'s "Extending to the pack's full
+material ladder".
 
 ### Versioning
 

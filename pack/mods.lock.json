@@ -238,6 +238,39 @@
       "note": "blacksmithing: modular tool/weapon assembly (rod+head+binding at a workstation) replaces flat crafting-table recipes, per instructions.md"
     },
     {
+      "slug": "overgeared",
+      "project_id": "SQL3X2Ky",
+      "version_id": "otsHkv1p",
+      "version_number": "1.21.1-1.6.16",
+      "filename": "overgeared-1.21.1-1.6.16.jar",
+      "url": "https://cdn.modrinth.com/data/SQL3X2Ky/versions/otsHkv1p/overgeared-1.21.1-1.6.16.jar",
+      "hashes": {
+        "sha512": "3fa45c11c7aeae5c5c4afe8520b51f21d1c242471b9187c0a355abc1db162d7bd00d73ba9f356885168498eb41abed784e0fc3ffed93e9ab295d7fd7144ced0a",
+        "sha1": "130e2974d57bfeb550334679a226e60a87b85ad1"
+      },
+      "filesize": 1454390,
+      "side": "both",
+      "phase": 7,
+      "note": "GitHub #67: forging-minigame quality system, zero listed deps (confirmed #92 investigation). Both sides - the minigame's own anvil UI is client-rendered, but ForgingRecipe/quality computation/QualityAttributeHandler are server-authoritative. Only wired in for the vppintegration bridge below; not used as a standalone gear-progression path (see DESIGN.md's #67 investigation for why Overgeared can't replace Silent Gear's own crafting)."
+    },
+    {
+      "slug": "vppintegration",
+      "project_id": "vppintegration",
+      "version_id": "1.0.0",
+      "version_number": "1.0.0",
+      "filename": "vppintegration-1.0.0.jar",
+      "url": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
+      "local_path": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
+      "hashes": {
+        "sha1": "8d11156a6e0179629c54c4ef43547297cf7bc2c3",
+        "sha512": "c77914bdc312121380455e4ca490539d6cd1679af8796b760b9238667801c733265429fde30fa363cfb3d9d6553e719ba7579aafe2e2b83c0cfe4ee575d7e3e5"
+      },
+      "filesize": 13306,
+      "side": "both",
+      "phase": 7,
+      "note": "GitHub #67: hand-rolled Overgeared x Silent Gear quality bridge (mods-src/vppintegration/, see its README.md). Requires both silent-gear and overgeared above at their pinned versions. Ships 6 example forging recipes (copper/iron sword/pickaxe/axe heads) as a first working slice; full material-tier coverage (steel, ATM chain, cold-forging for gemstones) is a follow-up, see mods-src/vppintegration/README.md's 'Extending to the pack's full material ladder'."
+    },
+    {
       "slug": "epic-fight",
       "project_id": "vu3NZ5Ma",
       "version_id": "8HHhJt6i",
