@@ -1228,6 +1228,79 @@ outputs, capability JSON schema matched field-for-field against Epic
 Fight's shipped vanilla/native captures) but real animation/combat-feel
 correctness needs a live client — see Verification.
 
+**GitHub issues #84/#108 follow-up — Epic Fight keybind capture + katana
+skill.** Two regressions traced to the capability registration directly
+above, both ground-truthed via CFR-decompiling the installed
+`epic-fight-21.17.3.1` jar and the `epic-tweaks` addon jar (no decompiler
+was available for prior work in this pack; a JDK already vendored at
+`.tools/jdk-21.0.11+10` plus the CFR decompiler made a full source-level
+read possible this round — recommended for any future Epic Fight/Java-mod
+bytecode investigation instead of raw string-dumping .class files).
+
+*#84 — holding a Silent Gear weapon blocked Q-drop and hotbar number keys
+until death.* Root cause: `ClientConfig.combatCategorizedItems` (config key
+`ingame.combat_preferred_items`) is Epic Fight's own list of "this item
+counts as combat gear" items; it starts empty and is auto-populated exactly
+once, at first client boot, by `ItemsPreferenceScreen.resetItems()`, which
+sweeps every item whose Epic Fight item-stack capability is `instanceof
+WeaponCapability`. Giving Silent Gear weapons an Epic Fight weapon
+capability (directly above) means they get swept into this list too. The
+`epic-tweaks` addon's `autoswitch_mode` (auto-enter `PlayerMode.EPICFIGHT`
+on equipping any such item) and `enforce_mode` (cancel the player's own
+"Switch Mode" keypress while holding one — `PlayerPatchMixin#onToggleMode`)
+default to `true`, so holding the weapon now locks the player into Epic
+Fight Mode with no way to manually leave. Epic Fight's own
+`ControlEngine.handleEpicFightKeyMappings()` (every client tick, gated on
+`PlayerMode == EPICFIGHT`) cancels the vanilla Q-drop keybind
+(`MixinLocalPlayer#epicfight$onDrop`) and all 9 hotbar-slot keybinds
+(`ControlEngine#disableHotbarSlotPresses`) whenever
+`ControlEngine#isSwitchOrDropBlocked()` is true — true during any active
+attack/dodge/guard animation, or for ~1s after the last combat input
+(`hotbarLocked`), both self-clearing on their own. Confirmed via a full
+bytecode string dump of `ClientConfig`/`CommonConfig`/`ServerConfig` that
+Epic Fight itself ships **no config toggle** for this drop/hotbar
+cancellation (`CanceledVanillaActions` only gates right-click interact/
+item-use, unrelated — this was also already noted, correctly, in the
+`epic-tweaks` manifest entry from GitHub #69). Fixed by shipping
+`pack/config/epictweaks-client.toml` with `enforce_mode = false`
+(`autoswitch_mode` left at its default `true`): the player's "Switch Mode"
+keybind now works while holding a combat-preferred item, so they can drop
+back to Vanilla Mode on demand to free Q/hotbar instantly and re-enter
+combat mode for the next swing, instead of being locked in for the entire
+time the weapon is held. Disclosed: this does not touch the transient ~1s
+lock during an actual attack/dodge/guard animation — that part is Epic
+Fight's own hardcoded combat-timing mechanic with no exposed config, and
+applies identically to every Epic Fight weapon (vanilla or Silent Gear),
+not something #89 introduced. Verify-in-game.
+
+*#108 — Silent Gear katana granted no skill.* Ground-truthed via
+`EpicFightItemCapabilityPresets.class`: each weapon capability `"type"`
+(e.g. `epicfight:uchigatana`, `epicfight:tachi`) is a full Java-registered
+preset bundling category, moveset-per-style, *and* a baked-in weapon-innate
+skill from the moveset (`EpicFightMovesets.class`) — `"type"` alone
+determines the skill, the per-item capability JSON has no separate skill
+field to set. The katana's prior mapping, `epicfight:uchigatana`, actually
+does carry a skill (`BATTOJUTSU` + its passive) via the `UCHIGATANA_BASE`
+moveset — but it's a quick-draw/sheathing skill, not the tachi skill the
+issue asks for. Since a capability file can only select one integrated
+type (moveset + skill come as a pair, can't be mixed), `katana.json`'s
+`"type"` is changed to `epicfight:tachi` (`TACHI_2H` moveset →
+`RUSHING_TEMPO` innate skill), matching real Epic Fight tachi items
+(`diamond_tachi.json` etc.) exactly. `attributes.common` is bumped from
+`{impact: 0.6, max_strikes: 1}` (an exact copy of Epic Fight's own
+`uchigatana.json`) to `{impact: 2.0, max_strikes: 2}` (Epic Fight's own
+`iron_tachi.json` values), following the same "iron-tier Epic Fight file as
+the flat baseline" convention already used by this pack's `dagger.json`/
+`spear.json`. Audited the rest of #89's mappings for the same gap: sword/
+machete (`epicfight:sword` → `SWEEPING_EDGE`/`DANCING_EDGE`), dagger/knife
+(`epicfight:dagger` → `EVISCERATE`/`BLADE_RUSH`), spear (`epicfight:spear`
+→ `HEARTPIERCER`/`GRASPING_SPIRE`), mace (`epicfight:axe` →
+`THE_GUILLOTINE`), and trident (`epicfight:trident`, its own innate skill)
+all already carry a real innate skill via their assigned moveset — no
+further changes needed. bow/crossbow are skill-less by design, matching
+Epic Fight's own native bow/crossbow presets (not a gap introduced by
+#89). Verify-in-game.
+
 ### Utility overhaul: tool tier-gating fix, Paxel, gear traits, building wand, backpacks (post-gear-overhaul)
 
 A follow-up to the combat/gearing overhaul above, applying the same rigor
