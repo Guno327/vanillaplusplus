@@ -1212,61 +1212,83 @@ ServerEvents.commandRegistry(event => {
 // scripts/tests/l3_client_join.py for the two routes already tried and
 // ruled out (console `execute as <player> run ...` silently no-ops under
 // KubeJS's own registered command; hmc-specifics 2.4.0 exposes no client
-// chat verb to type the command). This hook is the route #65 itself
-// proposed instead: run the exact same ST_CHECKS loop the moment a real
-// ServerPlayer is granted a sentinel, test-only stage, so an L3 harness can
-// exercise the player-gated checks by granting that stage post-join - the
-// same mechanism (`kubejs stages add <player> <stage>`) L3 already uses for
-// its own tier-stage probe, and the same PlayerEvents.stageAdded binding
-// mobility.js already relies on elsewhere in this pack.
+// chat verb to type the command).
 //
-// Ground truth (javap against kubejs-neoforge-2101.7.2-build.368.jar,
-// dev/latvian/mods/kubejs/stages/Stages.class): the interface's default
-// add(String) method - which is what both `player.stages.add(...)` and the
-// `kubejs stages add` console command call - posts PlayerEvents.STAGE_ADDED
-// with a `new StageChangedEvent(getPlayer(), this, stage)` BEFORE returning,
-// for any Stages implementation (TagWrapperStages here, since
-// ProgressiveStages itself is gone per #49 - see this file's sibling
-// progression_stage_bridge.js). getPlayer() is whatever real
-// net.minecraft.world.entity.player.Player the Stages instance was created
-// against, i.e. the actual joined player, not a console/command-block
-// source - exactly what every player-gated check above needs and what
-// stRunSelftestChecks() takes as its `player` argument.
+// #65's original route (this comment's prior revision) granted a sentinel,
+// test-only stage (`vpp_test_selftest_hook`) and ran these checks from a
+// PlayerEvents.stageAdded(...) hook, on the theory that Stages.add()'s
+// default add(String) method posts PlayerEvents.STAGE_ADDED with the real
+// joined ServerPlayer before returning (javap-confirmed against
+// kubejs-neoforge-2101.7.2-build.368.jar's Stages.class). That part was
+// right, but two engineers proved the exception this whole mechanism was
+// built to route around - `kubejs stages add <player> <stage>` throwing
+// server-side ("An unexpected error occurred trying to execute that
+// command") against a real connected client - is INSIDE KubeJS's own
+// Stages.add(), specifically its AddStagePayload broadcast to that client,
+// and fires BEFORE this file's stageAdded hook (or its try/catch) ever
+// runs. The paired `stages remove` and a real tier-stage grant
+// (andesite_age) both work fine against the same client; only the sentinel
+// stage-ADD path throws, and only with a client attached. There is no
+// stage-side fix available from Rhino script code for a throw inside
+// KubeJS's own native broadcast, so #65 now runs these checks from a plain
+// server COMMAND instead - no stage grant, no AddStagePayload broadcast, no
+// exception.
 //
-// Guarded from ever firing in normal play by construction, not by an env
-// var/system property this test-only Rhino code would have to read:
-// ST_TEST_HOOK_STAGE is not one of ST_TIER_IDS, not one of
-// progression_stage_bridge.js's PSB_*_TIER_IDS/PSB_*_TRIGGERS stage ids, and
-// is granted nowhere else in this codebase - the only other place this
-// exact string appears is scripts/tests/l3_client_join.py, the L3 harness
-// that deliberately grants it post-join. A player who is never handed this
-// specific id by that harness never triggers this listener at all, the same
-// safety argument mobility.js's own STAGE-keyed stageAdded/stageRemoved
-// handlers already rely on for a real (non-test) stage.
+// `/vpp_selftest_player` takes no Brigadier ArgumentType (this pack has
+// never proven Commands.argument(...)/Arguments.* interop - see
+// skill_respec.js's own comment on that decision) - it runs the existing
+// player-gated checks against every currently connected ServerPlayer
+// instead, via `server.players`, the same for-of target already proven
+// elsewhere in this pack (mob_scaling.js/leaderboard.js/quests.js/
+// progression_stage_bridge.js). In L3's single-client harness that is
+// exactly the one joined player STAGE_PROBE and everything else in this
+// script already exercises.
 //
-// Reports to the SERVER LOG (console.info), not chat: there is no ctx.source
-// here (this fires from a stage-grant event, not a command invocation), and
-// the server log is exactly what L3 already greps for its other post-grant
-// confirmations (see send_server_command()/read(SERVER_LOG) in
-// l3_client_join.py). VPP_SELFTEST_HOOK_LINE: prefixes each per-check line
-// and VPP_SELFTEST_HOOK: prefixes the summary so both are unambiguous to
-// grep for and can never collide with the command path's own
-// VPP_SELFTEST:/`[TAG] name - detail` chat output.
-const ST_TEST_HOOK_STAGE = 'vpp_test_selftest_hook'
-
-PlayerEvents.stageAdded(ST_TEST_HOOK_STAGE, event => {
-    try {
-        let player = event.player
-        let server = player.level.server
-        let run = stRunSelftestChecks(server, player)
-        for (let i = 0; i < run.results.length; i++) {
-            let r = run.results[i]
-            console.info(`VPP_SELFTEST_HOOK_LINE: [${r.tag}] ${r.name} - ${r.detail}`)
+// Reports to the SERVER LOG (console.info) with the same
+// VPP_SELFTEST_HOOK_LINE:/VPP_SELFTEST_HOOK: prefixes L3
+// (scripts/tests/l3_client_join.py) already greps for, unchanged from the
+// prior stage-hook mechanism, so both are unambiguous to grep for and can
+// never collide with the command path's own VPP_SELFTEST:/`[TAG] name -
+// detail` chat output.
+function stRunSelftestPlayerHook(server) {
+    let anyPlayers = false
+    for (const player of server.players) {
+        anyPlayers = true
+        try {
+            let run = stRunSelftestChecks(server, player)
+            for (let i = 0; i < run.results.length; i++) {
+                let r = run.results[i]
+                console.info(`VPP_SELFTEST_HOOK_LINE: [${r.tag}] ${r.name} - ${r.detail}`)
+            }
+            let executed = run.passed + run.failed
+            let status = run.failed === 0 ? 'PASS' : 'FAIL'
+            console.info(`VPP_SELFTEST_HOOK: ${status} (${run.passed}/${executed}, ${run.skipped} skipped)`)
+        } catch (e) {
+            console.error('[vpp selftest player-hook] top-level EXCEPTION for ' + player.username + ': ' + e + (e && e.stack ? ('\n' + e.stack) : ''))
         }
-        let executed = run.passed + run.failed
-        let status = run.failed === 0 ? 'PASS' : 'FAIL'
-        console.info(`VPP_SELFTEST_HOOK: ${status} (${run.passed}/${executed}, ${run.skipped} skipped)`)
-    } catch (e) {
-        console.error('[vpp selftest test-hook] top-level EXCEPTION: ' + e + (e && e.stack ? ('\n' + e.stack) : ''))
     }
+    return anyPlayers
+}
+
+ServerEvents.commandRegistry(event => {
+    let { commands: Commands } = event
+
+    event.register(
+        Commands.literal('vpp_selftest_player').executes(ctx => {
+            try {
+                let server = ctx.source.server
+                let any = stRunSelftestPlayerHook(server)
+                if (!any) {
+                    ctx.source.sendSystemMessage(ST_ComponentClass.literal('VPP_SELFTEST_HOOK: no connected players to run player-gated checks against'))
+                    return 0
+                }
+                ctx.source.sendSystemMessage(ST_ComponentClass.literal('VPP_SELFTEST_HOOK: ran player-gated checks against all connected players - see server log'))
+                return 1
+            } catch (e) {
+                console.error('[vpp selftest player-hook] top-level EXCEPTION: ' + e + (e && e.stack ? ('\n' + e.stack) : ''))
+                ctx.source.sendSystemMessage(ST_ComponentClass.literal('VPP_SELFTEST_HOOK: FAIL (top-level exception, see server log: ' + e + ')'))
+                return 0
+            }
+        })
+    )
 })

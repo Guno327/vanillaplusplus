@@ -23,12 +23,15 @@ silently no-ops, and hmc-specifics 2.4.0 exposes no client chat verb). L1
 still covers the selftest from the console. What #47/#65 actually wanted -
 selftest.js's player-gated checks (economy give/sell round-trip, per-player
 stage/bank lookups, etc.) exercised against a REAL joined player instead of
-reporting SKIP everywhere - is instead covered by granting
-SELFTEST_HOOK_STAGE post-join below: selftest.js wires
-PlayerEvents.stageAdded(SELFTEST_HOOK_STAGE, ...) to run those checks
-directly against the event's real ServerPlayer and log the results, which
-this script asserts on. See that constant's comment and selftest.js's own
-ST_TEST_HOOK_STAGE comment for the full mechanism.
+reporting SKIP everywhere - is instead covered by running the
+`vpp_selftest_player` server command post-join below: selftest.js's handler
+runs those checks directly against every connected ServerPlayer and logs the
+results, which this script asserts on. (An earlier revision of this mechanism
+granted a sentinel stage and ran the checks from a PlayerEvents.stageAdded
+hook instead; that turned out to throw server-side inside KubeJS's own
+Stages.add() broadcast to a connected client, before the hook itself ever
+ran - see selftest.js's comment above stRunSelftestPlayerHook() for the full
+history.) See selftest.js's own comment for the full mechanism.
 
 ENVIRONMENT REQUIREMENT: the full client mod set includes Sodium, which
 creates a real OpenGL fence object on every render tick regardless of
@@ -195,23 +198,18 @@ STAGE_PROBE_SETTLE_S = 30
 # no-op and the probe would skip forever. Asking for the resulting stage LIST
 # instead is true whether the grant was fresh or already in place.
 
-# GitHub #65: sentinel, test-only stage id - keep this string identical to
-# selftest.js's own ST_TEST_HOOK_STAGE constant, the only other place this
-# id appears in the codebase (grep it). Granting it fires selftest.js's
-# PlayerEvents.stageAdded(ST_TEST_HOOK_STAGE, ...) hook with the joined
-# player's real ServerPlayer, running every player-gated ST_CHECKS entry
-# that reports SKIP under every other tier (see the KNOWN GAP note below,
-# now superseded by this mechanism, and selftest.js's own comment for the
-# javap-verified reasoning: Stages.add()'s default method posts
-# PlayerEvents.STAGE_ADDED with getPlayer() before returning, for any
-# Stages backend). Unlike STAGE_PROBE above, this grant is immediately
-# reverted after reading the hook's log output (see below) specifically so
-# a rerun against this same reused world sees a fresh false->true
-# transition and the hook fires again - a real tier stage is deliberately
-# never revoked (permanence is the whole point of progression stages);
-# this sentinel is not real progression, purely a test trigger, so
-# reverting it is safe and has no register in progressivestages tier data.
-SELFTEST_HOOK_STAGE = "vpp_test_selftest_hook"
+# GitHub #65: runs selftest.js's player-gated checks (economy give/sell
+# round-trip, per-player stage/bank lookups, etc.) against the real joined
+# player instead of reporting SKIP everywhere. Originally driven by granting
+# a sentinel stage and catching selftest.js's PlayerEvents.stageAdded hook;
+# that route turned out to throw server-side inside KubeJS's own
+# Stages.add() -> AddStagePayload broadcast to a connected client, before
+# the hook (or its try/catch) ever ran - see selftest.js's comment above
+# stRunSelftestPlayerHook() for the full history. `vpp_selftest_player` is
+# a plain server command instead: no stage grant, no broadcast to any
+# client, no exception. It takes no arguments - selftest.js's handler runs
+# the checks against every currently connected ServerPlayer, which in this
+# harness's single-client scenario is exactly the one joined player.
 SELFTEST_HOOK_SETTLE_S = 8
 
 
@@ -832,20 +830,17 @@ def _run_l3_boot_and_join(env):
         #
         # L1 still covers the selftest COMMAND console-side. What #65 actually
         # needed - the player-gated CHECKS inside it exercised against a real
-        # player - is instead reached via SELFTEST_HOOK_STAGE below, per #65's
-        # own proposed route: a stage-grant hook, not the command.
-        print(f"== L3: grant '{SELFTEST_HOOK_STAGE}' to exercise selftest.js's "
-              f"player-gated checks (#65) ==")
+        # player - is instead reached via the `vpp_selftest_player` command
+        # below (see selftest.js's comment above stRunSelftestPlayerHook()
+        # for why this replaced an earlier sentinel-stage-grant route that
+        # threw inside KubeJS's own Stages.add() broadcast to a connected
+        # client).
+        print("== L3: run 'vpp_selftest_player' to exercise selftest.js's "
+              "player-gated checks (#65) ==")
         pre_len_hook_server = len(read(SERVER_LOG))
-        send_server_command(f"kubejs stages add {joined_username} {SELFTEST_HOOK_STAGE}")
+        send_server_command("vpp_selftest_player")
         time.sleep(SELFTEST_HOOK_SETTLE_S)
         hook_log = read(SERVER_LOG)[pre_len_hook_server:]
-        # Revert immediately (see SELFTEST_HOOK_STAGE's own comment above) so a
-        # rerun against this same reused world sees a fresh false->true
-        # transition and the hook fires again next time, instead of Stages.add()
-        # silently no-op'ing because the sentinel is already held.
-        send_server_command(f"kubejs stages remove {joined_username} {SELFTEST_HOOK_STAGE}")
-        time.sleep(3)
 
         hook_lines = re.findall(
             r"VPP_SELFTEST_HOOK_LINE: \[(PASS|FAIL|SKIP)\] (.+?) - (.*)", hook_log
@@ -855,11 +850,10 @@ def _run_l3_boot_and_join(env):
         )
         if not summary_m:
             fail(
-                f"selftest.js's #65 test-only stage-grant hook never logged a "
-                f"VPP_SELFTEST_HOOK: summary line within {SELFTEST_HOOK_SETTLE_S}s of granting "
-                f"'{SELFTEST_HOOK_STAGE}' to {joined_username} - either PlayerEvents.stageAdded "
-                f"didn't fire (grant didn't land, or the hook isn't wired) or it threw before "
-                f"finishing. See {SERVER_LOG}."
+                f"selftest.js's #65 'vpp_selftest_player' command never logged a "
+                f"VPP_SELFTEST_HOOK: summary line within {SELFTEST_HOOK_SETTLE_S}s of running "
+                f"it for {joined_username} - either the command isn't registered/wired, no "
+                f"player was connected, or it threw before finishing. See {SERVER_LOG}."
             )
         hook_status, hook_passed, hook_executed, hook_skipped = summary_m.groups()
         print(f"== L3: selftest.js player-gated hook reported {hook_status} "
@@ -869,21 +863,21 @@ def _run_l3_boot_and_join(env):
                 print(line)
         if hook_status != "PASS":
             fail(
-                f"selftest.js's player-gated checks FAILED under the #65 stage-grant hook "
-                f"(a real joined player was behind them, so this is a genuine failure, not a "
-                f"SKIP) - see {SERVER_LOG}."
+                f"selftest.js's player-gated checks FAILED under the #65 "
+                f"'vpp_selftest_player' command (a real joined player was behind them, so "
+                f"this is a genuine failure, not a SKIP) - see {SERVER_LOG}."
             )
         # The entire point of #65 is that these stop reporting SKIP once a real
         # player is behind them - if every one of them still reports SKIP here,
-        # the hook fired but somehow without a usable player (e.g. a future
-        # refactor breaking the event.player wiring), defeating its whole
+        # the command ran but somehow without a usable player (e.g. a future
+        # refactor breaking the server.players iteration), defeating its whole
         # purpose, and that is worth failing loudly on rather than passing
         # vacuously.
         non_skip = [t for t in hook_lines if t[0] != "SKIP"]
         if not non_skip:
             fail(
-                f"every check still reported SKIP under the #65 stage-grant hook too - the "
-                f"hook fired but apparently without a usable player. See {SERVER_LOG}."
+                f"every check still reported SKIP under the #65 'vpp_selftest_player' command "
+                f"too - it ran but apparently without a usable player. See {SERVER_LOG}."
             )
         print(f"== L3: {len(non_skip)}/{len(hook_lines)} selftest checks ran PASS/FAIL "
               f"(not SKIP) under a real joined player (#65) ==")
@@ -896,9 +890,9 @@ def _run_l3_boot_and_join(env):
     print(
         f"L3 PASS: a real client joined, survived a {SETTLE_S}s post-join settle window past "
         f"#49's historical failure window, was not stuck on a loading/dirt-message screen, and "
-        f"had selftest.js's player-gated checks run (not SKIP) via the #65 stage-grant hook. "
-        f"Does NOT drive the /vpp_selftest COMMAND itself as the joined player - see the KNOWN "
-        f"GAP note in this script for why."
+        f"had selftest.js's player-gated checks run (not SKIP) via the #65 "
+        f"'vpp_selftest_player' command. Does NOT drive the /vpp_selftest COMMAND itself as "
+        f"the joined player - see the KNOWN GAP note in this script for why."
     )
 
 
