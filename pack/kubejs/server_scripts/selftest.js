@@ -44,24 +44,24 @@ const ST_TIER_IDS = [
     'rootborn', 'andesite_age', 'brass_age', 'precision_age', 'induction_age',
     'starforged_age', 'lunar_frontier', 'martian_frontier', 'inner_system', 'jovian_frontier',
 ]
-// Issue #71 ("Expand Skill Trees / Categories"): 12 -> 23 categories - kept
-// in sync by hand with gen_skill_tree.py's CATEGORY_SPECS ids.
-const ST_SKILL_CATEGORIES = [
-    'alchemy', 'bows', 'building', 'cooking', 'daggers', 'enchanting',
-    'exploration', 'farming', 'fishing', 'greatswords', 'longswords',
-    'magic', 'mining', 'running', 'sailing', 'smithing', 'spears',
-    'swimming', 'swords', 'tachi', 'taming', 'trading', 'woodcutting',
-]
-// Issue #71 also expanded 15 -> 34 skill nodes per category - kept in sync
-// by hand with gen_skill_tree.py's per-category node count (12 -> 23
-// categories x 15 -> 34 nodes = 782 total, per
-// pack/kubejs/data/puffish_skills/puffish_skills/categories/*/skills.json).
-// Issue #77: this drifted out of sync with the actual shipped node count
-// once before (asserted 15 for two release cycles after #71 shipped 34) -
-// scripts/ci/check_selftest_skill_sync.py now cross-checks both this
-// constant and ST_SKILL_CATEGORIES above against the real generated data on
-// every fast-tier CI run so that can't happen silently again.
-const ST_SKILL_NODE_COUNT_PER_CATEGORY = 34
+// Issue #116 ("Converge all skill trees into ONE unified tree") SUPERSEDES
+// issue #71's 23-category structure with exactly ONE puffish_skills
+// category - kept in sync by hand with gen_skill_tree.py's
+// UNIFIED_CATEGORY_ID. All 23 of #71's categories (mining, swords, bows,
+// ... woodcutting) still exist as subtrees woven into this one category
+// (see gen_skill_tree.py's FORMER_SPECS/CLASS_SPECS), they just no longer
+// have their own puffish_skills category id.
+const ST_SKILL_CATEGORIES = ['adventurer']
+// Issue #116's unified tree has 791 total skill nodes in its one category
+// (1 shared "origin" root + 4 class roots + 23 former-categories x 34 nodes
+// + 4 class capstones = 1 + 4 + 782 + 4 = 791) - kept in sync by hand with
+// gen_skill_tree.py's actual output (pack/kubejs/data/puffish_skills/
+// puffish_skills/categories/adventurer/skills.json). Issue #77's drift
+// class (a hardcoded node count silently falling out of sync with the
+// generator) is exactly why scripts/ci/check_selftest_skill_sync.py
+// cross-checks both this constant and ST_SKILL_CATEGORIES above against the
+// real generated data on every fast-tier CI run.
+const ST_SKILL_NODE_COUNT_PER_CATEGORY = 791
 const ST_COIN_ITEM_IDS = [
     'numismatics:spur', 'numismatics:bevel', 'numismatics:sprocket',
     'numismatics:cog', 'numismatics:crown', 'numismatics:sun',
@@ -153,7 +153,7 @@ stCheck('ProgressiveStages: 10 tier ids resolve on player.stages without throwin
     return { pass: true, detail: ST_TIER_IDS.length + ' ids resolved' }
 })
 
-stCheck('SkillsAPI: 23 skill categories all present', () => {
+stCheck('SkillsAPI: the unified skill category is present', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
     let missing = []
     for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
@@ -161,10 +161,10 @@ stCheck('SkillsAPI: 23 skill categories all present', () => {
         let opt = ST_SkillsAPIClass.getCategory(catRl)
         if (!opt.isPresent()) missing.push(ST_SKILL_CATEGORIES[i])
     }
-    return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 23 present' : 'missing: ' + missing.join(',') }
+    return { pass: missing.length === 0, detail: missing.length === 0 ? ('present: ' + ST_SKILL_CATEGORIES.join(',')) : 'missing: ' + missing.join(',') }
 })
 
-stCheck('SkillsAPI: all 23 skill categories have an Experience/level source (points wiring)', () => {
+stCheck('SkillsAPI: the unified skill category has an Experience/level source (points wiring)', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
     let missing = []
     for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
@@ -173,44 +173,46 @@ stCheck('SkillsAPI: all 23 skill categories have an Experience/level source (poi
         if (!catOpt.isPresent()) { missing.push(ST_SKILL_CATEGORIES[i] + '(category missing)'); continue }
         if (!catOpt.get().getExperience().isPresent()) missing.push(ST_SKILL_CATEGORIES[i])
     }
-    return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 23 wired' : 'missing Experience: ' + missing.join(',') }
+    return { pass: missing.length === 0, detail: missing.length === 0 ? 'wired' : 'missing Experience: ' + missing.join(',') }
 })
 
 // issue #24 ("plenty of skill points but unable to allocate them") ground-
-// truthed root cause: every one of the 12 categories' skills.json had ZERO
-// nodes with "root": true (scripts/gen_skill_tree.py never set it). Per
-// javap against the installed puffish_skills-0.18.1-1.21-neoforge.jar,
+// truthed root cause: every one of the (then-12) categories' skills.json
+// had ZERO nodes with "root": true (scripts/gen_skill_tree.py never set
+// it). Per javap against the installed
+// puffish_skills-0.18.1-1.21-neoforge.jar,
 // net.puffish.skillsmod.server.data.CategoryData.getSkillState only reaches
 // AVAILABLE/AFFORDABLE (clickable) via a root node or a `normal` edge from
 // an already-unlocked node - with unlockedSkills starting empty for every
 // player and zero roots, every node in every category was permanently
-// LOCKED regardless of points held. Fixed in scripts/gen_skill_tree.py
-// (n0 now carries "root": true) + regenerated pack/kubejs/data/
-// puffish_skills/puffish_skills/categories/*/skills.json.
+// LOCKED regardless of points held. Fixed in scripts/gen_skill_tree.py and
+// still true under issue #116's unified tree, just with only ONE root node
+// total now ("origin" - see gen_skill_tree.py's module docstring) instead
+// of one per category, because there is only one category left.
 //
-// This exact invariant ("at least one root node per category") is NOT
-// re-checked here at L1: the public net.puffish.skillsmod.api surface only
-// exposes per-node unlock STATE via Skill#getState(ServerPlayer), which
-// needs a real connected player - this command runs over cmd_fifo with no
-// attached ServerPlayer (see this file's own header comment), so that check
-// would always SKIP under the L1 harness and never actually catch a
-// regression. There is also no way to read the raw skills.json "root" field
-// from KubeJS/Rhino directly - java.io/java.nio are hard-blocked by this
-// pack's installed KubeJS's own kubejs.classfilter.txt (ground-truthed the
-// same way food_selftest.js's config/solonion.json check documents; see
-// that file's comment for the extraction). The static, always-reliable,
-// pre-boot check for this invariant lives instead in
-// scripts/ci/check_skill_trees.py (run via scripts/ci/run_all.py) - it
-// parses skills.json directly and asserts every category has >=1 root node
-// plus that every "definition" reference resolves, catching this bug class
-// (and the silent-node-drop variant) well before a boot is ever attempted.
-// What L1 CAN and does check here instead: that every category's skill
-// node count survived config parsing intact (34/34) - a bad "definition"
+// This exact invariant ("at least one root node") is NOT re-checked here at
+// L1: the public net.puffish.skillsmod.api surface only exposes per-node
+// unlock STATE via Skill#getState(ServerPlayer), which needs a real
+// connected player - this command runs over cmd_fifo with no attached
+// ServerPlayer (see this file's own header comment), so that check would
+// always SKIP under the L1 harness and never actually catch a regression.
+// There is also no way to read the raw skills.json "root" field from
+// KubeJS/Rhino directly - java.io/java.nio are hard-blocked by this pack's
+// installed KubeJS's own kubejs.classfilter.txt (ground-truthed the same
+// way food_selftest.js's config/solonion.json check documents; see that
+// file's comment for the extraction). The static, always-reliable, pre-boot
+// check for this invariant lives instead in scripts/ci/check_skill_trees.py
+// (run via scripts/ci/run_all.py) - it parses skills.json directly and
+// asserts exactly 1 root node for the whole tree plus that every
+// "definition" reference resolves, catching this bug class (and the
+// silent-node-drop variant) well before a boot is ever attempted.
+// What L1 CAN and does check here instead: that the unified category's
+// skill node count survived config parsing intact - a bad "definition"
 // reference doesn't fail the datapack load, it silently drops just that
 // node (net.puffish.skillsmod.config.skill.SkillConfig.parse), which would
-// show up here as a category with fewer than 34 skills reachable through
-// the API.
-stCheck('SkillsAPI: all 23 skill categories retained their full 34-node skill count after parsing', () => {
+// show up here as fewer than ST_SKILL_NODE_COUNT_PER_CATEGORY skills
+// reachable through the API.
+stCheck('SkillsAPI: the unified skill category retained its full node count after parsing', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
     let bad = []
     for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
@@ -220,7 +222,7 @@ stCheck('SkillsAPI: all 23 skill categories retained their full 34-node skill co
         let count = catOpt.get().streamSkills().toArray().length
         if (count !== ST_SKILL_NODE_COUNT_PER_CATEGORY) bad.push(ST_SKILL_CATEGORIES[i] + '=' + count)
     }
-    return { pass: bad.length === 0, detail: bad.length === 0 ? ('all 23 have ' + ST_SKILL_NODE_COUNT_PER_CATEGORY + '/' + ST_SKILL_NODE_COUNT_PER_CATEGORY + ' nodes') : 'bad counts: ' + bad.join(',') }
+    return { pass: bad.length === 0, detail: bad.length === 0 ? (ST_SKILL_NODE_COUNT_PER_CATEGORY + '/' + ST_SKILL_NODE_COUNT_PER_CATEGORY + ' nodes') : 'bad counts: ' + bad.join(',') }
 })
 
 stCheck('Numismatics: bank account/balance reachable for a player', (server, player) => {

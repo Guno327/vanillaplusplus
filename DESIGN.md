@@ -4129,3 +4129,133 @@ it keeps running and keeps writing the same legacy file for as long as
 Phase C leaves it installed. Phases C (cutover) and D (questline rebuild)
 remain deferred pending explicit owner sign-off, unchanged from the
 phasing above.
+
+### Skill trees converged into one unified tree (GitHub #116)
+
+Owner feedback: 23 category tabs (GitHub #71) got unwieldy to navigate.
+GitHub #116 asked for a single massive tree instead, with four asks: (1)
+one unified tree weaving all the buff categories together instead of 23
+tabs, (2) unified XP feeding one player level, weighted by action
+difficulty, (3) multiple mutually-exclusive starting "classes", and (4)
+some strong, unique deep skills that need real investment to reach. This
+SUPERSEDES #71's 23-category structure — it's a rebuild of that generator's
+output, not an addition alongside it.
+
+**Topology.** `scripts/gen_skill_tree.py` now emits exactly ONE
+`puffish_skills` category (`UNIFIED_CATEGORY_ID = "adventurer"`), not 23.
+Every one of #71's 23 categories (mining, swords, bows, ... woodcutting)
+survives unchanged as a 34-node subtree (`FORMER_SPECS`, byte-for-byte the
+same `sources`/`themes`/`root_attr` columns #71 tuned) — they're rewoven
+into the one tree, not deleted. The tree has 4 layers:
+
+1. **`origin`** — the single global root node (`"root": true`; the *only*
+   root left, replacing #71's one-per-category root). A small universal
+   Max Health bonus, free the instant the datapack loads.
+2. **4 class roots**, connected to `origin` via `normal` edges (all 4
+   visible/purchasable from the start): Warrior (swords/daggers/
+   greatswords/longswords/spears/tachi), Ranger (bows/running/swimming/
+   exploration/sailing/fishing/taming), Mystic (magic/enchanting/alchemy/
+   trading), Artisan (mining/building/woodcutting/farming/smithing/
+   cooking) — every #71 category assigned to exactly one class by real
+   thematic fit (asserted at import time in `gen_skill_tree.py`).
+3. **23 former-category subtrees**, one `normal` edge per class → each of
+   its assigned formers' root node, then each former's own #71-shaped
+   34-node tree (1 local root + 3 themed 11-node branches) underneath,
+   untouched from #71.
+4. **4 capstones**, one per class, each one `normal` edge past a specific
+   deep leaf of that class's last former's last theme-branch — 7 edges
+   from `origin` (`origin → class root → former root → theme root → depth1
+   → depth2 → depth3 leaf → capstone`). Each combines two attribute
+   rewards at ~5-7x a regular node's magnitude (`CAPSTONE_DEFS`) — asks
+   for real investment before paying off, and structurally verified by
+   `check_skill_trees.py`'s new `max_depth` stat (real tree: depth 7,
+   asserted ≥6 in `test_real_generated_output_passes`).
+
+Total: 791 nodes (1 origin + 4 class roots + 23×34 former nodes + 4
+capstones), 53 shared definitions (deduped by attribute id across every
+former that uses the same buff — a nice side effect of merging into one
+`definitions.json`, down from 23 duplicated copies before).
+
+**Mutually-exclusive class starts (ask 3).** The 4 class-root nodes are
+additionally linked by a full `exclusive` clique — all `C(4,2)=6` pairs —
+in `connections.json`'s `exclusive` group. This is the exact mechanism
+this repo's *pre-#71* generator used for its old per-category spec forks
+(git history: `trunk → normal edges to BOTH fork options, PLUS one
+exclusive edge between them`), generalized from a pair to a 4-clique:
+`net.puffish.skillsmod.server.data.CategoryData.getSkillState` excludes a
+skill once ≥1 of its declared exclusive neighbors is unlocked
+(`required_exclusions` defaults to 1) — so unlocking any one class root
+immediately excludes the other 3, permanently, until a `/respec` (which
+calls `Category#resetSkills`, re-evaluating exclusion live off the now-empty
+unlocked set and un-excluding all 4 again). #71's point 2 ("no exclusivity")
+still holds *within* a chosen class — nothing inside a former-category
+subtree is ever exclusive, only the class choice itself.
+
+**Unified XP, one player level (ask 2).** All 23 formers' `sources` lists
+(unchanged `mine_block`/`kill_entity`/`fish_item`/`smelt_item`/
+`enchant_item`/`increase_stat` entries from #71) are concatenated into the
+one category's `experience.json`, so every action — from a walking step to
+killing the Ender Dragon — feeds the same level. Difficulty weighting
+carries over from #71 almost entirely unchanged and is now load-bearing
+across the *whole* tree instead of one category: passive movement
+(running/swimming/sailing/exploration) is worth a small fraction of a
+point per game unit (0.015–0.03 XP/cm); block-breaking is a few flat
+points, tiered by real rarity (stone=1 up to diamond/emerald=14); weapon
+kills are `base_xp + dropped_xp`, where `dropped_xp` is the entity's own
+vanilla XP-orb amount — this is what makes "killing a strong enemy" worth
+more with zero extra bookkeeping, since a wither or ender dragon's vanilla
+XP drop already dwarfs a zombie's. `EXPERIENCE_EXPR`'s base constant is
+raised from #71's `70` to `900` (same `900 * (1.13 ^ level)` shape,
+`^` not `pow(...)` per issue #79) because #71's curve was tuned for ONE
+category filled by ONE family of actions, and this tree now pours in XP
+from all 23 formers' worth of actions simultaneously — this is a
+provisional first-order estimate (flagged the same way skill_respec.js's
+"respec is free for now" call is), not yet playtested. The player-facing
+"one unified level" ask is satisfied for free by having only one category
+left: `net.puffish.skillsmod.api.SkillsAPI.getCategory(...).getExperience()
+.getLevel(player)` already IS puffish_skills' own native per-category
+level — `pack/kubejs/server_scripts/leaderboard.js`'s `computeLevel()`
+used to sum across 23 categories by hand; it now just reads the one
+category's level directly (`SKILL_CATEGORIES = ['adventurer']`).
+
+**Downstream files updated in the same change** (not just the generator +
+generated data, since leaving them pointed at dead category ids would
+silently break the pack even though they're outside this issue's primary
+scope): `pack/kubejs/server_scripts/skills.js` (Building's out-of-band
+`BlockEvents.placed` XP grant now targets the unified category id, not the
+now-nonexistent `building` category), `skill_respec.js` (`/respec` no
+longer takes a category argument — there's only one category to reset, and
+resetting it also un-excludes the class-root clique so a respec lets a
+player switch classes too), and `leaderboard.js` (`SKILL_CATEGORIES`
+shrunk to the one id, `/leaderboard level`'s display text updated).
+
+**CI updated for the new shape.** `scripts/ci/check_skill_trees.py`: the
+old "`exclusive` is banned outright" rule is gone (#116 needs it again,
+just only at the class-root clique) — `exclusive` connections are now
+validated the same way `normal` ones always have been (shape + every
+referenced id resolves, no self-loops), and a new `max_depth` stat backs
+up the capstone depth claim. The reachability walk still only follows
+`normal` edges — `exclusive` edges are a same-endpoint add-on that
+constrains what's *unlockable* at runtime, not what's *reachable*
+structurally, so #71's original reachability invariant needed no logic
+change. `scripts/ci/check_skill_expressions.py` needed zero changes (it
+already globs `categories/*/experience.json`, generic over however many
+categories exist). `pack/kubejs/server_scripts/selftest.js`'s
+`ST_SKILL_CATEGORIES`/`ST_SKILL_NODE_COUNT_PER_CATEGORY` constants were
+updated to `['adventurer']`/`791` — `scripts/ci/check_selftest_skill_sync.py`
+needed zero code changes since its comparison logic was already generic
+over category count. `scripts/ci/tests/test_check_skill_trees.py`'s
+`test_exclusive_connection_is_banned` became
+`test_exclusive_connection_is_allowed_and_counted` (plus two new tests for
+dangling-reference/self-loop validation), and
+`test_real_generated_output_passes` now asserts exactly 1 category, ≥500
+skills, ≥6 exclusive pairs, and max depth ≥6 instead of "≥20 categories".
+
+Verified via `python3 scripts/ci/run_all.py` (PASS) and
+`python3 -m unittest discover -s scripts/ci/tests` (229 tests OK). Not
+verified: actual in-game skill-tree UI rendering of the 4-class layout, the
+class-exclusivity lockout/respec round-trip under a real connected player,
+and whether the raised `900`-base XP curve feels right in practice — all
+flagged verify-in-game, consistent with this repo's console-only L1
+boot-test limitation (no real `ServerPlayer` — see `check_skill_trees.py`'s
+own docstring for why this bug class can only be caught statically).

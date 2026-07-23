@@ -1,0 +1,1244 @@
+{
+	"experience_per_level": {
+		"type": "expression",
+		"data": {
+			"expression": "900 * (1.13 ^ level)"
+		}
+	},
+	"sources": [
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "silentgear:sword"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "#vanillaplusplus:daggers"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "#vanillaplusplus:greatswords"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "#vanillaplusplus:longswords"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "#vanillaplusplus:spears"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "#vanillaplusplus:tachis"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "silentgear:bow"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "silentgear:crossbow"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:increase_stat",
+			"data": {
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.sprint_one_cm"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 0.02"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:increase_stat",
+			"data": {
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.swim_one_cm"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 0.03"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:increase_stat",
+			"data": {
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.walk_one_cm"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 0.015"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:increase_stat",
+			"data": {
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.boat_one_cm"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 0.02"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:fish_item",
+			"data": {
+				"variables": {
+					"cod": {
+						"operations": [
+							{
+								"type": "get_fished_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:cod"
+								}
+							}
+						]
+					},
+					"salmon": {
+						"operations": [
+							{
+								"type": "get_fished_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:salmon"
+								}
+							}
+						]
+					},
+					"pufferfish": {
+						"operations": [
+							{
+								"type": "get_fished_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:pufferfish"
+								}
+							}
+						]
+					},
+					"tropical_fish": {
+						"operations": [
+							{
+								"type": "get_fished_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:tropical_fish"
+								}
+							}
+						]
+					},
+					"junk_bow": {
+						"operations": [
+							{
+								"type": "get_fished_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:bow"
+								}
+							}
+						]
+					},
+					"treasure_book": {
+						"operations": [
+							{
+								"type": "get_fished_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:enchanted_book"
+								}
+							}
+						]
+					},
+					"treasure_nautilus": {
+						"operations": [
+							{
+								"type": "get_fished_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:nautilus_shell"
+								}
+							}
+						]
+					},
+					"treasure_saddle": {
+						"operations": [
+							{
+								"type": "get_fished_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:saddle"
+								}
+							}
+						]
+					},
+					"treasure_name_tag": {
+						"operations": [
+							{
+								"type": "get_fished_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:name_tag"
+								}
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "cod",
+						"expression": "2"
+					},
+					{
+						"condition": "salmon",
+						"expression": "2"
+					},
+					{
+						"condition": "pufferfish",
+						"expression": "4"
+					},
+					{
+						"condition": "tropical_fish",
+						"expression": "4"
+					},
+					{
+						"condition": "junk_bow",
+						"expression": "5"
+					},
+					{
+						"condition": "treasure_book",
+						"expression": "12"
+					},
+					{
+						"condition": "treasure_nautilus",
+						"expression": "12"
+					},
+					{
+						"condition": "treasure_saddle",
+						"expression": "10"
+					},
+					{
+						"condition": "treasure_name_tag",
+						"expression": "10"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:increase_stat",
+			"data": {
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.animals_bred"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 30"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:kill_entity",
+			"data": {
+				"variables": {
+					"used_right_weapon": {
+						"operations": [
+							{
+								"type": "get_weapon_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "ars_nouveau:wand"
+								}
+							}
+						]
+					},
+					"dropped_xp": {
+						"operations": [
+							{
+								"type": "get_dropped_experience"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "used_right_weapon",
+						"expression": "2 + dropped_xp"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:enchant_item",
+			"data": {
+				"variables": {
+					"levels": {
+						"operations": [
+							{
+								"type": "get_levels"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "levels > 0",
+						"expression": "levels * 4"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:increase_stat",
+			"data": {
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.interact_with_brewingstand"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 12"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:increase_stat",
+			"data": {
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.traded_with_villager"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 25"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:mine_block",
+			"data": {
+				"variables": {
+					"silk_touch": {
+						"operations": [
+							{
+								"type": "get_tool_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"nbt": "{Enchantments:[{id:\"minecraft:silk_touch\"}]}"
+								}
+							}
+						]
+					},
+					"stone_like": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#base_stone_overworld"
+								}
+							}
+						]
+					},
+					"coal_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#c:ores/coal"
+								}
+							}
+						]
+					},
+					"copper_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#c:ores/copper"
+								}
+							}
+						]
+					},
+					"iron_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#c:ores/iron"
+								}
+							}
+						]
+					},
+					"gold_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#c:ores/gold"
+								}
+							}
+						]
+					},
+					"redstone_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#c:ores/redstone"
+								}
+							}
+						]
+					},
+					"lapis_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#c:ores/lapis"
+								}
+							}
+						]
+					},
+					"diamond_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#c:ores/diamond"
+								}
+							}
+						]
+					},
+					"emerald_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#c:ores/emerald"
+								}
+							}
+						]
+					},
+					"zinc_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "create:zinc_ore"
+								}
+							}
+						]
+					},
+					"deepslate_zinc_ore": {
+						"operations": [
+							{
+								"type": "get_mined_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "create:deepslate_zinc_ore"
+								}
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "!silk_touch & stone_like",
+						"expression": "1"
+					},
+					{
+						"condition": "!silk_touch & coal_ore",
+						"expression": "6"
+					},
+					{
+						"condition": "!silk_touch & copper_ore",
+						"expression": "6"
+					},
+					{
+						"condition": "!silk_touch & iron_ore",
+						"expression": "10"
+					},
+					{
+						"condition": "!silk_touch & gold_ore",
+						"expression": "10"
+					},
+					{
+						"condition": "!silk_touch & redstone_ore",
+						"expression": "8"
+					},
+					{
+						"condition": "!silk_touch & lapis_ore",
+						"expression": "8"
+					},
+					{
+						"condition": "!silk_touch & diamond_ore",
+						"expression": "14"
+					},
+					{
+						"condition": "!silk_touch & emerald_ore",
+						"expression": "14"
+					},
+					{
+						"condition": "!silk_touch & zinc_ore",
+						"expression": "10"
+					},
+					{
+						"condition": "!silk_touch & deepslate_zinc_ore",
+						"expression": "12"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:break_block",
+			"data": {
+				"variables": {
+					"any_log": {
+						"operations": [
+							{
+								"type": "get_broken_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "#minecraft:logs"
+								}
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "any_log",
+						"expression": "1"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:break_block",
+			"data": {
+				"variables": {
+					"wheat": {
+						"operations": [
+							{
+								"type": "get_broken_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "minecraft:wheat"
+								}
+							}
+						]
+					},
+					"carrots": {
+						"operations": [
+							{
+								"type": "get_broken_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "minecraft:carrots"
+								}
+							}
+						]
+					},
+					"potatoes": {
+						"operations": [
+							{
+								"type": "get_broken_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "minecraft:potatoes"
+								}
+							}
+						]
+					},
+					"beetroots": {
+						"operations": [
+							{
+								"type": "get_broken_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "minecraft:beetroots"
+								}
+							}
+						]
+					},
+					"nether_wart": {
+						"operations": [
+							{
+								"type": "get_broken_block_state"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"block": "minecraft:nether_wart"
+								}
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "wheat",
+						"expression": "2"
+					},
+					{
+						"condition": "carrots",
+						"expression": "2"
+					},
+					{
+						"condition": "potatoes",
+						"expression": "2"
+					},
+					{
+						"condition": "beetroots",
+						"expression": "2"
+					},
+					{
+						"condition": "nether_wart",
+						"expression": "3"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:increase_stat",
+			"data": {
+				"variables": {
+					"is_target_stat": {
+						"operations": [
+							{
+								"type": "get_stat"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"stat": "minecraft.custom:minecraft.interact_with_smithing_table"
+								}
+							}
+						]
+					},
+					"amount": {
+						"operations": [
+							{
+								"type": "get_increase_amount"
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "is_target_stat",
+						"expression": "amount * 15"
+					}
+				]
+			}
+		},
+		{
+			"type": "puffish_skills:smelt_item",
+			"data": {
+				"variables": {
+					"beef": {
+						"operations": [
+							{
+								"type": "get_smelted_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:cooked_beef"
+								}
+							}
+						]
+					},
+					"porkchop": {
+						"operations": [
+							{
+								"type": "get_smelted_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:cooked_porkchop"
+								}
+							}
+						]
+					},
+					"chicken": {
+						"operations": [
+							{
+								"type": "get_smelted_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:cooked_chicken"
+								}
+							}
+						]
+					},
+					"mutton": {
+						"operations": [
+							{
+								"type": "get_smelted_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:cooked_mutton"
+								}
+							}
+						]
+					},
+					"rabbit": {
+						"operations": [
+							{
+								"type": "get_smelted_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:cooked_rabbit"
+								}
+							}
+						]
+					},
+					"cod": {
+						"operations": [
+							{
+								"type": "get_smelted_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:cooked_cod"
+								}
+							}
+						]
+					},
+					"salmon": {
+						"operations": [
+							{
+								"type": "get_smelted_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:cooked_salmon"
+								}
+							}
+						]
+					},
+					"potato": {
+						"operations": [
+							{
+								"type": "get_smelted_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:baked_potato"
+								}
+							}
+						]
+					},
+					"kelp": {
+						"operations": [
+							{
+								"type": "get_smelted_item_stack"
+							},
+							{
+								"type": "puffish_skills:test",
+								"data": {
+									"item": "minecraft:dried_kelp"
+								}
+							}
+						]
+					}
+				},
+				"experience": [
+					{
+						"condition": "beef",
+						"expression": "2"
+					},
+					{
+						"condition": "porkchop",
+						"expression": "2"
+					},
+					{
+						"condition": "chicken",
+						"expression": "2"
+					},
+					{
+						"condition": "mutton",
+						"expression": "2"
+					},
+					{
+						"condition": "rabbit",
+						"expression": "2"
+					},
+					{
+						"condition": "cod",
+						"expression": "2"
+					},
+					{
+						"condition": "salmon",
+						"expression": "2"
+					},
+					{
+						"condition": "potato",
+						"expression": "2"
+					},
+					{
+						"condition": "kelp",
+						"expression": "1"
+					}
+				]
+			}
+		}
+	]
+}

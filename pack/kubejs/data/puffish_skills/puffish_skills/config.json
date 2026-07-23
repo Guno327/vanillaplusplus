@@ -1,28 +1,6 @@
 {
 	"version": 3,
 	"categories": [
-		"mining",
-		"swords",
-		"daggers",
-		"greatswords",
-		"longswords",
-		"spears",
-		"tachi",
-		"bows",
-		"running",
-		"swimming",
-		"building",
-		"magic",
-		"farming",
-		"fishing",
-		"trading",
-		"enchanting",
-		"cooking",
-		"exploration",
-		"sailing",
-		"taming",
-		"smithing",
-		"alchemy",
-		"woodcutting"
+		"adventurer"
 	]
 }

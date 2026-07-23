@@ -3,9 +3,41 @@
 consistency over pack/kubejs/data/puffish_skills/puffish_skills/.
 
 Originally written for issue #24 ("I have plenty of skill points but am
-unable to allocate them"), and extended for issue #71 ("Expand Skill
-Trees / Categories") to enforce that overhaul's new invariants instead of
-the old fixed 5/5/5 trunk+exclusive-fork shape:
+unable to allocate them"), extended for issue #71 ("Expand Skill Trees /
+Categories"), and extended again for issue #116 ("Converge all skill trees
+into ONE unified tree" - supersedes #71's 23-category structure with one
+category woven from all 23 as subtrees under 4 mutually-exclusive "class"
+starting points). What #116 changed about these invariants:
+
+  - The "no `exclusive` connections anywhere" rule #71 introduced is GONE.
+    #116 point 3 (multiple mutually-exclusive starting locations) requires
+    `exclusive` connections again, on purpose - scripts/gen_skill_tree.py's
+    4 class-root nodes form a full `exclusive` clique so unlocking any one
+    class permanently excludes the other 3 (same mechanism this repo's
+    PRE-#71 generator used for its old per-category spec forks - see git
+    history). This checker now VALIDATES `exclusive` connections (same
+    shape/reference checks as `normal`) instead of banning them outright.
+  - Still exactly ONE root node - just now it's one root for the WHOLE
+    tree (scripts/gen_skill_tree.py's "origin") rather than one per
+    category, because there is only one category left.
+  - Still "every node reachable from the root via `normal` edges alone" -
+    #116's class-exclusivity is layered on TOP of a fully `normal`-connected
+    spanning tree (every class root and every former-category subtree is
+    `normal`-reachable from "origin"; `exclusive` edges are a same-endpoint
+    add-on that doesn't change what's reachable, only what stays UNLOCKABLE
+    at runtime - see gen_skill_tree.py's module docstring point 3). So the
+    reachability graph walk below still only follows `normal` edges,
+    unchanged from #71.
+  - New: a max-depth sanity check (`stats["max_depth"]`) - #116 point 4
+    ("stronger, unique deep skills requiring significant investment") is a
+    structural claim ("some node needs a long chain of prerequisites"), not
+    just a vibe, so the real generated tree's depth is asserted to be deep
+    enough in test_check_skill_trees.py's test_real_generated_output_passes
+    (kept as a stat here rather than a hard error in this generic per-
+    category checker, so synthetic 3-node test fixtures for OTHER invariants
+    don't all need to fake a deep tree just to pass).
+
+The invariants #71 introduced and #116 keeps unchanged:
 
   - net.puffish.skillsmod.config.skill.SkillConfig.parse: the per-node
     "root" JSON field (skills.json) defaults to Boolean.FALSE
@@ -158,7 +190,7 @@ def check_skill_trees(root):
     """Returns (errors, stats) - errors is a list of human-readable
     strings (empty == consistent)."""
     errors = []
-    stats = {"categories": 0, "skills": 0, "definitions": 0, "roots": 0}
+    stats = {"categories": 0, "skills": 0, "definitions": 0, "roots": 0, "exclusive_pairs": 0, "max_depth": 0}
 
     skills_root = _skills_root(root)
     config_path = skills_root / "config.json"
@@ -306,27 +338,22 @@ def check_skill_trees(root):
             )
         stats["roots"] += len(root_ids)
 
-        # ---- connections.json (SkillConnectionsConfig: normal bidirectional/
-        # unidirectional pairs of skill ids). Issue #71 point 2: `exclusive`
-        # is BANNED outright - omit the key entirely (SkillConnectionsConfig.
-        # parse defaults a missing "exclusive" to
-        # SkillConnectionsGroupConfig.empty() via orElseGet, javap-verified
-        # against the installed jar, so omitting it is safe and loads fine).
-        # ----
+        # ---- connections.json (SkillConnectionsConfig: normal/exclusive
+        # bidirectional/unidirectional pairs of skill ids). Issue #116
+        # reintroduces `exclusive` (see this file's #116 docstring section
+        # above) for the class-choice clique - validated the same way
+        # `normal` always has been (shape + every referenced id must exist
+        # in skills.json), just no longer banned outright. ----
         connections_json = cat_dir / "connections.json"
         normal_pairs = []
+        exclusive_pair_count = 0
         if connections_json.is_file():
             try:
                 connections = _load_json(connections_json)
             except json.JSONDecodeError as e:
                 errors.append(f"{_rel(connections_json, root)}: JSON parse error: {e}")
                 connections = {}
-            if isinstance(connections, dict) and connections.get("exclusive"):
-                errors.append(
-                    f"{cat_id}: connections.json has a non-empty 'exclusive' group - "
-                    "issue #71 point 2 removed exclusivity from every category; "
-                    "no `exclusive` connections are allowed anywhere anymore"
-                )
+
             normal_group = connections.get("normal", {}) if isinstance(connections, dict) else {}
             if not isinstance(normal_group, dict):
                 normal_group = {}
@@ -346,9 +373,40 @@ def check_skill_trees(root):
                             )
                     normal_pairs.append(pair)
 
-        # ---- issue #71 point 1/2: every node reachable from the root via
+            exclusive_group = connections.get("exclusive", {}) if isinstance(connections, dict) else {}
+            if not isinstance(exclusive_group, dict):
+                exclusive_group = {}
+            for direction in ("bidirectional", "unidirectional"):
+                for pair in exclusive_group.get(direction, []) or []:
+                    if not isinstance(pair, list) or len(pair) != 2:
+                        errors.append(
+                            f"{cat_id}: connections.json exclusive.{direction} "
+                            f"entry {pair!r} is not a 2-element array"
+                        )
+                        continue
+                    a, b = pair
+                    if a == b:
+                        errors.append(
+                            f"{cat_id}: connections.json exclusive.{direction} "
+                            f"entry {pair!r} connects a skill to itself"
+                        )
+                    for skill_id in pair:
+                        if skill_id not in skills:
+                            errors.append(
+                                f"{cat_id}: connections.json exclusive.{direction} "
+                                f"references skill {skill_id!r}, which is not in skills.json"
+                            )
+                    exclusive_pair_count += 1
+
+        stats["exclusive_pairs"] += exclusive_pair_count
+
+        # ---- issue #71 point 1/2 (still true under #116 - see this file's
+        # #116 docstring section): every node reachable from the root via
         # `normal` edges alone (bidirectional treated as undirected;
-        # unidirectional followed forward only) ----
+        # unidirectional followed forward only). Also computes max BFS
+        # depth from the root over the same `normal`-only graph - issue
+        # #116 point 4's "significant investment" claim is checked against
+        # this in test_check_skill_trees.py's test_real_generated_output_passes. ----
         if root_ids and isinstance(skills, dict):
             adjacency = {}
             for pair in normal_pairs:
@@ -358,14 +416,19 @@ def check_skill_trees(root):
                 adjacency.setdefault(a, set()).add(b)
                 adjacency.setdefault(b, set()).add(a)
             reachable = set()
+            depth = {rid: 0 for rid in root_ids}
             frontier = list(root_ids)
             reachable.update(root_ids)
+            max_depth = 0
             while frontier:
-                node = frontier.pop()
+                node = frontier.pop(0)
                 for neighbor in adjacency.get(node, ()):
                     if neighbor not in reachable:
                         reachable.add(neighbor)
+                        depth[neighbor] = depth[node] + 1
+                        max_depth = max(max_depth, depth[neighbor])
                         frontier.append(neighbor)
+            stats["max_depth"] = max(stats["max_depth"], max_depth)
             unreachable = set(skills) - reachable
             if unreachable:
                 errors.append(
@@ -446,7 +509,8 @@ def main(argv=None):
         "check_skill_trees: PASS - "
         f"{stats['categories']} categor{'y' if stats['categories'] == 1 else 'ies'}, "
         f"{stats['skills']} skill node(s), {stats['definitions']} definition(s), "
-        f"{stats['roots']} root node(s), all internally consistent"
+        f"{stats['roots']} root node(s), {stats['exclusive_pairs']} exclusive pair(s), "
+        f"max depth {stats['max_depth']}, all internally consistent"
     )
     return 0
 

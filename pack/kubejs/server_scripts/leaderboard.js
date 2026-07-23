@@ -52,10 +52,13 @@
 // net.puffish.skillsmod.SkillsMod.createIdentifier, the method the mod's
 // own CategoryArgumentType uses to resolve bare category names like the
 // ones skills.js/dailies.js already pass to the `puffish_skills experience
-// add <player> <category> <amount>` command). The 12 category ids are the
-// directory names under pack/kubejs/data/puffish_skills/puffish_skills/
-// categories/. Level = sum of per-category levels (Pufferfish Skills has
-// no single "overall level" concept - it's per-category).
+// add <player> <category> <amount>` command). Issue #116 ("Converge all
+// skill trees into ONE unified tree") SUPERSEDES the old 12/23-category
+// structure with a single category (scripts/gen_skill_tree.py's
+// UNIFIED_CATEGORY_ID) - Level is now just that one category's own native
+// level (Pufferfish Skills has no separate "overall level" concept, it's
+// always per-category; #116 point 2's "one unified player level" is
+// achieved by having exactly one category left, not by summing anymore).
 //
 // TEAMS (GitHub #32 - ported off FTB Teams to Open Parties and Claims,
 // FTB Teams/Chunks dropped for redistribution reasons, see #28): OPAC's
@@ -128,16 +131,15 @@ const TIER_IDS = [
     'starforged_age', 'lunar_frontier', 'martian_frontier', 'inner_system', 'jovian_frontier',
 ]
 
-// Issue #71 ("Expand Skill Trees / Categories"): 12 -> 23 categories - kept
-// in sync by hand with gen_skill_tree.py's CATEGORY_SPECS ids (see that
-// file) and skill_respec.js's RESPEC_SKILL_CATEGORIES, which lists the
-// same 23 ids.
-const SKILL_CATEGORIES = [
-    'alchemy', 'bows', 'building', 'cooking', 'daggers', 'enchanting',
-    'exploration', 'farming', 'fishing', 'greatswords', 'longswords',
-    'magic', 'mining', 'running', 'sailing', 'smithing', 'spears',
-    'swimming', 'swords', 'tachi', 'taming', 'trading', 'woodcutting',
-]
+// Issue #116 ("Converge all skill trees into ONE unified tree") SUPERSEDES
+// issue #71's 23-category structure with a single puffish_skills category
+// (scripts/gen_skill_tree.py's UNIFIED_CATEGORY_ID) - kept in sync by hand
+// with that file and skill_respec.js's RESPEC_UNIFIED_CATEGORY_ID. This is
+// also exactly what issue #116 point 2 means by "one unified player level":
+// computeLevel() below no longer sums levels across 23 separate categories,
+// it just reads puffish_skills' own native per-category level straight off
+// the one remaining category.
+const SKILL_CATEGORIES = ['adventurer']
 
 const CACHE_ROOT_KEY = 'vpp_leaderboard_cache'
 
@@ -451,7 +453,7 @@ ServerEvents.commandRegistry(event => {
             .then(metricCommand(
                 'level',
                 p => ({ value: computeLevel(p), extra: null }),
-                e => `${e.name} - Level ${e.value} (summed across ${SKILL_CATEGORIES.length} skill categories)${e.online ? '' : ' (last seen)'}`,
+                e => `${e.name} - Level ${e.value} (unified skill level)${e.online ? '' : ' (last seen)'}`,
                 e => `${e.name} (${e.memberCount} member${e.memberCount === 1 ? '' : 's'}) - Level ${e.value} total`,
                 'Level leaderboard unavailable: Pufferfish Skills server API (net.puffish.skillsmod.api.SkillsAPI) could not be loaded on this server.'
             ))
