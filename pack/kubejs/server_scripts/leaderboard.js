@@ -17,14 +17,27 @@
 //    PlayerEnderChestContainer confirms both implement Container).
 //  - Numismatics DOES have a server-side bank API and it IS cleanly
 //    reachable from Rhino: `dev.ithundxr.createnumismatics.Numismatics.BANK`
-//    is a public static final GlobalBankManager; `.getAccount(Player)`
-//    (public) returns a BankAccount; `.getBalance()` (public int, raw
-//    spurs, same base unit as the coin table per Coin.toSpurs) gives the
-//    stored balance. All three confirmed via javap against
+//    is a public static final GlobalBankManager; `.getBalance()` (public int,
+//    raw spurs, same base unit as the coin table per Coin.toSpurs) gives the
+//    stored balance. Confirmed via javap against
 //    CreateNumismatics-1.0.20+neoforge-mc1.21.1.jar. Included in wealth.
 //    getAccount() is get-or-create (matches the mod's own /view command's
 //    behavior) so calling it can silently create an empty 0-balance
 //    account for a player who never opened a bank terminal - harmless.
+//    CORRECTED (client-test-harness hardening, 2026-07-23): GlobalBankManager
+//    overloads BOTH `getAccount(Player)` AND `getAccount(UUID)` (javap-
+//    confirmed) - calling the Player-typed overload with a real, live
+//    ServerPlayer from Rhino throws `InternalError: ... is ambiguous;
+//    candidate methods are: ...` (ground-truthed: this is exactly what L3's
+//    real-client-join tier hit, since a genuine connected player is the only
+//    way to reach this code with a real ServerPlayer rather than a null/
+//    console-only value). Rhino cannot disambiguate the two overloads for a
+//    ServerPlayer argument even though it unambiguously satisfies `Player`
+//    in plain Java. Calling `getAccount(player.getUUID())` instead resolves
+//    to the single UUID overload with no ambiguity, and returns the exact
+//    same BankAccount (both overloads key the same underlying account
+//    store) - a same-behavior, ambiguity-free call, not a workaround that
+//    changes what account is looked up.
 //
 // TIER: player.stages.has(id) - the same KubeJS game-stages binding
 // mob_scaling.js already uses - across the 10 ProgressiveStages tier ids
@@ -198,7 +211,11 @@ function computeWealth(player) {
     total += countCoins(player.getEnderChestInventory())
     if (NumismaticsClass) {
         try {
-            let account = NumismaticsClass.BANK.getAccount(player)
+            // getAccount(player.getUUID()), not getAccount(player) - see the
+            // module docstring's CORRECTED note: the Player-typed overload is
+            // ambiguous for a real ServerPlayer under Rhino; the UUID overload
+            // is unambiguous and returns the identical account.
+            let account = NumismaticsClass.BANK.getAccount(player.getUUID())
             total += account.getBalance()
         } catch (e) {
             console.error('[vpp leaderboard] bank balance read failed for ' + player.username + ': ' + e)
