@@ -545,16 +545,24 @@ stCheck('progression audit (#61/#127): refinedstorage pre-Induction-Age chain is
             if (ingredients[j].test(machineCasingStack)) usesMachineCasing = true
         }
         if (!demandsTier && usesMachineCasing) {
-            let casingOpt = server.getRecipeManager().byKey(stRl('refinedstorage:machine_casing'))
-            if (casingOpt.isPresent()) {
-                try {
-                    let casingIngredients = casingOpt.get().value().getIngredients().toArray()
-                    for (let j = 0; j < casingIngredients.length; j++) {
-                        for (let k = 0; k < tierStacks.length; k++) {
-                            if (casingIngredients[j].test(tierStacks[k])) demandsTier = true
-                        }
+            // #127 re-authors machine_casing under a vanillaplusplus: recipe id
+            // (event.remove of refinedstorage:machine_casing, then a new shaped
+            // recipe that still OUTPUTS refinedstorage:machine_casing), so
+            // byKey('refinedstorage:machine_casing') no longer resolves the
+            // recipe. Resolve by OUTPUT item instead - the same "resolve by
+            // output, never guess a recipe id" rule the create:brass_casing
+            // check below already relies on (and the exact failure mode #61
+            // exists to catch: this check silently read as ungated because the
+            // one-hop lookup keyed off a since-removed id).
+            let casingMatches = stFindRecipesByOutput(server, 'refinedstorage:machine_casing')
+            for (let m = 0; m < casingMatches.length; m++) {
+                let casingIngredients
+                try { casingIngredients = casingMatches[m].value().getIngredients().toArray() } catch (e) { continue }
+                for (let j = 0; j < casingIngredients.length; j++) {
+                    for (let k = 0; k < tierStacks.length; k++) {
+                        if (casingIngredients[j].test(tierStacks[k])) demandsTier = true
                     }
-                } catch (e) { /* leave demandsTier false - falls through to ungated below */ }
+                }
             }
         }
         if (!demandsTier) ungated.push(ids[i])
