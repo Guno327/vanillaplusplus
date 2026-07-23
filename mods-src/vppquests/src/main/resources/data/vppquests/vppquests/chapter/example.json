@@ -1,0 +1,9 @@
+{
+  "title": "Example Chapter (Phase A test fixture - not pack content)",
+  "subtitle": [
+    "Proves QuestReloadListener actually parses data/<namespace>/vppquests/chapter/*.json.",
+    "Not part of any migration - see mods-src/vppquests/README.md."
+  ],
+  "icon": "minecraft:stone_pickaxe",
+  "order": 0
+}

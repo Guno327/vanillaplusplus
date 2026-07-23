@@ -1,0 +1,20 @@
+{
+  "chapter": "vppquests:example",
+  "title": "First Pickaxe (test fixture)",
+  "description": [
+    "A second test fixture quest, dependent on \"welcome\" - exercises the real multi-parent-capable dependency graph."
+  ],
+  "icon": "minecraft:wooden_pickaxe",
+  "frame": "goal",
+  "dependencies": [
+    "vppquests:example/welcome"
+  ],
+  "tasks": [
+    { "type": "item", "item": "minecraft:wooden_pickaxe", "count": 1, "consume": false, "onlyFromCrafting": false }
+  ],
+  "rewards": [
+    { "type": "item", "item": "minecraft:stick", "count": 4 },
+    { "type": "xp", "category": "mining", "amount": 20 }
+  ],
+  "criticalPath": true
+}
