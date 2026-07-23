@@ -3581,6 +3581,176 @@ Unobtainium, cold-forging for gemstones) remains a follow-up — see
 `mods-src/vppintegration/README.md`'s "Extending to the pack's full
 material ladder".
 
+### Client-rendering follow-ups: #103 dynamic lights (dropped) + epic-tweaks removal (post-v0.5.x hotfix)
+
+Two follow-ups to the v0.5.x client-crash incident (see HANDOFF.md's
+"RELEASE GATE" note and DECISIONS.md's "L3 client boot+join becomes a
+REQUIRED release gate" entry for the full incident), built on top of
+`hotfix/remove-sodium-dynamic-lights-splitpackage` (PR #132). Both
+findings are ground-truthed against the real jars (`jar tf`/`javap`/CFR,
+`.tools/jdk-21.0.11+10`), not assumed from Modrinth metadata.
+
+**#103, dynamic lights — investigated a conflict-free replacement, found
+none, RECOMMENDING THE MOD STAY DROPPED.** `sodium-dynamic-lights` was
+removed because it bundles the `dev.lambdaurora.lambdynlights.api` package
+directly inside its own jar, and `ars-nouveau-1.21.1-5.12.1.jar` jar-in-jars
+its own separate copy of that exact package
+(`META-INF/jarjar/lambdynamiclights-api-4.5.1+1.21.1-mojmap.jar`, confirmed
+via `jar tf`+extraction) — two distinct Java modules exporting the same
+package is a hard `java.lang.module.ResolutionException` at client launch,
+before any mod code runs, regardless of which mod "wins" a version check.
+Every candidate replacement checked for split-package risk against ars-nouveau's
+bundled copy, plus the two extra checks the incident called for
+(exported-package collisions and missing-AT files):
+
+- **`lambdynamiclights-unofficial-neoforge` 3.1.4** (the port DESIGN.md's
+  original #103 writeup rejected for being "stale" relative to this pack's
+  Sodium line): downloaded and extracted the real jar — it bundles
+  `dev/lambdaurora/lambdynlights/api/*` directly inside itself (same
+  bundling pattern as the removed `sodium-dynamic-lights`), so it
+  **guarantees the identical split-package crash** with ars-nouveau. Staleness
+  was a real secondary problem but the split-package collision alone already
+  disqualifies it.
+- **`lambdynamiclights` (official, unified multi-loader project) 4.5.1+1.21.1**,
+  the current NeoForge build (matches ars-nouveau's own bundled
+  `lambdynlights_api` version exactly): its packaging is a nested JarJar
+  chain — the distributed jar JIJs one `lambdynlights_runtime` jar (modid
+  `lambdynlights_runtime`, confirmed via its own `neoforge.mods.toml`),
+  which declares itself needing `lambdynlights_api` (>=4.5.1+1.21.1 — would
+  correctly resolve to ars-nouveau's own JIJ'd copy, no second module, no
+  collision), **but also** `spruceui` (>=6.2.5+1.21.1) and `yumi_mc_core`
+  (>=1.0.0-alpha.15+1.21.1) as separate required, non-bundled dependencies.
+  Neither `spruceui` nor `yumi-mc-foundation`/`yumi_mc_core` nor `pridelib`
+  exist as standalone Modrinth projects (confirmed: `/v2/project/<slug>`
+  404s for all three, and Modrinth search turns up nothing matching)
+  — they are LambdAurora-internal libraries with no independent NeoForge
+  distribution found. The jar does contain a second, unreferenced nested
+  jar (`META-INF/jars/lambdynamiclights-4.5.1+1.21.1.jar`, absent from
+  `META-INF/jarjar/metadata.json`'s "jars" list) that itself bundles
+  `lambdynlights_api`+`spruceui`+`yumi-mc-foundation`+`pridelib` — but
+  NeoForge's JarJar loader only extracts paths its metadata.json actually
+  declares, so this looks like inert multi-loader-build baggage, not a
+  real dependency source for the NeoForge distribution. Net result: this
+  candidate would fail to load at all on NeoForge with this pack's mod set
+  (missing `spruceui`/`yumi_mc_core`), a different failure mode from
+  split-package but equally disqualifying.
+- **Tschipcraft's `dynamic-lights`** (6.67M downloads, actively maintained
+  through MC 26.2/June 2026): fully independent implementation, own
+  namespace (`net.tschipcraft.dynamiclights`), zero relation to the
+  LambDynamicLights API — genuinely conflict-free. But it is architecturally
+  a **server-authoritative world-modification mod**, not a client rendering
+  effect: its own `neoforge.mods.toml` description states "This mod is
+  completely server-side!" — it places real, temporary light-emitting
+  blocks in the world near light sources rather than faking client-side
+  lighting. That is a materially different feature with real side effects
+  (interacts with block-update-sensitive systems — redstone, sculk sensors,
+  any automation that scans for specific blocks) outside a client-rendering
+  follow-up's scope, and outside the "client-side only" instruction this
+  pass was scoped to. Noted as a real, working option for a **future,
+  separately-scoped feature decision** (would need `side:both` and a
+  gameplay-impact review), not adopted here.
+- **`ryoamiclights`**: last released 0.2.11 in August 2024, no build past
+  MC 1.21.1's early cycle and explicitly declared `incompatible` by
+  `lambdynlights_runtime`'s own toml — dead/abandoned relative to this
+  pack's other picks' maintenance bar, not pursued further.
+
+**Verdict: #103 stays dropped.** Every LambDynamicLights-lineage NeoForge
+build either collides with ars-nouveau's bundled API copy or can't actually
+load due to unobtainable transitive dependencies, and the one truly
+independent alternative is a different (server-side, world-mutating)
+feature than what was asked for. Matches the task's own framing: client-side
+eye-candy is not worth another repeated client crash. GitHub issue #103
+stays open with this evidence recorded (not closed) so it can be revisited
+if ars-nouveau ever drops/upgrades its bundled `lambdynlights_api`, or if
+`spruceui`/`yumi_mc_core` are ever published standalone.
+
+**Bonus finding, same "check for missing ATs" instruction — a real,
+independent packaging bug in `iris-flw-compat` 2.4.0 (unrelated to dynamic
+lights, not fixed here, disclosed for owner review).** Its
+`neoforge.mods.toml` declares `[[accessTransformers]] file="accesstransformer.cfg"`
+— a bare filename with no `META-INF/` prefix — but the actual AT file only
+exists in the jar at `META-INF/accesstransformer.cfg`. Cross-checked against
+every other AT-declaring mod actually installed in this pack
+(`epic-fight`, `geckolib`, `krypton_fnp`, `dynamic-fps`,
+`sophisticatedbackpacks`/`core`/`storage`, `create-dragons-plus`,
+`allthemodium`'s own in-toml documentation comment) — every single one
+declares the full `file="META-INF/accesstransformer.cfg"` path; `iris-flw-compat`
+is the only one that doesn't. This matches the exact
+"Access transformer file accesstransformer.cfg provided by mod irisflw does
+not exist!" warning this pass was told to check for. Confirmed present in
+**both** the currently-pinned 2.4.0 and the prior 2.3.1 release (downloaded
+and inspected both) — a long-standing upstream bug, not a regression, and
+not fixed by any newer release (2.4.0 is still the latest as of this pass).
+Because the referenced AT file can't be found at the path the mod itself
+declares, its own access-widening patches most likely never apply — a
+plausible contributor to the Create/Flywheel-under-shaders visual glitches
+this same addon exists to fix, though that would need a live client with
+shaders enabled to confirm. Not independently fixable from this pack (we
+ship manifest/config, not a repackaged third-party jar) — recorded here for
+an upstream bug report and left as a disclosed, pre-existing gap; the mod
+still loads (this is a WARN, not fatal) and stays installed.
+
+**#69/#84 follow-up — epic-tweaks 1.2.0 is INCOMPATIBLE with the currently
+pinned Epic Fight (21.17.3.1) and has no update; REMOVED, replaced with a
+native re-implementation.** The v0.5.x hotfix (PR #132) forced all three of
+`epictweaks-client.toml`'s options to `false` as an emergency stop-gap after
+finding `epic-tweaks`' `autoswitch_mode` throws
+`java.lang.NoSuchFieldError: ClientConfig.combatPreferredItems` on every
+client tick with a local player present — a field Epic Fight renamed to
+`COMBAT_CATEGORIZED_ITEMS` sometime after epic-tweaks' last release
+(2025-09-09) with no update since. Re-checked the Modrinth version-metadata
+API this pass: **still nothing newer than 1.2.0 for NeoForge 1.21.1** — the
+project's only other releases are older Forge 1.19.2-1.20.1 builds. Since no
+compatible update exists, this pass removed `epic-tweaks` from
+`pack/manifest.json`/`pack/mods.lock.json` entirely (root-cause fix, not
+just leaving the config neutered) — the neutered-config state still shipped
+a live footgun, since epic-tweaks has its own in-game Cloth Config screen a
+player could use to flip `autoswitch_mode` back on and crash their own
+client regardless of what the pack's shipped config file says.
+
+Removal outcome for the two features it degraded:
+- **#84 (Q-drop/hotbar keybind lock while holding a combat weapon): fully
+  resolved by removal alone, no replacement needed.** The actual lock-in
+  bug was epic-tweaks' OWN `PlayerPatchMixin#onToggleMode` (its
+  `enforce_mode` option) canceling the player's manual "Switch Mode"
+  keypress while holding a combat-preferred item — not anything native to
+  Epic Fight. With epic-tweaks gone, nothing cancels that keybind at all;
+  Epic Fight's own "Switch Mode" key always works, subject only to its own
+  separate, self-clearing ~1s post-combat-input lock
+  (`ControlEngine#isSwitchOrDropBlocked()`) that applies identically
+  whether or not epic-tweaks was ever installed.
+- **#69 (ladder-animation hijack): reimplemented server-side in
+  `pack/kubejs/server_scripts/epicfight_mode_sync.js`, DESIGN-SENSITIVE,
+  flagged for owner review.** `autoswitch_mode` was the one feature #69
+  actually depended on (auto-enter Vanilla Mode — and its non-clunky
+  vanilla ladder animation — when not holding a "combat preferred" item).
+  Reimplemented using Epic Fight's own stable public API instead of
+  epic-tweaks' broken client mixin: `EpicFightCapabilities.getItemCapability
+  (ItemStack)` (javap-confirmed public static method) checked
+  `instanceof WeaponCapability` (the exact same capability check
+  epic-tweaks' own sweep used, per this pack's earlier #84/#108 writeup
+  above), and the mode switch itself goes through Epic Fight's own
+  `/epicfight mode <vanilla|epicfight> [target]` command
+  (`PlayerModeCommand`, registered by Epic Fight itself, requiring only
+  `CommandSourceStack.hasPermission(2)` — javap-confirmed on its `requires`
+  predicate — trivially satisfied by `player.server.runCommandSilent(...)`,
+  the same idiom already used throughout this pack). This is server-
+  authoritative (no client/server mode desync risk) and reads Epic Fight's
+  stable capability API directly instead of a third-party addon's internal
+  config field that can silently fall out of sync with a Fight version
+  bump, which is exactly the failure class being fixed. Polls every 10
+  ticks (twice a second) over `event.server.players`, tracking last-known
+  state in `player.persistentData` to skip redundant command dispatches —
+  `PlayerPatch#toMode` itself also no-ops if already in the target mode
+  (javap-confirmed). `filter_animation_first_person` (a pure first-person
+  rendering nicety with no gameplay effect and no config-free Epic Fight
+  equivalent, same bytecode audit as the original #69/#84 investigation) is
+  accepted as a disclosed, minor cosmetic regression — not worth a mixin of
+  our own. **Needs a live playtest** to confirm the 0.5s poll cadence feels
+  as responsive as epic-tweaks' every-tick original, and that mode actually
+  switches correctly in practice — verify-in-game, see the script's own
+  header comment for the full evidence trail.
+
 ### Versioning
 
 `pack/VERSION` is the single source of truth, read by both build scripts
