@@ -346,6 +346,158 @@ stCheck('tier_gating.js: every gated recipe resolves and demands its tier materi
     }
 })
 
+// #61 (recursive recipe-reachability audit) - PM review of PR #106 found the
+// offline jar/KubeJS-script scan (scripts/audit_progression.py) cannot see
+// what tier_gating.js actually did at runtime (it can only best-effort parse
+// the JS source, and imperative loops/mutation are provably unparseable in
+// general), so it isn't authoritative and both regressed on the very two
+// false positives #61 exists to stop: `create:track_station` (previously
+// misidentified via an unrelated recipe/filename match) and
+// `refinedstorage:controller` (previously matched against RS's own
+// `refinedstorage:recoloring` variant, not its real crafting recipe). These
+// two checks verify BOTH cases live, against the actually-booted
+// `RecipeManager` - the ground truth after every KubeJS edit has applied -
+// using the exact `byKey(id)` + `getIngredients()` + `Ingredient#test(stack)`
+// pattern the tier-gating check above already proved reliable. Querying by
+// the recipe's own known-correct id (not a substring/filename heuristic)
+// is what rules the original misidentification bug out structurally: RS's
+// recoloring recipes live under distinct ids (e.g.
+// `refinedstorage:coloring/light_blue_controller`), never `refinedstorage:
+// controller` itself, so looking that id up can't land on the wrong recipe.
+stCheck('progression audit (#61): create:track_station resolves to its real recipe (needs railway_casing)', server => {
+    let opt = server.getRecipeManager().byKey(stRl('create:track_station'))
+    if (!opt.isPresent()) return { pass: false, detail: 'recipe missing - id changed upstream?' }
+    let ingredients
+    try {
+        ingredients = opt.get().value().getIngredients().toArray()
+    } catch (e) {
+        return { pass: false, detail: 'getIngredients() unsupported on this recipe type: ' + e }
+    }
+    let railwayCasingStack = Item.of('create:railway_casing')
+    let demandsRailwayCasing = false
+    for (let j = 0; j < ingredients.length; j++) {
+        if (ingredients[j].test(railwayCasingStack)) { demandsRailwayCasing = true; break }
+    }
+    return {
+        pass: demandsRailwayCasing,
+        detail: demandsRailwayCasing
+            ? 'confirmed: requires create:railway_casing (not the unrelated create:track recipe)'
+            : 'does NOT require railway_casing - recipe changed upstream, re-verify #61s findings',
+    }
+})
+
+stCheck('progression audit (#61): refinedstorage:controller resolves to its real crafting recipe, not a recoloring variant', server => {
+    let opt = server.getRecipeManager().byKey(stRl('refinedstorage:controller'))
+    if (!opt.isPresent()) return { pass: false, detail: 'recipe missing - id changed upstream?' }
+    let ingredients
+    try {
+        ingredients = opt.get().value().getIngredients().toArray()
+    } catch (e) {
+        return { pass: false, detail: 'getIngredients() unsupported on this recipe type: ' + e }
+    }
+    let processorStack = Item.of('refinedstorage:advanced_processor')
+    let dyeStack = Item.of('minecraft:blue_dye')
+    let demandsProcessor = false
+    let acceptsDye = false
+    for (let j = 0; j < ingredients.length; j++) {
+        if (ingredients[j].test(processorStack)) demandsProcessor = true
+        if (ingredients[j].test(dyeStack)) acceptsDye = true
+    }
+    let pass = demandsProcessor && !acceptsDye
+    return {
+        pass: pass,
+        detail: pass
+            ? 'confirmed: real crafting recipe (needs advanced_processor, no dye slot like the recoloring recipes have)'
+            : ('demandsProcessor=' + demandsProcessor + ' acceptsDye=' + acceptsDye + ' - re-verify #61s findings'),
+    }
+})
+
+// #61 diagnostics (NOT health gates - see note): three genuinely under-gated
+// families the corrected offline audit + manual jar verification found,
+// confirmed here against the LIVE, post-KubeJS RecipeManager per PM review
+// of PR #106. Recorded in DESIGN.md's "Recipe-reachability audit" section;
+// GitHub #61 scoped this as an audit tool, not a gating fix, so these
+// checks always pass=true (they report the current live state in `detail`
+// either way) rather than fail L1 for a known, tracked content gap someone
+// still needs to fix with a follow-up KubeJS edit. If a future fix closes
+// one of these, `detail` will say so - update the assertion to require
+// `demandsTier`/`!bypassable` at that point so this stops just reporting
+// and starts actually gating.
+stCheck('progression audit (#61) diagnostic: sophisticatedstorage double-chest upgrade path vs the Andesite/Brass Age gate', server => {
+    let ids = ['sophisticatedstorage:double_iron_chest', 'sophisticatedstorage:double_gold_chest', 'sophisticatedstorage:double_diamond_chest']
+    let tierStacks = [Item.of('create:andesite_alloy'), Item.of('create:brass_ingot')]
+    let bypassed = []
+    let missing = []
+    for (let i = 0; i < ids.length; i++) {
+        let opt = server.getRecipeManager().byKey(stRl(ids[i]))
+        if (!opt.isPresent()) { missing.push(ids[i]); continue }
+        let ingredients
+        try { ingredients = opt.get().value().getIngredients().toArray() } catch (e) { missing.push(ids[i] + ':unsupported'); continue }
+        let demandsTier = false
+        for (let j = 0; j < ingredients.length; j++) {
+            for (let k = 0; k < tierStacks.length; k++) {
+                if (ingredients[j].test(tierStacks[k])) demandsTier = true
+            }
+        }
+        if (!demandsTier) bypassed.push(ids[i])
+    }
+    return {
+        pass: true,
+        detail: bypassed.length > 0
+            ? ('GAP CONFIRMED LIVE - reaches iron/gold/diamond chest tier with no tier material via: ' + bypassed.join(','))
+            : (missing.length === ids.length ? 'all double-chest recipe ids missing - cannot confirm, re-check ids' : 'gap appears fixed - flip this check to require demandsTier'),
+    }
+})
+
+stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age chain vs any tier material gate', server => {
+    let ids = ['refinedstorage:controller', 'refinedstorage:disk_drive', 'refinedstorage:grid']
+    let tierStacks = [Item.of('create:andesite_alloy'), Item.of('create:brass_ingot'), Item.of('create:refined_radiance'), Item.of('create:shadow_steel'), Item.of('minecraft:netherite_ingot')]
+    let ungated = []
+    for (let i = 0; i < ids.length; i++) {
+        let opt = server.getRecipeManager().byKey(stRl(ids[i]))
+        if (!opt.isPresent()) continue
+        let ingredients
+        try { ingredients = opt.get().value().getIngredients().toArray() } catch (e) { continue }
+        let demandsTier = false
+        for (let j = 0; j < ingredients.length; j++) {
+            for (let k = 0; k < tierStacks.length; k++) {
+                if (ingredients[j].test(tierStacks[k])) demandsTier = true
+            }
+        }
+        if (!demandsTier) ungated.push(ids[i])
+    }
+    return {
+        pass: true,
+        detail: ungated.length > 0
+            ? ('GAP CONFIRMED LIVE - no recipe tier material anywhere in: ' + ungated.join(','))
+            : 'gap appears fixed - flip this check to require demandsTier for all three',
+    }
+})
+
+stCheck('progression audit (#61) diagnostic: alltheores:brass_ingot cross-mod bypass of the create:brass_ingot gate via c:ingots/brass', server => {
+    let opt = server.getRecipeManager().byKey(stRl('create:brass_casing_from_log'))
+    if (!opt.isPresent()) return { pass: true, detail: 'create:brass_casing_from_log missing - cannot confirm, re-check id (mod version drift?)' }
+    let ingredients
+    try {
+        ingredients = opt.get().value().getIngredients().toArray()
+    } catch (e) {
+        return { pass: true, detail: 'getIngredients() unsupported on this recipe type: ' + e }
+    }
+    let acceptsCreateBrass = false
+    let acceptsAllTheOresBrass = false
+    for (let j = 0; j < ingredients.length; j++) {
+        if (ingredients[j].test(Item.of('create:brass_ingot'))) acceptsCreateBrass = true
+        if (ingredients[j].test(Item.of('alltheores:brass_ingot'))) acceptsAllTheOresBrass = true
+    }
+    let bypassable = acceptsCreateBrass && acceptsAllTheOresBrass
+    return {
+        pass: true,
+        detail: bypassable
+            ? 'GAP CONFIRMED LIVE - c:ingots/brass accepts both create:brass_ingot and alltheores:brass_ingot (unrelated mod, no tier gate of its own)'
+            : ('acceptsCreateBrass=' + acceptsCreateBrass + ' acceptsAllTheOresBrass=' + acceptsAllTheOresBrass + ' - gap appears fixed or alltheores tag changed'),
+    }
+})
+
 // #57: the JEI info layer only fires when a recipe viewer syncs, so a
 // console-only boot never exercises it - which is exactly how it would rot
 // unnoticed (a renamed table, a script that stopped loading, an exception

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""GitHub #61 - recursive recipe-reachability audit.
+"""GitHub #61 - recursive recipe-reachability audit - DEV AID, NOT
+AUTHORITATIVE. See "WHY THIS IS NOT THE DELIVERABLE" below before reading
+its output as ground truth.
 
 Follow-up from #56/#49: this pack dropped ProgressiveStages' per-player item
 lock list and now gates progression on ingredients alone (an item is
@@ -9,37 +11,65 @@ header comment). Nothing mechanically checks that property. This script
 does: it recursively computes the earliest tier at which every item in the
 resolved mod set + this pack's own KubeJS recipe overrides is actually
 craftable, and reports any item pack/progression/*.toml assigns to a tier
-ABOVE that computed floor - i.e. genuinely under-gated items.
+ABOVE that computed floor - i.e. apparently under-gated items.
 
-OFFLINE vs IN-GAME, and why offline was chosen
-------------------------------------------------
-#61 itself raises this: the live in-game recipe manager is the most honest
-source, since it's exactly what NeoForge resolves after every datapack/
-KubeJS overlay is applied - no risk of this script's own recipe-type
-interpretation drifting from the game's. An in-game command (e.g. a
-`/vpp_audit` KubeJS binding that walks `RecipeManager` at runtime) would
-sidestep every guess this file makes about which JSON shape belongs to
-which recipe type.
+WHY THIS IS NOT THE DELIVERABLE (PM review of PR #106, corrected here)
+-------------------------------------------------------------------------
+The authoritative half of #61 is now `pack/kubejs/server_scripts/
+selftest.js`'s `/vpp_selftest` checks tagged "progression audit (#61)" -
+read those first. This script remains as a dev aid only, for a root cause
+that isn't a small bug: `pack/kubejs/server_scripts/tier_gating.js` (and a
+few sibling files) apply their tier gates via IMPERATIVE JavaScript run at
+server boot - loops over data arrays, string mutation
+(`pattern.replace(...)`), conditionals - not static JSON. `parse_kubejs_
+overrides()` below is a best-effort JS-literal reader (explicitly documented
+as "NOT a JS interpreter" in its own docstring), and best-effort is not good
+enough here: run against the real pinned jar set, this script still computed
+`create:track_station` and `refinedstorage:controller` as reachable at
+Rootborn - the exact two false positives #61 exists to stop reflagging.
 
-Offline was chosen anyway, for three reasons that matter more for a CI/dev
-tool than for a one-off verification: (1) testability - the false-positive
-regressions this ticket exists because of (#56's audit) need to be pinned
-down with unit tests that run in milliseconds with no server, no world, no
-player; an in-game command can only be verified by booting a server and
-issuing it by hand, which is exactly the "no server boots" constraint this
-task was scoped under. (2) availability - the resolved jars are already
-sitting on disk wherever `server/mods/` has been populated (this repo's own
-build pipeline puts them there); nothing about this analysis needs a running
-JVM. (3) precedent - the #56 audit that first surfaced `track_station`/
-`refinedstorage:controller` was already an offline jar scan; the ask here is
-to make that approach *correct*, not to replace its whole strategy.
+Investigating those two specifically showed the picture is more nuanced
+than "the parser has a bug": both chains genuinely have no recipe-level tier
+gate ANYWHERE (confirmed independently below and, live, in selftest.js) -
+`refinedstorage:controller`'s whole pre-Induction-Age chain never touches a
+tier marker, and `create:railway_casing` (which `create:track_station`
+needs) keys off the `c:ingots/brass` TAG, which a second mod
+(`alltheores:brass_ingot`) registers into with its own from-dust, no-tier-
+gate recipe. That's a real, useful finding - but it's also proof this
+script's parsing, however carefully written, cannot be trusted to
+distinguish "genuinely ungated" from "a KubeJS edit I failed to statically
+parse" for ANY of the ~280 items it flags against the real jar set. A static
+reader of imperative JS cannot make that guarantee in general, which is
+exactly the failure mode #61's own issue body anticipated ("the live recipe
+manager is the honest source"). The 30-unit-test suite below still proves
+the recipe-JSON parsing core (ingredient extraction, tag resolution,
+NON_ACQUISITION_TYPES filtering, tier arithmetic) is correct in isolation -
+useful for anyone extending this tool - but the KubeJS-override layer on
+top of it is a best-effort approximation, not ground truth, and its
+combined output must not be read as "N genuine findings" without hand-
+verifying each one the way DESIGN.md's audit section now does.
+
+OFFLINE vs IN-GAME
+--------------------
+#61 itself raised this tradeoff, and the corrected answer is: use the live
+in-game recipe manager as the source of truth (implemented in selftest.js),
+and keep this offline reader around only for its two honest strengths - (1)
+its parsing CORE is unit-testable with no server/world/player, useful when
+iterating on the ingredient-extraction logic itself; (2) it's still a
+reasonable first-pass triage tool for a human to skim before hand-verifying
+specific findings live, exactly as this file's own development did for the
+three findings now confirmed in selftest.js. It is NOT wired into any gate
+(see WHY STANDALONE below) and its full item list must not be treated as a
+release blocker or a citable "audit result" on its own.
 
 The tradeoff this accepts: an offline parser must decide, per recipe TYPE,
 whether it represents a real acquisition path, and (within a path) which
 JSON fields are ingredients vs metadata. Get either wrong and you reintroduce
 exactly the bug class #56 hit. See RECIPE PARSING below for how this stays
-correct without hand-modeling every one of the ~140 distinct recipe types
-these mods register.
+correct (for jar-native recipes) without hand-modeling every one of the
+~140 distinct recipe types these mods register - the part that remains
+fundamentally unsolvable statically is the KubeJS override layer, not this
+part.
 
 RECIPE PARSING: ignoring recoloring/variant recipe types
 ----------------------------------------------------------
@@ -142,24 +172,25 @@ shape (every field is either a literal resource id or a nested item/tag
 ref) without needing to model the string mutation that produces the
 cosmetic crafting-grid layout, which the tier computation never needs.
 
-WHY STANDALONE, NOT WIRED INTO run_all.py
---------------------------------------------
-This needs the resolved mod jars under server/mods/ to say anything at all
-about the real game - exactly the "not always present in CI" mods.json/
-run_all.py's existing fast-tier checks are built to avoid (they use static
-snapshots, e.g. pack/mod_registries/*.json, precisely so they run with no
-jars on disk). Wiring this into run_all.py would either silently no-op
-every run with no jars present (masking real regressions) or make the fast
-tier depend on a jar cache the fast tier has never needed before. It runs
-standalone instead: `python3 scripts/audit_progression.py` (skips gracefully
-with a clear message if server/mods/ has no jars), and its parsing CORE
-(everything above the CLI) is unit-tested in scripts/ci/tests/ with no jars
-needed at all, including regression tests pinned to the two known false
-positives using their real recipe JSON as fixtures.
+WHY STANDALONE, NOT WIRED INTO run_all.py OR ANY GATE
+--------------------------------------------------------
+Two independent reasons, either one sufficient on its own: it needs the
+resolved mod jars under server/mods/ to say anything at all about the real
+game - exactly the "not always present in CI" state run_all.py's existing
+fast-tier checks are built to avoid (they use static snapshots, e.g.
+pack/mod_registries/*.json). And, per "WHY THIS IS NOT THE DELIVERABLE"
+above, its combined (jar + KubeJS-override) output is not reliable enough to
+gate anything on - it would cry wolf on ~280 items, most of them either
+already-known, already-accepted consequences of #49 (raw ores/tools were
+never recipe-gated post-#49; that's a documented, deliberate tradeoff, not a
+bug) or KubeJS edits this reader's best-effort JS parsing failed to see.
+Treat its output as a triage starting point for a human, to be confirmed
+live (selftest.js) before acting on any single finding - never as a
+pass/fail signal on its own.
 
 Usage: python3 scripts/audit_progression.py [--mods-dir DIR] [--verbose]
-Exit code: always 0 (this is a report, not a gate - see docstring above);
-non-zero only on a genuine tool failure (bad TOML, unreadable jar, etc).
+Exit code: always 0 (this is a triage report, not a gate); non-zero only on
+a genuine tool failure (bad TOML, unreadable jar, etc).
 """
 import argparse
 import json
@@ -1006,21 +1037,33 @@ def run_audit(mods_dir=DEFAULT_MODS_DIR, progression_dir=PROGRESSION_DIR, js_dir
     }
 
 
+_NOT_AUTHORITATIVE_BANNER = (
+    "audit_progression: DEV-AID TRIAGE TOOL, NOT AUTHORITATIVE - cannot "
+    "reliably see this pack's own imperative KubeJS recipe edits "
+    "(tier_gating.js et al); every finding below needs live hand-"
+    "verification (see pack/kubejs/server_scripts/selftest.js's "
+    "'progression audit (#61)' checks, the actual deliverable) before "
+    "acting on it. See this script's module docstring, 'WHY THIS IS NOT "
+    "THE DELIVERABLE'."
+)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--mods-dir", default=str(DEFAULT_MODS_DIR))
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args(argv)
 
+    print(_NOT_AUTHORITATIVE_BANNER)
     mods_dir = Path(args.mods_dir)
     result = run_audit(mods_dir=mods_dir)
     if result is None:
-        print(f"audit_progression: no jars found under {mods_dir} - "
-              "this is a standalone tool that needs the resolved mod set "
-              "(see module docstring 'WHY STANDALONE'); nothing to report.")
+        print(f"\naudit_progression: no jars found under {mods_dir} - "
+              "this is a standalone tool that needs the resolved mod set; "
+              "nothing to report.")
         return 0
 
-    print(f"audit_progression: scanned {result['jars_scanned']} jars, "
+    print(f"\naudit_progression: scanned {result['jars_scanned']} jars, "
           f"{result['recipes_indexed']} acquisition recipes indexed, "
           f"{result['items_assigned']} items assigned a tier in pack/progression/*.toml")
     if args.verbose:
@@ -1030,12 +1073,17 @@ def main(argv=None):
 
     under_gated = result["under_gated"]
     if not under_gated:
-        print("\nNo under-gated items found: every assigned item's earliest "
-              "computed craftable tier is at or above its pack/progression/ "
-              "assignment.")
+        print("\nNo candidate findings: every assigned item's earliest "
+              "computed craftable tier (from jar recipes + best-effort "
+              "KubeJS parsing) is at or above its pack/progression/ "
+              "assignment. This does NOT mean the pack is fully gated -\n"
+              "see the banner above.")
         return 0
 
-    print(f"\nUNDER-GATED: {len(under_gated)} item(s) reachable earlier than assigned:")
+    print(f"\nCANDIDATE FINDINGS (unverified): {len(under_gated)} item(s) computed "
+          "reachable earlier than assigned - most of these are expected "
+          "(#49 already ceded raw-ore/tool gating; see DESIGN.md) or "
+          "KubeJS edits this reader failed to parse, NOT confirmed gaps:")
     for item_id, assigned_tier, computed_tier in under_gated:
         print(f"  {item_id}: assigned {TIER_DISPLAY[assigned_tier]}, "
               f"actually reachable at {TIER_DISPLAY[computed_tier]}")
