@@ -1,0 +1,44 @@
+name: Modrinth Delete Version (emergency)
+
+# Emergency ops workflow: delete a single published version from the
+# Modrinth project, using the same secret/var the publish workflow uses.
+# Added 2026-07-23 to pull v0.5.0 after a shipped regression (owner order).
+# workflow_dispatch only — never runs on its own.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Modrinth version_number to delete (e.g. 0.5.0)"
+        required: true
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete the version from Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          PROJECT: ${{ vars.MODRINTH_PROJECT_ID }}
+          VER: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ -z "${MODRINTH_TOKEN:-}" ] || [ -z "${PROJECT:-}" ]; then
+            echo "::error::MODRINTH_TOKEN secret or MODRINTH_PROJECT_ID var is not set"; exit 1
+          fi
+          echo "Looking up version '$VER' on Modrinth project '$PROJECT'..."
+          VID="$(curl -sf -H "Authorization: ${MODRINTH_TOKEN}" \
+            "https://api.modrinth.com/v2/project/${PROJECT}/version" \
+            | jq -r --arg v "$VER" '.[] | select(.version_number==$v) | .id' | head -1)"
+          if [ -z "${VID:-}" ] || [ "$VID" = "null" ]; then
+            echo "::error::version '$VER' not found on project '$PROJECT' (already gone?)"; exit 1
+          fi
+          echo "Deleting version '$VER' (id ${VID})..."
+          CODE="$(curl -s -o /tmp/resp -w '%{http_code}' -X DELETE \
+            -H "Authorization: ${MODRINTH_TOKEN}" \
+            "https://api.modrinth.com/v2/version/${VID}")"
+          echo "HTTP ${CODE}"; cat /tmp/resp || true
+          if [ "$CODE" != "204" ]; then
+            echo "::error::delete failed (HTTP ${CODE}) - token may lack version-delete scope; delete manually in the Modrinth UI"; exit 1
+          fi
+          echo "Deleted Modrinth version '$VER'."
