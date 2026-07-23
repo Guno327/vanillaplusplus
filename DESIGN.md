@@ -2868,8 +2868,8 @@ for this release):
   Modrinth's `.mrpack` format — a `modrinth.index.json` mod-download
   manifest (direct URLs + hashes, `env` markers derived from each lockfile
   entry's `side`) plus an `overrides/` folder for `config`/`kubejs`/
-  `defaultconfigs`. Small (~250 KB) since it doesn't embed the actual mod
-  jars, just downloads them on import (Prism Launcher).
+  `defaultconfigs`/`shaderpacks`. Small (~250 KB) since it doesn't embed the
+  actual mod jars, just downloads them on import (Prism Launcher).
 - **Server**: `scripts/build_server_bundle.py` → `vanilla-plus-plus-server-<VERSION>.zip`.
   Reuses `build_server.py`'s own sync (imported, not duplicated) then zips
   `server/` minus runtime/session state (`world/`, `logs/`, `cmd_fifo`,
@@ -2889,6 +2889,81 @@ for this release):
 `online-mode=true` ships unchanged in the server bundle (the recorded
 default); any future L3 join-testing must use a separate test-only
 `server.properties` profile with it flipped off, never this shipped one.
+
+### Shaders: Iris + a recommended (not bundled) shaderpack
+
+GitHub issue #68 asked for Iris + a recommended minimalist shader bundled
+into the client release as an example of how to enable shaders, with Create
+compatibility confirmed. Two client-only mods now ship in `pack/manifest.json`
+phase 23 / `pack/mods.lock.json`:
+
+- **Iris**, pinned to `1.8.14-beta.1+1.21.1-neoforge` rather than the latest
+  *stable* NeoForge build (`1.8.12+1.21.1-neoforge`). Ground-truthed via the
+  Modrinth API: 1.8.12's own required dependency is Sodium
+  `mc1.21.1-0.6.13-neoforge`, a full major version behind this pack's
+  already-installed Sodium `mc1.21.1-0.8.12-neoforge` (phase 18) — a real,
+  documented incompatibility (Iris GitHub issues #3134/#3136/#3243: Iris
+  crashes on Sodium 0.8.12-alpha.2+ and doesn't support the 0.9.x line at all
+  on NeoForge 1.21.1). 1.8.14-beta.1's own changelog reads verbatim "Updates
+  to Sodium 0.8, and fixes a few old bugs" — it's the only NeoForge 1.21.1
+  Iris build that actually works with this pack's pinned Sodium. Downgrading
+  Sodium instead was considered and rejected: that would regress an
+  already-shipped, pack-wide client-optimization mod for every player to
+  support an opt-in/example-only feature for the subset who turn shaders on.
+- **Iris & Oculus Flywheel Compat** (`iris-flw-compat`, `2.4.0-release`,
+  CC0-1.0) — the Create-compatibility half of this issue. Without it,
+  Flywheel (Create's own instanced kinetic-block renderer) disables its
+  optimizations and Create's contraptions/ghost-block previews render
+  incorrectly (black/invisible) under any active shaderpack, a known tracked
+  Iris issue (#1414); this addon's own 2.4.0 changelog ("Fix ghost block
+  preview turning black under shader packs", 2026-05-06) is a direct,
+  currently-maintained fix for exactly that. Required deps are Iris + Sodium
+  (both already installed); Create itself is an optional dep that activates
+  the contraption/ghost-block fix specifically.
+
+Both ship `side: client` (Modrinth `client_side=required`/`server_side=
+unsupported` for each) and **enabled as mods with no shaderpack selected** —
+Iris's shader-pack dropdown is empty until the player installs one
+themselves. This matches the issue's own framing ("an example of how people
+can use Iris") rather than forcing a visual/performance change on low-end
+players by default.
+
+**The actual shaderpack file is deliberately NOT bundled.** Candidates
+evaluated for "minimalist" + Iris/Sodium compatibility + Create-adjacent
+performance: Sildur's Enhanced Default (genuinely the most minimal/vanilla-
+adjacent of the well-known packs, lightweight, longstanding Iris support) and
+Complementary Reimagined on its Low preset (more visual flair, still runs on
+modest hardware). Both were ruled out for *bundling the file itself*, not for
+quality: Sildur's is Modrinth-licensed `LicenseRef-All-Rights-Reserved`, and
+Complementary's own custom license only permits modpack inclusion under
+conditions (visible credit if enabled by default, modpack author accepts
+responsibility, contents unmodified) that this repo has no channel to get
+explicit per-project sign-off on the way `pack/manifest.json`'s existing
+CurseForge-bundling precedent required (compare the ato/allthemodium
+CurseForge jars in `build_mrpack.py`'s module docstring, where the owner
+explicitly confirmed redistribution permission — and the FTB suite, reverted
+in PR #31 specifically *because* that permission was never obtained). Rather
+than guess at a license we can't confirm, `scripts/build_mrpack.py` gained a
+`shaderpacks` entry in `OVERRIDE_DIRS` (same `overrides/shaderpacks/`
+mechanism `.mrpack` already supports, mirroring `config`/`kubejs`/
+`defaultconfigs`) so a shaderpack CAN be bundled by dropping it into
+`pack/shaderpacks/` — inert today since that directory doesn't exist — and
+README.md's new "Shaders (Iris)" subsection documents the one manual step
+(download the shaderpack `.zip`, drop it in the launcher's own
+`shaderpacks/` folder, select it in Iris's video-settings menu) instead.
+
+**Verified**: Iris/iris-flw-compat's exact Modrinth file hashes (both
+downloaded and hashed directly, not copied from Modrinth's page, matching
+this repo's existing convention of ground-truthing checksums); `.mrpack`
+build succeeds with both new entries present with the correct `env` (client
+required/server unsupported) and zero `shaderpacks/` bytes in the built zip
+(mechanism present, nothing shipped). **Not verified** (needs a live
+client): in-game shader rendering correctness, actual FPS impact alongside
+Sodium/EntityCulling/ImmediatelyFast/MoreCulling, and hands-on confirmation
+that iris-flw-compat actually resolves Create's ghost-block/contraption
+rendering in this specific modded 1.21.1 stack rather than just the isolated
+repro in Iris #1414 — flag for a follow-up in-game check same as this pack's
+other client-only unverified items.
 
 ### Versioning
 

@@ -63,6 +63,44 @@ There is currently no in-launcher first-run wizard beyond the standard
 Prism/Modrinth import flow; nothing in this pack's docs calls out an extra
 manual client-side step beyond importing and launching.
 
+### Shaders (Iris)
+
+The client bundle includes **Iris** (a Sodium-compatible shader loader) and
+**Iris & Oculus Flywheel Compat** (fixes Create's kinetic contraptions/
+ghost-block previews rendering black under a shaderpack — without it,
+Flywheel just disables its optimizations whenever a shaderpack is active).
+Both ship **enabled as mods but with no shaderpack installed** — shaders are
+off by default so low-end setups aren't affected — as an example of how to
+turn shaders on if you want them, not a mandatory visual change.
+
+To try shaders yourself:
+
+1. Pick a shaderpack. For this pack's Create-heavy, moderately-modded
+   renderer we'd suggest **Sildur's Enhanced Default**
+   ([Modrinth](https://modrinth.com/shader/sildurs-enhanced-default-shaders)) —
+   genuinely minimal/subtle (closest to vanilla's own look) and one of the
+   lighter-weight options that still plays nicely with Sodium/Iris. Prefer
+   more visual flair and can spare the frame rate? **Complementary
+   Reimagined** on its "Low" preset
+   ([Modrinth](https://modrinth.com/shader/complementary-reimagined)) is a
+   good step up.
+   **We do not bundle either shaderpack file in this repo** — both are
+   distributed under "all rights reserved"/custom licenses that permit
+   installing them from their own official pages but don't clearly grant us
+   the right to redistribute the file itself inside a modpack we ship. Grab
+   the `.zip` from the link above instead.
+2. Drop the downloaded `.zip` straight into your instance's `shaderpacks/`
+   folder (Prism: right-click the instance → Folders → Shader Packs Folder).
+3. In-game: Options → Video Settings → Shader Packs (Iris adds this menu),
+   select the pack you downloaded, and enable it.
+
+`scripts/build_mrpack.py` also knows how to bundle a shaderpack from
+`pack/shaderpacks/` into the release automatically (same override mechanism
+used for `config`/`kubejs`/`defaultconfigs`) — that directory just doesn't
+exist in this repo today, for the licensing reason above. Anyone with actual
+redistribution rights to a shaderpack file can drop it there and it will be
+picked up on the next build.
+
 ## Server setup
 
 1. Download `vanilla-plus-plus-server-0.1.0.zip` from the
