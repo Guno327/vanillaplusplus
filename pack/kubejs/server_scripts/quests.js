@@ -30,7 +30,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 10
           }
         ]
@@ -57,7 +57,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 10
           }
         ]
@@ -82,7 +82,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "swords",
+            "category": "adventurer",
             "amount": 10
           }
         ]
@@ -115,7 +115,7 @@ const QUEST_CHAPTERS = [
           },
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 20
           }
         ]
@@ -150,7 +150,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 80
           },
           {
@@ -182,7 +182,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 30
           },
           {
@@ -214,7 +214,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 30
           },
           {
@@ -246,7 +246,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 30
           },
           {
@@ -278,7 +278,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 30
           },
           {
@@ -310,7 +310,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 30
           },
           {
@@ -342,7 +342,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "magic",
+            "category": "adventurer",
             "amount": 30
           },
           {
@@ -374,7 +374,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "magic",
+            "category": "adventurer",
             "amount": 30
           }
         ]
@@ -411,7 +411,7 @@ const QUEST_CHAPTERS = [
           },
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 80
           }
         ]
@@ -446,7 +446,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 150
           },
           {
@@ -478,7 +478,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "daggers",
+            "category": "adventurer",
             "amount": 50
           },
           {
@@ -510,7 +510,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 50
           },
           {
@@ -542,7 +542,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 50
           },
           {
@@ -574,7 +574,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "spears",
+            "category": "adventurer",
             "amount": 50
           },
           {
@@ -606,7 +606,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 50
           },
           {
@@ -638,7 +638,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 50
           },
           {
@@ -670,7 +670,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 50
           },
           {
@@ -702,7 +702,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 50
           },
           {
@@ -734,7 +734,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "bows",
+            "category": "adventurer",
             "amount": 50
           },
           {
@@ -779,7 +779,7 @@ const QUEST_CHAPTERS = [
           },
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 150
           }
         ]
@@ -814,7 +814,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "swords",
+            "category": "adventurer",
             "amount": 300
           },
           {
@@ -846,7 +846,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "greatswords",
+            "category": "adventurer",
             "amount": 90
           },
           {
@@ -878,7 +878,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 90
           },
           {
@@ -910,7 +910,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 90
           },
           {
@@ -942,7 +942,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "longswords",
+            "category": "adventurer",
             "amount": 90
           },
           {
@@ -974,7 +974,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "bows",
+            "category": "adventurer",
             "amount": 90
           },
           {
@@ -1006,7 +1006,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 90
           },
           {
@@ -1048,7 +1048,7 @@ const QUEST_CHAPTERS = [
           },
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 300
           }
         ]
@@ -1083,7 +1083,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "bows",
+            "category": "adventurer",
             "amount": 600
           },
           {
@@ -1115,7 +1115,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 150
           },
           {
@@ -1147,7 +1147,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 150
           },
           {
@@ -1179,7 +1179,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 150
           },
           {
@@ -1211,7 +1211,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 150
           },
           {
@@ -1243,7 +1243,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "tachi",
+            "category": "adventurer",
             "amount": 150
           },
           {
@@ -1275,7 +1275,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 150
           },
           {
@@ -1315,7 +1315,7 @@ const QUEST_CHAPTERS = [
           },
           {
             "type": "xp",
-            "category": "swords",
+            "category": "adventurer",
             "amount": 600
           }
         ]
@@ -1350,7 +1350,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "swimming",
+            "category": "adventurer",
             "amount": 1200
           },
           {
@@ -1378,7 +1378,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 100
           }
         ]
@@ -1401,7 +1401,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 100
           }
         ]
@@ -1428,7 +1428,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 100
           },
           {
@@ -1460,7 +1460,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 100
           },
           {
@@ -1494,7 +1494,7 @@ const QUEST_CHAPTERS = [
           },
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 1200
           }
         ]
@@ -1529,7 +1529,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 1500
           },
           {
@@ -1561,7 +1561,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 150
           },
           {
@@ -1595,7 +1595,7 @@ const QUEST_CHAPTERS = [
           },
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 1500
           }
         ]
@@ -1630,7 +1630,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 1800
           },
           {
@@ -1662,7 +1662,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 180
           },
           {
@@ -1701,7 +1701,7 @@ const QUEST_CHAPTERS = [
           },
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 1800
           }
         ]
@@ -1736,7 +1736,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 2100
           },
           {
@@ -1768,7 +1768,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 200
           },
           {
@@ -1797,7 +1797,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 200
           },
           {
@@ -1826,7 +1826,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "running",
+            "category": "adventurer",
             "amount": 200
           },
           {
@@ -1866,7 +1866,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 2400
           },
           {
@@ -1898,7 +1898,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 250
           },
           {
@@ -1930,7 +1930,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 300
           },
           {
@@ -1962,7 +1962,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "building",
+            "category": "adventurer",
             "amount": 300
           },
           {
@@ -1994,7 +1994,7 @@ const QUEST_CHAPTERS = [
         "rewards": [
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 300
           },
           {
@@ -2029,7 +2029,7 @@ const QUEST_CHAPTERS = [
           },
           {
             "type": "xp",
-            "category": "mining",
+            "category": "adventurer",
             "amount": 2400
           }
         ]

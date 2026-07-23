@@ -23,15 +23,17 @@ OUT_FILE = ROOT / "pack" / "kubejs" / "server_scripts" / "achievements.js"
 
 # (persistentData key, PlayerStatsJS getter, display label, skill category,
 #  [thresholds]) - same four chains/thresholds as the old FTB Quests chapter.
+# Issue #116 ("Converge all skill trees into ONE unified tree") SUPERSEDES
+# issue #71's 23-category structure with a single puffish_skills category
+# (scripts/gen_skill_tree.py's UNIFIED_CATEGORY_ID) - every chain's XP now
+# targets that one "adventurer" category (the old per-topic category id
+# here is no longer a real puffish_skills category and would fail the
+# `puffish_skills experience add` command at runtime).
 CHAINS = [
-    ("mob_kills", "getMobKills", "Monster Slayer", "swords", [50, 200, 800, 3200]),
-    ("play_time", "getPlayTime", "Dedicated Settler", "mining", [24000, 96000, 384000, 1536000]),  # ticks (20/s)
-    # animals_bred/fish_caught used to reward the closest-available category
-    # (building/swimming) before issue #71 added dedicated "taming"/
-    # "fishing" categories - redirected to the actually-matching category
-    # now that one exists.
-    ("animals_bred", "getAnimalsBred", "Animal Husbandry", "taming", [20, 80, 320, 1280]),
-    ("fish_caught", "getFishCaught", "Angler", "fishing", [15, 60, 240, 960]),
+    ("mob_kills", "getMobKills", "Monster Slayer", "adventurer", [50, 200, 800, 3200]),
+    ("play_time", "getPlayTime", "Dedicated Settler", "adventurer", [24000, 96000, 384000, 1536000]),  # ticks (20/s)
+    ("animals_bred", "getAnimalsBred", "Animal Husbandry", "adventurer", [20, 80, 320, 1280]),
+    ("fish_caught", "getFishCaught", "Angler", "adventurer", [15, 60, 240, 960]),
 ]
 
 TICK_INTERVAL = 100  # check every 5s - stats don't need tighter resolution than that

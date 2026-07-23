@@ -105,15 +105,38 @@ class TestCheckSkillTrees(unittest.TestCase):
             errors, _ = check_skill_trees.check_skill_trees(Path(tmp))
             self.assertTrue(any("expected exactly 1 root node" in e for e in errors))
 
-    def test_exclusive_connection_is_banned(self):
+    def test_exclusive_connection_is_allowed_and_counted(self):
+        """Issue #116 reintroduces `exclusive` connections (for the class-
+        choice clique) - no longer banned, just validated + counted."""
         with tempfile.TemporaryDirectory() as tmp:
             _write_config(tmp, ["test_cat"])
             _write_valid_category(tmp, connections={
                 "normal": {"bidirectional": [["root", "a"], ["a", "b"]]},
                 "exclusive": {"bidirectional": [["a", "b"]]},
             })
+            errors, stats = check_skill_trees.check_skill_trees(Path(tmp))
+            self.assertEqual(errors, [])
+            self.assertEqual(stats["exclusive_pairs"], 1)
+
+    def test_exclusive_dangling_reference_is_detected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _write_config(tmp, ["test_cat"])
+            _write_valid_category(tmp, connections={
+                "normal": {"bidirectional": [["root", "a"], ["a", "b"]]},
+                "exclusive": {"bidirectional": [["a", "ghost"]]},
+            })
             errors, _ = check_skill_trees.check_skill_trees(Path(tmp))
-            self.assertTrue(any("exclusive" in e and "removed exclusivity" in e for e in errors))
+            self.assertTrue(any("exclusive.bidirectional" in e and "ghost" in e for e in errors))
+
+    def test_exclusive_self_loop_is_detected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _write_config(tmp, ["test_cat"])
+            _write_valid_category(tmp, connections={
+                "normal": {"bidirectional": [["root", "a"], ["a", "b"]]},
+                "exclusive": {"bidirectional": [["a", "a"]]},
+            })
+            errors, _ = check_skill_trees.check_skill_trees(Path(tmp))
+            self.assertTrue(any("connects a skill to itself" in e for e in errors))
 
     def test_unreachable_node_is_detected(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -211,10 +234,25 @@ class TestCheckSkillTrees(unittest.TestCase):
     def test_real_generated_output_passes(self):
         """Runs the actual checker against this repo's real, generated
         skill-tree output (not a synthetic fixture) - catches drift between
-        gen_skill_tree.py and this checker's invariants."""
+        gen_skill_tree.py and this checker's invariants.
+
+        Issue #116 ("Converge all skill trees into ONE unified tree")
+        SUPERSEDES #71's 23-category structure with one category woven from
+        all 23 as subtrees under 4 mutually-exclusive "class" starts - these
+        assertions were updated from ">=20 categories" to the new shape's
+        real invariants: exactly 1 category, hundreds of nodes, a real
+        exclusive clique among the class roots, and a deep-enough tree to
+        back up point 4's "significant investment" capstone claim."""
         errors, stats = check_skill_trees.check_skill_trees(check_skill_trees.REPO_ROOT)
         self.assertEqual(errors, [])
-        self.assertGreaterEqual(stats["categories"], 20)
+        self.assertEqual(stats["categories"], 1)
+        self.assertEqual(stats["roots"], 1)
+        self.assertGreaterEqual(stats["skills"], 500)
+        # 4 classes -> C(4, 2) = 6 pairwise exclusive edges (a full clique).
+        self.assertGreaterEqual(stats["exclusive_pairs"], 6)
+        # origin -> class root -> former root -> theme root -> 3 branch
+        # depths -> capstone = 7 edges deep for at least one class.
+        self.assertGreaterEqual(stats["max_depth"], 6)
 
 
 if __name__ == "__main__":

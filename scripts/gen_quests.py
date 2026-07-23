@@ -183,7 +183,14 @@ def skill_xp_reward(category, amount):
     directly from the server's own command source (already full-permission,
     same proven pattern as achievements.js/dailies.js's identical
     puffish_skills calls) - no permission_level field needed, so this
-    reward is now first-class "xp" rather than a disguised "command"."""
+    reward is now first-class "xp" rather than a disguised "command".
+
+    Issue #116 ("Converge all skill trees into ONE unified tree") SUPERSEDES
+    issue #71's 23-category structure with a single puffish_skills category
+    (scripts/gen_skill_tree.py's UNIFIED_CATEGORY_ID) - every call site below
+    now passes "adventurer" (the old per-topic category ids are no longer
+    real puffish_skills categories and would fail the `puffish_skills
+    experience add` command at runtime)."""
     return {"type": "xp", "category": category, "amount": amount}
 
 
@@ -305,7 +312,7 @@ def build_rootborn(quests, cid):
         desc=["Punch some trees, then check this book after every tier-up - "
               "each chapter is a checklist for that tier's real progression."],
         tasks=[checkmark_task()],
-        rewards=[skill_xp_reward("mining", 10)],
+        rewards=[skill_xp_reward("adventurer", 10)],
         quest_icon="minecraft:crafting_table",
     )
     stone_age = make_quest(
@@ -313,7 +320,7 @@ def build_rootborn(quests, cid):
         desc=["Craft your first pickaxe through Silent Gear (any material) - "
               "the first real tool upgrade."],
         tasks=[item_task("silentgear:pickaxe", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[0])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[0])],
         dependencies=[welcome],
         quest_icon="minecraft:stone_pickaxe",
     )
@@ -322,7 +329,7 @@ def build_rootborn(quests, cid):
         desc=["Kill a zombie. Combat matters from here on - Swords XP feeds "
               "directly into the RPG skill tree."],
         tasks=[kill_task("minecraft:zombie", 1)],
-        rewards=[skill_xp_reward("swords", SIDE_XP[0])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[0])],
         dependencies=[welcome],
         quest_icon="minecraft:iron_sword",
     )
@@ -331,7 +338,7 @@ def build_rootborn(quests, cid):
         desc=["Craft or pick up Andesite Alloy - Create's own entry material, "
               "and the trigger for Andesite Age."],
         tasks=[item_task("create:andesite_alloy", only_from_crafting=True)],
-        rewards=[*spur_rewards(GATE_SPURS[0]), skill_xp_reward("mining", GATE_XP[0])],
+        rewards=[*spur_rewards(GATE_SPURS[0]), skill_xp_reward("adventurer", GATE_XP[0])],
         dependencies=[stone_age, first_hunt],
         quest_icon="create:andesite_alloy",
     )
@@ -350,7 +357,7 @@ def build_andesite(quests, cid):
         desc=["Iron tools and Create's own machinery are open. This chapter "
               "is your Andesite Age checklist."],
         tasks=[stage_task("andesite_age")],
-        rewards=[skill_xp_reward("mining", GATE_XP[1]), item_reward("create:andesite_alloy")],
+        rewards=[skill_xp_reward("adventurer", GATE_XP[1]), item_reward("create:andesite_alloy")],
         dependencies=[ROOTBORN_Q["gather_andesite"]],
         quest_icon="create:andesite_alloy",
     )
@@ -359,7 +366,7 @@ def build_andesite(quests, cid):
         desc=["Craft another Silent Gear pickaxe with this tier's material - "
               "the real mining-speed upgrade this tier unlocks."],
         tasks=[item_task("silentgear:pickaxe", only_from_crafting=True)],
-        rewards=[skill_xp_reward("mining", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
         dependencies=[enter], quest_icon="minecraft:iron_pickaxe",
     )
     dumb_storage = make_quest(
@@ -367,7 +374,7 @@ def build_andesite(quests, cid):
         desc=["Craft a Tom's Storage Inventory Connector - link your chests "
               "into one browsable network. No power, no autocrafting yet."],
         tasks=[item_task("toms_storage:inventory_connector", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
         dependencies=[enter], quest_icon="toms_storage:inventory_connector",
     )
     jetpack_1 = make_quest(
@@ -375,7 +382,7 @@ def build_andesite(quests, cid):
         desc=["Craft the Copper Jetpack - the first rung of the personal "
               "mobility ladder (Create Stuff & Additions)."],
         tasks=[item_task("create_sa:copper_jetpack_chestplate", only_from_crafting=True)],
-        rewards=[skill_xp_reward("running", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
         dependencies=[enter], quest_icon="create_sa:copper_jetpack_chestplate",
     )
     chunk_loader_1 = make_quest(
@@ -383,7 +390,7 @@ def build_andesite(quests, cid):
         desc=["Craft the Andesite Chunk Loader (Create: Power Loader). It "
               "only force-loads chunks while spun under real kinetic power."],
         tasks=[item_task("create_power_loader:andesite_chunk_loader", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
         dependencies=[enter], quest_icon="create_power_loader:andesite_chunk_loader",
     )
     vein_hunting = make_quest(
@@ -391,7 +398,7 @@ def build_andesite(quests, cid):
         desc=["Craft a Vein Finder (Create Ore Excavation) - the entry-level "
               "scouting tool for this pack's ore-vein system."],
         tasks=[item_task("createoreexcavation:vein_finder", only_from_crafting=True)],
-        rewards=[skill_xp_reward("mining", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
         dependencies=[enter], quest_icon="createoreexcavation:vein_finder",
     )
     ars_wand = make_quest(
@@ -399,7 +406,7 @@ def build_andesite(quests, cid):
         desc=["Craft an Ars Nouveau wand - the entry point into this pack's "
               "spell-crafting magic system."],
         tasks=[item_task("ars_nouveau:wand", only_from_crafting=True)],
-        rewards=[skill_xp_reward("magic", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[1]), *spur_rewards(SIDE_SPURS[1])],
         dependencies=[enter], quest_icon="ars_nouveau:wand",
     )
     make_quest(
@@ -408,7 +415,7 @@ def build_andesite(quests, cid):
               "with no tier lock, hidden in structure loot at every rarity "
               "tier. This one just confirms you've found the umbrella."],
         tasks=[item_task("artifacts:umbrella", consume_items=False, only_from_crafting=False)],
-        rewards=[skill_xp_reward("magic", SIDE_XP[1])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[1])],
         dependencies=[enter], quest_icon="artifacts:umbrella",
     )
     into_brass = make_quest(
@@ -416,7 +423,7 @@ def build_andesite(quests, cid):
         desc=["Craft or pick up a Brass Ingot - Create's mid-game alloy, and "
               "the trigger for Brass Age."],
         tasks=[item_task("create:brass_ingot", only_from_crafting=True)],
-        rewards=[*spur_rewards(GATE_SPURS[1]), skill_xp_reward("mining", GATE_XP[1])],
+        rewards=[*spur_rewards(GATE_SPURS[1]), skill_xp_reward("adventurer", GATE_XP[1])],
         dependencies=[iron_tools, dumb_storage, jetpack_1, chunk_loader_1, vein_hunting, ars_wand],
         quest_icon="create:brass_ingot",
     )
@@ -435,7 +442,7 @@ def build_brass(quests, cid):
         desc=["Automation begins in earnest. Diamond gear, the Nether, and a "
               "real powered storage network are all open now."],
         tasks=[stage_task("brass_age")],
-        rewards=[skill_xp_reward("building", GATE_XP[2]), item_reward("create:brass_ingot")],
+        rewards=[skill_xp_reward("adventurer", GATE_XP[2]), item_reward("create:brass_ingot")],
         dependencies=[ANDESITE_Q["into_brass"]],
         quest_icon="create:brass_ingot",
     )
@@ -444,7 +451,7 @@ def build_brass(quests, cid):
         desc=["Craft another Silent Gear pickaxe with Brass Age's material - "
               "the tool-tier milestone for this age."],
         tasks=[item_task("silentgear:pickaxe", only_from_crafting=True)],
-        rewards=[skill_xp_reward("daggers", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
         dependencies=[enter], quest_icon="minecraft:diamond_pickaxe",
     )
     real_network = make_quest(
@@ -452,7 +459,7 @@ def build_brass(quests, cid):
         desc=["Craft a Refined Storage Controller - the heart of the powered "
               "network that replaces Tom's Storage from here on."],
         tasks=[item_task("refinedstorage:controller", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
         dependencies=[enter], quest_icon="refinedstorage:controller",
     )
     alternator = make_quest(
@@ -460,7 +467,7 @@ def build_brass(quests, cid):
         desc=["Craft a Create Crafts & Additions Alternator - turns Create's "
               "own rotational power into the FE that runs Refined Storage."],
         tasks=[item_task("createaddition:alternator", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
         dependencies=[enter], quest_icon="createaddition:alternator",
     )
     automation_arm = make_quest(
@@ -468,7 +475,7 @@ def build_brass(quests, cid):
         desc=["Craft a Mechanical Arm - Create's own first crafting-automation "
               "block, feeding Refined Storage's Importer/Exporter."],
         tasks=[item_task("create:mechanical_arm", only_from_crafting=True)],
-        rewards=[skill_xp_reward("spears", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
         dependencies=[enter], quest_icon="create:mechanical_arm",
     )
     jetpack_2 = make_quest(
@@ -476,7 +483,7 @@ def build_brass(quests, cid):
         desc=["Craft the Andesite Jetpack - fuel-fired propellers, rung 2 of "
               "the mobility ladder."],
         tasks=[item_task("create_sa:andesite_jetpack_chestplate", only_from_crafting=True)],
-        rewards=[skill_xp_reward("running", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
         dependencies=[enter], quest_icon="create_sa:andesite_jetpack_chestplate",
     )
     chunk_loader_2 = make_quest(
@@ -484,7 +491,7 @@ def build_brass(quests, cid):
         desc=["Craft the Brass Chunk Loader - the second and final Power "
               "Loader rung."],
         tasks=[item_task("create_power_loader:brass_chunk_loader", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
         dependencies=[enter], quest_icon="create_power_loader:brass_chunk_loader",
     )
     tiab = make_quest(
@@ -492,7 +499,7 @@ def build_brass(quests, cid):
         desc=["Craft the Time in a Bottle tick accelerator - one per player, "
               "and it won't speed up spawners."],
         tasks=[item_task("tiab:time_in_a_bottle", only_from_crafting=True)],
-        rewards=[skill_xp_reward("mining", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
         dependencies=[enter], quest_icon="tiab:time_in_a_bottle",
     )
     trains = make_quest(
@@ -500,7 +507,7 @@ def build_brass(quests, cid):
         desc=["Craft a Track Station - Create's own Trains are a full Brass "
               "Age package now."],
         tasks=[item_task("create:track_station", only_from_crafting=True)],
-        rewards=[skill_xp_reward("running", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
         dependencies=[enter], quest_icon="create:track_station",
     )
     diet_upgrade = make_quest(
@@ -510,7 +517,7 @@ def build_brass(quests, cid):
               "(gold/diamond both unlock here; iron was Andesite Age, "
               "netherite is Precision Age)."],
         tasks=[item_task("farmersdelight:diamond_knife", only_from_crafting=True)],
-        rewards=[skill_xp_reward("bows", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[2]), *spur_rewards(SIDE_SPURS[2])],
         dependencies=[enter], quest_icon="farmersdelight:diamond_knife",
     )
     master_alloy = make_quest(
@@ -518,7 +525,7 @@ def build_brass(quests, cid):
         desc=["Craft a Sturdy Sheet from Refined Radiance or Shadow Steel - "
               "Create's own top-tier alloy, and the door to Precision Age."],
         tasks=[item_task("create:sturdy_sheet", only_from_crafting=True)],
-        rewards=[*spur_rewards(GATE_SPURS[2]), skill_xp_reward("mining", GATE_XP[2])],
+        rewards=[*spur_rewards(GATE_SPURS[2]), skill_xp_reward("adventurer", GATE_XP[2])],
         dependencies=[diamond_gear, real_network, alternator, automation_arm,
                       jetpack_2, chunk_loader_2, tiab, trains, diet_upgrade],
         quest_icon="create:sturdy_sheet",
@@ -538,7 +545,7 @@ def build_precision(quests, cid):
         desc=["Create's own endgame alloys are done. Netherite gear and The "
               "End are open."],
         tasks=[stage_task("precision_age")],
-        rewards=[skill_xp_reward("swords", GATE_XP[3]), item_reward("create:sturdy_sheet")],
+        rewards=[skill_xp_reward("adventurer", GATE_XP[3]), item_reward("create:sturdy_sheet")],
         dependencies=[BRASS_Q["master_alloy"]],
         quest_icon="create:sturdy_sheet",
     )
@@ -547,7 +554,7 @@ def build_precision(quests, cid):
         desc=["Craft another Silent Gear pickaxe with Precision Age's material - "
               "the tool-tier milestone for this age."],
         tasks=[item_task("silentgear:pickaxe", only_from_crafting=True)],
-        rewards=[skill_xp_reward("greatswords", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
         dependencies=[enter], quest_icon="minecraft:netherite_pickaxe",
     )
     wireless = make_quest(
@@ -555,7 +562,7 @@ def build_precision(quests, cid):
         desc=["Craft a Wireless Grid - manage your Refined Storage network "
               "from anywhere in range."],
         tasks=[item_task("refinedstorage:wireless_grid", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
         dependencies=[enter], quest_icon="refinedstorage:wireless_grid",
     )
     jetpack_3 = make_quest(
@@ -564,7 +571,7 @@ def build_precision(quests, cid):
               "ladder, and the base item the Induction Age netherite jetpack "
               "smiths from."],
         tasks=[item_task("create_sa:brass_jetpack_chestplate", only_from_crafting=True)],
-        rewards=[skill_xp_reward("running", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
         dependencies=[enter], quest_icon="create_sa:brass_jetpack_chestplate",
     )
     elytra = make_quest(
@@ -572,7 +579,7 @@ def build_precision(quests, cid):
         desc=["Find an Elytra in an End City - it's not craftable, just "
               "gated behind reaching this tier and finding one."],
         tasks=[item_task("minecraft:elytra", consume_items=False, only_from_crafting=False)],
-        rewards=[skill_xp_reward("longswords", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
         dependencies=[enter], quest_icon="minecraft:elytra",
     )
     diet_upgrade = make_quest(
@@ -582,7 +589,7 @@ def build_precision(quests, cid):
               "diet knife line, keeping your bonus-hearts diet variety topped "
               "up through Precision Age's grind."],
         tasks=[item_task("farmersdelight:netherite_knife", only_from_crafting=True)],
-        rewards=[skill_xp_reward("bows", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
         dependencies=[enter], quest_icon="farmersdelight:netherite_knife",
     )
     vein_ceiling = make_quest(
@@ -591,7 +598,7 @@ def build_precision(quests, cid):
               "ceiling, and what it takes to pull allthemodium/vibranium/"
               "unobtainium out of the ground."],
         tasks=[item_task("createoreexcavation:netherite_drill", only_from_crafting=True)],
-        rewards=[skill_xp_reward("mining", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[3]), *spur_rewards(SIDE_SPURS[3])],
         dependencies=[enter], quest_icon="createoreexcavation:netherite_drill",
     )
     final_ingot = make_quest(
@@ -599,7 +606,7 @@ def build_precision(quests, cid):
         desc=["Craft or pick up a Netherite Ingot - the temporary trigger for "
               "Induction Age, until a real narrative trigger replaces it."],
         tasks=[item_task("minecraft:netherite_ingot", only_from_crafting=True)],
-        rewards=[*spur_rewards(GATE_SPURS[3]), skill_xp_reward("mining", GATE_XP[3])],
+        rewards=[*spur_rewards(GATE_SPURS[3]), skill_xp_reward("adventurer", GATE_XP[3])],
         dependencies=[netherite_gear, wireless, jetpack_3, elytra, diet_upgrade, vein_ceiling],
         quest_icon="minecraft:netherite_ingot",
     )
@@ -618,7 +625,7 @@ def build_induction(quests, cid):
         desc=["Full storage-network automation: 64k capacity and native "
               "pattern-based autocrafting are online."],
         tasks=[stage_task("induction_age")],
-        rewards=[skill_xp_reward("bows", GATE_XP[4]), item_reward("minecraft:netherite_ingot")],
+        rewards=[skill_xp_reward("adventurer", GATE_XP[4]), item_reward("minecraft:netherite_ingot")],
         dependencies=[PRECISION_Q["final_ingot"]],
         quest_icon="minecraft:netherite_ingot",
     )
@@ -628,7 +635,7 @@ def build_induction(quests, cid):
               "pattern-based autocrafter, no more Mechanical Arm needed for "
               "storage automation."],
         tasks=[item_task("refinedstorage:autocrafting_upgrade", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
         dependencies=[enter], quest_icon="refinedstorage:autocrafting_upgrade",
     )
     storage_ceiling = make_quest(
@@ -636,7 +643,7 @@ def build_induction(quests, cid):
         desc=["Craft a 64k Storage Part - the ceiling of this pack's Refined "
               "Storage capacity chase (until the Jovian Frontier capstone)."],
         tasks=[item_task("refinedstorage:64k_storage_part", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
         dependencies=[enter], quest_icon="refinedstorage:64k_storage_part",
     )
     jetpack_ceiling = make_quest(
@@ -644,7 +651,7 @@ def build_induction(quests, cid):
         desc=["Craft the Netherite Jetpack - the final rung before "
               "Starforged Age grants true persistent flight outright."],
         tasks=[item_task("create_sa:netherite_jetpack_chestplate", only_from_crafting=True)],
-        rewards=[skill_xp_reward("running", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
         dependencies=[enter], quest_icon="create_sa:netherite_jetpack_chestplate",
     )
     teleport = make_quest(
@@ -652,7 +659,7 @@ def build_induction(quests, cid):
         desc=["Craft a Waystone - intra-world teleportation, gated all the "
               "way to this tier on purpose."],
         tasks=[item_task("waystones:waystone", only_from_crafting=True)],
-        rewards=[skill_xp_reward("running", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
         dependencies=[enter], quest_icon="waystones:waystone",
     )
     steam_flight = make_quest(
@@ -660,7 +667,7 @@ def build_induction(quests, cid):
         desc=["Craft a Steam Vent (Create Aeronautics) - the passive, "
               "industrial-scale heat source for sustained airship lift."],
         tasks=[item_task("aeronautics:steam_vent", only_from_crafting=True)],
-        rewards=[skill_xp_reward("tachi", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
         dependencies=[enter], quest_icon="aeronautics:steam_vent",
     )
     gear_ceiling = make_quest(
@@ -669,7 +676,7 @@ def build_induction(quests, cid):
               "Silent Gear material floor, carrying gear progression into "
               "the space tiers."],
         tasks=[item_task("allthemodium:allthemodium_ingot", only_from_crafting=True)],
-        rewards=[skill_xp_reward("mining", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[4]), *spur_rewards(SIDE_SPURS[4])],
         dependencies=[enter], quest_icon="allthemodium:allthemodium_ingot",
     )
     dragon = make_quest(
@@ -677,7 +684,7 @@ def build_induction(quests, cid):
         desc=["Kill the Ender Dragon. The overworld, Nether, and End are "
               "done - this is the real trigger for Starforged Age."],
         tasks=[kill_task("minecraft:ender_dragon", 1)],
-        rewards=[*spur_rewards(GATE_SPURS[4]), skill_xp_reward("swords", GATE_XP[4])],
+        rewards=[*spur_rewards(GATE_SPURS[4]), skill_xp_reward("adventurer", GATE_XP[4])],
         dependencies=[autocrafting, storage_ceiling, jetpack_ceiling, teleport,
                       steam_flight, gear_ceiling],
         quest_icon="minecraft:dragon_head",
@@ -697,7 +704,7 @@ def build_starforged(quests, cid):
         desc=["The overworld, Nether, and End are conquered. Space travel "
               "begins - and you can now toggle persistent flight outright."],
         tasks=[stage_task("starforged_age")],
-        rewards=[skill_xp_reward("swimming", GATE_XP[5]), item_reward("minecraft:nether_star")],
+        rewards=[skill_xp_reward("adventurer", GATE_XP[5]), item_reward("minecraft:nether_star")],
         dependencies=[INDUCTION_Q["dragon"]],
         quest_icon="minecraft:nether_star",
     )
@@ -707,7 +714,7 @@ def build_starforged(quests, cid):
               "you reached this tier, no item or fuel required, and it "
               "survives death."],
         tasks=[checkmark_task()],
-        rewards=[skill_xp_reward("running", SIDE_XP[5])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[5])],
         dependencies=[enter], quest_icon="minecraft:elytra",
     )
     make_quest(
@@ -715,7 +722,7 @@ def build_starforged(quests, cid):
         desc=["Run /leaderboard wealth, /leaderboard tier, or /leaderboard "
               "level to see how you and your team stack up."],
         tasks=[checkmark_task()],
-        rewards=[skill_xp_reward("mining", SIDE_XP[5])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[5])],
         dependencies=[enter], quest_icon="numismatics:sun",
     )
     aluminum_age = make_quest(
@@ -723,7 +730,7 @@ def build_starforged(quests, cid):
         desc=["Smelt a TFMG Aluminum Ingot - the first rung of the endgame "
               "automation ladder that carries all the way to Jupiter."],
         tasks=[item_task("tfmg:aluminum_ingot", only_from_crafting=True)],
-        rewards=[skill_xp_reward("mining", SIDE_XP[5]), *spur_rewards(SIDE_SPURS[5])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[5]), *spur_rewards(SIDE_SPURS[5])],
         dependencies=[enter], quest_icon="tfmg:aluminum_ingot",
     )
     rocket_parts = make_quest(
@@ -731,7 +738,7 @@ def build_starforged(quests, cid):
         desc=["Craft a Rocket Engine (Stellaris) - one of the core "
               "components of your first rocket."],
         tasks=[item_task("stellaris:rocket_engine", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[5]), *spur_rewards(SIDE_SPURS[5])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[5]), *spur_rewards(SIDE_SPURS[5])],
         dependencies=[aluminum_age], quest_icon="stellaris:rocket_engine",
     )
     launch = make_quest(
@@ -739,7 +746,7 @@ def build_starforged(quests, cid):
         desc=["Launch your rocket and reach Earth orbit - the real trigger "
               "for Lunar Frontier."],
         tasks=[dimension_task("stellaris:earth_orbit")],
-        rewards=[*spur_rewards(GATE_SPURS[5]), skill_xp_reward("running", GATE_XP[5])],
+        rewards=[*spur_rewards(GATE_SPURS[5]), skill_xp_reward("adventurer", GATE_XP[5])],
         dependencies=[rocket_parts],
         quest_icon="stellaris:rocket",
     )
@@ -757,7 +764,7 @@ def build_lunar(quests, cid):
         quests, cid, "enter", "Enter the Lunar Frontier",
         desc=["You've reached orbit. The Moon is next."],
         tasks=[stage_task("lunar_frontier")],
-        rewards=[skill_xp_reward("mining", GATE_XP[6]), item_reward("allthemodium:unobtainium_ingot")],
+        rewards=[skill_xp_reward("adventurer", GATE_XP[6]), item_reward("allthemodium:unobtainium_ingot")],
         dependencies=[STARFORGED_Q["launch"]],
         quest_icon="stellaris:rocket",
     )
@@ -766,14 +773,14 @@ def build_lunar(quests, cid):
         desc=["Smelt a TFMG Steel Ingot - the mod's own core metallurgy "
               "chain, rung 2 of the endgame automation ladder."],
         tasks=[item_task("tfmg:steel_ingot", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[6]), *spur_rewards(SIDE_SPURS[6])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[6]), *spur_rewards(SIDE_SPURS[6])],
         dependencies=[enter], quest_icon="tfmg:steel_ingot",
     )
     moon_landing = make_quest(
         quests, cid, "moon_landing", "One Small Step",
         desc=["Travel to the Moon - the real trigger for Martian Frontier."],
         tasks=[dimension_task("stellaris:moon")],
-        rewards=[*spur_rewards(GATE_SPURS[6]), skill_xp_reward("running", GATE_XP[6])],
+        rewards=[*spur_rewards(GATE_SPURS[6]), skill_xp_reward("adventurer", GATE_XP[6])],
         dependencies=[steel_age], quest_icon="minecraft:end_crystal",
     )
     LUNAR_Q["moon_landing"] = moon_landing
@@ -790,7 +797,7 @@ def build_martian(quests, cid):
         quests, cid, "enter", "Enter the Martian Frontier",
         desc=["The Moon is conquered. Mars is next."],
         tasks=[stage_task("martian_frontier")],
-        rewards=[skill_xp_reward("mining", GATE_XP[7]), item_reward("tfmg:diesel_bucket")],
+        rewards=[skill_xp_reward("adventurer", GATE_XP[7]), item_reward("tfmg:diesel_bucket")],
         dependencies=[LUNAR_Q["moon_landing"]],
         quest_icon="minecraft:redstone",
     )
@@ -799,14 +806,14 @@ def build_martian(quests, cid):
         desc=["Refine a bucket of Diesel (TFMG) - rung 3 of the endgame "
               "automation ladder."],
         tasks=[item_task("tfmg:diesel_bucket", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[7]), *spur_rewards(SIDE_SPURS[7])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[7]), *spur_rewards(SIDE_SPURS[7])],
         dependencies=[enter], quest_icon="tfmg:diesel_bucket",
     )
     mars_landing = make_quest(
         quests, cid, "mars_landing", "Red Planet",
         desc=["Travel to Mars - the real trigger for Inner System."],
         tasks=[dimension_task("stellaris:mars")],
-        rewards=[*spur_rewards(GATE_SPURS[7]), skill_xp_reward("running", GATE_XP[7])],
+        rewards=[*spur_rewards(GATE_SPURS[7]), skill_xp_reward("adventurer", GATE_XP[7])],
         dependencies=[petrochemical], quest_icon="minecraft:redstone_block",
     )
     MARTIAN_Q["mars_landing"] = mars_landing
@@ -824,7 +831,7 @@ def build_inner(quests, cid):
         desc=["Mars is conquered. Venus and Mercury - both extreme, "
               "comparably hostile - are next."],
         tasks=[stage_task("inner_system")],
-        rewards=[skill_xp_reward("mining", GATE_XP[8]), item_reward("tfmg:electric_motor")],
+        rewards=[skill_xp_reward("adventurer", GATE_XP[8]), item_reward("tfmg:electric_motor")],
         dependencies=[MARTIAN_Q["mars_landing"]],
         quest_icon="minecraft:magma_block",
     )
@@ -833,7 +840,7 @@ def build_inner(quests, cid):
         desc=["Craft a TFMG Converter - bridges TFMG's own power grid into "
               "Create/FE, rung 4 of the endgame automation ladder."],
         tasks=[item_task("tfmg:converter", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[8]), *spur_rewards(SIDE_SPURS[8])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[8]), *spur_rewards(SIDE_SPURS[8])],
         dependencies=[enter], quest_icon="tfmg:converter",
     )
     make_quest(
@@ -841,7 +848,7 @@ def build_inner(quests, cid):
         desc=["Travel to Venus - either inner planet triggers Jovian "
               "Frontier, so this and Mercury are both optional."],
         tasks=[dimension_task("stellaris:venus")],
-        rewards=[skill_xp_reward("running", SIDE_XP[8]), *spur_rewards(SIDE_SPURS[8])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[8]), *spur_rewards(SIDE_SPURS[8])],
         dependencies=[electrical_age], quest_icon="minecraft:magma_block",
     )
     make_quest(
@@ -849,7 +856,7 @@ def build_inner(quests, cid):
         desc=["Travel to Mercury - either inner planet triggers Jovian "
               "Frontier, so this and Venus are both optional."],
         tasks=[dimension_task("stellaris:mercury")],
-        rewards=[skill_xp_reward("running", SIDE_XP[8]), *spur_rewards(SIDE_SPURS[8])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[8]), *spur_rewards(SIDE_SPURS[8])],
         dependencies=[electrical_age], quest_icon="minecraft:magma_block",
     )
     INNER_Q["electrical_age"] = electrical_age
@@ -864,7 +871,7 @@ def build_jovian(quests, cid):
         desc=["The inner system is conquered. Jupiter - the current edge of "
               "Stellaris' explorable system - is the final frontier."],
         tasks=[stage_task("jovian_frontier")],
-        rewards=[skill_xp_reward("mining", GATE_XP[9]),
+        rewards=[skill_xp_reward("adventurer", GATE_XP[9]),
                  item_reward("allthemodium:unobtainium_vibranium_alloy_ingot")],
         dependencies=[INNER_Q["electrical_age"]],
         quest_icon="minecraft:end_crystal",
@@ -874,7 +881,7 @@ def build_jovian(quests, cid):
         desc=["Craft a TFMG Engine Cylinder - the final rung of the endgame "
               "automation ladder."],
         tasks=[item_task("tfmg:engine_cylinder", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[9]), *spur_rewards(SIDE_SPURS[9])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[9]), *spur_rewards(SIDE_SPURS[9])],
         dependencies=[enter], quest_icon="tfmg:engine_cylinder",
     )
     storage_infinity = make_quest(
@@ -883,7 +890,7 @@ def build_jovian(quests, cid):
               "infinite item capacity, the true ceiling of the storage "
               "chase started back at Andesite Age."],
         tasks=[item_task("refinedstorage:creative_storage_block", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[9] + 50), *spur_rewards(SIDE_SPURS[9])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[9] + 50), *spur_rewards(SIDE_SPURS[9])],
         dependencies=[combustion_age], quest_icon="refinedstorage:creative_storage_block",
     )
     energy_infinity = make_quest(
@@ -892,7 +899,7 @@ def build_jovian(quests, cid):
               "Rotational Force, bridged to FE the same way every earlier "
               "power step in this pack has been."],
         tasks=[item_task("create:creative_motor", only_from_crafting=True)],
-        rewards=[skill_xp_reward("building", SIDE_XP[9] + 50), *spur_rewards(SIDE_SPURS[9])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[9] + 50), *spur_rewards(SIDE_SPURS[9])],
         dependencies=[combustion_age], quest_icon="create:creative_motor",
     )
     resource_infinity = make_quest(
@@ -901,7 +908,7 @@ def build_jovian(quests, cid):
               "item you configure. This is the hardest, latest-gated craft "
               "in the entire pack for a reason - guard it accordingly."],
         tasks=[item_task("create:creative_crate", only_from_crafting=True)],
-        rewards=[skill_xp_reward("mining", SIDE_XP[9] + 50), *spur_rewards(SIDE_SPURS[9])],
+        rewards=[skill_xp_reward("adventurer", SIDE_XP[9] + 50), *spur_rewards(SIDE_SPURS[9])],
         dependencies=[combustion_age], quest_icon="create:creative_crate",
     )
     make_quest(
@@ -910,7 +917,7 @@ def build_jovian(quests, cid):
               "extend the ladder further out into the solar system - this "
               "book will grow to meet them."],
         tasks=[checkmark_task()],
-        rewards=[*spur_rewards(GATE_SPURS[9]), skill_xp_reward("mining", GATE_XP[9])],
+        rewards=[*spur_rewards(GATE_SPURS[9]), skill_xp_reward("adventurer", GATE_XP[9])],
         dependencies=[storage_infinity, energy_infinity, resource_infinity],
         quest_icon="minecraft:nether_star",
     )

@@ -30,28 +30,34 @@ OUT_FILE = ROOT / "pack" / "kubejs" / "server_scripts" / "dailies.js"
 
 DAY_MS = 86400 * 1000
 
+# Issue #116 ("Converge all skill trees into ONE unified tree") SUPERSEDES
+# issue #71's 23-category structure with a single puffish_skills category
+# (scripts/gen_skill_tree.py's UNIFIED_CATEGORY_ID) - every bounty's XP now
+# targets that one "adventurer" category (the old per-topic category id
+# here is no longer a real puffish_skills category and would fail the
+# `puffish_skills experience add` command at runtime).
 ITEM_BOUNTIES = [
-    ("minecraft:cobblestone", 64, "mining", 20),
-    ("minecraft:oak_log", 32, "building", 20),
-    ("minecraft:coal", 32, "mining", 25),
-    ("minecraft:iron_ingot", 16, "mining", 30),
-    ("minecraft:wheat", 32, "building", 20),
-    ("create:andesite_alloy", 16, "building", 30),
-    ("minecraft:copper_ingot", 16, "mining", 30),
-    ("minecraft:string", 24, "swords", 20),
-    ("minecraft:leather", 16, "swords", 20),
-    ("minecraft:sand", 64, "building", 20),
+    ("minecraft:cobblestone", 64, "adventurer", 20),
+    ("minecraft:oak_log", 32, "adventurer", 20),
+    ("minecraft:coal", 32, "adventurer", 25),
+    ("minecraft:iron_ingot", 16, "adventurer", 30),
+    ("minecraft:wheat", 32, "adventurer", 20),
+    ("create:andesite_alloy", 16, "adventurer", 30),
+    ("minecraft:copper_ingot", 16, "adventurer", 30),
+    ("minecraft:string", 24, "adventurer", 20),
+    ("minecraft:leather", 16, "adventurer", 20),
+    ("minecraft:sand", 64, "adventurer", 20),
 ]
 
 KILL_BOUNTIES = [
-    ("minecraft:zombie", 15, "swords", 30),
-    ("minecraft:skeleton", 15, "bows", 30),
-    ("minecraft:spider", 15, "swords", 30),
-    ("minecraft:creeper", 8, "swords", 35),
-    ("minecraft:drowned", 10, "swimming", 35),
-    ("minecraft:cod", 10, "swimming", 25),
-    ("minecraft:rabbit", 10, "running", 25),
-    ("minecraft:enderman", 5, "swords", 45),
+    ("minecraft:zombie", 15, "adventurer", 30),
+    ("minecraft:skeleton", 15, "adventurer", 30),
+    ("minecraft:spider", 15, "adventurer", 30),
+    ("minecraft:creeper", 8, "adventurer", 35),
+    ("minecraft:drowned", 10, "adventurer", 35),
+    ("minecraft:cod", 10, "adventurer", 25),
+    ("minecraft:rabbit", 10, "adventurer", 25),
+    ("minecraft:enderman", 5, "adventurer", 45),
 ]
 
 
