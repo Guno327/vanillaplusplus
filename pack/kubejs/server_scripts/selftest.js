@@ -442,23 +442,21 @@ stCheck('progression audit (#61): refinedstorage:controller resolves to its real
     }
 })
 
-// #61 diagnostics (NOT health gates - see note): three genuinely under-gated
-// families the corrected offline audit + manual jar verification found,
-// confirmed here against the LIVE, post-KubeJS RecipeManager per PM review
-// of PR #106. Recorded in DESIGN.md's "Recipe-reachability audit" section;
-// GitHub #61 scoped this as an audit tool, not a gating fix, so these
-// checks pass=true whenever they successfully CONFIRM the live state
-// (whether that's "gap present" or "gap fixed") - they report, they don't
-// gate a known, tracked content issue someone still needs to fix with a
-// follow-up KubeJS edit. Second-round PM review (live boot.yml run) found
-// one of these was passing VACUOUSLY on a wrong hardcoded recipe id - fixed
-// by making "target recipe/ids not found at all" a hard FAIL in every one
-// of these, never a silent pass; only "found the recipe(s) and read their
-// ingredients" is allowed to report pass:true, regardless of which state it
-// reports in `detail`. If a future fix closes one of these gaps, `detail`
-// will say so - flip the assertion to require `demandsTier`/`!bypassable`
-// at that point so this stops just reporting and starts actually gating.
-stCheck('progression audit (#61) diagnostic: sophisticatedstorage double-chest upgrade path vs the Andesite/Brass Age gate', server => {
+// #61 diagnostics turned #127 regression gates: the same three genuinely
+// under-gated families the corrected offline audit + manual jar
+// verification found (confirmed live against the post-KubeJS RecipeManager
+// per PM review of PR #106) are now closed by tier_gating.js (#127) - see
+// DESIGN.md's "Recipe-reachability audit" section for the fix mechanism
+// (Sophisticated Storage: gate the double-chest upgrade recipes directly;
+// Refined Storage: gate the shared refinedstorage:machine_casing
+// chokepoint; the brass tag: re-author create:brass_casing's two recipes
+// off the literal create:brass_ingot item instead of c:ingots/brass). These
+// three checks now hard-FAIL if the gap reopens (a future mod update
+// changing a recipe id/shape, or a regression re-removing the KubeJS edit),
+// same "cannot confirm is never a silent pass" discipline as the two
+// checks above - only now `demandsTier`/`!bypassable` is the assertion,
+// not just a report.
+stCheck('progression audit (#61/#127): sophisticatedstorage double-chest upgrade path is Andesite/Brass Age gated', server => {
     let ids = ['sophisticatedstorage:double_iron_chest', 'sophisticatedstorage:double_gold_chest', 'sophisticatedstorage:double_diamond_chest']
     let tierStacks = [Item.of('create:andesite_alloy'), Item.of('create:brass_ingot')]
     let bypassed = []
@@ -475,20 +473,24 @@ stCheck('progression audit (#61) diagnostic: sophisticatedstorage double-chest u
                 if (ingredients[j].test(tierStacks[k])) demandsTier = true
             }
         }
-        if (!demandsTier) bypassed.push(ids[i])
+        // double_diamond_chest chains off gold_chest (itself now gated) and
+        // needs no tier material of its own - same chain-gate reasoning as
+        // the rest of tier_gating.js, so it's expected to report "no direct
+        // tier material" without that meaning it's bypassable.
+        if (!demandsTier && ids[i] !== 'sophisticatedstorage:double_diamond_chest') bypassed.push(ids[i])
     }
     if (checked === 0) {
         return { pass: false, detail: 'none of ' + ids.join(',') + ' resolved - cannot confirm, re-check ids (mod version drift?)' }
     }
     return {
-        pass: true,
+        pass: bypassed.length === 0,
         detail: bypassed.length > 0
-            ? ('GAP CONFIRMED LIVE (' + checked + '/' + ids.length + ' checked) - reaches iron/gold/diamond chest tier with no tier material via: ' + bypassed.join(','))
-            : ('gap appears fixed (' + checked + '/' + ids.length + ' checked) - flip this check to require demandsTier'),
+            ? ('REGRESSION - reaches chest tier with no tier material via: ' + bypassed.join(','))
+            : ('gated (' + checked + '/' + ids.length + ' checked) - #127 fix holds'),
     }
 })
 
-stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age chain vs any tier material gate', server => {
+stCheck('progression audit (#61/#127): refinedstorage pre-Induction-Age chain is Brass Age gated (via machine_casing)', server => {
     let ids = ['refinedstorage:controller', 'refinedstorage:disk_drive', 'refinedstorage:grid']
     let tierStacks = [Item.of('create:andesite_alloy'), Item.of('create:brass_ingot'), Item.of('create:refined_radiance'), Item.of('create:shadow_steel'), Item.of('minecraft:netherite_ingot')]
     let ungated = []
@@ -499,10 +501,33 @@ stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age ch
         let ingredients
         try { ingredients = opt.get().value().getIngredients().toArray() } catch (e) { continue }
         checked++
+        // #127 gates the shared refinedstorage:machine_casing chokepoint
+        // rather than patching controller/disk_drive/grid directly, so the
+        // tier material itself won't appear in THEIR ingredient lists - it
+        // appears one level down, in machine_casing's own (re-authored)
+        // recipe. Resolve that one hop rather than assuming a direct
+        // ingredient, the same "don't assume, resolve the real chain" rule
+        // #61 exists to enforce.
         let demandsTier = false
+        let usesMachineCasing = false
+        let machineCasingStack = Item.of('refinedstorage:machine_casing')
         for (let j = 0; j < ingredients.length; j++) {
             for (let k = 0; k < tierStacks.length; k++) {
                 if (ingredients[j].test(tierStacks[k])) demandsTier = true
+            }
+            if (ingredients[j].test(machineCasingStack)) usesMachineCasing = true
+        }
+        if (!demandsTier && usesMachineCasing) {
+            let casingOpt = server.getRecipeManager().byKey(stRl('refinedstorage:machine_casing'))
+            if (casingOpt.isPresent()) {
+                try {
+                    let casingIngredients = casingOpt.get().value().getIngredients().toArray()
+                    for (let j = 0; j < casingIngredients.length; j++) {
+                        for (let k = 0; k < tierStacks.length; k++) {
+                            if (casingIngredients[j].test(tierStacks[k])) demandsTier = true
+                        }
+                    }
+                } catch (e) { /* leave demandsTier false - falls through to ungated below */ }
             }
         }
         if (!demandsTier) ungated.push(ids[i])
@@ -511,10 +536,10 @@ stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age ch
         return { pass: false, detail: 'none of ' + ids.join(',') + ' resolved - cannot confirm, re-check ids (mod version drift?)' }
     }
     return {
-        pass: true,
+        pass: ungated.length === 0,
         detail: ungated.length > 0
-            ? ('GAP CONFIRMED LIVE (' + checked + '/' + ids.length + ' checked) - no recipe tier material anywhere in: ' + ungated.join(','))
-            : ('gap appears fixed (' + checked + '/' + ids.length + ' checked) - flip this check to require demandsTier for all'),
+            ? ('REGRESSION - no tier material anywhere in (direct or via machine_casing): ' + ungated.join(','))
+            : ('gated (' + checked + '/' + ids.length + ' checked, via refinedstorage:machine_casing) - #127 fix holds'),
     }
 })
 
@@ -529,7 +554,7 @@ stCheck('progression audit (#61) diagnostic: refinedstorage pre-Induction-Age ch
 // (`create:brass_casing`, which both of Create's two alternate recipes for
 // it - from_log and from_wood - produce) instead of guessing an id, and
 // hard FAIL if no matching recipe is found rather than silently passing.
-stCheck('progression audit (#61) diagnostic: alltheores:brass_ingot cross-mod bypass of the create:brass_ingot gate via c:ingots/brass', server => {
+stCheck('progression audit (#61/#127): create:brass_casing no longer accepts alltheores:brass_ingot via c:ingots/brass', server => {
     let matches = stFindRecipesByOutput(server, 'create:brass_casing')
     if (matches.length === 0) {
         return { pass: false, detail: 'no recipe found with output create:brass_casing - cannot confirm, re-check upstream (Create version drift?)' }
@@ -557,10 +582,10 @@ stCheck('progression audit (#61) diagnostic: alltheores:brass_ingot cross-mod by
         return { pass: false, detail: 'found ' + introspected + ' recipe(s) for create:brass_casing but none accept create:brass_ingot or alltheores:brass_ingot - cannot confirm, ingredient shape may have changed' }
     }
     return {
-        pass: true,
+        pass: bypassRecipeIds.length === 0,
         detail: bypassRecipeIds.length > 0
-            ? ('GAP CONFIRMED LIVE - c:ingots/brass accepts alltheores:brass_ingot (unrelated mod, no tier gate of its own) via: ' + bypassRecipeIds.join(','))
-            : 'gap appears fixed - create:brass_casing no longer accepts alltheores:brass_ingot',
+            ? ('REGRESSION - c:ingots/brass accepts alltheores:brass_ingot (unrelated mod, no tier gate of its own) via: ' + bypassRecipeIds.join(','))
+            : ('gated (' + introspected + ' recipe(s) checked, all require the literal create:brass_ingot) - #127 fix holds'),
     }
 })
 
