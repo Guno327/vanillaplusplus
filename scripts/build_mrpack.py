@@ -45,10 +45,14 @@ mods we have actual permission to redistribute this way.
 """
 import hashlib
 import json
+import sys
 import urllib.request
 import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import version_kubejs  # noqa: E402  (bakes pack/VERSION into a KubeJS constant, shared with build_server.py)
 
 ROOT = Path(__file__).resolve().parent.parent
 LOCKFILE = ROOT / "pack" / "mods.lock.json"
@@ -154,6 +158,14 @@ def main():
                 if path.is_file():
                     arcname = f"overrides/{sub}/{path.relative_to(src)}"
                     z.write(path, arcname)
+
+        # Client/server version-mismatch notice: bake pack/VERSION into a
+        # KubeJS constant the client_scripts side can compare against
+        # whatever the server sends on login. See version_kubejs.py.
+        z.writestr(
+            f"overrides/kubejs/startup_scripts/{version_kubejs.GENERATED_FILENAME}",
+            version_kubejs.render_version_script(PACK_VERSION, "build_mrpack.py"),
+        )
 
     size_mb = OUT_FILE.stat().st_size / (1024 * 1024)
     sha1 = hashlib.sha1(OUT_FILE.read_bytes()).hexdigest()
