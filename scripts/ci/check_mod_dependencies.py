@@ -326,7 +326,21 @@ def resolve(mods):
 
 def _load_jar_bytes(mod, mods_dir, offline):
     """Read the mod jar from the local cache; download+cache it if missing
-    (unless offline)."""
+    (unless offline).
+
+    GitHub #67: a "source": "local" mod (this pack's own hand-rolled
+    mods-src/<modid>/ jars) has no fetchable "url" at all - it's the
+    repo-relative "local_path" string instead (same convention build_server.py
+    and build_mrpack.py already special-case). Read it directly off disk
+    rather than attempting a download, exactly like those two do."""
+    if mod.get("local_path"):
+        src = REPO_ROOT / mod["local_path"]
+        if not src.is_file():
+            raise FileNotFoundError(
+                f"{mod['slug']}: local_path {mod['local_path']!r} not found - "
+                f"build it first (e.g. python3 scripts/build_local_mods.py)"
+            )
+        return src.read_bytes()
     dest = mods_dir / mod["filename"]
     if dest.is_file():
         return dest.read_bytes()
