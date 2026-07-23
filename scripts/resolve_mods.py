@@ -139,7 +139,19 @@ def main():
         marker = "NEW/UPDATED" if slug not in existing or changed else "unchanged"
         print(f"  -> {info['version_number']} ({info['filename']}) [{marker}]", file=sys.stderr)
 
-    LOCKFILE.write_text(json.dumps({"minecraft": minecraft, "loader": loader, "mods": resolved}, indent=2) + "\n")
+    lock = {"minecraft": minecraft, "loader": loader}
+    # loader_installer is a manually-pinned NeoForge server-installer spec
+    # (issue #64/#82) whose SOURCE OF TRUTH is the manifest, not Modrinth
+    # resolution. It MUST be carried into the generated lockfile verbatim:
+    # build_server.py hard-fails without it, and this regenerates the whole
+    # lockfile, so dropping it here (as this script used to) silently broke
+    # every server boot/mint until the next boot-tier run caught it. Copied,
+    # not synthesised - the checksum can only come from the real artifact.
+    installer = manifest.get("loader_installer")
+    if installer is not None:
+        lock["loader_installer"] = installer
+    lock["mods"] = resolved
+    LOCKFILE.write_text(json.dumps(lock, indent=2) + "\n")
     print(f"wrote {LOCKFILE}", file=sys.stderr)
 
 

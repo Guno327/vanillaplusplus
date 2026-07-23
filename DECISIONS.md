@@ -1353,11 +1353,18 @@ by accident:
 - **Every cut stays `prerelease=true`.** GA (`prerelease=false`, i.e. a real
   1.0.0) is reserved for the owner's explicit go-ahead; until then agents
   leave the flag at its `true` default.
-- **Release-cadence mapping while in beta:** treat a notable/breaking wave as
-  a **`minor`** bump (our "major" beta release) and a routine increment as a
-  **`patch`** bump (our "minor" beta release). Cut releases continuously as
-  meaningful work lands (still behind the full-test gate) — the owner
-  wants versions pushed as they make sense, just never GA.
+- **Release-cadence mapping while in beta (owner correction, 2026-07-23):**
+  the terms are defined by CONTENT, not SemVer field names —
+  - A **"major release"** is any release that includes **new features**; it
+    is cut as `0.x.0 → 0.(x+1).0` (the workflow's **`minor`** bump input).
+    Features are shipped together in these.
+  - A **"minor bump"** is a **bug-fixes-only** release; it is cut as
+    `0.x.y → 0.x.(y+1)` (the workflow's **`patch`** bump input).
+  - So: does the wave add any feature? → major release → dispatch `minor`.
+    Bug fixes only? → minor bump → dispatch `patch`. (SemVer `major` stays
+    blocked by the beta hold regardless.) Cut releases continuously as
+    meaningful work lands, behind the full-test gate — the owner wants
+    versions pushed as they make sense, just never GA.
 - **Lifting the hold** (owner-only, later): pass `--allow-ga` in
   `next_version.py`'s invocation (and cut with `prerelease=false`). That's
   the single, deliberate escape hatch — nothing else needs changing.

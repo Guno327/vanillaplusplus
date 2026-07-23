@@ -105,6 +105,28 @@ def check_lockfile(manifest, lock):
             errors.append(
                 f"slug {slug!r}: phase mismatch - manifest={m_phase!r} lock={l_phase!r}")
 
+    # loader_installer (issue #64/#82): a manually-pinned NeoForge
+    # server-installer spec whose source of truth is the manifest and which
+    # resolve_mods.py must carry into the generated lockfile verbatim.
+    # build_server.py hard-fails without it in the lock, but boot-tier only
+    # runs weekly/on-dispatch - so guard it here in fast-tier (every PR).
+    # This exact gap shipped once: resolve_mods.py dropped the pin on
+    # regeneration and it wasn't caught until a mint's boot-tier failed.
+    m_installer = manifest.get("loader_installer")
+    l_installer = lock.get("loader_installer")
+    if m_installer is None:
+        errors.append("manifest.json is missing the 'loader_installer' pin (source of truth for the NeoForge server installer)")
+    if l_installer is None:
+        errors.append("mods.lock.json is missing the 'loader_installer' pin - build_server.py cannot bootstrap the server without it (resolve_mods.py must copy it from the manifest)")
+    if m_installer is not None and l_installer is not None:
+        # Compare functional fields only - "_note"/"_comment"-style keys are
+        # human annotations and may legitimately differ between the manifest
+        # (source of truth) and the generated lock.
+        def _functional(d):
+            return {k: v for k, v in d.items() if not k.startswith("_")}
+        if _functional(m_installer) != _functional(l_installer):
+            errors.append("loader_installer differs between manifest.json and mods.lock.json (version/url/filename/hashes/filesize) - the lock must copy the manifest's pin (rerun resolve_mods.py)")
+
     return errors
 
 
@@ -127,6 +149,24 @@ def main(argv=None):
         return 1
 
     errors = check_lockfile(manifest, lock)
+
+    # Cross-check the pinned installer version against pack.toml's
+    # [versions].neoforge - build_server.py hard-fails on this drift at boot
+    # time, so surface it in fast-tier instead. (Done in main(), not
+    # check_lockfile(), since it needs a third file off `root`.)
+    installer = lock.get("loader_installer") or manifest.get("loader_installer")
+    pack_toml = root / "pack" / "pack.toml"
+    if installer and pack_toml.is_file():
+        try:
+            import tomllib
+            neoforge = tomllib.loads(pack_toml.read_text(encoding="utf-8")).get("versions", {}).get("neoforge")
+        except Exception as e:  # tomllib parse error - report, don't crash the check
+            neoforge = None
+            errors.append(f"could not read pack.toml [versions].neoforge: {e}")
+        if neoforge is not None and installer.get("version") != neoforge:
+            errors.append(
+                f"loader_installer.version ({installer.get('version')!r}) does not match "
+                f"pack.toml [versions].neoforge ({neoforge!r}) - build_server.py will hard-fail on this drift")
 
     if errors:
         print(f"check_lockfile: FAIL - {len(errors)} inconsistenc{'y' if len(errors) == 1 else 'ies'}:")

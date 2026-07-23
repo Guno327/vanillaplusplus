@@ -57,9 +57,11 @@ Time-in-a-Bottle tick accelerator. Full requirement detail:
 - **BETA HOLD — never mint 1.0.0 until the owner lifts it.** The pack stays
   a beta prerelease; keep `prerelease=true` on every cut. `next_version.py`
   hard-refuses any `>= 1.0.0` version (unless `--allow-ga`, which the
-  workflow never passes), so from the 0.x line a **`major` bump fails the
-  mint** — use **`minor`** for a notable/breaking wave (our "major" beta
-  release) and **`patch`** for a routine one (our "minor" beta release).
+  workflow never passes), so from the 0.x line a SemVer **`major` bump fails
+  the mint**. Cadence is by CONTENT (owner def, 2026-07-23): a release with
+  **any new feature** = a **"major release"** → `0.x.0→0.(x+1).0` → dispatch
+  the workflow's **`minor`** bump; a **bug-fixes-only** release = a **"minor
+  bump"** → `0.x.y→0.x.(y+1)` → dispatch **`patch`**.
 - Release pipeline runbook in `HANDOFF.md`; each mint repins
   `nix/release.json` (`scripts/update_nix_release.py`).
 
