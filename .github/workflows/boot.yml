@@ -181,6 +181,16 @@ jobs:
       - name: Resolve mods (scripts/resolve_mods.py)
         run: python3 scripts/resolve_mods.py
 
+      # Launch-time dependency guard (added after the v0.5.0 regression: a
+      # CLIENT-only mod, sodium-options-api, hard-required reeses_sodium_options
+      # which was never installed -> the client crashed on startup, and no
+      # tier below caught it because L0/L1 only boot the dedicated SERVER).
+      # This statically resolves EVERY resolved mod's required dependencies
+      # (client- AND server-side, incl. Jar-in-Jar) so a missing dep fails
+      # the boot tier - and therefore every mint - before it can ship.
+      - name: Check mod dependencies (launch-time missing-dep guard)
+        run: python3 scripts/ci/check_mod_dependencies.py --mods-dir /tmp/vpp-depcheck-mods
+
       - name: L0 boot smoke test (scripts/tests/l0_boot_smoke.sh)
         run: sh scripts/tests/l0_boot_smoke.sh
 
