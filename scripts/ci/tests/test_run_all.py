@@ -52,6 +52,19 @@ def _minimal_valid_pack(root):
     (pack / "mods.lock.json").write_text(json.dumps(lock), encoding="utf-8")
 
     (pack / "mod_registries").mkdir(parents=True)
+    # check_mod_dependencies_offline.py: committed snapshot must exactly
+    # match mods.lock.json's mod set (by slug) and per-slug version_number -
+    # see that check's own module docstring for the sync-guard rationale.
+    (pack / "mod_registries" / "mod_dependencies.json").write_text(json.dumps({
+        "source_lockfile_mod_count": 3,
+        "mods": {
+            "create": {"version_number": None, "provided": ["create"], "required": []},
+            "sophisticated-storage": {"version_number": "1.21.1-1.0.0",
+                                       "provided": ["sophisticatedstorage"], "required": []},
+            "sophisticated-core": {"version_number": "1.21.1-1.0.0",
+                                    "provided": ["sophisticatedcore"], "required": []},
+        },
+    }), encoding="utf-8")
     (pack / "mod_registries" / "sophisticatedstorage.json").write_text(json.dumps({
         "modid": "sophisticatedstorage",
         "source_slug": "sophisticated-storage",

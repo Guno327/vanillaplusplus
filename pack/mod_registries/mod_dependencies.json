@@ -1,0 +1,2329 @@
+{
+  "mods": {
+    "advanced-loot-info": {
+      "provided": [
+        "ali"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[2,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "1.21.1-1.12.0"
+    },
+    "allthemodium": {
+      "provided": [
+        "allthemodium"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.195,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        }
+      ],
+      "version_number": "3.0.1"
+    },
+    "apotheosis": {
+      "provided": [
+        "apotheosis"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.235,)"
+        },
+        {
+          "enforced": true,
+          "modId": "placebo",
+          "versionRange": "[9.9.2,)"
+        },
+        {
+          "enforced": true,
+          "modId": "apothic_attributes",
+          "versionRange": "[2.10.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "apothic_spawners",
+          "versionRange": "[1.4.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "apothic_enchanting",
+          "versionRange": "[1.6.0,)"
+        }
+      ],
+      "version_number": "1.21.1-8.6.0"
+    },
+    "apothic-attributes": {
+      "provided": [
+        "apothic_attributes"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.235,)"
+        },
+        {
+          "enforced": true,
+          "modId": "placebo",
+          "versionRange": "[9.9.0,)"
+        }
+      ],
+      "version_number": "1.21.1-2.10.0"
+    },
+    "apothic-enchanting": {
+      "provided": [
+        "apothic_enchanting"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.187,)"
+        },
+        {
+          "enforced": true,
+          "modId": "placebo",
+          "versionRange": "[9.9.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "apothic_attributes",
+          "versionRange": "[2.4.0,)"
+        }
+      ],
+      "version_number": "1.21.1-1.6.0"
+    },
+    "apothic-spawners": {
+      "provided": [
+        "apothic_spawners"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.187,)"
+        },
+        {
+          "enforced": true,
+          "modId": "placebo",
+          "versionRange": "[9.9.0,)"
+        }
+      ],
+      "version_number": "1.21.1-1.4.0"
+    },
+    "appleskin": {
+      "provided": [
+        "appleskin"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0-beta,)"
+        }
+      ],
+      "version_number": "3.0.9+mc1.21"
+    },
+    "architectury-api": {
+      "provided": [
+        "architectury"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.110-beta,)"
+        }
+      ],
+      "version_number": "13.0.8+neoforge"
+    },
+    "ars-nouveau": {
+      "provided": [
+        "ars_nouveau",
+        "infiniverse",
+        "lambdynlights_api",
+        "nuggets"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.86-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "curios",
+          "versionRange": "[1.19-5.0.7.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "geckolib",
+          "versionRange": "[4.2.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "jei",
+          "versionRange": "[1.19-5.0.7.1,)"
+        }
+      ],
+      "version_number": "5.12.1"
+    },
+    "artifacts": {
+      "provided": [
+        "artifacts"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.133-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "1.21.1"
+        }
+      ],
+      "version_number": "13.2.1"
+    },
+    "ato": {
+      "provided": [
+        "alltheores"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1, 1.22)"
+        }
+      ],
+      "version_number": "3.2.0"
+    },
+    "attributes": {
+      "provided": [
+        "puffish_attributes"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.1)"
+        }
+      ],
+      "version_number": "0.8.2"
+    },
+    "baguettelib": {
+      "provided": [
+        "baguettelib"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[4,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        }
+      ],
+      "version_number": "2.0.3"
+    },
+    "balm": {
+      "provided": [
+        "balm",
+        "kuma_api"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.82-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        }
+      ],
+      "version_number": "21.0.63+neoforge-1.21.1"
+    },
+    "bookshelf-lib": {
+      "provided": [
+        "bookshelf"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.209,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1, 1.22)"
+        }
+      ],
+      "version_number": "21.1.81"
+    },
+    "borninchaos": {
+      "provided": [
+        "born_in_chaos_v1"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.20.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.65,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "1.7.6"
+    },
+    "building-wands": {
+      "provided": [
+        "wands"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "architectury",
+          "versionRange": "[13.0.8 ,)"
+        },
+        {
+          "enforced": true,
+          "modId": "cloth_config",
+          "versionRange": "[15.0.140,)"
+        }
+      ],
+      "version_number": "3.0.5_beta_neoforge_1.21.1"
+    },
+    "c2me-neoforge": {
+      "provided": [
+        "c2me"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.21.2)"
+        }
+      ],
+      "version_number": "0.4.0-alpha.0.116+1.21.1"
+    },
+    "clientsort": {
+      "provided": [
+        "clientsort"
+      ],
+      "required": [],
+      "version_number": "2.2.2+1.21.1"
+    },
+    "cloth-config": {
+      "provided": [
+        "cloth_config"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.110-beta,)"
+        }
+      ],
+      "version_number": "15.0.140+neoforge"
+    },
+    "clumps": {
+      "provided": [
+        "clumps"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[4,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "19.0.0.1"
+    },
+    "controlling": {
+      "provided": [
+        "controlling"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.94,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "searchables",
+          "versionRange": "[1.0.1,)"
+        }
+      ],
+      "version_number": "19.0.5"
+    },
+    "create": {
+      "provided": [
+        "create",
+        "flywheel",
+        "ponder"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.219,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "flywheel",
+          "versionRange": "[1.0.0,2.0)"
+        },
+        {
+          "enforced": true,
+          "modId": "ponder",
+          "versionRange": "[1.0.82,)"
+        }
+      ],
+      "version_number": "6.0.10+mc1.21.1"
+    },
+    "create-aeronautics": {
+      "provided": [
+        "aeronautics",
+        "aeronautics_bundled",
+        "offroad",
+        "simulated"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.228,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "1.3.0+mc1.21.1"
+    },
+    "create-central-kitchen": {
+      "provided": [
+        "create_central_kitchen"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "create",
+          "versionRange": "[6.0.10,)"
+        },
+        {
+          "enforced": true,
+          "modId": "create_dragons_plus",
+          "versionRange": "[1.11.1,)"
+        }
+      ],
+      "version_number": "2.5.0"
+    },
+    "create-dragons-plus": {
+      "provided": [
+        "conditional_mixin",
+        "create_dragons_plus"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "create",
+          "versionRange": "[6.0.10,)"
+        }
+      ],
+      "version_number": "1.11.2"
+    },
+    "create-marketplace": {
+      "provided": [
+        "create_marketplace"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.228,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "create",
+          "versionRange": "[0.6.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "numismatics",
+          "versionRange": "[1.0.0,)"
+        }
+      ],
+      "version_number": "0.4.2"
+    },
+    "create-netherite-additions": {
+      "provided": [
+        "create_nj"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.176,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "create",
+          "versionRange": "[0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "create_sa",
+          "versionRange": "[0,)"
+        }
+      ],
+      "version_number": "1.2"
+    },
+    "create-ore-excavation": {
+      "provided": [
+        "createoreexcavation"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "create",
+          "versionRange": "[6.0.7,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.1]"
+        }
+      ],
+      "version_number": "1.21.1-1.6.8"
+    },
+    "create-power-loader": {
+      "provided": [
+        "create_power_loader",
+        "sablecompanion"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "create",
+          "versionRange": "[6.0.0,)"
+        }
+      ],
+      "version_number": "2.0.5-mc1.21.1"
+    },
+    "create-stuff-additions": {
+      "provided": [
+        "create_sa"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[20.4.223,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.20.4]"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.65,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "2.1.4.a"
+    },
+    "create-tfmg": {
+      "provided": [
+        "tfmg"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "create",
+          "versionRange": "[6.0.6,)"
+        }
+      ],
+      "version_number": "1.1.1"
+    },
+    "createaddition": {
+      "provided": [
+        "createaddition",
+        "sablecompanion"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.219,)"
+        },
+        {
+          "enforced": true,
+          "modId": "create",
+          "versionRange": "[6.0.7,6.1.0)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "neoforge-1.21.1-1.6.0"
+    },
+    "creativecore": {
+      "provided": [
+        "creativecore"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        }
+      ],
+      "version_number": "2.13.41"
+    },
+    "creeper-overhaul": {
+      "provided": [
+        "creeperoverhaul"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "geckolib",
+          "versionRange": "[4.5.5,)"
+        },
+        {
+          "enforced": true,
+          "modId": "resourcefulconfig",
+          "versionRange": "[3.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        }
+      ],
+      "version_number": "4.0.6"
+    },
+    "curios": {
+      "provided": [
+        "curios"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.60,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        }
+      ],
+      "version_number": "9.5.1+1.21.1"
+    },
+    "dungeons-and-taverns": {
+      "provided": [],
+      "required": [],
+      "version_number": "v4.4.4+mod"
+    },
+    "dynamic-fps": {
+      "provided": [
+        "dynamic_fps"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.0,1.21.1]"
+        }
+      ],
+      "version_number": "3.11.4"
+    },
+    "enchantment-descriptions": {
+      "provided": [
+        "enchdesc"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.233,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "bookshelf",
+          "versionRange": "[21.1, 21.2)"
+        },
+        {
+          "enforced": true,
+          "modId": "prickle",
+          "versionRange": "[21.1, 21.2)"
+        }
+      ],
+      "version_number": "21.1.10"
+    },
+    "ends-delight": {
+      "provided": [
+        "ends_delight"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.219,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "farmersdelight",
+          "versionRange": "[1.3.1,)"
+        }
+      ],
+      "version_number": "2.6.1+neoforge.1.21.1"
+    },
+    "entityculling": {
+      "provided": [
+        "entityculling"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[20.2,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[20.2,)"
+        }
+      ],
+      "version_number": "1.10.5"
+    },
+    "epic-fight": {
+      "provided": [
+        "epicfight"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.219,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "21.17.3.1-mc1.21.1-neoforge"
+    },
+    "epic-tweaks": {
+      "provided": [
+        "epictweaks"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "epicfight",
+          "versionRange": "[21.12,22)"
+        }
+      ],
+      "version_number": "1.2.0"
+    },
+    "extradelight": {
+      "provided": [
+        "extradelight"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "1.21"
+        },
+        {
+          "enforced": true,
+          "modId": "farmersdelight",
+          "versionRange": "1.2.8"
+        }
+      ],
+      "version_number": "2.6.6"
+    },
+    "farmers-delight": {
+      "provided": [
+        "farmersdelight"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.219,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "1.21.1-1.3.2"
+    },
+    "fasterladderclimbing": {
+      "provided": [
+        "fasterladderclimbing"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.21.2)"
+        }
+      ],
+      "version_number": "1.1.0"
+    },
+    "ferrite-core": {
+      "provided": [
+        "ferritecore"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.218,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        }
+      ],
+      "version_number": "7.0.3-neoforge"
+    },
+    "geckolib": {
+      "provided": [
+        "geckolib"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.150,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        }
+      ],
+      "version_number": "4.9.2"
+    },
+    "gravestone-mod": {
+      "provided": [
+        "gravestone"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.1]"
+        }
+      ],
+      "version_number": "neoforge-1.21.1-1.0.37"
+    },
+    "gravestone-x-curios-api-compat": {
+      "provided": [
+        "gravestonecurioscompat"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[4,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "gravestone",
+          "versionRange": "[1.0.24,)"
+        },
+        {
+          "enforced": true,
+          "modId": "curios",
+          "versionRange": "[9.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "baguettelib",
+          "versionRange": "[1.0.0,)"
+        }
+      ],
+      "version_number": "4.0.2"
+    },
+    "immediatelyfast": {
+      "provided": [
+        "immediatelyfast"
+      ],
+      "required": [],
+      "version_number": "1.6.11+1.21.1-neoforge"
+    },
+    "iris": {
+      "provided": [
+        "fabric_api_base",
+        "fabric_block_view_api_v2",
+        "fabric_renderer_api_v1",
+        "fabric_rendering_data_attachment_v1",
+        "iris"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.1)"
+        }
+      ],
+      "version_number": "1.8.14-beta.1+1.21.1-neoforge"
+    },
+    "iris-flw-compat": {
+      "provided": [
+        "flywheel",
+        "irisflw"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.219,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "flywheel",
+          "versionRange": "[1.0.6,)"
+        },
+        {
+          "enforced": true,
+          "modId": "sodium",
+          "versionRange": "[0.6.9,)"
+        },
+        {
+          "enforced": true,
+          "modId": "iris",
+          "versionRange": "[1.8.1,)"
+        }
+      ],
+      "version_number": "1.21.1+2.4.0-release"
+    },
+    "jade": {
+      "provided": [
+        "jade"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.143, )"
+        }
+      ],
+      "version_number": "15.10.5+neoforge"
+    },
+    "jade-addons-forge": {
+      "provided": [
+        "jadeaddons"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "jade",
+          "versionRange": "[15.10, )"
+        }
+      ],
+      "version_number": "6.1.0+neoforge"
+    },
+    "jei": {
+      "provided": [
+        "jei"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.118-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.21.1)"
+        }
+      ],
+      "version_number": "19.32.0.359"
+    },
+    "jei-worldgen": {
+      "provided": [
+        "jeiworldgen"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[4,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        }
+      ],
+      "version_number": "1.4.0+neoforge-1.21.1"
+    },
+    "just-enough-effect-descriptions-jeed": {
+      "provided": [
+        "jeed"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[4,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.22)"
+        }
+      ],
+      "version_number": "1.21-2.3.2"
+    },
+    "just-enough-professions-jep": {
+      "provided": [
+        "justenoughprofessions"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "jei",
+          "versionRange": "[19.3.1.22,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.76-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.22)"
+        }
+      ],
+      "version_number": "4.0.5"
+    },
+    "just-enough-resources-jer": {
+      "provided": [
+        "jeresources"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "jei",
+          "versionRange": "[16.0.0,)"
+        }
+      ],
+      "version_number": "1.6.0.17"
+    },
+    "justenoughbreeding": {
+      "provided": [
+        "justenoughbreeding"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[4,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.22)"
+        }
+      ],
+      "version_number": "3.1.0"
+    },
+    "krypton-fnp": {
+      "provided": [
+        "krypton_fnp"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.21.2]"
+        }
+      ],
+      "version_number": "0.2.28.1-1.21.1"
+    },
+    "kubejs": {
+      "provided": [
+        "betteradvancedtooltips",
+        "kubejs"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.199,)"
+        },
+        {
+          "enforced": true,
+          "modId": "rhino",
+          "versionRange": "[2101.2.7-build.81,)"
+        }
+      ],
+      "version_number": "2101.7.2-build.368"
+    },
+    "lithostitched": {
+      "provided": [
+        "lithostitched"
+      ],
+      "required": [],
+      "version_number": "1.7.13-neoforge-21.1"
+    },
+    "lootr": {
+      "provided": [
+        "lootr"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "1.21.1"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.195,)"
+        }
+      ],
+      "version_number": "1.21.1-1.11.37.122"
+    },
+    "modernfix": {
+      "provided": [
+        "modernfix"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.111-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        }
+      ],
+      "version_number": "5.27.20+mc1.21.1"
+    },
+    "moreculling": {
+      "provided": [
+        "conditional_mixin",
+        "moreculling"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.1)"
+        },
+        {
+          "enforced": true,
+          "modId": "cloth_config",
+          "versionRange": "[15.0.0, )"
+        }
+      ],
+      "version_number": "1.0.8"
+    },
+    "naturalist": {
+      "provided": [
+        "naturalist"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.226,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "geckolib",
+          "versionRange": "[4.7,)"
+        }
+      ],
+      "version_number": "1.0.2"
+    },
+    "noisiumed": {
+      "provided": [
+        "noisiumed"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": ">=1.21 <=1.21.1"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": ">=21.1.22"
+        }
+      ],
+      "version_number": "3.0.6"
+    },
+    "numismatics": {
+      "provided": [
+        "numismatics"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.206,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "1.21.1"
+        },
+        {
+          "enforced": true,
+          "modId": "create",
+          "versionRange": "[6.0.9,6.1.0)"
+        }
+      ],
+      "version_number": "1.0.20+neoforge-mc1.21.1"
+    },
+    "open-parties-and-claims": {
+      "provided": [
+        "openpartiesandclaims"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        }
+      ],
+      "version_number": "neoforge-1.21.1-0.27.8"
+    },
+    "patchouli": {
+      "provided": [
+        "patchouli"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.31-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.21.2)"
+        }
+      ],
+      "version_number": "1.21.1-93-neoforge"
+    },
+    "placebo": {
+      "provided": [
+        "placebo"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.187,)"
+        }
+      ],
+      "version_number": "1.21.1-9.9.2"
+    },
+    "potentials": {
+      "provided": [
+        "potentials"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.4]"
+        },
+        {
+          "enforced": true,
+          "modId": "architectury",
+          "versionRange": "[13.0.2,)"
+        }
+      ],
+      "version_number": "0.7.1"
+    },
+    "prickle": {
+      "provided": [
+        "prickle"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.61,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1, 1.22)"
+        }
+      ],
+      "version_number": "21.1.11"
+    },
+    "refined-storage": {
+      "provided": [
+        "refinedstorage"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.181,)"
+        }
+      ],
+      "version_number": "2.0.9"
+    },
+    "resourceful-config": {
+      "provided": [
+        "resourcefulconfig"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[20.5,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.20.5,)"
+        }
+      ],
+      "version_number": "3.0.11"
+    },
+    "resourceful-lib": {
+      "provided": [
+        "resourcefullib"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        }
+      ],
+      "version_number": "3.0.12"
+    },
+    "rhino": {
+      "provided": [
+        "rhino"
+      ],
+      "required": [],
+      "version_number": "2101.2.8-build.91+Rhino-1.21"
+    },
+    "sable": {
+      "provided": [
+        "sable",
+        "sablecompanion",
+        "veil"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.228,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "2.0.3+mc1.21.1"
+    },
+    "searchables": {
+      "provided": [
+        "searchables"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[4,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        }
+      ],
+      "version_number": "1.0.2"
+    },
+    "silent-gear": {
+      "provided": [
+        "silentgear"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "silentlib",
+          "versionRange": "[10.6,)"
+        }
+      ],
+      "version_number": "4.2.1.1"
+    },
+    "silent-lib": {
+      "provided": [
+        "silentlib"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.2)"
+        }
+      ],
+      "version_number": "10.6.0"
+    },
+    "simply-harvesting": {
+      "provided": [
+        "simplyharvesting"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.181,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        }
+      ],
+      "version_number": "1.21-3.0.3"
+    },
+    "skills": {
+      "provided": [
+        "puffish_skills"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.1)"
+        }
+      ],
+      "version_number": "0.18.1"
+    },
+    "sodium": {
+      "provided": [
+        "fabric_api_base",
+        "fabric_block_view_api_v2",
+        "fabric_renderer_api_v1",
+        "fabric_rendering_data_attachment_v1",
+        "sodium"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "1.21.1"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.82,)"
+        }
+      ],
+      "version_number": "mc1.21.1-0.8.12-neoforge"
+    },
+    "sodium-dynamic-lights": {
+      "provided": [
+        "sodiumdynamiclights"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        }
+      ],
+      "version_number": "neoforge-1.21.1-1.0.10"
+    },
+    "sophisticated-backpacks": {
+      "provided": [
+        "sophisticatedbackpacks"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "sophisticatedcore",
+          "versionRange": "[1.4.74,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.21.2)"
+        }
+      ],
+      "version_number": "1.21.1-3.25.71.1997"
+    },
+    "sophisticated-core": {
+      "provided": [
+        "sophisticatedcore"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.21.2)"
+        }
+      ],
+      "version_number": "1.21.1-1.4.77.2173"
+    },
+    "sophisticated-storage": {
+      "provided": [
+        "sophisticatedstorage"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "sophisticatedcore",
+          "versionRange": "[1.4.73,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.21.2)"
+        }
+      ],
+      "version_number": "1.21.1-1.5.80.1999"
+    },
+    "spice-of-life-onion": {
+      "provided": [
+        "solonion"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "creativecore",
+          "versionRange": "[2.13.32,)"
+        }
+      ],
+      "version_number": "1.5.6"
+    },
+    "stellaris": {
+      "provided": [
+        "stellaris"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "architectury",
+          "versionRange": "[13.0.6,)"
+        },
+        {
+          "enforced": true,
+          "modId": "potentials",
+          "versionRange": "[0.7.0,)"
+        },
+        {
+          "enforced": false,
+          "modId": "sky_aesthetics",
+          "versionRange": null
+        }
+      ],
+      "version_number": "1.4.25"
+    },
+    "structory": {
+      "provided": [
+        "structory"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        }
+      ],
+      "version_number": "1.3.17"
+    },
+    "terrablender": {
+      "provided": [
+        "terrablender"
+      ],
+      "required": [],
+      "version_number": "4.1.0.8"
+    },
+    "terralith": {
+      "provided": [],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "lithostitched",
+          "versionRange": "[1.7.7,)"
+        },
+        {
+          "enforced": true,
+          "modId": "lithostitched",
+          "versionRange": "[1.7.7,)"
+        }
+      ],
+      "version_number": "2.6.2"
+    },
+    "tfmg-stellaris-compat": {
+      "provided": [
+        "tfmg_stellaris_compat"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1]"
+        },
+        {
+          "enforced": true,
+          "modId": "tfmg",
+          "versionRange": "[1.1.0,1.2.0)"
+        },
+        {
+          "enforced": true,
+          "modId": "stellaris",
+          "versionRange": "[1.4.6,1.5.0)"
+        }
+      ],
+      "version_number": "1.1.1"
+    },
+    "time-in-a-bottle-fix-tiab-fix": {
+      "provided": [
+        "tiabfix"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "tiab",
+          "versionRange": "[6.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,)"
+        }
+      ],
+      "version_number": "1.3.0"
+    },
+    "time-in-a-bottle-universal": {
+      "provided": [
+        "tiab"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[4,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1, 1.22)"
+        }
+      ],
+      "version_number": "6.5.4"
+    },
+    "toms-storage": {
+      "provided": [
+        "toms_storage"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.0,1.21.2)"
+        }
+      ],
+      "version_number": "1.21-2.3.2"
+    },
+    "trashslot": {
+      "provided": [
+        "trashslot"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "balm",
+          "versionRange": "[21.0.39,)"
+        }
+      ],
+      "version_number": "21.1.11+neoforge-1.21.1"
+    },
+    "waystones": {
+      "provided": [
+        "waystones"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "balm",
+          "versionRange": "[21.0.39,)"
+        }
+      ],
+      "version_number": "21.1.37+neoforge-1.21.1"
+    },
+    "when-dungeons-arise": {
+      "provided": [
+        "dungeons_arise"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,1.21.1)"
+        }
+      ],
+      "version_number": "2.1.68"
+    },
+    "xaeros-minimap": {
+      "provided": [
+        "xaerolib",
+        "xaerominimap"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.110-beta,21.2.0)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "1.21.1"
+        },
+        {
+          "enforced": true,
+          "modId": "xaerolib",
+          "versionRange": "[1.0.50,)"
+        }
+      ],
+      "version_number": "neoforge-1.21.1-26.2.1"
+    },
+    "xaeros-world-map": {
+      "provided": [
+        "xaerolib",
+        "xaeroworldmap"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.110-beta, 21.2.0)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.21.2)"
+        },
+        {
+          "enforced": true,
+          "modId": "xaerolib",
+          "versionRange": "[1.1.0,)"
+        }
+      ],
+      "version_number": "neoforge-1.21.1-1.42.0"
+    },
+    "yungs-api": {
+      "provided": [
+        "yungsapi"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-5.1.6"
+    },
+    "yungs-better-desert-temples": {
+      "provided": [
+        "betterdeserttemples"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "yungsapi",
+          "versionRange": "[1.21.1-NeoForge-5.1.4,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-4.1.5"
+    },
+    "yungs-better-dungeons": {
+      "provided": [
+        "betterdungeons"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "yungsapi",
+          "versionRange": "[1.21.1-NeoForge-5.1.3,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-5.1.4"
+    },
+    "yungs-better-end-island": {
+      "provided": [
+        "betterendisland"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "yungsapi",
+          "versionRange": "[1.21.1-NeoForge-5.1.4,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-3.1.2"
+    },
+    "yungs-better-jungle-temples": {
+      "provided": [
+        "betterjungletemples"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "yungsapi",
+          "versionRange": "[1.21.1-NeoForge-5.1.3,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-3.1.2"
+    },
+    "yungs-better-mineshafts": {
+      "provided": [
+        "bettermineshafts"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "yungsapi",
+          "versionRange": "[1.21.1-NeoForge-5.1.2,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-5.1.1"
+    },
+    "yungs-better-nether-fortresses": {
+      "provided": [
+        "betterfortresses"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "yungsapi",
+          "versionRange": "[1.21.1-NeoForge-5.1.4,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-3.1.5"
+    },
+    "yungs-better-ocean-monuments": {
+      "provided": [
+        "betteroceanmonuments"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "yungsapi",
+          "versionRange": "[1.21.1-NeoForge-5.1.3,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-4.1.2"
+    },
+    "yungs-better-strongholds": {
+      "provided": [
+        "betterstrongholds"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "yungsapi",
+          "versionRange": "[1.21.1-NeoForge-5.1.4,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-5.1.3"
+    },
+    "yungs-better-witch-huts": {
+      "provided": [
+        "betterwitchhuts"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "yungsapi",
+          "versionRange": "[1.21.1-NeoForge-5.1.2,)"
+        }
+      ],
+      "version_number": "1.21.1-NeoForge-4.1.1"
+    }
+  },
+  "source_lockfile_mod_count": 114
+}
