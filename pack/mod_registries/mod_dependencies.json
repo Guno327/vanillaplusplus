@@ -904,29 +904,6 @@
       ],
       "version_number": "21.17.3.1-mc1.21.1-neoforge"
     },
-    "epic-tweaks": {
-      "provided": [
-        "epictweaks"
-      ],
-      "required": [
-        {
-          "enforced": true,
-          "modId": "neoforge",
-          "versionRange": "[21.1,)"
-        },
-        {
-          "enforced": true,
-          "modId": "minecraft",
-          "versionRange": "[1.21.1,)"
-        },
-        {
-          "enforced": true,
-          "modId": "epicfight",
-          "versionRange": "[21.12,22)"
-        }
-      ],
-      "version_number": "1.2.0"
-    },
     "extradelight": {
       "provided": [
         "extradelight"
@@ -2359,5 +2336,5 @@
       "version_number": "1.21.1-NeoForge-4.1.1"
     }
   },
-  "source_lockfile_mod_count": 115
+  "source_lockfile_mod_count": 114
 }
