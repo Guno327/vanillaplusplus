@@ -84,11 +84,19 @@ dependencies {
     compileOnly files("libs/silent-gear-1.21.1-neoforge-${silent_gear_version}.jar")
     compileOnly files("libs/silent-lib-1.21.1-neoforge-${silent_lib_version}.jar")
 
-    // Overgeared IS on Modrinth's maven facade above.
-    compileOnly "maven.modrinth:overgeared:${overgeared_version}"
+    // Overgeared IS on Modrinth's maven facade above. Confirmed via a real build
+    // (this mod's README "Build instructions"): the Modrinth maven facade indexes
+    // artifacts by Modrinth's own "version_number" string, not the bare mod
+    // version - for this project that's "<mc_version>-<mod_version>"
+    // (e.g. "1.21.1-1.6.16"), verified against
+    // https://api.modrinth.com/v2/project/overgeared/version.
+    compileOnly "maven.modrinth:overgeared:${minecraft_version}-${overgeared_version}"
 
-    annotationProcessor "org.spongepowered:mixinextras-common:0.4.1"
-    implementation "org.spongepowered:mixinextras-neoforge:0.4.1"
+    // mixinextras' real Maven Central group id is io.github.llamalad7, not
+    // org.spongepowered (confirmed via a real build: org.spongepowered 404s on
+    // Maven Central for this artifact; io.github.llamalad7 resolves).
+    annotationProcessor "io.github.llamalad7:mixinextras-common:0.4.1"
+    implementation "io.github.llamalad7:mixinextras-neoforge:0.4.1"
 }
 
 tasks.withType(JavaCompile).configureEach {
