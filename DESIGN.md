@@ -1022,6 +1022,65 @@ green, jar-confirmed item ids and recipe jsons); the hammer actually
 appearing in JEI with a working recipe needs a live client/world to
 confirm — flagged as a `verify-in-game` follow-up.
 
+**GitHub issue #91 fix — many ATO gems/ores/ingots had no use outside
+Silent Gear (or, for a few, no use at all).** Adjacent to #86: with the
+gear overhaul's `blacksmithing.js` sweep having removed every vanilla
+tool/weapon/armor recipe, an ATO (AllTheOres) metal or gem's only route
+into gear is Silent Gear recognizing its `c:ingots/*`/`c:gems/*` tag as a
+material. Cross-checked every ATO ore against the installed Silent Gear
+jar's own 132 built-in materials (`data/silentgear/silentgear_materials/`)
+plus this pack's TFMG/Stellaris compat recipes (`tfmg_stellaris_compat`)
+and found three buckets, not one: (1) most ATO metals (aluminum, nickel,
+steel, uranium, constantan, copper/iron/gold/diamond) already have a real
+non-Silent-Gear sink — Stellaris rocket/RTG/rover recipes or vanilla/Create
+ubiquity — not a bug; (2) 12 metals (bronze, electrum, invar, lead, lumium,
+osmium, platinum, signalum, silver, tin, zinc, enderium) genuinely have
+**no use anywhere in this pack except Silent Gear smithing** — exactly the
+reporter's complaint; (3) worse, 7 materials (the `iridium` ingot and the
+`ruby`/`sapphire`/`peridot`/`fluorite`/`cinnabar` gems) have **no use at
+all, not even Silent Gear** — Silent Gear's own material list has no entry
+for any of them (confirmed by grepping its 132 material jsons for their
+tags), a genuine gap in the mod's own bundled coverage, not something this
+pack broke.
+
+**Fix, two parts, no mod added.** First, closed bucket (3)'s real
+zero-use bug the same way this pack already generates every other Silent
+Gear material (`vpp_`-prefixed, avoiding the same silent-key-collision risk
+documented in the gear-overhaul section above): six new files in
+`pack/kubejs/data/silentgear/silentgear_materials/` (`vpp_iridium`,
+`vpp_ruby`, `vpp_sapphire`, `vpp_peridot`, `vpp_fluorite`,
+`vpp_cinnabar`), each keyed off the real `c:ingots/iridium`/`c:gems/*` tag
+ATO already populates. Stats aren't invented: `vpp_iridium` copies
+Silent Gear's own `platinum.json` verbatim (same real harvest-tier
+requirement — both need a diamond tool, confirmed via ATO's own
+`minecraft:needs_diamond_tool` tag) rather than guessing a "better than
+platinum" curve with no way to playtest it; the three gems needing only a
+stone tool (`ruby`/`sapphire`/`peridot`, per ATO's `needs_stone_tool` tag)
+copy Silent Gear's own `amethyst.json` (same real tier); the two needing an
+iron tool (`fluorite`/`cinnabar`, per ATO's `needs_iron_tool` tag) copy
+`quartz.json`. Second, for bucket (2) — and extended to bucket (3) plus
+ATO's `salt`/`sulfur` (two more true dead-ends, not gems/ores/ingots in the
+strict sense but the same failure) — added a genuinely non-Silent-Gear
+sink usable by every one of those 20 materials at once: their storage
+blocks (`alltheores:*_block`, all pre-existing, already textured) added to
+vanilla's own `minecraft:beacon_base_blocks` tag (new
+`pack/kubejs/data/minecraft/tags/block/beacon_base_blocks.json`, merge-only
+since no `replace` key is set, so vanilla's iron/gold/diamond/emerald/
+netherite bases are untouched). Deliberately the lowest-risk option
+available without adding a mod: pure data, zero new assets, doesn't skip or
+duplicate any tier (a beacon still needs a full pyramid + a Wither kill
+either way), and unlike inventing decorative slab/stair/wall block sets it
+needs no new textures this sandbox can't render or verify. Not done:
+editing Stellaris/TFMG's own rocket recipes to swap in more of these
+metals as alternate ingredients — that changes another mod's own balance
+surface and was judged out of scope for a materials-sink fix (flagged, not
+attempted). Verified statically only (`run_all.py` and the unittest suite
+both green, 517 JSON files parsing clean including the 7 new files, all
+tag/material ids cross-checked against the real installed
+`alltheores`/`silent-gear` jars); Silent Gear actually accepting the 6 new
+materials in its crafting UI and the new beacon bases lighting a real
+beacon both need a live client — flagged `verify-in-game`.
+
 ### Gear overhaul: unified smithing/boss-drop progression + expanded melee variety (post-Phase 9)
 
 After all 9 original phases shipped, a follow-up request tightened the
