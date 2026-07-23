@@ -1033,6 +1033,52 @@ green, jar-confirmed item ids and recipe jsons); the hammer actually
 appearing in JEI with a working recipe needs a live client/world to
 confirm — flagged as a `verify-in-game` follow-up.
 
+**GitHub issue #86 follow-up — Create crushing-wheel ingot→dust recipes,
+for automation.** Owner, after the ore-hammer restore above: "Ore Hammer
+is craftable now but I still want crushing wheel + ingot → dust recipe to
+automate this process early." The ore hammer is a manual crafting-grid
+tool; crushing wheels (Andesite Age, this pack's first Create milestone —
+see the progression table above) are Create's early automatable
+alternative, so this adds a parallel `create:crushing` path without
+touching the hammer's own recipes. Added 23 new files under
+`pack/kubejs/data/create/recipe/crushing/` (`<metal>_ingot.json`), one per
+metal that has a native `alltheores:ore_hammers` `dust_from_ingot` recipe:
+aluminum, brass, bronze, constantan, copper, electrum, enderium, gold,
+invar, iridium, iron, lead, lumium, netherite, nickel, osmium, platinum,
+signalum, silver, steel, tin, uranium, zinc — every metal the ore hammer
+covers, so every manual path now also has an automated one. Each recipe
+takes the same `c:ingots/<metal>` tag the native hammer recipe consumes
+(jar-confirmed: AllTheOres' own jar ships the `c:ingots/*` tags for its 19
+non-vanilla metals; `copper`/`gold`/`iron`/`netherite` resolve to the
+vanilla/NeoForge-shipped `c:ingots/*` tags, same tag the hammer recipe
+already relies on) and outputs `1× alltheores:<metal>_dust` — **1:1, no
+count multiplier**, `processing_time: 200` (matching the furnace
+`cookingtime: 200` AllTheOres already uses for the reverse `dust_smelting`
+conversion). This 1:1 yield is load-bearing: jar-confirmed AllTheOres
+ships a `c:dusts/<metal>` → `1× <metal>_ingot` furnace smelting recipe for
+the exact same 23 metals, so ingot→dust at anything above 1:1 would open
+an infinite ingot→dust→smelt→ingot×N duplication loop. At 1:1 the round
+trip is neutral (1 ingot in, 1 ingot out, modulo crushing-wheel power
+cost and furnace fuel/time), mirroring the ore hammer's own 1:1 balance
+exactly — no new duplication risk introduced. No Create JS recipe DSL was
+used (`event.recipes.createCrushing(...)`); this pack's existing
+convention for Create/AllTheOres recipe additions (`creative_crate.json`/
+`creative_motor.json` already under `pack/kubejs/data/create/recipe/`, the
+createoreexcavation recipes elsewhere in this doc) is plain `create:crushing`
+recipe JSON dropped straight into `pack/kubejs/data/create/recipe/`, so
+this follows the same pattern rather than introducing a new one.
+Tier note: because the input is an ingot the player already possesses
+(not a new ore-acquisition path), even late-game metals like netherite or
+uranium being crushable "early" isn't a progression skip — it just adds an
+automation option for dust the player could already hand-craft with the
+hammer at that same point; no edge case needed gating. Verified statically
+only (`run_all.py` and the unittest suite both green, 23 new JSON files
+parsing clean, all `c:ingots/*` tags and `alltheores:*_dust` ids
+cross-checked against the installed `alltheores`/`create` jars, no
+existing `create:crushing` recipe id collisions). Crushing wheels actually
+processing these ingots and JEI showing the recipe both need a live
+client/world — flagged `verify-in-game`.
+
 **GitHub issue #91 fix — many ATO gems/ores/ingots had no use outside
 Silent Gear (or, for a few, no use at all).** Adjacent to #86: with the
 gear overhaul's `blacksmithing.js` sweep having removed every vanilla
