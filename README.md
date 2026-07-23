@@ -135,21 +135,32 @@ What's in the zip: `mods/`, `config/`, `kubejs/`, `defaultconfigs/`,
 This repo ships a flake (`flake.nix` + `nix/module.nix`) with a NixOS
 module (`nixosModules.default`) for running the dedicated server as a
 systemd service. It **defaults to a real declarative fetch of the server
-bundle straight from this repo's own GitHub release asset**
-(`nix/release.json`'s `repo`/`tag`/`assetName`/`sha256`, verified via
-`pkgs.fetchurl`'s `sha256` check at build time) — never from this repo's
+bundle straight from this repo's own GitHub release asset**, verified via
+`pkgs.fetchurl`'s `sha256` check at build time — never from this repo's
 working tree. This repo is public, so that asset URL needs no credentials.
 A manually downloaded release zip is still supported as an explicit
 override (see step 2 below) for a custom/older/different build.
 
-**How you get a newer release.** `nix/release.json` pins one exact
-release, and every mint rewrites that pin, so *upgrading is
-`nix flake update`* on whichever input points at this repo — then
-`nixos-rebuild switch`. There is deliberately no "always grab whatever is
-newest" mode: a flake cannot resolve that during a pure evaluation
-(`pkgs.fetchurl` needs the hash up front), and a runtime fetch would mean
-your server silently changing version underneath a rebuild. Pin, update,
-rebuild — the ordinary Nix workflow.
+**Choosing which release runs.** `nix/release.json` is a **registry** of
+every published release (`releases` maps each tag → its asset + pinned
+`sha256`), and `latest` is an **alias** naming the current *recommended*
+tag. The module option **`services.vanillaplusplus.releaseTag`** picks which
+one to run — it **defaults to `"latest"`** (resolves through the alias, so
+you always get the recommended build), or set it to a specific tag to pin:
+
+```nix
+services.vanillaplusplus.releaseTag = "v0.5.1";  # pin an exact release
+# (leave unset for "latest" = the current recommended release)
+```
+
+**How you get a newer release.** Every mint *appends* its release to the
+registry; the maintainers move `latest` to a chosen recommended build. So
+*upgrading is `nix flake update`* on whichever input points at this repo —
+then `nixos-rebuild switch`. There is deliberately no "always grab whatever
+is newest at runtime" mode: a flake cannot resolve that during a pure
+evaluation (`pkgs.fetchurl` needs the hash up front), and a runtime fetch
+would mean your server silently changing version underneath a rebuild.
+Update, rebuild — the ordinary Nix workflow.
 
 Modrinth is not involved. A Modrinth CDN fetch was tried first (#28) and
 abandoned: it depends on Modrinth's own project-review status, still

@@ -3,22 +3,27 @@
     Vanilla++ dedicated server -- a NixOS module (primary deliverable) plus
     an optional standalone unpack helper, never deployed from this repo's
     working tree. The server bundle is fetched declaratively straight from
-    this repo's own GitHub release asset (nix/release.json's
-    repo/tag/assetName/sha256, verified via pkgs.fetchurl's sha256 check)
-    -- a manually downloaded release zip remains supported as an explicit
-    override for a custom/older/different build.
+    this repo's own GitHub release asset, verified via pkgs.fetchurl's
+    sha256 check -- a manually downloaded release zip remains supported as
+    an explicit override for a custom/older/different build.
 
-    "Latest release" here means the newest release AS PINNED by
-    nix/release.json, which scripts/update_nix_release.py rewrites on every
-    mint. That indirection is not incidental: a flake cannot resolve
-    "whatever is newest right now" during a pure evaluation, because
-    pkgs.fetchurl needs the hash up front. Consumers therefore pick up a new
-    release the ordinary Nix way -- `nix flake update` on the input that
-    points at this repo -- rather than by the flake silently changing under
-    them. A Modrinth CDN fetch was tried first (#28) and abandoned: it
-    depends on Modrinth's own project-review status, which is still pending
-    (#44), while this repo is public so its asset URL needs no credentials.
-    See README.md's "Running on NixOS" section for host setup.
+    nix/release.json is a REGISTRY: `releases` maps every published tag ->
+    its asset + pinned sha256, and `latest` is an alias naming the current
+    RECOMMENDED tag. The module's `releaseTag` option (default "latest")
+    resolves through that alias, so operators get the recommended build with
+    no edits, or can pin any specific tag (e.g. "v0.5.1"). Every mint APPENDS
+    its release to the registry (scripts/update_nix_release.py); moving
+    `latest` to a chosen recommended release is a deliberate separate edit
+    (--set-latest). Keeping all hashes on hand is why the registry lists
+    even old/broken releases.
+
+    A flake cannot resolve "whatever is newest right now" during a pure
+    evaluation (pkgs.fetchurl needs the hash up front), so consumers pick up
+    a moved `latest` the ordinary Nix way -- `nix flake update` on the input
+    that points at this repo. A Modrinth CDN fetch was tried first (#28) and
+    abandoned: it depends on Modrinth's own project-review status, still
+    pending (#44), while this repo is public so its asset URL needs no
+    credentials. See README.md's "Running on NixOS" section for host setup.
   '';
 
   inputs = {
@@ -59,7 +64,7 @@
       # pure default zip to build from).
       mkServerPackage =
         pkgs: archivePath:
-        pkgs.runCommand "vanilla-plus-plus-server-${release.version}"
+        pkgs.runCommand "vanilla-plus-plus-server-${release.releases.${release.latest}.version}"
           { nativeBuildInputs = [ pkgs.unzip ]; }
           ''
             mkdir -p "$out"

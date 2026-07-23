@@ -39,29 +39,36 @@ let
   # hardcoded, so a future release bump only requires re-running
   # scripts/update_nix_release.py (which auto-detects this from the zip)
   # rather than editing this module.
-  neoforgeVersion = release.neoforgeVersion or "21.1.235";
+  # Resolve WHICH release to serve. nix/release.json is a registry:
+  # `releases` maps each tag -> its asset/sha256, and `latest` is an alias
+  # naming the current recommended tag. The `releaseTag` option (below)
+  # defaults to "latest" and resolves through that alias, so operators get
+  # the recommended build with zero edits, or can pin any specific tag.
+  # cfg.releaseTag is available throughout this let (config is a module
+  # arg) and the option's own default is a static string, so there is no
+  # recursion (releaseTag does not depend on serverArchive).
+  selectedTag = if cfg.releaseTag == "latest" then release.latest else cfg.releaseTag;
+  selectedRelease =
+    release.releases.${selectedTag} or (throw
+      "vanillaplusplus: releaseTag '${selectedTag}' is not in nix/release.json's releases registry (available: ${lib.concatStringsSep ", " (builtins.attrNames release.releases)})");
+
+  neoforgeVersion = selectedRelease.neoforgeVersion or "21.1.235";
   unixArgsRelPath = "libraries/net/neoforged/neoforge/${neoforgeVersion}/unix_args.txt";
 
-  expectedSha256Hex = release.sha256Hex or null;
-  expectedTag = release.tag or release.version or "unknown";
+  expectedSha256Hex = selectedRelease.sha256Hex or null;
+  expectedTag = selectedTag;
 
-  # #28: fetch the pinned release's server bundle straight from its GitHub
-  # release asset -- a REAL declarative fetch (pkgs.fetchurl, a
-  # fixed-output derivation Nix verifies against the pinned sha256 itself
-  # at build time and refuses to proceed on mismatch), unconditionally
-  # available for every release since nix/release.json always carries
-  # repo/tag/assetName/sha256 (unlike the optional `modrinth` pin, which
-  # depends on Modrinth's own async publish + project-review status and
-  # was 404ing as of this writing -- see DECISIONS.md's dated entry).
-  # This used to require a manually downloaded zip because the repo was
-  # private (no unauthenticated URL to fetch from); the repo has since
-  # gone public, so the plain release-asset URL works unauthenticated --
-  # confirmed live (HEAD request, 200, correct byte size) before relying
-  # on it here. `release.sha256` is already SRI-formatted
-  # (`sha256-...`), which pkgs.fetchurl accepts directly.
+  # #28: fetch the selected release's server bundle straight from its GitHub
+  # release asset -- a REAL declarative fetch (pkgs.fetchurl, a fixed-output
+  # derivation Nix verifies against the pinned sha256 itself at build time
+  # and refuses to proceed on mismatch). Every tag in the registry carries
+  # assetName + sha256, so this resolves for "latest" or any pinned tag.
+  # This repo is public, so the plain release-asset URL works
+  # unauthenticated. `sha256` is already SRI-formatted (`sha256-...`),
+  # which pkgs.fetchurl accepts directly.
   githubServerArchive = pkgs.fetchurl {
-    url = "https://github.com/${release.repo}/releases/download/${release.tag}/${release.assetName}";
-    sha256 = release.sha256;
+    url = "https://github.com/${release.repo}/releases/download/${selectedTag}/${selectedRelease.assetName}";
+    sha256 = selectedRelease.sha256;
   };
 
   propType = lib.types.oneOf [
@@ -255,6 +262,21 @@ in
       '';
     };
 
+    releaseTag = lib.mkOption {
+      type = lib.types.str;
+      default = "latest";
+      example = "v0.5.1";
+      description = ''
+        Which published release to run. The default, `"latest"`, is an alias
+        that `nix/release.json` maps to the current recommended release
+        (currently ${release.latest}); set it to a specific tag (e.g.
+        `"v0.5.1"`) to pin that exact build. Available tags:
+        ${lib.concatStringsSep ", " (builtins.attrNames release.releases)}.
+        Only affects the default `serverArchive` fetch -- ignored when you
+        override `serverArchive` with your own archive path.
+      '';
+    };
+
     serverArchive = lib.mkOption {
       type = lib.types.path;
       default = githubServerArchive;
@@ -271,8 +293,8 @@ in
       description = ''
         Path to a Vanilla++ server release zip. **Defaults to a real,
         declarative `pkgs.fetchurl` fetch straight from the pinned
-        release's GitHub asset** (`nix/release.json`, currently pinned at
-        version ${release.version}) -- Nix verifies the download against
+        release's GitHub asset** (`nix/release.json`, resolving
+        `releaseTag` = ${selectedTag}, version ${selectedRelease.version}) -- Nix verifies the download against
         the pinned `sha256` itself as part of evaluating this
         fixed-output derivation and refuses to proceed on a mismatch, no
         separate runtime check needed for the default path.
