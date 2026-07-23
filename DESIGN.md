@@ -3133,3 +3133,82 @@ and embedded in both artifact filenames — bump it once at the next release
 cut rather than hunting for hardcoded version strings in multiple places
 (the bug this replaced: `build_mrpack.py` hardcoded `"0.9.0"` and had
 silently drifted from reality before this release wave).
+
+### GitHub issues #103 (dynamic lights), #107 (Curios not restored by
+### Gravestone), #104 (searchable keybinds)
+
+**#103, dynamic lights don't work.** instructions.md's world-interactivity
+section explicitly lists "Dynamic lights" as a requirement (`- Dynamic
+lights` under "The world should be as interactable as possible"), and no
+dynamic-lights mod existed in `pack/manifest.json` at all before this
+change — a genuine gap, not a misconfiguration. Added **Sodium Dynamic
+Lights** (`sodium-dynamic-lights`, phase 25) + its one required dep,
+**Sodium Options API** (`sodium-options-api`, phase 25). Chosen over
+LambDynamicLights' own "Unofficial NeoForge" port (stale relative to this
+pack's Sodium line per its own listing) and Create: Dynamic Lights
+(Create-item-only scope) because Sodium Dynamic Lights' own
+`mixins.sodiumdynamiclights.json`, ground-truthed via jar extraction,
+mixes directly into `net.caffeinemc.mods.sodium`'s real
+`ArrayLightDataCache`/`FlatLightPipeline`/`LightDataAccess`/
+`SodiumOptionsGUI` classes — a confirmed match for this pack's actual
+rendering stack (real Sodium `mc1.21.1-0.8.12-neoforge`, phase 18, plus
+Iris `1.8.14-beta.1`, phase 23 — this pack runs Sodium, not Embeddium).
+Both new mods are `side: client` (Modrinth client_side=required/
+server_side=unsupported for both), no server-side footprint. No config
+shipped — tuning happens via the mod's own in-game options page (reachable
+through the ground-truthed `SodiumOptionsGuiMixin`).
+
+**#107, Gravestone doesn't return Curios to their slots.** Ground-truthed
+against the actually-installed `gravestone-neoforge-1.21.1-1.0.37.jar`
+(phase 22, added issue #13): its own `neoforge.mods.toml` declares no
+Curios dependency, and jar extraction confirms zero `curio`-named
+classes/resources anywhere in its 198 entries — henkelmax's Gravestone Mod
+has **no Curios integration at all**, so there is no config toggle to flip
+(option (a) from the task doesn't exist). Fixed via option (b): a
+dedicated compat addon, **Gravestone x Curios API Compat**
+(`gravestone-x-curios-api-compat`, phase 25, pinned to 4.0.2) + its
+required dep **BaguetteLib** (`baguettelib`, phase 25). Pinned to 4.0.2
+specifically (over the older 3.0.1/2.1.0 releases) because its changelog
+targets this exact complaint verbatim — "Individual slot tracking ensuring
+curios restore to their original positions" — a rewrite over the older
+versions' simpler restore logic. Ground-truthed via jar extraction: its
+two required mixins (`GraveStoneBlockMixin`, `CurioStacksHandlerMixin`)
+target henkelmax's actual `GraveStoneBlock` class and Curios' own
+`CurioStacksHandler` class directly, confirming a genuine, targeted
+integration rather than a generic reimplementation; its declared deps
+(`gravestone [1.0.24,)`, `curios [9.0.0,)`, `baguettelib [1.0.0,)`) are all
+satisfied by this pack's installed versions (1.0.37, 9.5.1, 2.0.3
+respectively). Both new mods are `side: server` (client_side=unsupported/
+server_side=required for both) — Curios restoration on grave-break is
+server-authoritative inventory logic, same layer as Gravestone's own core
+mechanism. A full mod swap (option (c)) was evaluated and rejected as
+unnecessary and far more disruptive than this small, purpose-built addon;
+not pursued.
+
+**#104, searchable keybinds (feature, approved, lowest priority of the
+three).** Added **Controlling** (`controlling`, phase 25, pinned 19.0.5) +
+its one required dep, **Searchables** (`searchables`, phase 25) — the
+owner named "Controlling" directly as the example to evaluate. Chosen over
+the newer, purpose-built "Keybind Search" mod because Controlling has
+33M+ Modrinth downloads, an MIT license (vs. Keybind Search's CC
+BY-NC-4.0, a non-commercial restriction inconsistent with every other mod
+in this pack), and an active release history through this exact
+`neoforge-1.21.1-19.0.5` build. Ground-truthed via jar extraction of its
+own `neoforge.mods.toml`: all three of its dependencies (`neoforge
+[21.1.94,)`, `minecraft [1.21.1]`, `searchables [1.0.1,)`) are declared
+`side = "CLIENT"`, matching Modrinth's client_side=required/
+server_side=unsupported classification — both new mods are `side:
+client`. No config shipped; it's a pure UI affordance added to the
+existing Controls screen.
+
+All six new manifest entries verified via `python3 scripts/ci/run_all.py`
+(PASS) and `check_lockfile.py` (manifest↔lock consistent, `loader_installer`
+pin intact, no unintended version bumps to other mods — `resolve_mods.py`
+incidentally picked up newer `sophisticated-core`/`sophisticated-backpacks`/
+`sophisticated-storage` releases on this run since those three have no
+`pin_version`; reverted to their prior pinned lockfile entries, matching
+this project's established convention for keeping unrelated lockfile
+diffs clean). All three issues need verify-in-game (dynamic lights
+rendering, Curios restoring to original slots on grave pickup, the
+Controls-screen search box) — none of this is testable by the no-server-boot
+CI suite.
