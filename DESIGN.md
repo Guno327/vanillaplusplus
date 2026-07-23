@@ -1004,34 +1004,45 @@ fundamentally a tier-ladder extension).
   satisfying "the player causing these mobs to spawn should also influence
   their base difficulty based on their level/progression." Above a small
   threshold, the mob's `generic.max_health`/`generic.attack_damage` are
-  scaled via `modifyAttribute(..., 'multiply_base')` and it gets a
-  star-rating custom name (color-coded gray→dark_red) as the "look at it
-  and tell" indicator — a nametag rather than a fancier visual (glow
-  outline/particles) since that's what's reliably implementable via
-  KubeJS scripting without client-side rendering work. **Bug #101, fixed**:
-  the star rating was originally set via
-  `entity.setCustomName(Text.of('*'.repeat(starCount))...)`, which REPLACES
-  customName outright rather than adding to it — Minecraft uses
-  getName()/customName verbatim both for the nameplate and for death
+  scaled via `modifyAttribute(..., 'multiply_base')`, and every monster
+  (not just scaled ones) gets its own name recolored by relative
+  difficulty as the "look at it and tell" indicator — a colored nametag
+  rather than a fancier visual (glow outline/particles) since that's what's
+  reliably implementable via KubeJS scripting without client-side
+  rendering work. **Bug #101, two fix passes**. Pass 1 (#110): the name was
+  originally set via `entity.setCustomName(Text.of('*'.repeat(starCount))...)`,
+  which REPLACES customName outright rather than adding to it — Minecraft
+  uses getName()/customName verbatim both for the nameplate and for death
   messages, so every scaled mob's name became a bare string of asterisks
-  everywhere, including "You were killed by **". Fixed by capturing
-  `entity.getName()` (the untouched default species name, since nothing has
-  set a customName on the entity yet at that point) and appending the star
-  rating as a suffix instead of replacing it, so both nameplate and death
-  message now read e.g. "Zombie **" — difficulty is still visible at a
-  glance, but the real name survives. `EntityEvents.death`
+  everywhere, including "You were killed by **". #110 fixed this by
+  capturing `entity.getName()` (the untouched default species name, since
+  nothing has set a customName on the entity yet at that point) and
+  appending a star rating as a suffix instead of replacing it, e.g.
+  "Zombie **". That shipped in v0.5.2, but the owner re-tested in-game and
+  reported the suffix itself read as clutter/noise ("a randomly long string
+  of asterisks", 1-6 raw `*` chars depending on tier) — not the bug
+  reopening, but the fix's own UX being unwanted. Pass 2 (this fix):
+  dropped the star suffix entirely per the owner's simpler ask — leave
+  `entity.getName()` completely untouched and just color the whole name by
+  a 4-tier relative-difficulty scale (green = weaker than you, yellow =
+  similar, red = harder, dark_purple = much harder/probably impossible;
+  "purple" isn't a vanilla ChatFormatting name, dark_purple is the closest
+  match), applied to every monster including baseline (green) ones, not
+  just mobs above the attribute-scaling threshold. `EntityEvents.death`
   grants bonus Numismatics currency proportional to how far above baseline
   the killed mob's difficulty was, covering "rewards scale with difficulty."
   **Verification gap, disclosed**: this only exercises at actual mob-spawn
   time, which the headless boot-test sandbox can't trigger (no player
   present) — confirmed only that the script loads without syntax errors
   (7/7 KubeJS scripts, 0 errors), not that the runtime logic behaves as
-  designed. Several API calls here were corrected mid-implementation after
-  decompiling KubeJS's actual class files rather than trusting a first
-  guess (e.g. `entity.getAttribute(id).setBaseValue(...)` doesn't exist —
-  the real API is `entity.modifyAttribute(attributeId, modifierId, amount,
-  operation)`) — same "verify against the installed jar" discipline this
-  whole project has needed repeatedly.
+  designed; the owner's in-game re-test is what caught pass 1's UX problem,
+  and pass 2 needs the same in-game confirmation. Several API calls here
+  were corrected mid-implementation after decompiling KubeJS's actual class
+  files rather than trusting a first guess (e.g.
+  `entity.getAttribute(id).setBaseValue(...)` doesn't exist — the real API
+  is `entity.modifyAttribute(attributeId, modifierId, amount, operation)`)
+  — same "verify against the installed jar" discipline this whole project
+  has needed repeatedly.
 - **Dungeons + bosses with unique drops**: YUNG's Better Dungeons overhauls
   vanilla's dungeon structure into larger multi-room layouts (the "some
   sort of dungeons" ask). Apotheosis separately ships its own
