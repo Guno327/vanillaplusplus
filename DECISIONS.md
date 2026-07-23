@@ -1286,3 +1286,47 @@ test tier here can settle), #52 and #44 (both one-click owner actions; #44
 downgraded to distribution-reach only), #61 (recursive recipe-reachability
 audit tool), #62 (L3's `gui` check passes vacuously and needs the
 resend-until-answered treatment `connect` already has).
+
+## Release policy — agents may mint continuously (CEO directive, 2026-07-23)
+
+**Supersedes the "releases are manual-only, cut only on explicit owner
+prompt" rule** that governed every prior cut (v0.1.0 → v0.3.0). New policy,
+verbatim intent from the CEO: *agents may mint releases — major and minor
+(and patch) — continuously throughout development; the only restriction is
+that a full test run must pass before publishing, and otherwise there is no
+restriction.*
+
+Concretely:
+
+- **No owner-prompt gate.** Any engineer/PM agent may dispatch
+  `mint-release.yml` from `main` at any point. Choosing the SemVer `bump`
+  (`major` | `minor` | `patch`) is the agent's call, not the owner's. The
+  old "no label or automation ever publishes a release" and "cut only on
+  explicit owner prompt" statements in README/SPEC/HANDOFF are retired and
+  reworded to match this entry — this log is the durable source.
+- **The one hard gate is a full test run.** `mint-release.yml` already
+  enforces it structurally: the `mint-release` job `needs:` both
+  `fast-tier` (ci.yml — unit tests + all static checks) and `boot-tier`
+  (boot.yml — L0 boot smoke + L1 `/vpp_selftest`), so a release cannot be
+  built unless the complete automated suite the pipeline can run on hosted
+  runners is green. This is the "full test run" the directive requires; it
+  was already the technical behavior, so no workflow logic changes — only
+  the policy framing around it does.
+- **L2/L3 boundary is unchanged and still disclosed, not silently
+  dropped.** L2 (HeadlessMC client smoke) and L3 (live client join) remain
+  local-sandbox / Incus-host tiers that hosted Actions runners cannot run;
+  every mint's release notes keep disclosing this honest boundary (the
+  existing "Append test-status disclosure" step). "Full test run" means the
+  full *automated hosted* suite (fast + boot) is required-green — it does
+  not, and cannot, block a mint on the human-in-the-loop L2/L3 tiers
+  without defeating the "continuous" intent. Running L3 against a cut
+  before flipping `prerelease=false` for a GA remains encouraged, not
+  required.
+- **`prerelease` stays a labeling choice, no longer an approval gate.** It
+  still defaults to `true` (safe default — every cut so far has been a
+  disclosed beta), and an agent may flip it to `false` for a GA when the
+  work warrants it. There is no separate owner sign-off for a major/GA cut
+  beyond the same full-test-run gate.
+
+See [[project-github-issues-workflow]] memory — its "never cut/publish a
+release until the user manually prompts" rule is superseded by this entry.

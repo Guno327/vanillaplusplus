@@ -208,6 +208,15 @@ wanted summary posted at cut time.
 
 ## Release pipeline
 
+**Policy (CEO directive, 2026-07-23 — see DECISIONS.md "Release policy"):**
+agents may mint releases (major/minor/patch) continuously throughout
+development. No owner-prompt gate; the sole hard requirement is a full test
+run green before publish. In practice you cut a release by dispatching
+`mint-release.yml` from `main` (it runs fast-tier + boot-tier as required
+`needs:` gates, then builds + publishes). The manual step sequence below is
+the local-reproduction / debugging runbook for that same build — the
+workflow is the normal path now.
+
 Re-run in order to reproduce a release build (each step exits nonzero on
 failure, safe to chain with `&&`); artifact naming/contents/versioning are
 covered by DESIGN.md's "Bundle design"/"Versioning" sections, not repeated
