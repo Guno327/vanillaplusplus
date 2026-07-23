@@ -160,6 +160,16 @@ try {
 } catch (e) {
     console.error('[vpp leaderboard] Numismatics bank API (dev.ithundxr.createnumismatics.Numismatics) failed to load - wealth will be coin-count only: ' + e)
 }
+// See computeWealth()'s own comment below for why this is needed alongside
+// NumismaticsClass: getOrCreateAccount(UUID, Type) is the single unambiguous,
+// really-get-or-create overload (javap-confirmed against
+// CreateNumismatics-1.0.20+neoforge-mc1.21.1.jar's GlobalBankManager).
+let NumismaticsBankAccountTypeClass = null
+try {
+    NumismaticsBankAccountTypeClass = Java.loadClass('dev.ithundxr.createnumismatics.content.backend.BankAccount$Type')
+} catch (e) {
+    console.error('[vpp leaderboard] Numismatics BankAccount$Type failed to load - wealth will be coin-count only: ' + e)
+}
 
 let OpenPACServerAPIClass = null
 try {
@@ -209,18 +219,24 @@ function countCoins(container) {
 function computeWealth(player) {
     let total = countCoins(player.getInventory())
     total += countCoins(player.getEnderChestInventory())
-    if (NumismaticsClass) {
+    if (NumismaticsClass && NumismaticsBankAccountTypeClass) {
         try {
-            // getAccount(player.uuid), not getAccount(player) - see the
-            // module docstring's CORRECTED note: the Player-typed overload is
-            // ambiguous for a real ServerPlayer under Rhino; the UUID overload
-            // is unambiguous and returns the identical account. `player.uuid`
-            // (a property), not `player.getUUID()` - the latter is not a
-            // callable Rhino method on KubeJS's ServerPlayer wrapper
-            // (ground-truthed via a real L3 run: "TypeError: Cannot find
-            // function getUUID..."); `.uuid` is this file's own accessor
-            // elsewhere (see cache.put(String(player.uuid), ...) above).
-            let account = NumismaticsClass.BANK.getAccount(player.uuid)
+            // getOrCreateAccount(player.uuid, Type.PLAYER), not
+            // getAccount(player) or getAccount(player.uuid) - see the module
+            // docstring's CORRECTED note: the Player-typed overload is
+            // ambiguous for a real ServerPlayer under Rhino. getAccount(UUID)
+            // avoids the ambiguity but is a bare map lookup (javap-confirmed)
+            // that returns null for a player with no bank account yet -
+            // ground-truthed via a real L3 run ("Cannot call method
+            // getBalance of null") for exactly the fresh test player this
+            // wealth computation would otherwise silently under-report for.
+            // getOrCreateAccount(UUID, Type) is the single unambiguous
+            // overload that actually creates one. `player.uuid` (a
+            // property), not `player.getUUID()` - the latter is not a
+            // callable Rhino method on KubeJS's ServerPlayer wrapper; `.uuid`
+            // is this file's own accessor elsewhere (see
+            // cache.put(String(player.uuid), ...) above).
+            let account = NumismaticsClass.BANK.getOrCreateAccount(player.uuid, NumismaticsBankAccountTypeClass.PLAYER)
             total += account.getBalance()
         } catch (e) {
             console.error('[vpp leaderboard] bank balance read failed for ' + player.username + ': ' + e)

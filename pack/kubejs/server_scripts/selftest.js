@@ -94,6 +94,23 @@ try {
 } catch (e) {
     console.error('[vpp selftest] Numismatics class failed to load: ' + e)
 }
+// javap-confirmed (dev.ithundxr.createnumismatics.content.backend.
+// GlobalBankManager, CreateNumismatics-1.0.20+neoforge-mc1.21.1.jar):
+// getAccount(UUID) is a bare accounts.get(uuid) - it returns null for a
+// player with no bank account yet (ground-truthed via a real L3 run: a
+// fresh test player throws "Cannot call method getBalance of null").
+// getAccount(Player) is the one that actually get-or-creates
+// (getOrCreateAccount(player.getUUID(), Type.PLAYER)), but calling it
+// directly from Rhino with a real ServerPlayer throws "InternalError: ...
+// is ambiguous" against the UUID overload. Calling getOrCreateAccount(UUID,
+// Type) directly sidesteps both problems: unambiguous (single overload) and
+// really get-or-create.
+let ST_BankAccountTypeClass = null
+try {
+    ST_BankAccountTypeClass = Java.loadClass('dev.ithundxr.createnumismatics.content.backend.BankAccount$Type')
+} catch (e) {
+    console.error('[vpp selftest] Numismatics BankAccount$Type failed to load: ' + e)
+}
 let ST_OpenPACServerAPIClass = null
 try {
     ST_OpenPACServerAPIClass = Java.loadClass('xaero.pac.common.server.api.OpenPACServerAPI')
@@ -208,22 +225,18 @@ stCheck('SkillsAPI: all 23 skill categories retained their full 34-node skill co
 
 stCheck('Numismatics: bank account/balance reachable for a player', (server, player) => {
     if (!ST_NumismaticsClass) return { pass: false, detail: 'Numismatics class unavailable' }
+    if (!ST_BankAccountTypeClass) return { pass: false, detail: 'Numismatics BankAccount$Type class unavailable' }
     if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
-    // getAccount(player.uuid), not getAccount(player) - GlobalBankManager
-    // overloads BOTH getAccount(Player) and getAccount(UUID) (javap-confirmed
-    // against CreateNumismatics-1.0.20+neoforge-mc1.21.1.jar); calling the
-    // Player-typed overload with a REAL ServerPlayer throws Rhino's
-    // "InternalError: ... is ambiguous" - unreachable from L1's console-only
-    // testing (player is always null there, hitting the skip above first),
-    // only from a genuine connected player. The UUID overload is unambiguous
-    // and returns the identical account (both key the same underlying
-    // store). `player.uuid` (a property on KubeJS's ServerPlayer wrapper),
-    // not `player.getUUID()` - the latter is not a callable Rhino method on
-    // this wrapper (ground-truthed: "TypeError: Cannot find function getUUID
-    // in object ServerPlayer..." from a real L3 run under the #65
-    // `vpp_selftest_player` command); `.uuid` is this codebase's own
-    // established accessor (leaderboard.js/skills.js/quests.js).
-    let account = ST_NumismaticsClass.BANK.getAccount(player.uuid)
+    // getOrCreateAccount(player.uuid, Type.PLAYER), not getAccount(player) or
+    // getAccount(player.uuid) - see ST_BankAccountTypeClass's own comment
+    // above for the full javap-verified reasoning: getAccount(Player) is
+    // ambiguous for Rhino against a real ServerPlayer, and getAccount(UUID)
+    // is a bare map lookup that returns null for a player with no account
+    // yet (both ground-truthed against real L3 runs). getOrCreateAccount is
+    // the single unambiguous overload that actually creates one. `.uuid`
+    // (a property on KubeJS's ServerPlayer wrapper), not `.getUUID()` - the
+    // latter is not callable from Rhino on this wrapper.
+    let account = ST_NumismaticsClass.BANK.getOrCreateAccount(player.uuid, ST_BankAccountTypeClass.PLAYER)
     let balance = account.getBalance()
     return { pass: typeof balance === 'number' && balance >= 0, detail: 'balance=' + balance }
 })
