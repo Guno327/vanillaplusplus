@@ -335,6 +335,23 @@
       "note": "magic system: mage archetype via spell crafting, summoner archetype via summon rituals (Summon Guardians/Wilden) + combat familiars"
     },
     {
+      "slug": "vppfixes",
+      "project_id": "vppfixes",
+      "version_id": "1.0.0",
+      "version_number": "1.0.0",
+      "filename": "vppfixes-1.0.0.jar",
+      "url": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
+      "local_path": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
+      "hashes": {
+        "sha1": "3e58664d2f4bd1bda736d29da971d382e3806109",
+        "sha512": "31adf701de6c87522ab8953aed850562aeb86f41cfdb7d898b27ce34c048bfe7e3b26a92837e0f6ded68005028072227bd93e23d23943a7c0d24faf6f0b88043"
+      },
+      "filesize": 6449,
+      "side": "both",
+      "phase": 7,
+      "note": "GitHub #143 fix, ported to dev for v0.6.0: Mixin-only pack-fix mod that deep-copies Ars Nouveau's live list-backed ars_nouveau:spell_resolver SynchedEntityData value at pack time (server tick thread) so the Netty IO thread never serializes a concurrently-mutated object graph -> fixes the set_entity_data ConcurrentModificationException that booted clients. Built from mods-src/vppfixes/ via scripts/build_local_mods.py (source:local, like vppintegration/vppquests); no jar committed. hashes/filesize pin the freshly-built jar (see #145 re: build reproducibility)."
+    },
+    {
       "slug": "placebo",
       "project_id": "tCkE8p2N",
       "version_id": "1Ypo4tf4",
