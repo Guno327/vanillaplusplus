@@ -82,14 +82,25 @@ def sha1_of(path: Path) -> str:
 def fetch_bundled_mod(mod: dict) -> Path:
     """Download (or reuse a hash-verified cached copy of) a non-Modrinth
     mod jar so it can be embedded under overrides/mods/ instead of
-    referenced by external URL."""
+    referenced by external URL. GitHub #67: a mod with "local_path" set
+    (this pack's own mods-src/<modid>/ builds - no remote host at all) is
+    copied from that path instead of fetched over HTTP."""
     MOD_CACHE.mkdir(parents=True, exist_ok=True)
     dest = MOD_CACHE / mod["filename"]
     if dest.exists() and sha1_of(dest) == mod["hashes"]["sha1"]:
         return dest
-    req = urllib.request.Request(mod["url"], headers=UA)
-    with urllib.request.urlopen(req, timeout=120) as r, open(dest, "wb") as f:
-        f.write(r.read())
+    if mod.get("local_path"):
+        src = ROOT / mod["local_path"]
+        if not src.is_file():
+            raise SystemExit(
+                f"{mod['slug']}: local_path {mod['local_path']!r} not found - "
+                f"build it first (see mods-src/{mod['slug']}/README.md)"
+            )
+        dest.write_bytes(src.read_bytes())
+    else:
+        req = urllib.request.Request(mod["url"], headers=UA)
+        with urllib.request.urlopen(req, timeout=120) as r, open(dest, "wb") as f:
+            f.write(r.read())
     actual = sha1_of(dest)
     if actual != mod["hashes"]["sha1"]:
         raise SystemExit(f"hash mismatch for {mod['filename']}: expected {mod['hashes']['sha1']} got {actual}")
@@ -102,10 +113,15 @@ def classify_mods(mods: list) -> tuple:
     anything else must be bundled under overrides/mods/ instead, since
     Modrinth's upload API rejects non-allowlisted download hosts. See the
     module docstring for why this is safe for the mods it currently
-    applies to (ato/allthemodium) but was NOT safe for the FTB suite."""
+    applies to (ato/allthemodium) but was NOT safe for the FTB suite. Local
+    mods (GitHub #67, "local_path" set - this pack's own mods-src/<modid>/
+    builds) are always bundled - there is no remote host to reference at
+    all, let alone one Modrinth would allowlist."""
     downloadable, bundled = [], []
     for mod in mods:
-        if urlparse(mod["url"]).hostname == MODRINTH_CDN_HOST:
+        if mod.get("local_path"):
+            bundled.append(mod)
+        elif urlparse(mod["url"]).hostname == MODRINTH_CDN_HOST:
             downloadable.append(mod)
         else:
             bundled.append(mod)

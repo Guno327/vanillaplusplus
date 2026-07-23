@@ -1,0 +1,19 @@
+{
+  "type": "overgeared:forging",
+  "blueprint": ["sword"],
+  "category": "TOOL_HEADS",
+  "hammering": 3,
+  "key": {
+    "#": { "item": "overgeared:heated_copper_ingot" }
+  },
+  "pattern": [
+    "##",
+    "# "
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:sword_head"
+  },
+  "show_notification": false,
+  "tier": "stone"
+}

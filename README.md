@@ -360,6 +360,7 @@ as a `patch` bump (0.y.z+1).
 | Path | What it is |
 |---|---|
 | `pack/` | The modpack source of truth: manifest, mod lockfile, config, kubejs scripts, `VERSION` |
+| `mods-src/` | Hand-rolled Vanilla++ mods (GitHub #67 established this convention) — each `mods-src/<modid>/` is a fully self-contained, independently Modrinth-publishable NeoForge project (own gradle build, `src/main/java`+`resources`, `README.md`, `LICENSE`). Wired into the pack via a `"source": "local"` `pack/manifest.json` entry (`resolve_mods.py` hashes the already-built jar instead of resolving one remotely) — see `mods-src/vppintegration/README.md` for the first mod built this way and DECISIONS.md's #67 entry for the full convention writeup |
 | `scripts/` | Build/release tooling (`build_mrpack.py`, `build_server_bundle.py`, `resolve_mods.py`, generators), `update_nix_release.py` (repins `nix/release.json` to the latest minted release), and the L0/L1/L2 test suites under `scripts/tests/` |
 | `flake.nix`, `nix/` | The NixOS flake/module for running the dedicated server (see "Running on NixOS" above) — `nix/module.nix` is the module, `nix/release.json` pins the current release's version/hash, including the GitHub release asset URL `serverArchive` fetches from by default |
 | `server/` | Generated, local-only dev server (synced from `pack/` by `scripts/build_server.py`) — not part of the repo's shipped content |
