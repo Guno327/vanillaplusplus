@@ -80,7 +80,9 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 import l2_client_smoke as l2  # reuse load_lock()/assemble_mods_dir() - same client mod set L2 already proves loads cleanly
+import boot_lock  # noqa: E402  (see scripts/tests/lib/boot_lock.py - #80)
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 SERVER = ROOT / "server"
@@ -294,11 +296,18 @@ def boot_server(env):
     print("== L3: boot server (nogui, test profile: online-mode=false) ==")
     with open(SERVER_LOG, "w") as logf:
         tail_proc = subprocess.Popen(["tail", "-f", str(SERVER_FIFO)], stdout=subprocess.PIPE, cwd=SERVER)
+        # Guarantee this reader dies with the process - on normal exit, an
+        # uncaught exception, or a signal - so a cut-off session never
+        # leaves an orphaned `tail -f cmd_fifo` holding the FIFO open (#80).
+        boot_lock.register_process_cleanup(tail_proc, extra_pkill_pattern=f"tail -f {SERVER_FIFO}")
         subprocess.Popen(
             ["timeout", str(SERVER_LIFETIME_S), "sh", "run.sh", "nogui"],
             cwd=SERVER, stdin=tail_proc.stdout, stdout=logf, stderr=subprocess.STDOUT, env=env,
         )
 
+    # BOOT_TIMEOUT_S starts counting here - callers must invoke boot_server()
+    # only AFTER acquiring the machine-wide boot lock (#80), so queueing
+    # behind another worktree's boot can never itself cause this timeout.
     deadline = time.time() + BOOT_TIMEOUT_S
     while time.time() < deadline:
         text = read(SERVER_LOG)
@@ -477,13 +486,25 @@ def main():
 
     env = dict(os.environ)
     env["PATH"] = f"{JDK_BIN}:{env.get('PATH', '')}"
-    xvfb_proc = start_xvfb()
-    env["DISPLAY"] = XVFB_DISPLAY
 
-    lock = l2.load_lock()
-    client_mods = [m for m in lock["mods"] if m["side"] != "server"]
+    mods_lock = l2.load_lock()
+    client_mods = [m for m in mods_lock["mods"] if m["side"] != "server"]
     l2.assemble_mods_dir(client_mods)
     sync_client_overrides()
+
+    print("== L3: acquire machine-wide boot lock (queues behind any other worktree's boot tier) ==")
+    with boot_lock.BootLock():
+        # Everything that actually contends for the shared machine's real
+        # CPU/RAM/display (#80) - the dedicated server, Xvfb, and the real
+        # client - runs inside this lock, and BOOT_TIMEOUT_S (used inside
+        # boot_server()) only starts counting from here, AFTER acquisition.
+        _run_l3_boot_and_join(env)
+    sys.exit(0)
+
+
+def _run_l3_boot_and_join(env):
+    xvfb_proc = start_xvfb()
+    env["DISPLAY"] = XVFB_DISPLAY
 
     boot_server(env)
 
@@ -497,6 +518,10 @@ def main():
     print(f"== L3: launch client on {XVFB_DISPLAY} (real, even if software, GL - see module docstring) ==")
     with open(CLIENT_LOG, "w") as logf:
         tail_proc = subprocess.Popen(["tail", "-f", str(CLIENT_FIFO)], stdout=subprocess.PIPE, cwd=HEADLESSMC_DIR)
+        # Guarantee this reader dies with the process - on normal exit, an
+        # uncaught exception, or a signal - so a cut-off session never
+        # leaves an orphaned `tail -f cmd_fifo` holding the FIFO open (#80).
+        boot_lock.register_process_cleanup(tail_proc, extra_pkill_pattern=f"tail -f {CLIENT_FIFO}")
         subprocess.Popen(
             ["timeout", str(CLIENT_LOAD_TIMEOUT_S + 180), "java", "-jar", str(LAUNCHER_JAR)],
             cwd=HEADLESSMC_DIR, stdin=tail_proc.stdout, stdout=logf, stderr=subprocess.STDOUT, env=env,
