@@ -346,6 +346,38 @@ stCheck('tier_gating.js: every gated recipe resolves and demands its tier materi
     }
 })
 
+// #91 (reopened): material_sinks.js routes five previously-dead AllTheOres
+// gear items into real recipe families - same failure mode as the tier
+// gates above (a renamed jar recipe id or removed item would silently
+// un-gate/un-sink the material with no error), same Predicate#test probe.
+const ST_MATERIAL_SINK_RECIPES = [
+    { id: 'vanillaplusplus:raw_basic_processor_tin_gear', sink: 'alltheores:tin_gear' },
+    { id: 'vanillaplusplus:raw_improved_processor_silver_gear', sink: 'alltheores:silver_gear' },
+    { id: 'vanillaplusplus:raw_advanced_processor_platinum_gear', sink: 'alltheores:platinum_gear' },
+    { id: 'vanillaplusplus:magnet_upgrade_osmium_gear', sink: 'alltheores:osmium_gear' },
+    { id: 'vanillaplusplus:advanced_magnet_upgrade_iridium_gear', sink: 'alltheores:iridium_gear' },
+]
+
+stCheck('material_sinks.js: every #91 sink recipe resolves and demands its gear (#91)', server => {
+    let bad = []
+    for (let i = 0; i < ST_MATERIAL_SINK_RECIPES.length; i++) {
+        let entry = ST_MATERIAL_SINK_RECIPES[i]
+        let opt = server.getRecipeManager().byKey(stRl(entry.id))
+        if (!opt.isPresent()) { bad.push(entry.id + ':missing'); continue }
+        let sinkStack = Item.of(entry.sink)
+        let ingredients = opt.get().value().getIngredients().toArray()
+        let demands = false
+        for (let j = 0; j < ingredients.length; j++) {
+            if (ingredients[j].test(sinkStack)) { demands = true; break }
+        }
+        if (!demands) bad.push(entry.id + ':missing-' + entry.sink)
+    }
+    return {
+        pass: bad.length === 0,
+        detail: bad.length === 0 ? (ST_MATERIAL_SINK_RECIPES.length + ' sink recipes verified') : bad.join(','),
+    }
+})
+
 // #57: the JEI info layer only fires when a recipe viewer syncs, so a
 // console-only boot never exercises it - which is exactly how it would rot
 // unnoticed (a renamed table, a script that stopped loading, an exception

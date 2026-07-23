@@ -1092,6 +1092,94 @@ tag/material ids cross-checked against the real installed
 materials in its crafting UI and the new beacon bases lighting a real
 beacon both need a live client — flagged `verify-in-game`.
 
+**GitHub issue #91 REOPENED — the ingot-level fix above was insufficient.**
+Owner's own words: "There is still no use for lots of items like silver
+gears which is one of the only things made with silver... integrate their
+use into important recipes so that harvesting a variety of materials is
+encouraged." Re-investigated from scratch, jar-verified across all 95
+installed mods (extracted every jar under `server/mods/`, grepped every
+recipe json for the `c:ingots|gems|dusts|storage_blocks/*` common tags per
+metal — not assumed from mod names or #102's prior writeup):
+
+- **Every ATO metal's INGOT already has a real, unconditional sink** once
+  you look past Silent Gear: ATO's own `alloy_blending_from_dust` shapeless
+  recipes (plain crafting-table dust blending) produce brass/bronze/
+  constantan/electrum/enderium/invar/lumium/signalum/steel with no missing-
+  mod condition — unlike ATO's `alloy_smelting`/`alloysmelter`/`arcfurnace`
+  recipe types for the same alloys, which are **all** conditioned on
+  `mod_loaded: enderio` or `immersiveengineering`, neither installed, so
+  those specific recipe files are silent dead weight (a real finding, but
+  harmless — the dust-blending path already covers the same alloys).
+  TFMG independently uses lead/nickel/aluminum in real machine parts
+  (`electrode_holder`, `converter`, `transformer`, `accumulator`,
+  `chemical_vat`, `engine_cylinder`, factory-floor/scaffolding/wire
+  building blocks); Create itself uses zinc natively (andesite alloy,
+  brass ingot, chain drive, package filter); Stellaris uses uranium in
+  `radioactive_generator`/`radioactive_motor`. None of these were dead
+  ends — #102's writeup undercounted them.
+- **What is genuinely, universally dead**, confirmed by grepping every one
+  of the 95 jars' recipes for the `c:gears/*`/`c:plates/*`/`c:rods/*` tags:
+  ATO's own metal-press byproducts. ~75 items (gear/plate/rod × 25 metals),
+  and not one recipe anywhere — not this pack's, not any of the 95 mods' —
+  ever consumes any of them. ATO only ever *outputs* them (its own metal
+  press recipe), because upstream they exist for Mekanism/Thermal/
+  Immersive-Engineering-style machine crafting, none of which this pack
+  installs. This is exactly what "silver gears" names, and it's uniform
+  across every metal — fixing silver alone would leave the identical class
+  of dead end for every other one.
+
+**Fix, first tranche, no mod added** (`pack/kubejs/server_scripts/
+material_sinks.js`): routed five of these dead gears into existing,
+already-desirable, already tier-gated recipe families this pack controls,
+as an *additional* required ingredient alongside the stock ones (never a
+cheaper alternate path — nothing is bypassed, a recipe only gains one more
+demand) and always by exact item id, never a `c:` tag (the #61 audit's
+tag-bypass class: a tag pull risks being silently satisfiable by some
+other mod's own cheap item sharing that tag, defeating the point of gating
+on *this* specific dead-end item):
+
+- Refined Storage's raw processor chain (`raw_basic_processor` /
+  `raw_improved_processor` / `raw_advanced_processor`) is the single most
+  load-bearing "important recipe" family in the pack —
+  `tier_gating.js`'s own header notes `advanced_processor` alone gates
+  `autocrafter`/`wireless_transmitter`/`network_receiver`/
+  `network_transmitter`/`relay`/`wireless_grid`. Each raw processor's stock
+  recipe is shapeless around one vanilla tier material (iron/gold/diamond);
+  a matching-tier ATO gear slots in as that stage's "solder/conductor/
+  precious-contact" component, preserving the iron→gold→diamond order the
+  stock recipe already encodes: `raw_basic_processor` (+iron) gains
+  `alltheores:tin_gear`, `raw_improved_processor` (+gold) gains
+  `alltheores:silver_gear` (the reporter's own named material), and
+  `raw_advanced_processor` (+diamond) gains `alltheores:platinum_gear`.
+- Sophisticated Storage's Magnet Upgrade / Advanced Magnet Upgrade (real,
+  desirable QoL upgrades, tier-chained — the advanced tier consumes a base
+  `magnet_upgrade` as its own ingredient) gain `alltheores:osmium_gear` and
+  `alltheores:iridium_gear` respectively — osmium for the dense/magnetic
+  flavor of the base upgrade, iridium (this pack's rarest, most purely
+  decorative leftover metal) for the tier above it. Both keep the mod's own
+  `sophisticatedcore:upgrade_next_tier` custom recipe type (same precedent
+  `tier_gating.js` already set for this mod's `storage_tier_upgrade` type),
+  re-authored with one added ingredient apiece and the stock pattern/other
+  ingredients otherwise unchanged.
+
+**Deliberately not touched this tranche** (confirmed to already have a real
+sink, not a dead end — see the survey above): zinc, lead/nickel/aluminum,
+uranium, and the six #102 gem materials (Silent Gear tool material +
+beacon base already covers ruby/sapphire/peridot/fluorite/cinnabar/
+iridium). The remaining gear/plate/rod dead weight across the other 20
+metals (copper/iron/gold/bronze/constantan/electrum/enderium/invar/
+lumium/signalum/steel/uranium/diamond/netherite/…) is real but lower
+priority than the five picked here (silver named explicitly by the
+reporter; tin/osmium/platinum next-worst per the investigation) — left for
+a follow-up tranche rather than padding this one with recipes that don't
+map to something a player actually wants to craft. Verified statically
+only (`run_all.py` + the 227-test unittest suite both green; every new
+item id cross-checked against the installed `alltheores` jar's own lang
+file; every edited recipe's stock shape/ingredients read directly from the
+installed `refinedstorage`/`sophisticatedstorage` jars, not assumed) — the
+new ingredients actually resolving in a real crafting grid and JEI showing
+the gear as required both need a live client, flagged `verify-in-game`.
+
 ### Gear overhaul: unified smithing/boss-drop progression + expanded melee variety (post-Phase 9)
 
 After all 9 original phases shipped, a follow-up request tightened the
