@@ -109,6 +109,113 @@ dimension-entry triggers fire as designed needs a live client — boot-tested
 only that the tier files parse cleanly (stage count went 6 → 10, tier-tagged
 item count 139 → 143, exactly matching the new locked items added).
 
+### Recipe-reachability audit (GitHub #61)
+
+Nothing above is mechanically checked: "you cannot reach brass without
+andesite" is an assertion about this pack's recipes, not a verified
+property. The **authoritative** check is live, in-game, in
+`pack/kubejs/server_scripts/selftest.js`'s `/vpp_selftest` command (search
+it for `"progression audit (#61)"`) - it queries the actually-booted
+`RecipeManager` *after* every KubeJS edit (`tier_gating.js` included) has
+applied, using the same `byKey(id)` / `getIngredients()` /
+`Ingredient#test(stack)` pattern the pre-existing tier-gating check already
+proved reliable at L1. Two of those checks are hard PASS/FAIL regressions
+pinning the exact false positives a first-pass audit (during #56) produced
+by matching recipes on id/output substrings instead of a recipe's own
+declared type and result field - `create:track_station` (confused with the
+unrelated `create:track` recipe) and `refinedstorage:controller` (matched
+against RS's *recoloring* recipe, not its real crafting one).
+
+**A live boot.yml run against this branch (PM review) caught a second,
+related bug**: the first cut of the `track_station` check assumed Create
+names its recipe ids after the output item (`create:track_station`) - it
+does not; the real id (confirmed against `data/create/recipe/crafting/
+kinetics/track_station.json` in the pinned jar) is
+`create:crafting/kinetics/track_station`. That's the exact "assume recipe
+id == item id" bug class #61 exists to eliminate, just now hard-failing
+L1 instead of false-positiving offline - and the `alltheores:brass_ingot`
+diagnostic had the same bug (`create:brass_casing_from_log` vs the real
+`create:item_application/brass_casing_from_log`) plus a worse flaw: it
+reported `pass: true` even though its target recipe was never found,
+because "cannot confirm" fell through to a vacuous pass. Both are fixed by
+resolving robustly instead of guessing an id scheme: `stFindRecipesByOutput`
+iterates the live `RecipeManager` and keeps whichever recipe(s) actually
+declare the target as their `getResultItem(registryAccess())` result (the
+same call the #57 `TG_TIER_INFO` check already used successfully), and
+every #61 check now hard-FAILs if it can't locate/introspect its target -
+"cannot confirm" is never again a silent pass. `refinedstorage:controller`
+keeps its `byKey()` lookup (RS's own ids are flat and confirmed working);
+switching it to output-based lookup would have reintroduced the *original*
+#56 bug, since the recoloring recipe's own declared result is also
+literally `refinedstorage:controller` in its "restore to base colour" case
+- looking up the real recipe's own known-correct id is what rules that out,
+exactly as it did the first time; `stFindRecipesByOutput` is only needed
+where (like Create's) the id scheme itself can't be guessed.
+
+Three more checks are **diagnostics, not gates** (always `pass: true`,
+reporting the live state in `detail`) confirming genuinely under-gated
+families against that same live `RecipeManager` - real content gaps, not
+fixed here since #61 scoped this as an audit tool, not a gating pass:
+
+- **Sophisticated Storage's "double chest" upgrade recipes**
+  (`sophisticatedstorage:double_iron_chest`/`double_gold_chest`/
+  `double_diamond_chest`, real ids in the pinned jar) reach iron/gold/
+  diamond *chest* tier from a plain iron/gold/diamond ingot + block, with
+  no Andesite Alloy/Brass Ingot requirement at all - a second, independent
+  upgrade path `tier_gating.js` never touched (it only re-authors the
+  `sophisticatedstorage:iron_chest`/`gold_chest`/`diamond_chest` recipe ids
+  themselves). Barrels and shulker boxes have no double-container
+  equivalent, so they aren't affected - this is chest-specific. Exactly the
+  failure mode #70's own postmortem called out ("the pack's gating pattern
+  assumes one crafting route per gated item") surfacing again in the same
+  feature, one recipe family later.
+- **Refined Storage's entire pre-Induction-Age chain** (Controller, Disk
+  Drive, Grid, Importer/Exporter, 1k-16k storage, all of it) has no
+  KubeJS tier-gating edit at all, on the documented assumption that its
+  own Nether Quartz + diamond-tier Advanced Processor requirement would
+  naturally hold it to Brass Age. That assumption predates #49: with
+  ProgressiveStages' dimension-travel blocking gone (Nether open from world
+  start) and diamond never itself recipe-gated (a mined, not crafted,
+  material), nothing in RS's own recipe chain requires reaching any tier at
+  all.
+- **`create:railway_casing`** (and everything built from it, including
+  `create:track_station`) references the *tag* `c:ingots/brass` rather than
+  the literal `create:brass_ingot` item - and AllTheOres registers its own
+  `alltheores:brass_ingot` into that same common tag with a from-dust
+  recipe that needs no tier material either, so the tag resolves reachable
+  regardless of which mod's ingot a player uses. A real cross-mod bypass.
+
+**Why the deliverable is live, not offline** (corrected after PM review of
+PR #106): the first version of this work was `scripts/audit_progression.py`
+alone, an offline reader of the resolved mod jars plus a best-effort parser
+of this pack's KubeJS overrides. That parser is provably not good enough:
+`tier_gating.js` applies its gates via *imperative* JavaScript (loops over
+data arrays, string mutation, conditionals), which a static reader cannot
+fully and reliably interpret in general, and run against the real pinned
+jar set it still computed `create:track_station` and
+`refinedstorage:controller` as reachable at Rootborn - the exact two false
+positives this ticket exists to stop. Investigating why showed both chains
+genuinely have no recipe-level gate at all (the two bullets above) - a real
+finding, but also proof the offline reader can't reliably distinguish
+"genuinely ungated" from "a KubeJS edit it failed to parse" for any of the
+~280 items it flags overall. `scripts/audit_progression.py` remains in the
+tree as a clearly-labeled, non-authoritative triage aid (its own docstring
+now leads with this) - useful for a human skimming for candidates to
+hand-verify, unit-tested for its JSON-parsing core, but explicitly not
+wired into any gate and not a source of truth on its own.
+
+**Sandbox caveat**: this session cannot boot a NeoForge server itself (no
+install available here); a live `boot.yml` run on a hosted runner (PM
+review) confirmed the command runs and the 3 diagnostics correctly report
+live state, and caught the `track_station`/`brass_casing` id bug above. The
+fix for that bug (`stFindRecipesByOutput`) has NOT yet been re-confirmed by
+an actual boot - it's statically wired using the exact Rhino/Java API
+surface already proven live in this same run (`getRecipeManager()`,
+`getResultItem(registryAccess())`, `getIngredients()`,
+`Ingredient#test(ItemStack)`), and brace-balance/`lint_rhino.py` checked
+locally, but still needs one more real `python3 scripts/tests/l1_selftest.py`
+(or `boot.yml`) run to fully confirm.
+
 ### Resource infinity (added after Phase 2)
 
 `instructions.md` now asks that all resources eventually become automatable
