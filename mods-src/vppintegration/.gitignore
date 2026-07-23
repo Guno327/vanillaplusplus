@@ -1,0 +1,21 @@
+# Gradle
+.gradle/
+build/
+# gradle-wrapper.jar is intentionally NOT committed - see README.md "Build
+# instructions" (no JDK/Gradle was available to generate it when this mod
+# was authored). A real build environment runs `gradle wrapper` once to
+# produce it locally; that generated jar is still gitignored here since a
+# vendored wrapper jar isn't otherwise this repo's convention.
+gradle/wrapper/gradle-wrapper.jar
+
+# Local compile-only jars copied in per README.md "Build instructions" -
+# these are the pack's own already-hashed/pinned mods (see pack/mods.lock.json),
+# not something this mod's own repo should carry a second copy of.
+libs/*.jar
+
+# IDE
+.idea/
+*.iml
+out/
+eclipse/
+run/

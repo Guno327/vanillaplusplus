@@ -166,10 +166,23 @@ def main():
         if dest.exists() and sha1_of(dest) == mod["hashes"]["sha1"]:
             print(f"ok      {mod['filename']}")
             continue
-        print(f"download {mod['filename']}")
-        req = urllib.request.Request(mod["url"], headers=UA)
-        with urllib.request.urlopen(req, timeout=120) as r, open(dest, "wb") as f:
-            shutil.copyfileobj(r, f)
+        if mod.get("local_path"):
+            # GitHub #67: this pack's own hand-rolled mods (mods-src/<modid>/)
+            # have no remote URL - copy the already-built jar the lockfile's
+            # hash was taken from instead of downloading it.
+            src = ROOT / mod["local_path"]
+            if not src.is_file():
+                raise SystemExit(
+                    f"{mod['slug']}: local_path {mod['local_path']!r} not found - "
+                    f"build it first (see mods-src/{mod['slug']}/README.md)"
+                )
+            print(f"copy     {mod['filename']} (local)")
+            shutil.copyfile(src, dest)
+        else:
+            print(f"download {mod['filename']}")
+            req = urllib.request.Request(mod["url"], headers=UA)
+            with urllib.request.urlopen(req, timeout=120) as r, open(dest, "wb") as f:
+                shutil.copyfileobj(r, f)
         actual = sha1_of(dest)
         if actual != mod["hashes"]["sha1"]:
             raise SystemExit(f"hash mismatch for {mod['filename']}: expected {mod['hashes']['sha1']} got {actual}")
