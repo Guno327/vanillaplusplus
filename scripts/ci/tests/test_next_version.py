@@ -105,6 +105,29 @@ class TestComputeNextVersion(unittest.TestCase):
             next_version.compute_next_version(["v0.2.0"], "banana")
 
 
+class TestEnforceBetaHold(unittest.TestCase):
+    """Owner directive (2026-07-23): the pack stays in beta and must never be
+    minted at 1.0.0+ until the owner lifts the hold. The pure bump math still
+    computes 1.0.0 for a major bump (TestBumpVersion above) - this guard sits
+    at the CLI boundary the mint workflow actually calls."""
+
+    def test_0x_versions_pass_through_untouched(self):
+        for v in ("0.0.1", "0.3.1", "0.4.0", "0.10.0"):
+            self.assertEqual(next_version.enforce_beta_hold(v), v)
+
+    def test_1_0_0_is_refused_by_default(self):
+        with self.assertRaises(next_version.GAHoldError):
+            next_version.enforce_beta_hold("1.0.0")
+
+    def test_any_ga_version_is_refused(self):
+        for v in ("1.0.0", "1.2.3", "2.0.0"):
+            with self.assertRaises(next_version.GAHoldError):
+                next_version.enforce_beta_hold(v)
+
+    def test_allow_ga_lifts_the_hold(self):
+        self.assertEqual(next_version.enforce_beta_hold("1.0.0", allow_ga=True), "1.0.0")
+
+
 class TestCli(unittest.TestCase):
     def _run(self, argv):
         buf = io.StringIO()
@@ -112,13 +135,44 @@ class TestCli(unittest.TestCase):
             code = next_version.main(argv)
         return code, buf.getvalue().strip()
 
+    def _run_capturing_stderr(self, argv):
+        import io as _io
+        from contextlib import redirect_stderr
+        out, err = _io.StringIO(), _io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            code = next_version.main(argv)
+        return code, out.getvalue().strip(), err.getvalue().strip()
+
+    def test_cli_major_bump_from_0x_is_blocked_by_beta_hold(self):
+        # From any 0.x tag, a `major` bump would produce 1.0.0 - the mint
+        # path must refuse it (exit 1, nothing on stdout, clear stderr).
+        code, out, err = self._run_capturing_stderr(
+            ["--bump", "major", "--tag", "v0.3.0"]
+        )
+        self.assertEqual(code, 1)
+        self.assertEqual(out, "")
+        self.assertIn("beta", err.lower())
+
+    def test_cli_minor_bump_stays_in_beta_line(self):
+        code, out = self._run(["--bump", "minor", "--tag", "v0.3.0"])
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "0.4.0")
+
+    def test_cli_major_bump_allowed_with_explicit_allow_ga(self):
+        code, out = self._run(["--bump", "major", "--tag", "v0.3.0", "--allow-ga"])
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "1.0.0")
+
     def test_cli_with_explicit_tags(self):
         code, out = self._run(["--bump", "patch", "--tag", "v0.1.0", "--tag", "v0.2.0"])
         self.assertEqual(code, 0)
         self.assertEqual(out, "0.2.1")
 
     def test_cli_single_tag(self):
-        code, out = self._run(["--bump", "major", "--tag", "v2.5.9"])
+        # A major bump crosses into >=1.0.0, so the beta hold blocks it
+        # unless --allow-ga is passed (the pure bump math itself is covered
+        # in TestBumpVersion / TestComputeNextVersion above).
+        code, out = self._run(["--bump", "major", "--tag", "v2.5.9", "--allow-ga"])
         self.assertEqual(code, 0)
         self.assertEqual(out, "3.0.0")
 

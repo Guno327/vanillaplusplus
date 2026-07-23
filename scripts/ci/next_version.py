@@ -52,6 +52,21 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 BUMPS = ("major", "minor", "patch")
 
+# Beta hold (owner directive, 2026-07-23): this pack ships as a beta
+# prerelease and must NEVER be minted at 1.0.0 or above (general
+# availability) until the owner explicitly lifts the hold. Enforced in
+# code, not just docs, so no agent can cross into GA by accident: a `major`
+# bump from any 0.y.z produces 1.0.0 and is therefore refused here; `minor`
+# (0.y+1.0) and `patch` (0.y.z+1) stay allowed and keep us in the 0.x beta
+# line. When the owner says "go GA", pass --allow-ga (the workflow does not,
+# by default). See SPEC.md / DECISIONS.md "Release policy".
+BETA_HOLD_MAX_MAJOR = 0
+
+
+class GAHoldError(Exception):
+    """Raised when a computed version would cross the beta hold into 1.0.0+
+    without an explicit owner override (--allow-ga)."""
+
 
 def parse_semver(tag: str):
     """'vX.Y.Z' -> (X, Y, Z) ints, or None if tag isn't in that exact form."""
@@ -96,6 +111,30 @@ def compute_next_version(tags, bump) -> str:
     return format_version(bump_version(base, bump))
 
 
+def enforce_beta_hold(version_str: str, allow_ga: bool = False) -> str:
+    """Refuse a >=1.0.0 (GA) version while the beta hold is in effect.
+
+    Owner directive (2026-07-23): the pack stays a beta prerelease until the
+    owner lifts the hold - no mint may reach 1.0.0. Since every current tag
+    is 0.x, a `major` bump is exactly what would produce 1.0.0, so this is
+    what blocks it; `minor`/`patch` pass through untouched. `allow_ga=True`
+    (CLI --allow-ga) is the deliberate, owner-authorised escape hatch, which
+    mint-release.yml does not pass. Returns the version unchanged if allowed;
+    raises GAHoldError otherwise."""
+    major = parse_semver("v" + version_str)
+    major = major[0] if major else 0
+    if major > BETA_HOLD_MAX_MAJOR and not allow_ga:
+        raise GAHoldError(
+            f"refusing to mint {version_str}: this pack is in beta and 1.0.0+ "
+            f"(general availability) is owner-gated. A `major` bump from a 0.x "
+            f"version crosses into 1.0.0 - use `minor` (0.y+1.0) or `patch` "
+            f"(0.y.z+1) to stay in the beta line, or pass --allow-ga only after "
+            f"the owner has explicitly lifted the beta hold (SPEC.md / "
+            f"DECISIONS.md 'Release policy')."
+        )
+    return version_str
+
+
 def git_tags(root: Path):
     result = subprocess.run(
         ["git", "tag", "--list", "v*"],
@@ -119,6 +158,13 @@ def main(argv=None):
         help="an existing tag to consider (repeatable). If omitted, reads "
              "every tag in this repo via `git tag --list \"v*\"`.",
     )
+    ap.add_argument(
+        "--allow-ga",
+        action="store_true",
+        help="lift the beta hold and permit a >=1.0.0 (GA) version. OFF by "
+             "default and NOT passed by mint-release.yml - only for a "
+             "deliberate, owner-authorised general-availability cut.",
+    )
     args = ap.parse_args(argv)
 
     if args.tag is not None:
@@ -133,6 +179,12 @@ def main(argv=None):
     try:
         next_version = compute_next_version(tags, args.bump)
     except ValueError as e:
+        print(f"next_version: FAIL - {e}", file=sys.stderr)
+        return 1
+
+    try:
+        next_version = enforce_beta_hold(next_version, allow_ga=args.allow_ga)
+    except GAHoldError as e:
         print(f"next_version: FAIL - {e}", file=sys.stderr)
         return 1
 
