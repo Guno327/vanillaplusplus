@@ -1299,3 +1299,108 @@ the larger #67 design and is a follow-up, not attempted here — see
 material ladder". In-game forging/quality-bonus behavior itself still needs
 `verify-in-game` (L0 only proves the server boots and the datapack/mixin
 load cleanly, not that the anvil minigame or resulting stats are correct).
+
+## GitHub #141 - Licensing (MIT), server-jar unbundling, CC-BY-NC-SA vs Modrinth Rewards - 2026-07-23
+
+**Context:** the license audit in #141 found this project's own content was
+never explicitly licensed, and that the released **server zip** bundles all
+113 third-party mod jars directly - many under all-rights-reserved/custom
+"LicenseRef-*" terms that don't clearly permit redistribution (27 Modrinth
+mods + 2 CurseForge mods, `ato`/`allthemodium`, neither of which has a
+LICENSE file in its GitHub repo). The client `.mrpack` was already fine (it
+references mods by URL, Modrinth's own launcher-format convention).
+
+**Decision: `LICENSE` (MIT) at repo root**, scoped explicitly to this repo's
+own original content (KubeJS/configs/scripts/docs/manifests/custom mods) -
+consistent with the MIT already on `mods-src/vppintegration/LICENSE`. A
+modpack is a legal aggregation; licensing our own glue code doesn't and
+can't relicense the 113 mods it installs.
+
+**Decision: stop bundling third-party jars in the server distribution.**
+`scripts/build_server_bundle.py` now excludes every mod jar without a
+`local_path` manifest entry (i.e. everything except this project's own
+future custom mods) from the zip, and instead ships a trimmed
+`mods.lock.json` (server-side, non-local entries only) plus
+`scripts/install_mods.py` at the bundle root - a self-contained
+downloader/verifier (URL + sha1/sha512 pinned per mod) the operator runs
+once after extracting, mirroring the client `.mrpack`'s own by-reference
+model. `scripts/build_server.py` (the local dev sync used by boot-tier/L3
+testing) is UNCHANGED - it still downloads everything into `server/mods/`
+directly, since that script's job is producing a bootable local dev server,
+not the redistributed artifact.
+
+**Decision: NixOS module fetches third-party jars as per-mod fixed-output
+derivations**, reading `pack/mods.lock.json` directly (single source of
+truth, no generated intermediate file) rather than the release archive -
+`pkgs.fetchurl` per remote mod, keyed off each entry's own `hashes.sha512`.
+Rebasing this branch onto `dev` picked up #67/#124 (Overgeared +
+`vppintegration`, a real `local_path` custom mod now, not hypothetical) -
+`dataDir/mods/` is therefore a genuine two-source merge: the Nix-fetched
+third-party jars plus `vppintegration` stashed out of the unpacked archive
+into `$DATA_DIR/.vpp-archive-mods` (survives past the archive's own
+`$STAGING` teardown) every time the archive re-syncs. Both are combined
+into a single merge-staging dir and rsynced with `--delete` into
+`dataDir/mods/` every start, so mod removal (either source) still works
+correctly instead of two competing `--delete` syncs each wiping out the
+other's files. This builds on top of the `nix/release.json` registry model
+from #131/41d92b0 without touching its `releaseTag`/`latest` resolution -
+the archive fetch and the mod fetches remain two independent declarative
+inputs, reconciled at sync time.
+
+**Determination: CC-BY-NC-SA vs. Modrinth Rewards is NOT a clear
+violation.** The 4 NC mods (`extradelight`, `jade`, `patchouli`, `stellaris`,
+all CC-BY-NC-SA-3.0/4.0) require "non-commercial" use. Reasoning:
+
+1. CC's own NC definition (identical in substance across 3.0 and 4.0 legal
+   code): "not primarily intended for or directed towards commercial
+   advantage or private monetary compensation." The bar is the *primary
+   purpose* of the use, not any incidental proximity to money - CC's own
+   NonCommercial-interpretation guidance says the same act can be
+   commercial or not depending on context/intent.
+2. This modpack is a free download with no paywall, subscription, or sale
+   price. The only monetary flow anywhere near it is Modrinth's own
+   **Rewards Program**: ad revenue Modrinth itself sells and serves on its
+   own site, shared with creators based on page views/in-app downloads of
+   Modrinth project pages - not ads the modpack author places, and not a
+   fee charged to anyone for access to the NC mods' content.
+3. Modrinth's own published mechanics (modrinth.com/legal/cmp,
+   /legal/cmp-info, and the "Creators can now make money on Modrinth!"
+   announcement) state that **for modpacks specifically, revenue is split
+   80% to the pack's Modrinth dependencies and only 20% to the modpack
+   author.** Concretely: most of whatever ad revenue this pack's inclusion
+   of jade/patchouli/stellaris/extradelight generates flows to **those
+   mods' own authors**, not to this project. Modrinth designed this
+   specifically because packs depend on other people's work, and applies it
+   uniformly regardless of a dependency's license - there is no
+   license-based carve-out or opt-out documented anywhere in their terms.
+4. This is not a hypothetical edge case: Jade and Patchouli are two of the
+   most widely-depended-upon mods on the entire platform, included in an
+   enormous number of monetized modpacks industry-wide, with no known
+   instance of Modrinth suspending Rewards eligibility over an included
+   NC dependency. Modrinth is both the platform steward and the entity
+   actually running/paying out the ad program, i.e. the party best
+   positioned to flag a conflict - and its own payout design (money
+   flowing preferentially TO the NC mod's author) is the opposite of the
+   scenario NC licenses exist to prevent (someone else profiting off the
+   author's work while cutting them out).
+5. The 20% this project would keep compensates the modpack as a curated
+   whole (its own original KubeJS/config/progression design work) via
+   traffic to *this project's own page* - it is not contingent on, or
+   priced by, the presence of any one NC mod; dropping any single NC mod
+   would not stop the pack from earning Rewards on everything else.
+6. Caveat: NC is fact-specific and this is a reasoned determination, not a
+   court or CC ruling. If the owner wants zero residual risk they can
+   revisit this later, but a preemptive swap is not being filed as a
+   follow-up: `jade` and `patchouli` in particular have many dependents in
+   this pack (Apotheosis chain requires `patchouli`; multiple mods commonly
+   check for `jade`) - a forced swap would be real, cascading churn against
+   a risk this determination finds weak. **No follow-up "replace the 4 NC
+   mods" issue filed; sub-task closed with this written determination**
+   (also mirrored in THIRD_PARTY.md).
+
+**Verification status (Nix):** the dev sandbox this work was done in is
+snap-confined away from `/nix`, so the per-mod fixed-output-derivation
+change to `nix/module.nix` could not be built/evaluated here. See the #141
+PR description for the exact `nix flake check` / `nix eval` / `nix build`
+commands to run on a real NixOS host, and flag this prominently for the
+owner given they are actively using the flake right now (41d92b0).
