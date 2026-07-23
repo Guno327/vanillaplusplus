@@ -338,15 +338,22 @@ features and don't carry a state machine; they're closed once someone
 verifies the checklist in-game.
 
 **Releases may be minted continuously during development** — any
-maintainer agent may cut a release (major, minor, or patch) at any point
-by dispatching `mint-release.yml` from `main`. The one hard requirement is
-that a **full test run must pass before publishing**: the workflow builds
-and publishes nothing unless the fast tier (unit tests + static checks) and
-boot tier (L0 boot smoke + L1 `/vpp_selftest`) are both green. There is no
-owner-prompt or label gate beyond that (CEO directive, 2026-07-23 — see
+maintainer agent may cut a release at any point by dispatching
+`mint-release.yml` from `main`. The one hard requirement is that a **full
+test run must pass before publishing**: the workflow builds and publishes
+nothing unless the fast tier (unit tests + static checks) and boot tier
+(L0 boot smoke + L1 `/vpp_selftest`) are both green. There is no
+owner-prompt or label gate beyond that (directives 2026-07-23 — see
 `DECISIONS.md`). The L2/L3 human-in-the-loop tiers can't run on hosted
 runners; every release's notes disclose that boundary rather than implying
 they ran.
+
+**The pack is in beta — releases are never minted at 1.0.0 until the owner
+lifts the hold.** `scripts/ci/next_version.py` hard-refuses any `>= 1.0.0`
+version (so a SemVer `major` bump from the current 0.x line fails the mint
+by design), and every release ships as a `prerelease`. While in beta, a
+notable/breaking wave is cut as a `minor` bump (0.y+1.0) and a routine one
+as a `patch` bump (0.y.z+1).
 
 ## Repo layout
 

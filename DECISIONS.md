@@ -1330,10 +1330,37 @@ Concretely:
   still defaults to `true` (safe default — every cut so far has been a
   disclosed beta), and an agent may flip it to `false` for a GA when the
   work warrants it. There is no separate owner sign-off for a major/GA cut
-  beyond the same full-test-run gate.
+  beyond the same full-test-run gate. *(Amended below by the beta-hold
+  directive — GA is now owner-gated and hard-blocked; keep `prerelease=true`
+  on every cut.)*
 
 See [[project-github-issues-workflow]] memory — its "never cut/publish a
 release until the user manually prompts" rule is superseded by this entry.
+
+### Beta hold — never mint 1.0.0 until the owner lifts it (owner directive, 2026-07-23)
+
+Amends the bullet above. The pack stays a **beta prerelease** and must
+**never be minted at 1.0.0 or above** until the owner explicitly says
+otherwise. Enforced in code, not just docs, so no agent can cross into GA
+by accident:
+
+- **`scripts/ci/next_version.py` hard-refuses any computed version `>= 1.0.0`**
+  unless `--allow-ga` is passed (unit-tested, `TestEnforceBetaHold` /
+  `TestCli`). `mint-release.yml` does **not** pass `--allow-ga`, so from the
+  current 0.x line a **`major` bump fails the mint fast** (it would produce
+  1.0.0). Only `minor` (0.y+1.0) and `patch` (0.y.z+1) succeed — both keep
+  us in the 0.x beta line.
+- **Every cut stays `prerelease=true`.** GA (`prerelease=false`, i.e. a real
+  1.0.0) is reserved for the owner's explicit go-ahead; until then agents
+  leave the flag at its `true` default.
+- **Release-cadence mapping while in beta:** treat a notable/breaking wave as
+  a **`minor`** bump (our "major" beta release) and a routine increment as a
+  **`patch`** bump (our "minor" beta release). Cut releases continuously as
+  meaningful work lands (still behind the full-test gate) — the owner
+  wants versions pushed as they make sense, just never GA.
+- **Lifting the hold** (owner-only, later): pass `--allow-ga` in
+  `next_version.py`'s invocation (and cut with `prerelease=false`). That's
+  the single, deliberate escape hatch — nothing else needs changing.
 
 ## #86 fix — ore hammers RE-EXEMPTED from the #9 tool sweep (2026-07-23)
 

@@ -17,10 +17,21 @@ name: Mint Release
 # enforces structurally: the mint-release job `needs:` both `fast-tier`
 # and `boot-tier` below, so nothing is built or published unless the
 # complete automated hosted suite (unit + static + L0 boot + L1 selftest)
-# is green. `prerelease` remains a labeling choice (safe default true),
-# not an approval gate - flip it to false for a GA. This supersedes the
-# retired "releases are manual-only / owner-prompt-only" framing that the
-# rest of that verbatim quote above predates.
+# is green. This supersedes the retired "releases are manual-only /
+# owner-prompt-only" framing that the rest of that verbatim quote above
+# predates.
+#
+# BETA HOLD (owner directive, 2026-07-23): the pack stays a beta
+# prerelease and must NEVER be minted at 1.0.0+ until the owner lifts the
+# hold. Two things enforce it: (1) scripts/ci/next_version.py hard-refuses
+# any computed version >= 1.0.0 unless --allow-ga is passed, and this
+# workflow does NOT pass it - so dispatching this with bump=major from the
+# current 0.x line FAILS FAST in the compute-version job (a major bump
+# produces 1.0.0). Use bump=minor (0.y+1.0) for a notable/breaking wave or
+# bump=patch (0.y.z+1) for a routine one - both keep us in the beta line.
+# (2) Keep the `prerelease` input at its default true on every cut; GA
+# (prerelease=false, a real 1.0.0) is reserved for the owner's explicit
+# go-ahead. See DECISIONS.md "Release policy" / "Beta hold".
 #
 # Inputs:
 #   bump        - major | minor | patch (required, no default - the
