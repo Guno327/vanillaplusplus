@@ -561,6 +561,9 @@ stCheck('progression audit (#61) diagnostic: alltheores:brass_ingot cross-mod by
         detail: bypassRecipeIds.length > 0
             ? ('GAP CONFIRMED LIVE - c:ingots/brass accepts alltheores:brass_ingot (unrelated mod, no tier gate of its own) via: ' + bypassRecipeIds.join(','))
             : 'gap appears fixed - create:brass_casing no longer accepts alltheores:brass_ingot',
+    }
+})
+
 // #91 (reopened): material_sinks.js routes five previously-dead AllTheOres
 // gear items into real recipe families - same failure mode as the tier
 // gates above (a renamed jar recipe id or removed item would silently
