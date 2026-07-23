@@ -871,7 +871,18 @@ fundamentally a tier-ladder extension).
   star-rating custom name (color-coded gray→dark_red) as the "look at it
   and tell" indicator — a nametag rather than a fancier visual (glow
   outline/particles) since that's what's reliably implementable via
-  KubeJS scripting without client-side rendering work. `EntityEvents.death`
+  KubeJS scripting without client-side rendering work. **Bug #101, fixed**:
+  the star rating was originally set via
+  `entity.setCustomName(Text.of('*'.repeat(starCount))...)`, which REPLACES
+  customName outright rather than adding to it — Minecraft uses
+  getName()/customName verbatim both for the nameplate and for death
+  messages, so every scaled mob's name became a bare string of asterisks
+  everywhere, including "You were killed by **". Fixed by capturing
+  `entity.getName()` (the untouched default species name, since nothing has
+  set a customName on the entity yet at that point) and appending the star
+  rating as a suffix instead of replacing it, so both nameplate and death
+  message now read e.g. "Zombie **" — difficulty is still visible at a
+  glance, but the real name survives. `EntityEvents.death`
   grants bonus Numismatics currency proportional to how far above baseline
   the killed mob's difficulty was, covering "rewards scale with difficulty."
   **Verification gap, disclosed**: this only exercises at actual mob-spawn
