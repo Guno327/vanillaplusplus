@@ -447,4 +447,140 @@ ServerEvents.recipes(event => {
             result: { count: 1, id: entry.id }
         }).id('vanillaplusplus:' + entry.id.split(':')[1] + '_' + entry.suffix)
     })
+
+    // --- Sophisticated Storage "double chest" upgrades -> andesite_age /
+    // brass_age (#127, GAP CONFIRMED LIVE by the #61 audit) ----------------
+    // A THIRD, independent path to the same iron/gold/diamond chest tiers,
+    // missed by #70: sophisticatedstorage:double_iron_chest/double_gold_
+    // chest/double_diamond_chest upgrade a plain sophisticatedstorage:chest
+    // (or, for double_iron_chest_from_copper_chest, a copper_chest) straight
+    // into the double-wide chest variant using only that tier's plain metal
+    // ingot - no Andesite Alloy/Brass Ingot anywhere (checked against the
+    // jar's own recipe json, not assumed - the #70 postmortem's exact
+    // failure mode, "one crafting route per gated item", recurring one
+    // recipe family later). Barrels/shulker boxes have no double-container
+    // equivalent so aren't affected. double_diamond_chest chains off
+    // gold_chest (either recipe reaching it) and needs no edit of its own,
+    // same chain-gate reasoning as the rest of this file; double_copper_
+    // chest and double_netherite_chest are untouched for the same reason
+    // copper/netherite never need one elsewhere in this ladder.
+    event.remove({ id: 'sophisticatedstorage:double_iron_chest' })
+    event.custom({
+        type: 'sophisticatedstorage:double_chest_tier_upgrade',
+        category: 'misc',
+        key: {
+            B: { tag: 'c:storage_blocks/iron' },
+            I: { tag: 'c:ingots/iron' },
+            S: { item: 'sophisticatedstorage:chest' },
+            A: { item: 'create:andesite_alloy' }
+        },
+        pattern: [
+            'IAI',
+            'ISI',
+            'IBI'
+        ],
+        result: { count: 1, id: 'sophisticatedstorage:iron_chest' }
+    }).id('vanillaplusplus:double_iron_chest_andesite_tier')
+
+    event.remove({ id: 'sophisticatedstorage:double_iron_chest_from_copper_chest' })
+    event.custom({
+        type: 'sophisticatedstorage:double_chest_tier_upgrade',
+        category: 'misc',
+        key: {
+            I: { tag: 'c:ingots/iron' },
+            S: { item: 'sophisticatedstorage:copper_chest' },
+            A: { item: 'create:andesite_alloy' }
+        },
+        pattern: [
+            'IAI',
+            'ISI',
+            'III'
+        ],
+        result: { count: 1, id: 'sophisticatedstorage:iron_chest' }
+    }).id('vanillaplusplus:double_iron_chest_from_copper_chest_andesite_tier')
+
+    event.remove({ id: 'sophisticatedstorage:double_gold_chest' })
+    event.custom({
+        type: 'sophisticatedstorage:double_chest_tier_upgrade',
+        category: 'misc',
+        key: {
+            G: { tag: 'c:ingots/gold' },
+            B: { tag: 'c:storage_blocks/gold' },
+            S: { item: 'sophisticatedstorage:iron_chest' },
+            R: { item: 'create:brass_ingot' }
+        },
+        pattern: [
+            'GRG',
+            'GSG',
+            'GBG'
+        ],
+        result: { count: 1, id: 'sophisticatedstorage:gold_chest' }
+    }).id('vanillaplusplus:double_gold_chest_brass_tier')
+
+    // --- Refined Storage's core network chain -> brass_age (#127, GAP
+    // CONFIRMED LIVE by the #61 audit) --------------------------------------
+    // #49's dimension-travel removal (Nether open from world start) plus
+    // diamond never being recipe-gated in this pack means RS's own Nether
+    // Quartz + Advanced Processor requirement no longer implies Brass Age -
+    // controller/disk_drive/grid (and everything else built from it) had NO
+    // tier material anywhere in their recipe chains, verified against the
+    // pinned jar's own recipe jsons. All three (plus 21 further RS block
+    // recipes - autocrafter, storage blocks, interface, wireless_transmitter,
+    // relay, etc, checked against the jar) share exactly one common
+    // ingredient: refinedstorage:machine_casing. Gating that single
+    // chokepoint, the same "gate the chain's first crossing" pattern used
+    // for Sophisticated Backpacks/Storage above, closes the whole family
+    // with one edit instead of patching each block recipe individually.
+    // Original recipe fills the full 3x3 with quartz_enriched_iron around a
+    // plain c:stones center; the center is swapped for the tier material
+    // (stone is trivial and ungated everywhere else in this pack, so
+    // dropping it costs nothing) - same "material replaces a plain filler
+    // slot" shape-preserving convention as warp_stone's netherite center
+    // above.
+    event.remove({ id: 'refinedstorage:machine_casing' })
+    event.shaped('refinedstorage:machine_casing', [
+        'EEE',
+        'EAE',
+        'EEE'
+    ], {
+        E: 'refinedstorage:quartz_enriched_iron',
+        A: 'create:brass_ingot'
+    }).id('vanillaplusplus:machine_casing_brass_tier')
+
+    // --- create:brass_casing -> the LITERAL brass ingot, not the tag
+    // (#127, GAP CONFIRMED LIVE by the #61 audit) ---------------------------
+    // create:railway_casing (and everything built from it, including
+    // create:track_station) is only reachable through create:brass_casing,
+    // whose own two recipes (from_log/from_wood) key off the tag
+    // c:ingots/brass rather than the literal create:brass_ingot item.
+    // AllTheOres registers its own alltheores:brass_ingot into that same
+    // common tag via a plain from-dust recipe with no tier material of its
+    // own, so a player can reach railway_casing/track_station with zero
+    // Create-brass in their inventory at all - a real cross-mod bypass of
+    // the Brass Age gate. Fixed at the narrowest point: re-author these two
+    // recipes to require the literal create:brass_ingot item instead of the
+    // tag, rather than gating alltheores:brass_ingot itself (which would
+    // reach into AllTheOres' whole brass sub-economy - gears, plates, rods,
+    // blocks - for a bypass that only actually matters here). Anyone still
+    // wants to use AllTheOres brass for its own tools/gear/etc is unaffected;
+    // only this one Create recipe stops accepting it as a substitute.
+    event.remove({ id: 'create:item_application/brass_casing_from_log' })
+    event.custom({
+        type: 'create:item_application',
+        ingredients: [
+            { tag: 'c:stripped_logs' },
+            { item: 'create:brass_ingot' }
+        ],
+        results: [{ id: 'create:brass_casing' }]
+    }).id('vanillaplusplus:brass_casing_from_log_true_brass_tier')
+
+    event.remove({ id: 'create:item_application/brass_casing_from_wood' })
+    event.custom({
+        type: 'create:item_application',
+        ingredients: [
+            { tag: 'c:stripped_woods' },
+            { item: 'create:brass_ingot' }
+        ],
+        results: [{ id: 'create:brass_casing' }]
+    }).id('vanillaplusplus:brass_casing_from_wood_true_brass_tier')
 })
