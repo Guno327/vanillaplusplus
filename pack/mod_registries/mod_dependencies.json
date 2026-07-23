@@ -1451,6 +1451,25 @@
       ],
       "version_number": "neoforge-1.21.1-0.27.8"
     },
+    "overgeared": {
+      "provided": [
+        "overgeared",
+        "sablecompanion"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.227,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.21.2)"
+        }
+      ],
+      "version_number": "1.21.1-1.6.16"
+    },
     "patchouli": {
       "provided": [
         "patchouli"
@@ -1992,6 +2011,39 @@
       ],
       "version_number": "21.1.11+neoforge-1.21.1"
     },
+    "vppintegration": {
+      "provided": [
+        "vppintegration"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "silentgear",
+          "versionRange": "[4.2.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "silentlib",
+          "versionRange": "[10.6.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "overgeared",
+          "versionRange": "[1.6.0,)"
+        }
+      ],
+      "version_number": "1.0.0"
+    },
     "waystones": {
       "provided": [
         "waystones"
@@ -2307,5 +2359,5 @@
       "version_number": "1.21.1-NeoForge-4.1.1"
     }
   },
-  "source_lockfile_mod_count": 113
+  "source_lockfile_mod_count": 115
 }

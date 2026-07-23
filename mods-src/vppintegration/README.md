@@ -110,11 +110,33 @@ against the real, resolved dependency jars using `javap -p -c`. All
   and `mixinextras-{common,neoforge}`'s real Maven Central group id is
   `io.github.llamalad7`, not `org.spongepowered`. Both fixed in `build.gradle`.
 
-Still needs a real client+server boot with all three mods to verify (no
-static analysis substitutes for this):
+**Boot-verified (2026-07-23, GitHub #67 wiring, real L0 boot with Overgeared +
+vppintegration installed in the actual pack):** the mixin applies cleanly
+(`vppintegration loaded: Overgeared quality <-> Silent Gear stats bridge
+active` in the boot log, no `MixinApplyError`/`MixinTransformerError`), all 6
+forging recipes register with zero `Unknown registry key`/parse errors, and
+`GearRecalculateEvent.Post` fires without exception. Two real defects this
+boot caught (neither visible to `./gradlew build` or static review, both
+fixed - see `DECISIONS.md`'s "#67" entry for the full detail):
+- `copper_sword_head_silentgear.json`/`iron_sword_head_silentgear.json`
+  shipped with `"result": {"id": "silentgear:sword_head"}`, which is not a
+  real Silent Gear item id (the part is `silentgear:sword_blade` -
+  `pickaxe_head`/`axe_head` were already correct). Both recipes 404'd every
+  boot until fixed.
+- `OvergearedSilentGearBridge` read `QualityBridgeConfig`'s/Overgeared's
+  `ServerConfig`'s `ModConfigSpec` values unconditionally; KubeJS's own
+  recipe-manager reload lazily constructs a Silent Gear recipe's result item
+  (to test recipe filters) during the same pass that loads server configs,
+  which called this event handler before either spec had finished loading
+  and crashed that recipe reload. Fixed with a `ModConfigSpec.isLoaded()`
+  guard + documented-default fallback.
 
-- The mixin actually applies at runtime (no `MixinApplyError`) and the
-  corrected material list is visible in the item's tooltip.
+Still needs a real in-game check (L0 only proves the server boots and the
+datapack/mixin load cleanly, not gameplay correctness):
+
+- The corrected material list is visible in the item's tooltip after a real
+  anvil forge (mixin logic itself, as opposed to "does it apply", is
+  unverified live).
 - `GearRecalculateEvent.Post`'s ordering relative to the `GEAR_PROPERTIES`
   write holds for every recalculation path in practice (bytecode-confirmed
   for the direct call path; Silent Gear's traits/enchant hooks could
@@ -124,7 +146,8 @@ static analysis substitutes for this):
 - `c:melee_weapon_tools` / `c:armors` are tags Silent Gear's items actually
   carry (the attribute-bonus JSON assumes this).
 - The example forging recipes for copper/iron sword/pickaxe/axe heads work
-  end-to-end in the actual anvil minigame.
+  end-to-end in the actual anvil minigame (they now at least load and
+  register correctly, per the boot test above).
 
 ## Extending to the pack's full material ladder
 
@@ -149,8 +172,17 @@ design needed:
 
 ## Build instructions
 
-Confirmed working end-to-end (JDK 21, Gradle 8.10, network access to
-`services.gradle.org`, `api.modrinth.com`, and `repo1.maven.org`/
+**Automated (what the pack build actually uses, GitHub #67):**
+`python3 scripts/build_local_mods.py` (or just `python3
+scripts/resolve_mods.py`, which now calls it first automatically - see that
+script's own docstring) stages `libs/silent-gear-*.jar`/`libs/silent-lib-*
+.jar` from whatever `pack/mods.lock.json` currently pins for those two slugs
+(per this directory's own `libs.json`) and runs `./gradlew build`, from the
+parent repo root. This is what CI (`boot.yml`/`mint-release.yml`, both
+already set up JDK 21) and any local dev run against.
+
+**Manual**, confirmed working end-to-end (JDK 21, Gradle 8.10, network
+access to `services.gradle.org`, `api.modrinth.com`, and `repo1.maven.org`/
 `maven.neoforged.net` for the NeoForge/Minecraft/mixinextras dependencies):
 
 ```sh
@@ -170,12 +202,11 @@ Gradle 8.x install: `gradle wrapper --gradle-version 8.10`, then re-run
 `build.gradle`). The first build decompiles/patches/recompiles NeoForge
 itself (a one-time ~2 minute step per Gradle user-home cache); rebuilds after
 that are seconds. The built jar lands at
-`build/libs/vppintegration-1.0.0.jar`. See the parent repo's `README.md`
-("Custom mods" in the repo layout table) and
-`scripts/resolve_mods.py`/`pack/manifest.json` for how that jar would be
-wired into the Vanilla++ pack build (`"source": "local"` manifest entries) -
-wiring this jar in is a separate, deliberate decision (it needs an in-game
-boot test first), not something this build step does on its own.
+`build/libs/vppintegration-1.0.0.jar`, which `pack/manifest.json`'s
+`vppintegration` entry (`"source": "local"`) now points at - see the parent
+repo's `README.md` ("Custom mods" in the repo layout table) and
+`scripts/resolve_mods.py`/`scripts/build_local_mods.py` for exactly how that
+jar enters the pack build.
 
 ## License
 

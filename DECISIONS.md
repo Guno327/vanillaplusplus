@@ -1138,19 +1138,6 @@ one). `build_server.py` and `build_mrpack.py` both special-case
 Modrinth-allowlisted host to reference by URL, same mechanism already used
 for the two CurseForge-hosted mods.
 
-**Not yet activated.** `vppintegration`'s source, build config, README, and
-LICENSE are complete (PR #TODO), and the three pack scripts above support
-`"source": "local"` end-to-end, but `pack/manifest.json`/`mods.lock.json`
-do NOT yet have a `vppintegration` entry: the sandbox that authored the mod
-had no JDK at all (not just no network), so no real jar exists yet to hash.
-Adding a manifest entry without a real corresponding jar would either fail
-`check_lockfile.py`'s consistency check or require a fabricated hash
-pointing at nothing — both rejected as exactly the "ship something that
-doesn't work" outcome the original #67 investigation flagged as out of
-bounds. Follow-up (real build environment): run `gradle build` in
-`mods-src/vppintegration/`, then re-run `resolve_mods.py` to add the real
-manifest+lock entries and fold the mod into an actual pack build.
-
 ## L3 client boot+join becomes a REQUIRED release gate (owner directive, 2026-07-23)
 
 **Amends the "Release policy" entry above.** That entry said running L3
@@ -1245,3 +1232,70 @@ stopped being fragile enough to hide these two problems. See HANDOFF.md's
 "RELEASE GATE" note and SPEC.md's release-policy bullet for the
 user-facing runbook, and the follow-up items each need their own fix
 before `L3 GATE: PASS` is achievable again.
+
+**Not yet activated.** `vppintegration`'s source, build config, README, and
+LICENSE are complete (PR #67), and the three pack scripts above support
+`"source": "local"` end-to-end, but `pack/manifest.json`/`mods.lock.json`
+did NOT yet have a `vppintegration` entry: the sandbox that authored the mod
+had no JDK at all (not just no network), so no real jar existed yet to hash.
+Adding a manifest entry without a real corresponding jar would either fail
+`check_lockfile.py`'s consistency check or require a fabricated hash
+pointing at nothing — both rejected as exactly the "ship something that
+doesn't work" outcome the original #67 investigation flagged as out of
+bounds. This was resolved by getting a real build environment (below).
+
+**Activated (2026-07-23, real build environment).** `pack/manifest.json` now
+carries both **overgeared** (Modrinth, `1.21.1-1.6.16`, "both" side — its own
+forging-minigame UI is client-rendered but `ForgingRecipe`/quality
+computation/`QualityAttributeHandler` are server-authoritative) and
+**vppintegration** (`"source": "local"`, `local_path`
+`mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar`) entries.
+`scripts/build_local_mods.py` (new) is the "make the jar exist" step
+`resolve_one_local()` always deliberately skipped: it stages
+`mods-src/<modid>/libs/` from the CURRENT lockfile (a `libs.json` manifest
+per mod dir lists which lockfile slugs it needs — vppintegration lists
+`silent-gear`/`silent-lib`, the two jars its `build.gradle` compiles
+against via a flat local repo) and then runs `./gradlew build`.
+`scripts/resolve_mods.py` now runs it automatically at the start of
+`main()` (opt out with `--skip-build`), so every hosted CI tier that calls
+`resolve_mods.py` (`boot.yml`, `mint-release.yml`) gets it for free without
+any workflow YAML changes — both already set up JDK 21 for other reasons
+(the boot tier's own dedicated-server requirement).
+
+Two real defects only surfaced by an actual L0 boot (not caught by
+`./gradlew build` or static review) and were fixed before wiring the mod in
+for real:
+- The shipped `copper_sword_head_silentgear.json`/
+  `iron_sword_head_silentgear.json` forging recipes had `"result": {"id":
+  "silentgear:sword_head"}` — not a real Silent Gear item id (Silent Gear
+  calls that part `silentgear:sword_blade`; `pickaxe_head`/`axe_head` were
+  correct). Both recipes 404'd (`Unknown registry key`) every boot. Fixed to
+  `silentgear:sword_blade`.
+- `OvergearedSilentGearBridge.onGearRecalculate`/`bonusFor` read
+  `QualityBridgeConfig`'s and Overgeared's own `ServerConfig`'s
+  `ModConfigSpec` values unconditionally. KubeJS's own recipe-manager reload
+  lazily constructs a `ShapelessGearRecipe`'s result item (to test recipe
+  filters) during the SAME datapack-reload pass that loads server configs,
+  which called this event handler before either spec had finished loading —
+  `ModConfigSpec.ConfigValue.get()` throws `IllegalStateException` before
+  that point, which NeoForge escalated into a fatal `ReportedException` that
+  broke that recipe reload on every real boot. Fixed by checking
+  `ModConfigSpec.isLoaded()` first and falling back to the documented
+  default (`ForgingQuality.WELL` / no bonus yet) when it isn't — correct
+  indefinitely, since Silent Gear recalculates `GEAR_PROPERTIES` again on
+  the item's next real recalculation once configs are loaded.
+
+Both fixes are in `mods-src/vppintegration/src/`; the jar was rebuilt and a
+fresh L0 (`sh scripts/tests/l0_boot_smoke.sh`) confirmed clean: `Done(`
+line, 102 server mods, 0 KubeJS errors/warnings, the mixin applied
+(`vppintegration loaded: Overgeared quality <-> Silent Gear stats bridge
+active` in the log, no `MixinApplyError`), and no unbaselined WARN/ERROR —
+including a direct grep confirming neither defect above reproduces anymore.
+Ships the 6 example forging recipes (copper/iron × sword/pickaxe/axe) from
+the original #97 worked example; the full material-tier ladder (steel, the
+Allthemodium/Vibranium/Unobtainium chain, cold-forging for gemstones) is
+the larger #67 design and is a follow-up, not attempted here — see
+`mods-src/vppintegration/README.md`'s "Extending to the pack's full
+material ladder". In-game forging/quality-bonus behavior itself still needs
+`verify-in-game` (L0 only proves the server boots and the datapack/mixin
+load cleanly, not that the anvil minigame or resulting stats are correct).

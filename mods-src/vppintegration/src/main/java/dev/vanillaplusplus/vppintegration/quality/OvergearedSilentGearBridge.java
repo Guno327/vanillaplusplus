@@ -77,6 +77,26 @@ public final class OvergearedSilentGearBridge {
      * component ({@code GearRecalculateEvent.Post}, confirmed public event via
      * the installed jar, confirmed-by-javap ordering relative to the data
      * component write - see this class's doc). Used for two things:
+     *
+     * <p><b>Real-boot correction (found by the mandatory L0 boot smoke test, not
+     * static analysis):</b> {@code GearRecalculateEvent.Post} does not only fire
+     * during real gameplay - KubeJS's own recipe-manager reload lazily constructs
+     * a {@code ShapelessGearRecipe}'s result item (to test its output against
+     * script-side recipe filters, see {@code ShapelessGearRecipe.getResultItem}/
+     * {@code UnknownKubeRecipe.hasOutput}) during the SAME datapack-reload pass
+     * that loads server configs, and can run before either {@code
+     * QualityBridgeConfig.SPEC} or Overgeared's own {@code ServerConfig
+     * .SERVER_CONFIG} has finished loading. Calling {@code ModConfigSpec
+     * .ConfigValue.get()} before that point throws {@code IllegalStateException}
+     * ("Cannot get config value before config is loaded"), which NeoForge wraps
+     * into a fatal {@code ReportedException} that aborted this exact recipe
+     * reload in the first real boot test. Both config reads below now check
+     * {@code ModConfigSpec.isLoaded()} first and fall back to the documented
+     * defaults (same values the config declares) when it isn't - correct
+     * indefinitely, not just during that early reload: once configs finish
+     * loading, {@code isLoaded()} stays true and every subsequent call reads the
+     * real (possibly player-edited) value.
+     *
      * <ol>
      *   <li>Adding this quality grade's durability/harvest-speed bonus directly
      *   to the just-computed {@code GearPropertiesData} (see this class's doc
@@ -98,7 +118,15 @@ public final class OvergearedSilentGearBridge {
 
         ForgingQuality quality = gear.getOrDefault(ModComponents.FORGING_QUALITY.get(), ForgingQuality.NONE);
         if (quality == ForgingQuality.NONE) {
-            quality = QualityBridgeConfig.DEFAULT_UNFORGED_QUALITY.get();
+            // See this method's class doc "Real-boot correction": this event can
+            // fire before QualityBridgeConfig.SPEC has loaded (KubeJS's recipe-
+            // manager reload lazily constructs gear recipe results during the
+            // same pass that loads configs). isLoaded() false -> use the spec's
+            // own documented default (ForgingQuality.WELL) instead of crashing;
+            // once configs load, every later recalculation reads the real value.
+            quality = QualityBridgeConfig.SPEC.isLoaded()
+                    ? QualityBridgeConfig.DEFAULT_UNFORGED_QUALITY.get()
+                    : ForgingQuality.WELL;
             gear.set(ModComponents.FORGING_QUALITY.get(), quality);
         }
 
@@ -149,8 +177,16 @@ public final class OvergearedSilentGearBridge {
      * present in the installed jar via ForgingQuality's own class file) so a
      * quality grade means the same thing whether it landed on an Overgeared-
      * native tool or a Silent Gear one.
+     *
+     * <p>Same "Real-boot correction" as {@link #onGearRecalculate} applies here:
+     * Overgeared's own {@code ServerConfig.SERVER_CONFIG} can likewise be
+     * unloaded at the point this fires. Returns 0 (no bonus applied yet) rather
+     * than crash - harmless, since Silent Gear recalculates {@code
+     * GEAR_PROPERTIES} again on the item's next real recalculation (repair,
+     * reforge, etc.), by which point configs have always finished loading.
      */
     private static double bonusFor(NumberProperty property, ForgingQuality quality) {
+        if (!ServerConfig.SERVER_CONFIG.isLoaded()) return 0.0;
         boolean durability = property == GearProperties.DURABILITY.get();
         return switch (quality) {
             case POOR -> durability ? ServerConfig.POOR_DURABILITY_BONUS.get() : ServerConfig.POOR_MINING_SPEED_BONUS.get();
