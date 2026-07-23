@@ -145,13 +145,32 @@ actually matters is the config property `hmc.check.xvfb=true`; without it
 the client loads its whole mod set, reports `Backend API: NO CONTEXT`, and
 dies on a Sodium fence object *even with Xvfb running perfectly*.
 
-One acceptance criterion from #47 is **not** met: L3 does not run
-`/vpp_selftest` as the joined player, so selftest.js's player-gated checks
-still report SKIP and remain unexercised anywhere in the suite. Both
-routes are dead ends with this toolchain (`execute as <player> run ...`
+One acceptance criterion from #47 is **not** met, and can't be: L3 does not
+run the `/vpp_selftest` **command** itself as the joined player. Both routes
+tried are dead ends with this toolchain (`execute as <player> run ...`
 silently no-ops server-side; hmc-specifics 2.4.0 exposes no usable chat
 verb) - reasoning is recorded at the KNOWN GAP comment in the script.
-Worth its own issue.
+
+That gap was tracked as #65 and is now closed a different way: what actually
+mattered was exercising selftest.js's player-gated *checks* (not literally
+invoking the command), so #65 wired a test-only `PlayerEvents.stageAdded`
+hook in selftest.js (`ST_TEST_HOOK_STAGE = 'vpp_test_selftest_hook'`, a
+sentinel id nothing else in the pack ever grants) that runs the exact same
+`ST_CHECKS` loop the command runs, against the real `ServerPlayer` KubeJS's
+own `Stages.add()` hands the event (javap-confirmed on
+kubejs-neoforge-2101.7.2-build.368.jar: the default `add()` method posts
+`PlayerEvents.STAGE_ADDED` with `getPlayer()` before returning, for any
+`Stages` backend - the same mechanism `mobility.js`'s own
+`stageAdded('starforged_age', ...)` already relies on). L3 grants that
+sentinel post-join with the exact same `kubejs stages add <player> <stage>`
+command it already uses for `STAGE_PROBE`, reads the hook's
+`VPP_SELFTEST_HOOK_LINE:`/`VPP_SELFTEST_HOOK:` lines back from the server
+log, asserts the summary is PASS, and asserts at least one check actually
+ran PASS/FAIL (not SKIP) - then reverts the grant so a rerun against the
+same reused world sees a fresh transition and the hook fires again.
+Statically verified (CI green, javap-checked event wiring); **needs one real
+L3 run on the owner's Incus host to confirm it fires and passes in
+practice** - not runnable in this sandbox.
 
 **#49 root-caused and fixed by dropping ProgressiveStages (2026-07-22)**:
 the owner's full freeze log ended in an unbounded repeat of JEI's
