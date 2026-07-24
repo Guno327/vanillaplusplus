@@ -1,8 +1,8 @@
 {
   "modid": "sophisticatedstorage",
   "source_slug": "sophisticated-storage",
-  "source_version": "1.21.1-1.5.80.1999",
-  "source_filename": "sophisticatedstorage-1.21.1-1.5.80.1999.jar",
+  "source_version": "1.21.1-1.5.81.2009",
+  "source_filename": "sophisticatedstorage-1.21.1-1.5.81.2009.jar",
   "blocks": [
     "acacia_storage_connector",
     "bamboo_storage_connector",

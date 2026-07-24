@@ -706,15 +706,15 @@
     {
       "slug": "sophisticated-core",
       "project_id": "nmoqTijg",
-      "version_id": "d2FntPfW",
-      "version_number": "1.21.1-1.4.77.2173",
-      "filename": "sophisticatedcore-1.21.1-1.4.77.2173.jar",
-      "url": "https://cdn.modrinth.com/data/nmoqTijg/versions/d2FntPfW/sophisticatedcore-1.21.1-1.4.77.2173.jar",
+      "version_id": "OyktdpqD",
+      "version_number": "1.21.1-1.4.79.2182",
+      "filename": "sophisticatedcore-1.21.1-1.4.79.2182.jar",
+      "url": "https://cdn.modrinth.com/data/nmoqTijg/versions/OyktdpqD/sophisticatedcore-1.21.1-1.4.79.2182.jar",
       "hashes": {
-        "sha512": "49bac73c4e99a605fdbfe56b3314c2b2ac6dd49dbea899ca9a607717866c927ad0651c28550e946bb6b89154fa601440c437acf5837d9ab021346c5ee8afbd40",
-        "sha1": "692e5115fe226e3bef66ffee76aac56853b44b30"
+        "sha1": "85238f3fdfcc819c47d6d0c5cb2813dee2366c5a",
+        "sha512": "d71da2bf109b80108013f18195e177eeba3bbc367611e2dcf0e1b342bd0a5e1c3cfc26b56a6f4185875cc18b1d37d6ff112e74a4d5c1c4559d72ff89717e892a"
       },
-      "filesize": 1672527,
+      "filesize": 1673505,
       "side": "both",
       "phase": 11,
       "note": "required by Sophisticated Backpacks below"
@@ -722,15 +722,15 @@
     {
       "slug": "sophisticated-backpacks",
       "project_id": "TyCTlI4b",
-      "version_id": "77ZcitZl",
-      "version_number": "1.21.1-3.25.71.1997",
-      "filename": "sophisticatedbackpacks-1.21.1-3.25.71.1997.jar",
-      "url": "https://cdn.modrinth.com/data/TyCTlI4b/versions/77ZcitZl/sophisticatedbackpacks-1.21.1-3.25.71.1997.jar",
+      "version_id": "4iFGngKW",
+      "version_number": "1.21.1-3.25.72.2012",
+      "filename": "sophisticatedbackpacks-1.21.1-3.25.72.2012.jar",
+      "url": "https://cdn.modrinth.com/data/TyCTlI4b/versions/4iFGngKW/sophisticatedbackpacks-1.21.1-3.25.72.2012.jar",
       "hashes": {
-        "sha1": "fa15ef58a201b01e9c1078762ec86a9da46074b3",
-        "sha512": "93d99895ea417c7be0ad0e73efa71d97c855090eef1d6ca6bbf1aef7ce1b5d36291c80091cfdb6f726da09ec71390c3e761ab7c439d8976a06e8db3c035fe3bd"
+        "sha1": "61420f42897bc3447959333ea95b989010b5ec60",
+        "sha512": "b1152b2e8bcbbf28f1651f662c6cd7177be61054b4b889327a6657b809f6725748e52e9b3d65673809371eb90312151d27cb5c8aa1f9ba83d87f9f2dacf03a8d"
       },
-      "filesize": 1144127,
+      "filesize": 1144139,
       "side": "both",
       "phase": 11,
       "note": "utility overhaul: general expandable-inventory backpacks (6 hardcoded tiers, leather/copper/iron/gold/diamond/netherite - same closed-tier-ladder situation as Building Wands) plus the separate 'Miner's Pouch' progression line - Void/Filter/Stack Upgrade items socketed into any backpack for voidable bulk per-item storage, tier-gated independently of the backpack's own slot-count progression"
@@ -738,15 +738,15 @@
     {
       "slug": "sophisticated-storage",
       "project_id": "hMlaZH8f",
-      "version_id": "IfMsqcCe",
-      "version_number": "1.21.1-1.5.80.1999",
-      "filename": "sophisticatedstorage-1.21.1-1.5.80.1999.jar",
-      "url": "https://cdn.modrinth.com/data/hMlaZH8f/versions/IfMsqcCe/sophisticatedstorage-1.21.1-1.5.80.1999.jar",
+      "version_id": "W5uk40ts",
+      "version_number": "1.21.1-1.5.81.2009",
+      "filename": "sophisticatedstorage-1.21.1-1.5.81.2009.jar",
+      "url": "https://cdn.modrinth.com/data/hMlaZH8f/versions/W5uk40ts/sophisticatedstorage-1.21.1-1.5.81.2009.jar",
       "hashes": {
-        "sha1": "bad4b723f4284d4335f74388f5d2eb621ba27cb3",
-        "sha512": "9d897335ab7a78e62778e3fee9c70178f21a7aa46d63ffb0207fa6989ff6c63a9919fc4eb1c1f19d63b2ffc701b5fa0f35e49cc9edb0663ffbefa4c40a1add83"
+        "sha1": "f2c8ecf70ca2b977bf720a7317fd8f178c2eff7e",
+        "sha512": "8af6e27993e3edffb3616fea4d53484635f0204c92d901efd82c6e92335db4b159bc0764c78c8309226c64c8e71f66b29aa6c124f8e67864d59f235c284e6ffe"
       },
-      "filesize": 1825788,
+      "filesize": 1825802,
       "side": "both",
       "phase": 11,
       "note": "#70: multi-tier barrels/chests/shulker boxes (wood -> copper -> iron -> gold -> diamond -> netherite) filling the gap between Tom's Storage's Tier 1 'dumb storage' (Andesite Age) and Refined Storage's Brass Age network - a single upgradeable container for players not ready to wire up a full RS grid yet. Only required dependency beyond sophisticated-core (already installed above, satisfies its >=1.4.73 requirement) is an optional JEI hook. Tier-gated via pack/kubejs/server_scripts/tier_gating.js the same way Sophisticated Backpacks is: iron/gold steps get an Andesite Alloy/Brass Ingot inserted into the mod's own storage_tier_upgrade recipe, diamond/netherite chain off that transitively and need no edit of their own. See pack/progression/andesite_age.toml, brass_age.toml, precision_age.toml for the full tier placement"
