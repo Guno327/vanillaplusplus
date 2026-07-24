@@ -1896,10 +1896,10 @@
       "url": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
       "local_path": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
       "hashes": {
-        "sha1": "193d14499301d068b32de7d7b1f571c0ee4924df",
-        "sha512": "d24180e4ba7e2e9595a05a0deb6a6eb889cf522e1f70c2219bac0a869ffb4871c2871b858cb087f27f1897fdd72481610f87b77b652c6e0862ee3bca909fcb0b"
+        "sha1": "f34b71ef2d31ce1e73280748117a4838891e92bb",
+        "sha512": "0e386ddc6fc59c2b1c55d239b95cdef4a8ba48bc39a3a08c210aa5a5d8840299ed12e1d09e268c3002c730b45c4bf0d1aa0aab130016c62422804cd35309e642"
       },
-      "filesize": 55133,
+      "filesize": 55363,
       "side": "both",
       "phase": 26,
       "note": "GitHub #109 Phase C (cutover): wires the hand-rolled vppquests custom questing mod (mods-src/vppquests/, see its README.md and DESIGN.md's '#109' sections) into the pack so it actually loads, following the mods-src/<modid>/ convention #67 established (vppintegration is the other worked example). Both sides required - QuestScreen's GUI and keybind are client-rendered, but QuestRegistry/QuestReloadListener/QuestProgressAttachment/QuestProgressTracker/QuestLegacyMigration are server-authoritative. Ships Phase A (scaffold: data model, data attachment, networking, first-pass list-view GUI) + Phase B (QuestLegacyMigration: one-time identity-mapping carry-forward of a player's already-complete quests out of quests.js's legacy save file) + the deferred half of Phase A (scripts/gen_vppquests_data.py ports the real 62-quest/10-chapter book into pack/kubejs/data/vanillaplusplus/vppquests/{chapter,quest}/**, replacing the 3 placeholder example quests the scaffold originally shipped). DELIBERATE INTERIM STATE (not yet a full cutover - see DESIGN.md's Phase C description, which gates removing the legacy system on Phase B's migration being 'confirmed correct in practice'; no live server has boot-verified that yet in this sandbox): pack/kubejs/server_scripts/quests.js/achievements.js/dailies.js and the advancement-generation code are all left installed and running exactly as before - both quest UIs (this mod's QuestScreen and the old vanilla-advancement GUI) are simultaneously present until an in-game pass confirms the migration is correct, at which point removing the legacy system is the actual Phase C completion. No dependency requirements of its own (a standalone, Modrinth-publishable mod per its own README - zero required deps in its neoforge.mods.toml)."
