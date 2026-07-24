@@ -343,13 +343,13 @@
       "url": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "local_path": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "hashes": {
-        "sha1": "ab42c429da078b3caa7aee2439e6a9cbb83599d2",
-        "sha512": "53fe8aab4b06fb4bf965cae5e50cea48d9fa38254db9dae6bc8066efdc3c81aff33b985e8c5c8f6ba38913f1313fd577fa5dc5fd52998c50393df9642488786e"
+        "sha1": "98331dbffa40fddf0ffd5567e1a0ecd93e044767",
+        "sha512": "e8b8fbeaf7750801bd8964c3154345e5b793851b082dda5323ece327374badc49c51ff9dc2f2b87d40a1e7805f08b6e3de0cbd385c1ca7797fd538b92143d216"
       },
-      "filesize": 6294,
+      "filesize": 9230,
       "side": "both",
       "phase": 7,
-      "note": "GitHub #143 fix (v0.5.4, reconciled into v0.6.0): Mixin-only pack-fix mod that deep-copies vanilla COMPONENT/OPTIONAL_COMPONENT (custom-name) SynchedEntityData values at pack time so the Netty IO thread never encodes a concurrently-mutated Component siblings list -> fixes the set_entity_data ConcurrentModificationException that booted clients. Matched by serializer reference. Built reproducibly from mods-src/vppfixes/ (source:local)."
+      "note": "GitHub #143 fix (v0.5.4, reconciled into v0.6.0): Mixin-only pack-fix mod that deep-copies vanilla COMPONENT/OPTIONAL_COMPONENT (custom-name) SynchedEntityData values at pack time so the Netty IO thread never encodes a concurrently-mutated Component siblings list -> fixes the set_entity_data ConcurrentModificationException that booted clients. Matched by serializer reference. GitHub #165 fix added: TomsStorageMultiChangeTrackerMixin forces com.tom.storagemod.inventory.MultiInventoryAccess$MultiChangeTracker's off-thread list-build path (multithreadProcessing/streamWrappedStacks) onto the calling thread and wraps both in try/catch, so a Storage Terminal never shows an empty item list when a non-thread-safe IItemHandler (e.g. Sophisticated Storage) is on the network, independent of toms_storage's own runMultithreaded config (belt-and-suspenders default also shipped in pack/defaultconfigs/toms_storage-server.toml, but that only seeds new worlds). Built reproducibly from mods-src/vppfixes/ (source:local)."
     },
     {
       "slug": "placebo",
