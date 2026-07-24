@@ -51,12 +51,25 @@ repositories {
 }
 
 dependencies {
-    // MixinExtras' @ModifyReturnValue is used by SynchedEntityDataMixin. NeoForge bundles
-    // MixinExtras at runtime, but the annotation processor + compile classpath are needed
-    // to build. Group id is io.github.llamalad7 (not org.spongepowered) - matches the
-    // convention already proven by mods-src/vppintegration/build.gradle.
+    // MixinExtras' @ModifyReturnValue/@Redirect/@WrapMethod are used by the mixins below.
+    // NeoForge bundles MixinExtras at runtime, but the annotation processor + compile
+    // classpath are needed to build. Group id is io.github.llamalad7 (not
+    // org.spongepowered) - matches the convention already proven by
+    // mods-src/vppintegration/build.gradle.
     annotationProcessor "io.github.llamalad7:mixinextras-common:0.4.1"
     compileOnly "io.github.llamalad7:mixinextras-common:0.4.1"
+
+    // GitHub #165: TomsStorageMultiChangeTrackerMixin targets Tom's Simple Storage's
+    // package-private com.tom.storagemod.inventory.MultiInventoryAccess$MultiChangeTracker
+    // (referenced by @Mixin(targets = "...") string, so no compile-time type dependency on
+    // it is strictly required for the class reference itself - but the injector handler
+    // signatures need real com.tom.storagemod.inventory.StoredItemStack/IInventoryAccess
+    // types). Not published on any public Maven repo (Modrinth only) - compile against the
+    // exact jar this pack ships (server/mods/toms_storage-1.21-2.3.2.jar), copied into
+    // libs/ per mods-src/vppintegration's established pattern for Modrinth-only deps.
+    // Filename matches pack/mods.lock.json's pinned "filename" for modid toms_storage -
+    // bump both together, never independently.
+    compileOnly files("libs/toms_storage-1.21-${toms_storage_version}.jar")
 }
 
 tasks.withType(JavaCompile).configureEach {
