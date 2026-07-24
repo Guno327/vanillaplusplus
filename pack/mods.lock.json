@@ -368,22 +368,6 @@
       "note": "required by Apotheosis chain below"
     },
     {
-      "slug": "patchouli",
-      "project_id": "nU0bVIaL",
-      "version_id": "BIogJv2D",
-      "version_number": "1.21.1-93-neoforge",
-      "filename": "Patchouli-1.21.1-93-NEOFORGE.jar",
-      "url": "https://cdn.modrinth.com/data/nU0bVIaL/versions/BIogJv2D/Patchouli-1.21.1-93-NEOFORGE.jar",
-      "hashes": {
-        "sha1": "5413bb9b8fc35ebe46b06b48bf9afafbd8471140",
-        "sha512": "0b5c172db9a6eeecb5ca44b359a83548c3a60be7ff313959acdfc1e5b8039736c18e57e947d435b52d06da31159d2d02ea36e5742668dbc826308a4c99e4039f"
-      },
-      "filesize": 646777,
-      "side": "both",
-      "phase": 8,
-      "note": "required by Apotheosis chain below (its in-game guidebook, technically optional per the mod but required by the jar's own dependency metadata)"
-    },
-    {
       "slug": "apothic-attributes",
       "project_id": "DGaH8Rh0",
       "version_id": "7r6iuon2",
@@ -1664,36 +1648,20 @@
       "note": "TODO.md item 9: by far the largest of the 3 new -delight mods (~356 confirmed distinct dish outputs across oven/feast/mixing_bowl/campfire/smoking/smelting/dynamic_toast recipe types - roughly doubles-to-triples this pack's total food-item pool). Verified via its own toml: farmersdelight dependency version string is a bare '1.2.8' (non-bracketed, Maven-style permissive notation, not an exact pin) and neoforge/minecraft ranges are similarly loose but not alarming - no boot conflict expected. NOTE the jar's own internal toml version field self-reports as '2.6.5' (stale, cosmetic mismatch vs the 2.6.6 Modrinth release - harmless, NeoForge doesn't cross-check it)."
     },
     {
-      "slug": "jade",
-      "project_id": "nvQzSEkH",
-      "version_id": "yd8FKCmx",
-      "version_number": "15.10.5+neoforge",
-      "filename": "Jade-1.21.1-NeoForge-15.10.5.jar",
-      "url": "https://cdn.modrinth.com/data/nvQzSEkH/versions/yd8FKCmx/Jade-1.21.1-NeoForge-15.10.5.jar",
+      "slug": "the-one-probe",
+      "project_id": "Eyw0UxEx",
+      "version_id": "4bbMy0Mh",
+      "version_number": "1.21_neo-12.0.8",
+      "filename": "theoneprobe-1.21_neo-12.0.8.jar",
+      "url": "https://cdn.modrinth.com/data/Eyw0UxEx/versions/4bbMy0Mh/theoneprobe-1.21_neo-12.0.8.jar",
       "hashes": {
-        "sha512": "678b998677a3d73f98f82dac4093893bfc8a3c2335ec627b4147811c381a040475decdb8db31cc3cbe600abb5a7a6dedcd356eed0ba471af0becdcf49bf5b137",
-        "sha1": "d5bf134b3dbde9f5258666823900e21341dc0a50"
+        "sha1": "40c4e41dbac9936500a60f2629035f11e427627e",
+        "sha512": "dc90a3831519af08315ab4226437b3ca1874efc5bfe0cdc99b8adacb88e2f9d4cbc77159cf1bcc93c21044254f7618c181f30a4fb3e4a70fe29a15050091c5ee"
       },
-      "filesize": 725742,
+      "filesize": 329006,
       "side": "both",
       "phase": 21,
-      "note": "GitHub issue #11 (admin-approved): WAILA-style 'what am I looking at' HUD - tooltip overlay for blocks/entities. Chosen over WTHIT (Modrinth version metadata requires a new hard dep, Bad Packets, that this pack doesn't otherwise need) and The One Probe (Modrinth client_side=required/server_side=required - mandatory dual install, older UI, smaller current addon ecosystem, least recently updated of the three for neoforge 1.21.1). Jade's own neoforge.mods.toml (verified via jar extraction) declares zero third-party mod dependencies - only neoforge itself; its one Modrinth-listed dependency (JEI) is optional and already satisfied by our installed jei. side:both per the standing rule ('side:both acceptable where the jar supports server presence') - Jade's storage/container content preview (relevant given this pack's Tom's Storage/Refined Storage progression spine) and Jade Addons' Create contraption-storage providers below both benefit from a matching server install; Modrinth confirms client_side=optional/server_side=optional (not unsupported), so both-sides is safe"
-    },
-    {
-      "slug": "jade-addons-forge",
-      "project_id": "xuDOzCLy",
-      "version_id": "Z9s9lM56",
-      "version_number": "6.1.0+neoforge",
-      "filename": "JadeAddons-1.21.1-NeoForge-6.1.0.jar",
-      "url": "https://cdn.modrinth.com/data/xuDOzCLy/versions/Z9s9lM56/JadeAddons-1.21.1-NeoForge-6.1.0.jar",
-      "hashes": {
-        "sha512": "dcf1135718e74c55d4b01116c9955b88a8c8a5180e61dc51d292479aff3d2fff38c8ca0f1b4a6e42e54644f1c8907846a61799491df455b71541aa342d8b8896",
-        "sha1": "d0aef07e67f9e2dd7ae68f9f27d845511d8eaff3"
-      },
-      "filesize": 74419,
-      "side": "both",
-      "phase": 21,
-      "note": "GitHub issue #11: Create integration companion for jade above - Jade core alone only ships a cosmetic tooltip color theme for Create (assets/jade/jade_themes/create.json), NOT kinetic stress/speed data. Verified via jar extraction: its own neoforge.mods.toml declares exactly one dependency, jade [15.10,) (satisfied by our jade 15.10.5) - no dependency beyond Jade itself. Ships a real CreatePlugin with 11 provider classes; GogglesProvider.class's constant pool references Create's own com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation/IHaveHoveringInformation interfaces directly - the same extension point kinetic block entities (shafts/gearboxes/etc.) use to supply Stress/Speed data to the vanilla Goggles item - so this surfaces genuine kinetic info as a Jade tooltip, not a wearable-item requirement. Also ships ContraptionItemStorageProvider/ContraptionFluidStorageProvider (moving-contraption inventory/tank contents) and BoilerData/FluidTankBlockEntity-aware providers. No Silent Gear or Curios integration exists in either jar (checked, none found) - not a gap, since Silent Gear stats already surface via item tooltips and Curios has no look-at target of its own. WATCH-ITEM: last NeoForge 1.21.1 build is 6.1.0 from 2025-03-17 (older than jade's own release cadence) - its open dependency range on jade tolerates this, and Create's goggle-info API is stable, but confirm no load error at L2 same as any addon pin"
+      "note": "GitHub issue #141 (license cleanup): MIT-licensed The One Probe (modid 'theoneprobe', McJty) replaces jade + jade-addons-forge (CC-BY-NC-SA, NonCommercial) as the pack's WAILA-style info-HUD. Modrinth client_side=required/server_side=required -> side:both. Version-metadata API (4bbMy0Mh) declares ZERO dependencies - no new deps pulled in. Useful always-on out of the box; no config wiring needed. gravestone-mod's jade dependency was OPTIONAL, so nothing else breaks on jade's removal."
     },
     {
       "slug": "lootr",
