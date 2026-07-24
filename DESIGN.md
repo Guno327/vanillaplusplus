@@ -1478,30 +1478,36 @@ the **literal `alltheores:` item id** (never a `c:` tag — the #61 tag-bypass
 class), never a cheaper alt path, stock ingredients preserved at exact
 multiplicity, and shaped hosts re-authored as an equivalent shapeless recipe
 (a strict relaxation) so a further ingredient fits without fighting the 3x3
-grid; result counts preserved (e.g. CreateAddition Connector ×3, TFMG
-Turbine Engine ×2). Reachability is not a concern here: every ATO plate/rod/
+grid; result counts preserved (e.g. CreateAddition Connector ×3). **Hard
+9-slot rule:** a table craft has at most 9 cells, so a host whose stock
+recipe already fills all 9 (many RS/TFMG/Stellaris machine recipes, Tom's
+`open_crate`/`filing_cabinet`, Create `water_wheel`) cannot take a 10th
+ingredient without becoming uncraftable — so only hosts with **≤8 stock
+cells** were chosen, and every re-authored recipe is ≤9 ingredients and
+still craftable in a normal grid (a selftest addition below would also catch
+a regression here). Reachability is not a concern: every ATO plate/rod/
 gem-dust is craftable **early** via an ATO ore hammer (a stone-tier tool) +
 the ingot/gem — *not* via Create pressing — so no host machine is gated
 behind a byproduct that needs that same machine to exist (no bootstrap
 deadlock), and each material is reachable at or before its host recipe's
-tier. Materials are still rarity-bucketed for feel, matching the tier band
-each metal's gear got in tranche two: **common metals → foundational Create
-machines + Tom's Storage** (encased_fan, mechanical_press/drill/saw,
-millstone, mechanical_mixer, water_wheel, open_crate, filing_cabinet);
-**alloys/precious + the 5 gem dusts → Create brass, CreateAddition,
-Numismatics bank terminal, Silent Gear material grader, RS crafting grid**
-(mechanical_arm, deployer, sequenced_gearshift, fluid_tank, portable_storage
-_interface, weighted_ejector, rotation_speed_controller, rolling_mill,
-capacitor, connector, modular_accumulator); **late alloys → Refined Storage
-network machines + TFMG industry** (detector, external_storage, interface,
-pattern_grid, security_manager, disk_interface, wireless_grid, steel
-distillation controller, turbine engine); **rare/space metals → Stellaris
-rocketry + Silent Gear endgame machines** (rocket_engine, rocket_nose_cone,
-rover, oxygen_distributor, solar_panel, metal_press, refabricator,
-alloy_forge). Host recipes were chosen to avoid every id already re-authored
-by `storage.js`, `tier_gating.js`, or tranches one/two, and to avoid the
-three RS recipes (`controller`/`disk_drive`/`grid`) that `selftest.js`
-separately asserts on. `ST_MATERIAL_SINK_RECIPES` in `selftest.js` extended
+tier. Materials are rarity-bucketed for feel, matching the tier band each
+metal's gear got in tranche two: **common metals → foundational Create
+machines** (encased_fan, mechanical_press/drill/saw, millstone,
+mechanical_mixer, depot, mechanical_bearing, hand_crank); **alloys/precious +
+the 5 gem dusts → Create brass kinetics/logistics, CreateAddition,
+Numismatics bank terminal, RS crafting grid** (mechanical_arm, deployer,
+sequenced_gearshift, fluid_tank, portable_storage_interface, weighted_ejector,
+rotation_speed_controller, brass_funnel, elevator_pulley, capacitor,
+connector, modular_accumulator, bank_terminal, crafting_grid); **late alloys
+→ Create automation logistics + RS pattern grid** (mechanical_piston,
+brass_tunnel, display_board, clutch, gearshift, stockpile_switch,
+cuckoo_clock, content_observer, pattern_grid); **rare/space metals →
+Stellaris rocketry + Silent Gear endgame machines** (rocket_fin,
+rocket_nose_cone, engine_fan, oxygen_tank, base_module_tier_1, metal_press,
+refabricator, alloy_forge). Host recipes were chosen to avoid every id
+already re-authored by `storage.js`, `tier_gating.js`, or tranches one/two,
+and to avoid the three RS recipes (`controller`/`disk_drive`/`grid`) that
+`selftest.js` separately asserts on. `ST_MATERIAL_SINK_RECIPES` in `selftest.js` extended
 to all **64** sinks (24 gears + 40 new) — that list is now the literal
 dead-end inventory, one entry per id, each asserting its host recipe
 resolves and demands that exact item. Validated fast-tier: `run_all.py`
