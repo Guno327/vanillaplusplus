@@ -310,8 +310,8 @@
       "url": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "local_path": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "hashes": {
-        "sha1": "27f0f3ca50bb00a5278399de60c311e0f0ecf473",
-        "sha512": "b951cc26fbf23beb5512921e49f018ac6ac067ba4b546f115efe52f735285a5e33c3c70c6f6056f5f1f84bfe7d47088f006b87a563c9256bb8306936083d4f85"
+        "sha1": "61fef79cd995ddeeea7201f5aaf83ece6d9162d9",
+        "sha512": "17ca83295b3c07ec93eab281221736f8e305583c76654dea1808085698998ca9521f31a6eeb5e1dcbb6869d9ac3b099439fc229028adce4f2e5e5fa71cad05fa"
       },
       "filesize": 6449,
       "side": "both",

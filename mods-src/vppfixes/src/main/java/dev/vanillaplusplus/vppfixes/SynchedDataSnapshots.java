@@ -6,70 +6,46 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Deep-copies list/collection-backed {@link SynchedEntityData.DataValue}s at pack time so
- * the Netty IO thread never serializes a live, main-thread-mutated object graph.
+ * Deep-copies the two mutable, list-backed vanilla {@link SynchedEntityData.DataValue}s
+ * (a text {@link net.minecraft.network.chat.Component}: {@code COMPONENT} and
+ * {@code OPTIONAL_COMPONENT}, i.e. an entity's custom name) at pack time so the Netty IO
+ * thread never serializes a component whose {@code siblings}/{@code extra} {@code ArrayList}
+ * is being mutated on the server tick thread. GitHub #143.
  *
- * <p><b>Why this is safe / why it closes the race (GitHub #143).</b> The two entry points
- * ({@code SynchedEntityData#packDirty} and {@code #getNonDefaultValues}) are called from
- * {@code net.minecraft.server.level.ServerEntity#sendChanges}/{@code #sendPairingData},
- * which run on the server tick thread as part of chunk-map entity tracking. The
- * {@code ClientboundSetEntityDataPacket} they build is only <i>encoded</i> later, on the
- * Netty IO thread ({@code DataValue.write}). The offending mutation (Ars Nouveau spell
- * resolution mutating a nested list on the server tick thread) therefore races only the
- * IO-thread encode -- never the pack call. By producing a genuine deep copy <i>here</i>,
- * on the tick thread, the encode (via the serializer's own {@link StreamCodec}) is
- * serialized with any concurrent mutation on that same thread (no interleave possible),
- * and the fresh decoded object handed to the packet is owned by nobody else, so the
- * IO-thread encode iterates an immutable snapshot. CME becomes impossible for the targeted
- * value without changing any observable game behavior.
+ * <p><b>Correction to the v0.5.3 diagnosis.</b> v0.5.3 targeted
+ * {@code ars_nouveau:spell_resolver}. That was wrong: the real production stack encodes a
+ * <i>Component</i> serializer ({@code ComponentSerialization.CODEC}: {@code Codec.recursive}
+ * -&gt; {@code EitherCodec} -&gt; {@code RecordCodecBuilder} -&gt; {@code OptionalFieldCodec}
+ * -&gt; {@code ListCodec} over the siblings {@code ArrayList}), not the hand-written
+ * {@code SpellResolver.STREAM}. Ars 5.12.1's serialized graph is immutable/concurrent-safe
+ * and never produces those DFU frames. See README / issue #143.
  *
- * <p><b>Scope.</b> Only serializers whose registry id is in {@link #TARGET_SERIALIZER_IDS}
- * are copied; every other value (the overwhelming majority: ints, floats, BlockPos, etc.)
- * is passed through by reference with a single cheap registry-key lookup, so normal entity
- * sync is untouched. The match is by string id, so this class needs no compile-time
- * dependency on Ars Nouveau and simply does nothing if that mod/serializer is absent.
- *
- * <p><b>Degradation.</b> If the current server or registry access is unavailable, or the
- * round-trip throws for any reason, the original {@code DataValue} is returned unchanged
- * (status quo -- no worse than before the fix) and the failure is logged once rather than
- * propagating an exception onto the tick thread.
+ * <p><b>Why match by reference, not registry-id string.</b> NeoForge keeps <i>vanilla</i>
+ * {@code EntityDataSerializers} in the int-id bimap (ids 0-255) and only registers
+ * <i>modded</i> serializers into {@code NeoForgeRegistries.ENTITY_DATA_SERIALIZERS}
+ * (see {@code CommonHooks#getSerializerId}). So the vanilla component serializers have
+ * <b>no {@code ResourceLocation} key</b> ({@code getKey(..)} returns {@code null}) and the
+ * old id-string approach could never match them. We therefore discriminate by serializer
+ * <b>reference identity</b> against the two public vanilla constants.
  */
 public final class SynchedDataSnapshots {
 
     private SynchedDataSnapshots() {
     }
 
-    /**
-     * Entity-data serializers known to hold a mutable, aliased object graph that the owning
-     * mod keeps mutating on the server thread after {@code set(...)}. Keyed by registry id
-     * string so no cross-mod compile dependency is needed. Add future offenders here.
-     */
-    private static final Set<String> TARGET_SERIALIZER_IDS = Set.of(
-            // Ars Nouveau: EntityProjectileSpell / EntitySpellArrow sync a live SpellResolver
-            // (Spell recipe list + Optional<TimelineMap> particle timeline) via forValueType,
-            // whose copy() is identity. GitHub #143.
-            "ars_nouveau:spell_resolver"
-    );
-
     private static final AtomicBoolean LOGGED_FAILURE = new AtomicBoolean(false);
+    private static final AtomicBoolean LOGGED_FIRST_SNAPSHOT = new AtomicBoolean(false);
 
-    /**
-     * Returns {@code values} with any targeted entry replaced by a deep copy. Returns the
-     * input list untouched (same instance) when nothing needed copying, to keep the common
-     * path allocation-free.
-     */
     public static List<SynchedEntityData.DataValue<?>> snapshotTargeted(List<SynchedEntityData.DataValue<?>> values) {
         if (values == null || values.isEmpty()) {
             return values;
@@ -92,24 +68,21 @@ public final class SynchedDataSnapshots {
         return copy == null ? values : copy;
     }
 
+    /**
+     * Reference match against the two vanilla component serializers. These are the
+     * Codec-backed ({@code ComponentSerialization}) serializers whose value holds a
+     * mutable {@code siblings ArrayList}; every other entity-data value (ints, floats,
+     * BlockPos, item stacks, and the Ars stream-codec values) is passed through.
+     */
     private static boolean isTargeted(EntityDataSerializer<?> serializer) {
-        if (serializer == null || TARGET_SERIALIZER_IDS.isEmpty()) {
-            return false;
-        }
-        ResourceLocation id = NeoForgeRegistries.ENTITY_DATA_SERIALIZERS.getKey(serializer);
-        return id != null && TARGET_SERIALIZER_IDS.contains(id.toString());
+        return serializer == EntityDataSerializers.COMPONENT
+                || serializer == EntityDataSerializers.OPTIONAL_COMPONENT;
     }
 
-    /**
-     * Deep-copies a single {@code DataValue} by round-tripping its value through the
-     * serializer's own {@link StreamCodec} on the current thread (the caller guarantees the
-     * server tick thread; see the class doc). Returns the original {@code dv} unchanged if a
-     * copy cannot be made.
-     */
     private static <T> SynchedEntityData.DataValue<T> deepCopy(SynchedEntityData.DataValue<T> dv) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server == null) {
-            return dv; // no registry access available (e.g. remote client) -> pass through
+            return dv;
         }
         RegistryAccess registryAccess = server.registryAccess();
         StreamCodec<? super RegistryFriendlyByteBuf, T> codec = dv.serializer().codec();
@@ -118,13 +91,15 @@ public final class SynchedDataSnapshots {
             RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(backing, registryAccess);
             codec.encode(buf, dv.value());
             T copied = codec.decode(buf);
+            if (LOGGED_FIRST_SNAPSHOT.compareAndSet(false, true)) {
+                VppFixes.LOGGER.info("vppfixes: first component entity-data snapshot taken (id {}) - CME guard is firing", dv.id());
+            }
             return new SynchedEntityData.DataValue<>(dv.id(), dv.serializer(), copied);
         } catch (Throwable t) {
             if (LOGGED_FAILURE.compareAndSet(false, true)) {
                 VppFixes.LOGGER.warn(
-                        "vppfixes: failed to snapshot entity-data value (id {}); leaving it unguarded. "
-                                + "This is logged once; the entity-data CME guard is a no-op for this value.",
-                        dv.id(), t);
+                        "vppfixes: failed to snapshot entity-data component value (id {}); leaving it unguarded. "
+                                + "Logged once.", dv.id(), t);
             }
             return dv;
         } finally {
