@@ -87,21 +87,34 @@ why, point by point against the issue's asks:
      descending one of its longest chains, not something reachable early
      from any other path.
 
-Layout is still fully generated, never hand-typed, and still collision-free
-BY CONSTRUCTION (see layout_tree()'s docstring for the underlying per-tree
-guarantee) - but now needs a second, OUTER layer of translation math since
-every former-category's 34-node subtree and every class's single root node
-all have to coexist in ONE shared (x, y) space instead of 23 independent
-per-category spaces. See BAND_HEIGHT / _place_former() below for exactly how
-that translation is constructed to guarantee zero cross-subtree collisions
-without brute-force collision detection. scripts/ci/check_skill_trees.py
-still asserts this holds (no two nodes in the whole tree share coordinates)
-as a belt-and-suspenders check, not just trusting the algorithm - see that
-file for the #116 update to its invariants (one root total, `exclusive`
-allowed+validated, still-fully-reachable-via-`normal`-alone, plus a new
-max-depth sanity check for point 4 above).
+Layout (RADIAL - issue #116 rework). The first #116 pass laid every one of
+the 23 former subtrees out in its own horizontal "band" stacked 2000 units
+below the previous one, producing a 224-wide x 44,440-tall ribbon (a 198:1
+aspect) - the owner's "you just took the existing trees and connected them
+together so it looks broken" complaint. This rework keeps that pass's TOPOLOGY
+exactly (same node ids, same `normal`/`exclusive` edges, same 791-node count -
+see check_selftest_skill_sync.py) and changes ONLY where each node is drawn:
+a Path-of-Exile-style radial web. `origin` sits at the center; the 4 class
+roots ring it; each class owns a disjoint angular SECTOR of the circle and
+its 6-7 former subtrees fan out within that wedge; a node's radius is its BFS
+depth from `origin` over `normal` edges (so prerequisites read inward-to-
+outward) and its angle is its slot within its class's sector. See
+layout_polar() for the transform. Collision-freeness is no longer a
+by-construction band-offset argument - layout_polar() rounds to integer pixels
+and then runs an explicit deterministic de-collision pass with a hard assert,
+so the "no two nodes share (x, y)" invariant scripts/ci/check_skill_trees.py
+enforces holds regardless of rounding. puffish_skills itself imposes no layout
+constraint here: skills.json accepts arbitrary (x, y), and category.json now
+points at a custom full-canvas background (position: fill) with four labelled
+quadrant regions instead of the tiled vanilla end.png - both confirmed against
+the mod's own docs (puffish.net/skillsmod/docs/.../appearance/background).
+The rest of check_skill_trees.py's invariants (one root total, `exclusive`
+allowed+validated, still-fully-reachable-via-`normal`-alone, max-depth >= 6
+for point 4 above) are untouched by a coordinates-only change.
 """
 import json
+import math
+from collections import defaultdict, deque
 from itertools import combinations
 from pathlib import Path
 
@@ -110,16 +123,27 @@ OUT = ROOT / "pack" / "kubejs" / "data" / "puffish_skills" / "puffish_skills"
 
 UNIFIED_CATEGORY_ID = "adventurer"
 
-X_SPACING = 32
-Y_SPACING = 40
-# Vertical gap reserved per former-category's private "band" in the shared
-# coordinate space - see _place_former()'s docstring. Each former-category's
-# own local layout_tree() call never produces a y-extent wider than roughly
-# 12 slots * Y_SPACING (~480, see build_tree()'s BRANCH_SHAPE docstring: at
-# most 4 leaves * 3 themes = 12 nodes share the deepest local depth), so
-# BAND_HEIGHT=2000 leaves a wide, cheap-to-reason-about margin - collision-
-# free by construction, not by testing.
-BAND_HEIGHT = 2000
+# ---------------------------------------------------------------------------
+# RADIAL layout geometry (issue #116 rework - owner rejected the first pass's
+# "just stitched the old trees together" look, GitHub #116 follow-up). The
+# topology (node ids, `normal`/`exclusive` edges, definitions, counts) is
+# byte-for-byte unchanged from the first #116 pass - ONLY the (x, y) each node
+# lands at changed, plus category.json's background. See layout_polar() for
+# the transform and the module docstring's "Layout" section for why.
+#
+# RING = pixels of radius per graph-depth ring (BFS depth from "origin" over
+# `normal` edges). origin sits at the center (depth 0 -> r=0); the 4 class
+# roots ring it at depth 1; each former-category's 34-node subtree fans
+# outward through rings 2..6; the 4 capstones sit alone on ring 7. A node's
+# angle is fixed by which class it belongs to (each class owns a disjoint
+# angular SECTOR) and its slot within that class - so the whole thing reads
+# as one centered 4-sector web, not a 198:1 vertical ribbon.
+RING = 62
+# Fraction of each class's full 360/N sector actually used for nodes; the
+# remainder is an empty gutter between neighbouring class sectors so the four
+# fans read as visually separate wedges (and so same-ring nodes from adjacent
+# classes never crowd across the seam).
+SECTOR_FILL = 0.82
 
 # Every former-category's tree: 1 local root -> 3 theme branches, each theme
 # branch built by build_tree() with this per-depth branch-factor list
@@ -184,34 +208,81 @@ def build_tree(prefix, branch_factors):
     return root_id, order, children_map, depth_map
 
 
-def layout_tree(root_id, children_map):
-    """Layered layout, collision-free BY CONSTRUCTION within this one tree:
-    x = depth * X_SPACING (different depths never share a position), y =
-    slot-index-within-that-depth * Y_SPACING, centered around 0 (nodes at
-    the SAME depth get strictly increasing, evenly-spaced y). Visitation is
-    pre-order DFS, so siblings within one branch land in contiguous y slots.
+def layout_polar(skills, normal_pairs, node_class, class_order, capstones):
+    """Radial layout (issue #116 rework) - assigns every node an integer
+    (x, y) so the whole tree reads as one centered Path-of-Exile-style web
+    instead of the first pass's 198:1 vertical ribbon. This is the exact
+    transform prototyped in the #116 design plan (`proposed.png`): radius =
+    graph depth, angle = per-class angular slot, `origin` at the center.
 
-    Returns {node_id: (x, y)}. Outer callers translate these local
-    coordinates into the shared whole-tree space - see _place_former()."""
-    depth_of = {}
-    slots_at_depth = {}
+    Steps:
+      1. BFS depth of every node from "origin" over `normal` edges (this is
+         the same depth scripts/ci/check_skill_trees.py's reachability walk
+         computes - prerequisites always sit at a strictly smaller radius).
+      2. Each class in `class_order` owns a disjoint angular SECTOR centered
+         on its slice of the circle (SECTOR_FILL of a 360/N wedge, the rest
+         an empty gutter between neighbours). Every non-capstone node of that
+         class, sorted by id (ids are hierarchical strings, so a class's
+         former/theme/depth structure lands in contiguous, tidy fans), gets
+         an evenly-spaced angular slot across that sector. radius = depth*RING.
+      3. Each capstone is pinned to its parent leaf's angle, one ring further
+         out - a clean radial spur rather than a stray cross-sector line.
+      4. Round to int, then a deterministic de-collision pass (nudge +1px in
+         x until free, lowest id first) guarantees the "no two nodes share
+         (x, y)" invariant regardless of rounding, backed by a hard assert.
 
-    def dfs(node, depth):
-        depth_of[node] = depth
-        slots_at_depth.setdefault(depth, []).append(node)
-        for child in children_map.get(node, []):
-            dfs(child, depth + 1)
+    Mutates `skills` in place (sets each node's "x"/"y")."""
+    adjacency = defaultdict(set)
+    for a, b in normal_pairs:
+        adjacency[a].add(b)
+        adjacency[b].add(a)
+    depth = {"origin": 0}
+    frontier = deque(["origin"])
+    while frontier:
+        node = frontier.popleft()
+        for neighbor in adjacency[node]:
+            if neighbor not in depth:
+                depth[neighbor] = depth[node] + 1
+                frontier.append(neighbor)
 
-    dfs(root_id, 0)
+    n_classes = len(class_order)
+    sector_half = (2 * math.pi / n_classes) / 2 * SECTOR_FILL
+    capstone_ids = {cid for cid, _parent in capstones.values()}
 
-    positions = {}
-    for depth, nodes in slots_at_depth.items():
-        offset = (len(nodes) - 1) / 2.0
-        for i, node in enumerate(nodes):
-            x = depth * X_SPACING
-            y = int(round((i - offset) * Y_SPACING))
-            positions[node] = (x, y)
-    return positions
+    raw = {"origin": (0.0, 0.0)}
+    for ci, class_id in enumerate(class_order):
+        base_angle = ci * 2 * math.pi / n_classes
+        members = sorted(
+            nid for nid, c in node_class.items()
+            if c == class_id and nid not in capstone_ids
+        )
+        count = len(members)
+        for i, nid in enumerate(members):
+            frac = (i / (count - 1)) if count > 1 else 0.5
+            angle = base_angle - sector_half + frac * 2 * sector_half
+            r = depth[nid] * RING
+            raw[nid] = (r * math.cos(angle), r * math.sin(angle))
+
+    # Capstones: same angle as their parent leaf, one ring further out.
+    for class_id, (capstone_id, parent_leaf) in capstones.items():
+        px, py = raw[parent_leaf]
+        angle = math.atan2(py, px)
+        r = depth[capstone_id] * RING
+        raw[capstone_id] = (r * math.cos(angle), r * math.sin(angle))
+
+    # Round to int pixels, then a deterministic de-collision nudge so the
+    # rounding can never violate check_skill_trees.py's "no shared (x, y)".
+    taken = set()
+    for nid in sorted(raw):  # lowest id first -> stable, order-independent
+        x, y = raw[nid]
+        ix, iy = int(round(x)), int(round(y))
+        while (ix, iy) in taken:
+            ix += 1
+        taken.add((ix, iy))
+        skills[nid]["x"] = ix
+        skills[nid]["y"] = iy
+
+    assert len(taken) == len(raw), "layout_polar produced overlapping nodes"
 
 
 # ---------------------------------------------------------------------------
@@ -676,15 +747,16 @@ CAPSTONE_DEFS = {
 ORIGIN_ROOT_ATTR = "max_health"  # a small, universal taste of vitality - free the instant the datapack loads
 
 
-def _place_former(prefix, spec, band_index, class_x, skills_out, definitions_out, normal_pairs_out):
+def _place_former(prefix, spec, class_id, skills_out, definitions_out, normal_pairs_out, node_class_out):
     """Builds one former-category's 34-node subtree (former root + 3 theme
-    branches, exactly issue #71's per-category shape) and writes its nodes
-    directly into the shared skills_out/definitions_out/normal_pairs_out,
-    with (x, y) translated into this former's own private BAND_HEIGHT-tall
-    horizontal band so it can never collide with any other former's nodes -
-    see this file's module docstring for the collision-free-by-construction
-    argument. Returns (former_root_id, deepest_leaf_id) - the latter is
-    where a class's capstone (if any) gets attached.
+    branches, exactly issue #71's per-category shape) and writes its nodes +
+    `normal` edges into the shared skills_out/definitions_out/normal_pairs_out.
+    Every node is tagged with its owning `class_id` in node_class_out so
+    layout_polar() can place it in that class's angular sector; actual (x, y)
+    coordinates are NOT assigned here anymore - the whole tree is laid out in
+    one radial pass afterwards (issue #116 rework, see layout_polar()).
+    Returns (former_root_id, deepest_leaf_id) - the latter is where a class's
+    capstone (if any) gets attached.
     """
     themes = spec["themes"]
     assert len(themes) == 3, f"{prefix}: expected exactly 3 themes, got {len(themes)}"
@@ -695,8 +767,8 @@ def _place_former(prefix, spec, band_index, class_x, skills_out, definitions_out
             definitions_out[attr_key] = attr_definition(attr_key)
 
     former_root = f"{prefix}root"
-    children_map = {}
-    local_skills = {former_root: {"definition": spec["root_attr"]}}
+    skills_out[former_root] = {"definition": spec["root_attr"]}
+    node_class_out[former_root] = class_id
 
     theme_roots = []
     deepest_leaf = None  # first depth-3 leaf seen, deterministic (theme 0 first)
@@ -704,29 +776,20 @@ def _place_former(prefix, spec, band_index, class_x, skills_out, definitions_out
         tprefix = f"{prefix}t{theme_idx}_"
         troot, order, tchildren, depth_map = build_tree(tprefix, BRANCH_SHAPE)
         theme_roots.append(troot)
-        children_map.update(tchildren)
         for node in order:
             attr_key = attr_a if depth_map[node] % 2 == 0 else attr_b
-            local_skills[node] = {"definition": attr_key}
+            skills_out[node] = {"definition": attr_key}
+            node_class_out[node] = class_id
             if deepest_leaf is None and depth_map[node] == len(BRANCH_SHAPE):
                 deepest_leaf = node
         for parent, kids in tchildren.items():
             for kid in kids:
                 normal_pairs_out.append([parent, kid])
 
-    children_map[former_root] = theme_roots
     for troot in theme_roots:
         normal_pairs_out.append([former_root, troot])
 
-    positions = layout_tree(former_root, children_map)
-    band_y = band_index * BAND_HEIGHT
-    for node_id, (lx, ly) in positions.items():
-        skills_out[node_id] = local_skills[node_id]
-        skills_out[node_id]["x"] = class_x + lx
-        skills_out[node_id]["y"] = band_y + ly
-
-    deepest_leaf_x, deepest_leaf_y = skills_out[deepest_leaf]["x"], skills_out[deepest_leaf]["y"]
-    return former_root, (deepest_leaf, deepest_leaf_x, deepest_leaf_y)
+    return former_root, deepest_leaf
 
 
 def gen_unified_tree():
@@ -738,45 +801,53 @@ def gen_unified_tree():
 
     origin_id = "origin"
     definitions[ORIGIN_ROOT_ATTR] = attr_definition(ORIGIN_ROOT_ATTR)
-    skills[origin_id] = {"definition": ORIGIN_ROOT_ATTR, "root": True, "x": 0, "y": 0}
+    skills[origin_id] = {"definition": ORIGIN_ROOT_ATTR, "root": True}
+
+    # node id -> owning class id (origin has none); consumed by layout_polar()
+    # to place each node in its class's angular sector. class_order fixes the
+    # sector assignment (index i -> angle i*360/N).
+    node_class = {}
+    class_order = [c["class_id"] for c in CLASS_SPECS]
+    # class id -> (capstone node id, its parent leaf id), placed radially by
+    # layout_polar() one ring past the parent leaf.
+    capstones = {}
 
     class_root_ids = []
-    band_index = 0
     for class_spec in CLASS_SPECS:
         class_id = class_spec["class_id"]
         class_root = f"class_{class_id}_root"
         class_root_ids.append(class_root)
-        # Class root sits at depth 1 (x=X_SPACING), y = its first former's
-        # band baseline - a distinct (x, y) from every other node by
-        # construction (no other class root, and no former subtree, ever
-        # reuses x=X_SPACING once band_index differs per class).
-        class_x = X_SPACING
-        class_y = band_index * BAND_HEIGHT
         if class_spec["root_attr"] not in definitions:
             definitions[class_spec["root_attr"]] = attr_definition(class_spec["root_attr"])
-        skills[class_root] = {"definition": class_spec["root_attr"], "x": class_x, "y": class_y}
+        skills[class_root] = {"definition": class_spec["root_attr"]}
+        node_class[class_root] = class_id
         normal_pairs.append([origin_id, class_root])
 
         last_deep_leaf = None
         for former_id in class_spec["formers"]:
             spec = FORMER_SPECS[former_id]
             all_sources.extend(spec["sources"])
-            former_root, deep_leaf_info = _place_former(
-                f"{class_id}_{former_id}_", spec, band_index,
-                class_x=2 * X_SPACING,  # former subtrees start one depth further out than the class root
-                skills_out=skills, definitions_out=definitions, normal_pairs_out=normal_pairs,
+            former_root, deep_leaf = _place_former(
+                f"{class_id}_{former_id}_", spec, class_id,
+                skills_out=skills, definitions_out=definitions,
+                normal_pairs_out=normal_pairs, node_class_out=node_class,
             )
             normal_pairs.append([class_root, former_root])
-            last_deep_leaf = deep_leaf_info
-            band_index += 1
+            last_deep_leaf = deep_leaf
 
         # Issue #116 point 4: capstone attached one hop past this class's
         # LAST former's deepest leaf.
-        leaf_id, leaf_x, leaf_y = last_deep_leaf
         capstone_id = f"class_{class_id}_capstone"
         definitions[f"capstone_{class_id}"] = CAPSTONE_DEFS[class_id]
-        skills[capstone_id] = {"definition": f"capstone_{class_id}", "x": leaf_x + X_SPACING, "y": leaf_y}
-        normal_pairs.append([leaf_id, capstone_id])
+        skills[capstone_id] = {"definition": f"capstone_{class_id}"}
+        node_class[capstone_id] = class_id
+        capstones[class_id] = (capstone_id, last_deep_leaf)
+        normal_pairs.append([last_deep_leaf, capstone_id])
+
+    # Radial layout (issue #116 rework): assign every node its (x, y) in one
+    # pass now that the whole topology exists - origin at the center, 4 class
+    # sectors fanning outward, radius = graph depth. See layout_polar().
+    layout_polar(skills, normal_pairs, node_class, class_order, capstones)
 
     # Issue #116 point 3: full exclusive clique among the class-root nodes -
     # unlocking any one excludes every other, per
@@ -790,7 +861,18 @@ def gen_unified_tree():
         "unlocked_by_default": True,
         "title": "Adventurer",
         "icon": {"type": "item", "data": {"item": "nether_star"}},
-        "background": "textures/gui/advancements/backgrounds/end.png",
+        # Issue #116 rework: a single full-canvas radial background (puffish
+        # custom-background object with position:fill, per the mod's own docs)
+        # with four labelled quadrant regions matching layout_polar()'s class
+        # sectors - replaces the first pass's tiled vanilla end.png behind a
+        # 198:1 ribbon. Generated by scripts/gen_skill_background.py; shipped
+        # as a KubeJS asset under pack/kubejs/assets/vanillaplusplus/.
+        "background": {
+            "texture": "vanillaplusplus:textures/gui/skills/adventurer_bg.png",
+            "width": 1024,
+            "height": 1024,
+            "position": "fill",
+        },
     })
     write_json(cat_dir / "experience.json", {
         "experience_per_level": {"type": "expression", "data": {"expression": EXPERIENCE_EXPR}},

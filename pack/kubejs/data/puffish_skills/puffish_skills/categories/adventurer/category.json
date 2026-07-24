@@ -7,5 +7,10 @@
 			"item": "nether_star"
 		}
 	},
-	"background": "textures/gui/advancements/backgrounds/end.png"
+	"background": {
+		"texture": "vanillaplusplus:textures/gui/skills/adventurer_bg.png",
+		"width": 1024,
+		"height": 1024,
+		"position": "fill"
+	}
 }

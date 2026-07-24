@@ -7,3952 +7,3952 @@
 	},
 	"class_warrior_root": {
 		"definition": "attack_damage",
-		"x": 32,
-		"y": 0
+		"x": 50,
+		"y": -37
 	},
 	"warrior_swords_root": {
 		"definition": "sword_damage",
-		"x": 64,
-		"y": 0
+		"x": 121,
+		"y": 27
 	},
 	"warrior_swords_t0_1": {
 		"definition": "sword_damage",
-		"x": 96,
-		"y": -40
-	},
-	"warrior_swords_t1_1": {
-		"definition": "attack_damage",
-		"x": 96,
-		"y": 0
-	},
-	"warrior_swords_t2_1": {
-		"definition": "melee_damage",
-		"x": 96,
-		"y": 40
+		"x": 181,
+		"y": 42
 	},
 	"warrior_swords_t0_2": {
 		"definition": "attack_speed",
-		"x": 128,
-		"y": -100
-	},
-	"warrior_swords_t0_7": {
-		"definition": "attack_speed",
-		"x": 128,
-		"y": -60
-	},
-	"warrior_swords_t1_2": {
-		"definition": "knockback",
-		"x": 128,
-		"y": -20
-	},
-	"warrior_swords_t1_7": {
-		"definition": "knockback",
-		"x": 128,
-		"y": 20
-	},
-	"warrior_swords_t2_2": {
-		"definition": "life_steal",
-		"x": 128,
+		"x": 241,
 		"y": 60
-	},
-	"warrior_swords_t2_7": {
-		"definition": "life_steal",
-		"x": 128,
-		"y": 100
 	},
 	"warrior_swords_t0_3": {
 		"definition": "sword_damage",
-		"x": 160,
-		"y": -220
-	},
-	"warrior_swords_t0_5": {
-		"definition": "sword_damage",
-		"x": 160,
-		"y": -180
-	},
-	"warrior_swords_t0_8": {
-		"definition": "sword_damage",
-		"x": 160,
-		"y": -140
-	},
-	"warrior_swords_t0_10": {
-		"definition": "sword_damage",
-		"x": 160,
-		"y": -100
-	},
-	"warrior_swords_t1_3": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": -60
-	},
-	"warrior_swords_t1_5": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": -20
-	},
-	"warrior_swords_t1_8": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 20
-	},
-	"warrior_swords_t1_10": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 60
-	},
-	"warrior_swords_t2_3": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 100
-	},
-	"warrior_swords_t2_5": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 140
-	},
-	"warrior_swords_t2_8": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 180
-	},
-	"warrior_swords_t2_10": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 220
+		"x": 300,
+		"y": 77
 	},
 	"warrior_swords_t0_4": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": -220
+		"x": 360,
+		"y": 95
+	},
+	"warrior_swords_t0_5": {
+		"definition": "sword_damage",
+		"x": 299,
+		"y": 81
 	},
 	"warrior_swords_t0_6": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": -180
+		"x": 358,
+		"y": 100
+	},
+	"warrior_swords_t0_7": {
+		"definition": "attack_speed",
+		"x": 238,
+		"y": 68
+	},
+	"warrior_swords_t0_8": {
+		"definition": "sword_damage",
+		"x": 298,
+		"y": 87
 	},
 	"warrior_swords_t0_9": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": -140
+		"x": 356,
+		"y": 107
+	},
+	"warrior_swords_t0_10": {
+		"definition": "sword_damage",
+		"x": 302,
+		"y": 72
 	},
 	"warrior_swords_t0_11": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": -100
+		"x": 361,
+		"y": 88
+	},
+	"warrior_swords_t1_1": {
+		"definition": "attack_damage",
+		"x": 178,
+		"y": 54
+	},
+	"warrior_swords_t1_2": {
+		"definition": "knockback",
+		"x": 236,
+		"y": 77
+	},
+	"warrior_swords_t1_3": {
+		"definition": "attack_damage",
+		"x": 294,
+		"y": 98
 	},
 	"warrior_swords_t1_4": {
 		"definition": "knockback",
-		"x": 192,
-		"y": -60
+		"x": 352,
+		"y": 120
+	},
+	"warrior_swords_t1_5": {
+		"definition": "attack_damage",
+		"x": 293,
+		"y": 102
 	},
 	"warrior_swords_t1_6": {
 		"definition": "knockback",
-		"x": 192,
-		"y": -20
+		"x": 351,
+		"y": 124
+	},
+	"warrior_swords_t1_7": {
+		"definition": "knockback",
+		"x": 233,
+		"y": 84
+	},
+	"warrior_swords_t1_8": {
+		"definition": "attack_damage",
+		"x": 291,
+		"y": 107
 	},
 	"warrior_swords_t1_9": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 20
+		"x": 348,
+		"y": 131
+	},
+	"warrior_swords_t1_10": {
+		"definition": "attack_damage",
+		"x": 296,
+		"y": 93
 	},
 	"warrior_swords_t1_11": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 60
+		"x": 354,
+		"y": 113
+	},
+	"warrior_swords_t2_1": {
+		"definition": "melee_damage",
+		"x": 174,
+		"y": 67
+	},
+	"warrior_swords_t2_2": {
+		"definition": "life_steal",
+		"x": 230,
+		"y": 93
+	},
+	"warrior_swords_t2_3": {
+		"definition": "melee_damage",
+		"x": 287,
+		"y": 118
 	},
 	"warrior_swords_t2_4": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 100
+		"x": 343,
+		"y": 144
+	},
+	"warrior_swords_t2_5": {
+		"definition": "melee_damage",
+		"x": 285,
+		"y": 122
 	},
 	"warrior_swords_t2_6": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 140
+		"x": 341,
+		"y": 148
+	},
+	"warrior_swords_t2_7": {
+		"definition": "life_steal",
+		"x": 227,
+		"y": 100
+	},
+	"warrior_swords_t2_8": {
+		"definition": "melee_damage",
+		"x": 283,
+		"y": 127
 	},
 	"warrior_swords_t2_9": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 180
+		"x": 338,
+		"y": 155
+	},
+	"warrior_swords_t2_10": {
+		"definition": "melee_damage",
+		"x": 289,
+		"y": 113
 	},
 	"warrior_swords_t2_11": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 220
+		"x": 346,
+		"y": 138
 	},
 	"warrior_daggers_root": {
 		"definition": "attack_speed",
-		"x": 64,
-		"y": 2000
+		"x": 100,
+		"y": -74
 	},
 	"warrior_daggers_t0_1": {
 		"definition": "attack_speed",
-		"x": 96,
-		"y": 1960
-	},
-	"warrior_daggers_t1_1": {
-		"definition": "luck",
-		"x": 96,
-		"y": 2000
-	},
-	"warrior_daggers_t2_1": {
-		"definition": "stealth",
-		"x": 96,
-		"y": 2040
+		"x": 150,
+		"y": -110
 	},
 	"warrior_daggers_t0_2": {
 		"definition": "move_speed",
-		"x": 128,
-		"y": 1900
-	},
-	"warrior_daggers_t0_7": {
-		"definition": "move_speed",
-		"x": 128,
-		"y": 1940
-	},
-	"warrior_daggers_t1_2": {
-		"definition": "melee_damage",
-		"x": 128,
-		"y": 1980
-	},
-	"warrior_daggers_t1_7": {
-		"definition": "melee_damage",
-		"x": 128,
-		"y": 2020
-	},
-	"warrior_daggers_t2_2": {
-		"definition": "armor_shred",
-		"x": 128,
-		"y": 2060
-	},
-	"warrior_daggers_t2_7": {
-		"definition": "armor_shred",
-		"x": 128,
-		"y": 2100
+		"x": 203,
+		"y": -143
 	},
 	"warrior_daggers_t0_3": {
 		"definition": "attack_speed",
-		"x": 160,
-		"y": 1780
-	},
-	"warrior_daggers_t0_5": {
-		"definition": "attack_speed",
-		"x": 160,
-		"y": 1820
-	},
-	"warrior_daggers_t0_8": {
-		"definition": "attack_speed",
-		"x": 160,
-		"y": 1860
-	},
-	"warrior_daggers_t0_10": {
-		"definition": "attack_speed",
-		"x": 160,
-		"y": 1900
-	},
-	"warrior_daggers_t1_3": {
-		"definition": "luck",
-		"x": 160,
-		"y": 1940
-	},
-	"warrior_daggers_t1_5": {
-		"definition": "luck",
-		"x": 160,
-		"y": 1980
-	},
-	"warrior_daggers_t1_8": {
-		"definition": "luck",
-		"x": 160,
-		"y": 2020
-	},
-	"warrior_daggers_t1_10": {
-		"definition": "luck",
-		"x": 160,
-		"y": 2060
-	},
-	"warrior_daggers_t2_3": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 2100
-	},
-	"warrior_daggers_t2_5": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 2140
-	},
-	"warrior_daggers_t2_8": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 2180
-	},
-	"warrior_daggers_t2_10": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 2220
+		"x": 255,
+		"y": -177
 	},
 	"warrior_daggers_t0_4": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 1780
+		"x": 307,
+		"y": -210
+	},
+	"warrior_daggers_t0_5": {
+		"definition": "attack_speed",
+		"x": 257,
+		"y": -173
 	},
 	"warrior_daggers_t0_6": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 1820
+		"x": 310,
+		"y": -206
+	},
+	"warrior_daggers_t0_7": {
+		"definition": "move_speed",
+		"x": 207,
+		"y": -136
+	},
+	"warrior_daggers_t0_8": {
+		"definition": "attack_speed",
+		"x": 260,
+		"y": -168
 	},
 	"warrior_daggers_t0_9": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 1860
+		"x": 314,
+		"y": -200
+	},
+	"warrior_daggers_t0_10": {
+		"definition": "attack_speed",
+		"x": 251,
+		"y": -181
 	},
 	"warrior_daggers_t0_11": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 1900
+		"x": 303,
+		"y": -216
+	},
+	"warrior_daggers_t1_1": {
+		"definition": "luck",
+		"x": 157,
+		"y": -99
+	},
+	"warrior_daggers_t1_2": {
+		"definition": "melee_damage",
+		"x": 212,
+		"y": -128
+	},
+	"warrior_daggers_t1_3": {
+		"definition": "luck",
+		"x": 266,
+		"y": -159
 	},
 	"warrior_daggers_t1_4": {
 		"definition": "melee_damage",
-		"x": 192,
-		"y": 1940
+		"x": 321,
+		"y": -188
+	},
+	"warrior_daggers_t1_5": {
+		"definition": "luck",
+		"x": 268,
+		"y": -155
 	},
 	"warrior_daggers_t1_6": {
 		"definition": "melee_damage",
-		"x": 192,
-		"y": 1980
+		"x": 323,
+		"y": -184
+	},
+	"warrior_daggers_t1_7": {
+		"definition": "melee_damage",
+		"x": 216,
+		"y": -121
+	},
+	"warrior_daggers_t1_8": {
+		"definition": "luck",
+		"x": 271,
+		"y": -150
 	},
 	"warrior_daggers_t1_9": {
 		"definition": "melee_damage",
-		"x": 192,
-		"y": 2020
+		"x": 327,
+		"y": -178
+	},
+	"warrior_daggers_t1_10": {
+		"definition": "luck",
+		"x": 263,
+		"y": -164
 	},
 	"warrior_daggers_t1_11": {
 		"definition": "melee_damage",
-		"x": 192,
-		"y": 2060
+		"x": 317,
+		"y": -194
+	},
+	"warrior_daggers_t2_1": {
+		"definition": "stealth",
+		"x": 164,
+		"y": -88
+	},
+	"warrior_daggers_t2_2": {
+		"definition": "armor_shred",
+		"x": 221,
+		"y": -113
+	},
+	"warrior_daggers_t2_3": {
+		"definition": "stealth",
+		"x": 277,
+		"y": -140
 	},
 	"warrior_daggers_t2_4": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 2100
+		"x": 333,
+		"y": -165
+	},
+	"warrior_daggers_t2_5": {
+		"definition": "stealth",
+		"x": 279,
+		"y": -136
 	},
 	"warrior_daggers_t2_6": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 2140
+		"x": 335,
+		"y": -161
+	},
+	"warrior_daggers_t2_7": {
+		"definition": "armor_shred",
+		"x": 224,
+		"y": -106
+	},
+	"warrior_daggers_t2_8": {
+		"definition": "stealth",
+		"x": 281,
+		"y": -131
 	},
 	"warrior_daggers_t2_9": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 2180
+		"x": 338,
+		"y": -155
+	},
+	"warrior_daggers_t2_10": {
+		"definition": "stealth",
+		"x": 274,
+		"y": -145
 	},
 	"warrior_daggers_t2_11": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 2220
+		"x": 330,
+		"y": -172
 	},
 	"warrior_greatswords_root": {
 		"definition": "attack_damage",
-		"x": 64,
-		"y": 4000
+		"x": 113,
+		"y": -51
 	},
 	"warrior_greatswords_t0_1": {
 		"definition": "attack_damage",
-		"x": 96,
-		"y": 3960
-	},
-	"warrior_greatswords_t1_1": {
-		"definition": "max_health",
-		"x": 96,
-		"y": 4000
-	},
-	"warrior_greatswords_t2_1": {
-		"definition": "toughness_shred",
-		"x": 96,
-		"y": 4040
+		"x": 170,
+		"y": -75
 	},
 	"warrior_greatswords_t0_2": {
 		"definition": "knockback",
-		"x": 128,
-		"y": 3900
-	},
-	"warrior_greatswords_t0_7": {
-		"definition": "knockback",
-		"x": 128,
-		"y": 3940
-	},
-	"warrior_greatswords_t1_2": {
-		"definition": "attack_speed",
-		"x": 128,
-		"y": 3980
-	},
-	"warrior_greatswords_t1_7": {
-		"definition": "attack_speed",
-		"x": 128,
-		"y": 4020
-	},
-	"warrior_greatswords_t2_2": {
-		"definition": "resistance",
-		"x": 128,
-		"y": 4060
-	},
-	"warrior_greatswords_t2_7": {
-		"definition": "resistance",
-		"x": 128,
-		"y": 4100
+		"x": 229,
+		"y": -96
 	},
 	"warrior_greatswords_t0_3": {
 		"definition": "attack_damage",
-		"x": 160,
-		"y": 3780
-	},
-	"warrior_greatswords_t0_5": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 3820
-	},
-	"warrior_greatswords_t0_8": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 3860
-	},
-	"warrior_greatswords_t0_10": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 3900
-	},
-	"warrior_greatswords_t1_3": {
-		"definition": "max_health",
-		"x": 160,
-		"y": 3940
-	},
-	"warrior_greatswords_t1_5": {
-		"definition": "max_health",
-		"x": 160,
-		"y": 3980
-	},
-	"warrior_greatswords_t1_8": {
-		"definition": "max_health",
-		"x": 160,
-		"y": 4020
-	},
-	"warrior_greatswords_t1_10": {
-		"definition": "max_health",
-		"x": 160,
-		"y": 4060
-	},
-	"warrior_greatswords_t2_3": {
-		"definition": "toughness_shred",
-		"x": 160,
-		"y": 4100
-	},
-	"warrior_greatswords_t2_5": {
-		"definition": "toughness_shred",
-		"x": 160,
-		"y": 4140
-	},
-	"warrior_greatswords_t2_8": {
-		"definition": "toughness_shred",
-		"x": 160,
-		"y": 4180
-	},
-	"warrior_greatswords_t2_10": {
-		"definition": "toughness_shred",
-		"x": 160,
-		"y": 4220
+		"x": 287,
+		"y": -118
 	},
 	"warrior_greatswords_t0_4": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 3780
+		"x": 345,
+		"y": -140
+	},
+	"warrior_greatswords_t0_5": {
+		"definition": "attack_damage",
+		"x": 288,
+		"y": -115
 	},
 	"warrior_greatswords_t0_6": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 3820
+		"x": 346,
+		"y": -135
+	},
+	"warrior_greatswords_t0_7": {
+		"definition": "knockback",
+		"x": 232,
+		"y": -89
+	},
+	"warrior_greatswords_t0_8": {
+		"definition": "attack_damage",
+		"x": 290,
+		"y": -109
 	},
 	"warrior_greatswords_t0_9": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 3860
+		"x": 349,
+		"y": -129
+	},
+	"warrior_greatswords_t0_10": {
+		"definition": "attack_damage",
+		"x": 284,
+		"y": -124
 	},
 	"warrior_greatswords_t0_11": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 3900
+		"x": 342,
+		"y": -146
+	},
+	"warrior_greatswords_t1_1": {
+		"definition": "max_health",
+		"x": 175,
+		"y": -63
+	},
+	"warrior_greatswords_t1_2": {
+		"definition": "attack_speed",
+		"x": 235,
+		"y": -80
+	},
+	"warrior_greatswords_t1_3": {
+		"definition": "max_health",
+		"x": 294,
+		"y": -98
 	},
 	"warrior_greatswords_t1_4": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 3940
+		"x": 354,
+		"y": -115
+	},
+	"warrior_greatswords_t1_5": {
+		"definition": "max_health",
+		"x": 295,
+		"y": -94
 	},
 	"warrior_greatswords_t1_6": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 3980
+		"x": 355,
+		"y": -111
+	},
+	"warrior_greatswords_t1_7": {
+		"definition": "attack_speed",
+		"x": 237,
+		"y": -73
+	},
+	"warrior_greatswords_t1_8": {
+		"definition": "max_health",
+		"x": 297,
+		"y": -89
 	},
 	"warrior_greatswords_t1_9": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 4020
+		"x": 357,
+		"y": -104
+	},
+	"warrior_greatswords_t1_10": {
+		"definition": "max_health",
+		"x": 292,
+		"y": -104
 	},
 	"warrior_greatswords_t1_11": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 4060
+		"x": 351,
+		"y": -122
+	},
+	"warrior_greatswords_t2_1": {
+		"definition": "toughness_shred",
+		"x": 179,
+		"y": -51
+	},
+	"warrior_greatswords_t2_2": {
+		"definition": "resistance",
+		"x": 240,
+		"y": -63
+	},
+	"warrior_greatswords_t2_3": {
+		"definition": "toughness_shred",
+		"x": 300,
+		"y": -77
 	},
 	"warrior_greatswords_t2_4": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 4100
+		"x": 361,
+		"y": -91
+	},
+	"warrior_greatswords_t2_5": {
+		"definition": "toughness_shred",
+		"x": 301,
+		"y": -74
 	},
 	"warrior_greatswords_t2_6": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 4140
+		"x": 362,
+		"y": -86
+	},
+	"warrior_greatswords_t2_7": {
+		"definition": "resistance",
+		"x": 242,
+		"y": -56
+	},
+	"warrior_greatswords_t2_8": {
+		"definition": "toughness_shred",
+		"x": 302,
+		"y": -68
 	},
 	"warrior_greatswords_t2_9": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 4180
+		"x": 363,
+		"y": -79
+	},
+	"warrior_greatswords_t2_10": {
+		"definition": "toughness_shred",
+		"x": 299,
+		"y": -83
 	},
 	"warrior_greatswords_t2_11": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 4220
+		"x": 359,
+		"y": -97
 	},
 	"warrior_longswords_root": {
 		"definition": "attack_damage",
-		"x": 64,
-		"y": 6000
+		"x": 121,
+		"y": -26
 	},
 	"warrior_longswords_t0_1": {
 		"definition": "attack_damage",
-		"x": 96,
-		"y": 5960
-	},
-	"warrior_longswords_t1_1": {
-		"definition": "melee_damage",
-		"x": 96,
-		"y": 6000
-	},
-	"warrior_longswords_t2_1": {
-		"definition": "melee_resistance",
-		"x": 96,
-		"y": 6040
+		"x": 182,
+		"y": -37
 	},
 	"warrior_longswords_t0_2": {
 		"definition": "attack_speed",
-		"x": 128,
-		"y": 5900
-	},
-	"warrior_longswords_t0_7": {
-		"definition": "attack_speed",
-		"x": 128,
-		"y": 5940
-	},
-	"warrior_longswords_t1_2": {
-		"definition": "move_speed",
-		"x": 128,
-		"y": 5980
-	},
-	"warrior_longswords_t1_7": {
-		"definition": "move_speed",
-		"x": 128,
-		"y": 6020
-	},
-	"warrior_longswords_t2_2": {
-		"definition": "ranged_resistance",
-		"x": 128,
-		"y": 6060
-	},
-	"warrior_longswords_t2_7": {
-		"definition": "ranged_resistance",
-		"x": 128,
-		"y": 6100
+		"x": 244,
+		"y": -45
 	},
 	"warrior_longswords_t0_3": {
 		"definition": "attack_damage",
-		"x": 160,
-		"y": 5780
-	},
-	"warrior_longswords_t0_5": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 5820
-	},
-	"warrior_longswords_t0_8": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 5860
-	},
-	"warrior_longswords_t0_10": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 5900
-	},
-	"warrior_longswords_t1_3": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 5940
-	},
-	"warrior_longswords_t1_5": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 5980
-	},
-	"warrior_longswords_t1_8": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 6020
-	},
-	"warrior_longswords_t1_10": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 6060
-	},
-	"warrior_longswords_t2_3": {
-		"definition": "melee_resistance",
-		"x": 160,
-		"y": 6100
-	},
-	"warrior_longswords_t2_5": {
-		"definition": "melee_resistance",
-		"x": 160,
-		"y": 6140
-	},
-	"warrior_longswords_t2_8": {
-		"definition": "melee_resistance",
-		"x": 160,
-		"y": 6180
-	},
-	"warrior_longswords_t2_10": {
-		"definition": "melee_resistance",
-		"x": 160,
-		"y": 6220
+		"x": 305,
+		"y": -55
 	},
 	"warrior_longswords_t0_4": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 5780
+		"x": 367,
+		"y": -63
+	},
+	"warrior_longswords_t0_5": {
+		"definition": "attack_damage",
+		"x": 306,
+		"y": -51
 	},
 	"warrior_longswords_t0_6": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 5820
+		"x": 367,
+		"y": -58
+	},
+	"warrior_longswords_t0_7": {
+		"definition": "attack_speed",
+		"x": 245,
+		"y": -37
+	},
+	"warrior_longswords_t0_8": {
+		"definition": "attack_damage",
+		"x": 307,
+		"y": -45
 	},
 	"warrior_longswords_t0_9": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 5860
+		"x": 368,
+		"y": -52
+	},
+	"warrior_longswords_t0_10": {
+		"definition": "attack_damage",
+		"x": 304,
+		"y": -60
 	},
 	"warrior_longswords_t0_11": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 5900
+		"x": 365,
+		"y": -70
+	},
+	"warrior_longswords_t1_1": {
+		"definition": "melee_damage",
+		"x": 184,
+		"y": -25
+	},
+	"warrior_longswords_t1_2": {
+		"definition": "move_speed",
+		"x": 246,
+		"y": -28
+	},
+	"warrior_longswords_t1_3": {
+		"definition": "melee_damage",
+		"x": 308,
+		"y": -33
 	},
 	"warrior_longswords_t1_4": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 5940
+		"x": 370,
+		"y": -38
+	},
+	"warrior_longswords_t1_5": {
+		"definition": "melee_damage",
+		"x": 309,
+		"y": -29
 	},
 	"warrior_longswords_t1_6": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 5980
+		"x": 371,
+		"y": -33
+	},
+	"warrior_longswords_t1_7": {
+		"definition": "move_speed",
+		"x": 247,
+		"y": -20
+	},
+	"warrior_longswords_t1_8": {
+		"definition": "melee_damage",
+		"x": 309,
+		"y": -23
 	},
 	"warrior_longswords_t1_9": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 6020
+		"x": 371,
+		"y": -26
+	},
+	"warrior_longswords_t1_10": {
+		"definition": "melee_damage",
+		"x": 308,
+		"y": -39
 	},
 	"warrior_longswords_t1_11": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 6060
+		"x": 369,
+		"y": -45
+	},
+	"warrior_longswords_t2_1": {
+		"definition": "melee_resistance",
+		"x": 186,
+		"y": -12
+	},
+	"warrior_longswords_t2_2": {
+		"definition": "ranged_resistance",
+		"x": 248,
+		"y": -11
+	},
+	"warrior_longswords_t2_3": {
+		"definition": "melee_resistance",
+		"x": 310,
+		"y": -12
 	},
 	"warrior_longswords_t2_4": {
 		"definition": "ranged_resistance",
-		"x": 192,
-		"y": 6100
+		"x": 372,
+		"y": -12
+	},
+	"warrior_longswords_t2_5": {
+		"definition": "melee_resistance",
+		"x": 310,
+		"y": -8
 	},
 	"warrior_longswords_t2_6": {
 		"definition": "ranged_resistance",
-		"x": 192,
-		"y": 6140
+		"x": 372,
+		"y": -7
+	},
+	"warrior_longswords_t2_7": {
+		"definition": "ranged_resistance",
+		"x": 248,
+		"y": -3
+	},
+	"warrior_longswords_t2_8": {
+		"definition": "melee_resistance",
+		"x": 310,
+		"y": -2
 	},
 	"warrior_longswords_t2_9": {
 		"definition": "ranged_resistance",
-		"x": 192,
-		"y": 6180
+		"x": 372,
+		"y": 0
+	},
+	"warrior_longswords_t2_10": {
+		"definition": "melee_resistance",
+		"x": 309,
+		"y": -18
 	},
 	"warrior_longswords_t2_11": {
 		"definition": "ranged_resistance",
-		"x": 192,
-		"y": 6220
+		"x": 372,
+		"y": -19
 	},
 	"warrior_spears_root": {
 		"definition": "entity_reach",
-		"x": 64,
-		"y": 8000
+		"x": 124,
+		"y": 1
 	},
 	"warrior_spears_t0_1": {
 		"definition": "entity_reach",
-		"x": 96,
-		"y": 7960
-	},
-	"warrior_spears_t1_1": {
-		"definition": "attack_damage",
-		"x": 96,
-		"y": 8000
-	},
-	"warrior_spears_t2_1": {
-		"definition": "melee_damage",
-		"x": 96,
-		"y": 8040
+		"x": 186,
+		"y": 2
 	},
 	"warrior_spears_t0_2": {
 		"definition": "knockback",
-		"x": 128,
-		"y": 7900
-	},
-	"warrior_spears_t0_7": {
-		"definition": "knockback",
-		"x": 128,
-		"y": 7940
-	},
-	"warrior_spears_t1_2": {
-		"definition": "attack_speed",
-		"x": 128,
-		"y": 7980
-	},
-	"warrior_spears_t1_7": {
-		"definition": "attack_speed",
-		"x": 128,
-		"y": 8020
-	},
-	"warrior_spears_t2_2": {
-		"definition": "armor_shred",
-		"x": 128,
-		"y": 8060
-	},
-	"warrior_spears_t2_7": {
-		"definition": "armor_shred",
-		"x": 128,
-		"y": 8100
+		"x": 248,
+		"y": 8
 	},
 	"warrior_spears_t0_3": {
 		"definition": "entity_reach",
-		"x": 160,
-		"y": 7780
-	},
-	"warrior_spears_t0_5": {
-		"definition": "entity_reach",
-		"x": 160,
-		"y": 7820
-	},
-	"warrior_spears_t0_8": {
-		"definition": "entity_reach",
-		"x": 160,
-		"y": 7860
-	},
-	"warrior_spears_t0_10": {
-		"definition": "entity_reach",
-		"x": 160,
-		"y": 7900
-	},
-	"warrior_spears_t1_3": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 7940
-	},
-	"warrior_spears_t1_5": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 7980
-	},
-	"warrior_spears_t1_8": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 8020
-	},
-	"warrior_spears_t1_10": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 8060
-	},
-	"warrior_spears_t2_3": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 8100
-	},
-	"warrior_spears_t2_5": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 8140
-	},
-	"warrior_spears_t2_8": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 8180
-	},
-	"warrior_spears_t2_10": {
-		"definition": "melee_damage",
-		"x": 160,
-		"y": 8220
+		"x": 310,
+		"y": 12
 	},
 	"warrior_spears_t0_4": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 7780
+		"x": 372,
+		"y": 16
+	},
+	"warrior_spears_t0_5": {
+		"definition": "entity_reach",
+		"x": 310,
+		"y": 16
 	},
 	"warrior_spears_t0_6": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 7820
+		"x": 371,
+		"y": 21
+	},
+	"warrior_spears_t0_7": {
+		"definition": "knockback",
+		"x": 248,
+		"y": 16
+	},
+	"warrior_spears_t0_8": {
+		"definition": "entity_reach",
+		"x": 309,
+		"y": 22
 	},
 	"warrior_spears_t0_9": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 7860
+		"x": 371,
+		"y": 28
+	},
+	"warrior_spears_t0_10": {
+		"definition": "entity_reach",
+		"x": 310,
+		"y": 6
 	},
 	"warrior_spears_t0_11": {
 		"definition": "knockback",
-		"x": 192,
-		"y": 7900
+		"x": 372,
+		"y": 9
+	},
+	"warrior_spears_t1_1": {
+		"definition": "attack_damage",
+		"x": 185,
+		"y": 15
+	},
+	"warrior_spears_t1_2": {
+		"definition": "attack_speed",
+		"x": 247,
+		"y": 25
+	},
+	"warrior_spears_t1_3": {
+		"definition": "attack_damage",
+		"x": 308,
+		"y": 33
 	},
 	"warrior_spears_t1_4": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 7940
+		"x": 370,
+		"y": 42
+	},
+	"warrior_spears_t1_5": {
+		"definition": "attack_damage",
+		"x": 308,
+		"y": 37
 	},
 	"warrior_spears_t1_6": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 7980
+		"x": 369,
+		"y": 47
+	},
+	"warrior_spears_t1_7": {
+		"definition": "attack_speed",
+		"x": 246,
+		"y": 33
+	},
+	"warrior_spears_t1_8": {
+		"definition": "attack_damage",
+		"x": 307,
+		"y": 43
 	},
 	"warrior_spears_t1_9": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 8020
+		"x": 368,
+		"y": 54
+	},
+	"warrior_spears_t1_10": {
+		"definition": "attack_damage",
+		"x": 309,
+		"y": 27
 	},
 	"warrior_spears_t1_11": {
 		"definition": "attack_speed",
-		"x": 192,
-		"y": 8060
+		"x": 370,
+		"y": 35
+	},
+	"warrior_spears_t2_1": {
+		"definition": "melee_damage",
+		"x": 184,
+		"y": 28
+	},
+	"warrior_spears_t2_2": {
+		"definition": "armor_shred",
+		"x": 244,
+		"y": 42
+	},
+	"warrior_spears_t2_3": {
+		"definition": "melee_damage",
+		"x": 305,
+		"y": 55
 	},
 	"warrior_spears_t2_4": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 8100
+		"x": 366,
+		"y": 68
+	},
+	"warrior_spears_t2_5": {
+		"definition": "melee_damage",
+		"x": 304,
+		"y": 58
 	},
 	"warrior_spears_t2_6": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 8140
+		"x": 365,
+		"y": 72
+	},
+	"warrior_spears_t2_7": {
+		"definition": "armor_shred",
+		"x": 243,
+		"y": 50
+	},
+	"warrior_spears_t2_8": {
+		"definition": "melee_damage",
+		"x": 303,
+		"y": 64
 	},
 	"warrior_spears_t2_9": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 8180
+		"x": 363,
+		"y": 79
+	},
+	"warrior_spears_t2_10": {
+		"definition": "melee_damage",
+		"x": 306,
+		"y": 49
 	},
 	"warrior_spears_t2_11": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 8220
+		"x": 367,
+		"y": 61
 	},
 	"warrior_tachi_root": {
 		"definition": "attack_speed",
-		"x": 64,
-		"y": 10000
+		"x": 112,
+		"y": 52
 	},
 	"warrior_tachi_t0_1": {
 		"definition": "attack_speed",
-		"x": 96,
-		"y": 9960
-	},
-	"warrior_tachi_t1_1": {
-		"definition": "attack_damage",
-		"x": 96,
-		"y": 10000
-	},
-	"warrior_tachi_t2_1": {
-		"definition": "stealth",
-		"x": 96,
-		"y": 10040
+		"x": 168,
+		"y": 80
 	},
 	"warrior_tachi_t0_2": {
 		"definition": "move_speed",
-		"x": 128,
-		"y": 9900
-	},
-	"warrior_tachi_t0_7": {
-		"definition": "move_speed",
-		"x": 128,
-		"y": 9940
-	},
-	"warrior_tachi_t1_2": {
-		"definition": "luck",
-		"x": 128,
-		"y": 9980
-	},
-	"warrior_tachi_t1_7": {
-		"definition": "luck",
-		"x": 128,
-		"y": 10020
-	},
-	"warrior_tachi_t2_2": {
-		"definition": "life_steal",
-		"x": 128,
-		"y": 10060
-	},
-	"warrior_tachi_t2_7": {
-		"definition": "life_steal",
-		"x": 128,
-		"y": 10100
+		"x": 222,
+		"y": 110
 	},
 	"warrior_tachi_t0_3": {
 		"definition": "attack_speed",
-		"x": 160,
-		"y": 9780
-	},
-	"warrior_tachi_t0_5": {
-		"definition": "attack_speed",
-		"x": 160,
-		"y": 9820
-	},
-	"warrior_tachi_t0_8": {
-		"definition": "attack_speed",
-		"x": 160,
-		"y": 9860
-	},
-	"warrior_tachi_t0_10": {
-		"definition": "attack_speed",
-		"x": 160,
-		"y": 9900
-	},
-	"warrior_tachi_t1_3": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 9940
-	},
-	"warrior_tachi_t1_5": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 9980
-	},
-	"warrior_tachi_t1_8": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 10020
-	},
-	"warrior_tachi_t1_10": {
-		"definition": "attack_damage",
-		"x": 160,
-		"y": 10060
-	},
-	"warrior_tachi_t2_3": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 10100
-	},
-	"warrior_tachi_t2_5": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 10140
-	},
-	"warrior_tachi_t2_8": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 10180
-	},
-	"warrior_tachi_t2_10": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 10220
+		"x": 277,
+		"y": 140
 	},
 	"warrior_tachi_t0_4": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 9780
+		"x": 331,
+		"y": 170
+	},
+	"warrior_tachi_t0_5": {
+		"definition": "attack_speed",
+		"x": 275,
+		"y": 143
 	},
 	"warrior_tachi_t0_6": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 9820
+		"x": 329,
+		"y": 174
+	},
+	"warrior_tachi_t0_7": {
+		"definition": "move_speed",
+		"x": 219,
+		"y": 117
+	},
+	"warrior_tachi_t0_8": {
+		"definition": "attack_speed",
+		"x": 272,
+		"y": 148
 	},
 	"warrior_tachi_t0_9": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 9860
+		"x": 326,
+		"y": 180
+	},
+	"warrior_tachi_t0_10": {
+		"definition": "attack_speed",
+		"x": 279,
+		"y": 134
 	},
 	"warrior_tachi_t0_11": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 9900
+		"x": 334,
+		"y": 163
+	},
+	"warrior_tachi_t1_1": {
+		"definition": "attack_damage",
+		"x": 162,
+		"y": 91
+	},
+	"warrior_tachi_t1_2": {
+		"definition": "luck",
+		"x": 214,
+		"y": 125
+	},
+	"warrior_tachi_t1_3": {
+		"definition": "attack_damage",
+		"x": 266,
+		"y": 159
 	},
 	"warrior_tachi_t1_4": {
 		"definition": "luck",
-		"x": 192,
-		"y": 9940
+		"x": 318,
+		"y": 192
+	},
+	"warrior_tachi_t1_5": {
+		"definition": "attack_damage",
+		"x": 264,
+		"y": 162
 	},
 	"warrior_tachi_t1_6": {
 		"definition": "luck",
-		"x": 192,
-		"y": 9980
+		"x": 316,
+		"y": 196
+	},
+	"warrior_tachi_t1_7": {
+		"definition": "luck",
+		"x": 210,
+		"y": 132
+	},
+	"warrior_tachi_t1_8": {
+		"definition": "attack_damage",
+		"x": 261,
+		"y": 167
 	},
 	"warrior_tachi_t1_9": {
 		"definition": "luck",
-		"x": 192,
-		"y": 10020
+		"x": 312,
+		"y": 202
+	},
+	"warrior_tachi_t1_10": {
+		"definition": "attack_damage",
+		"x": 269,
+		"y": 153
 	},
 	"warrior_tachi_t1_11": {
 		"definition": "luck",
-		"x": 192,
-		"y": 10060
+		"x": 322,
+		"y": 186
+	},
+	"warrior_tachi_t2_1": {
+		"definition": "stealth",
+		"x": 155,
+		"y": 102
+	},
+	"warrior_tachi_t2_2": {
+		"definition": "life_steal",
+		"x": 205,
+		"y": 140
+	},
+	"warrior_tachi_t2_3": {
+		"definition": "stealth",
+		"x": 255,
+		"y": 177
 	},
 	"warrior_tachi_t2_4": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 10100
+		"x": 304,
+		"y": 214
+	},
+	"warrior_tachi_t2_5": {
+		"definition": "stealth",
+		"x": 253,
+		"y": 180
 	},
 	"warrior_tachi_t2_6": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 10140
+		"x": 302,
+		"y": 218
+	},
+	"warrior_tachi_t2_7": {
+		"definition": "life_steal",
+		"x": 200,
+		"y": 146
+	},
+	"warrior_tachi_t2_8": {
+		"definition": "stealth",
+		"x": 249,
+		"y": 185
 	},
 	"warrior_tachi_t2_9": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 10180
+		"x": 297,
+		"y": 223
+	},
+	"warrior_tachi_t2_10": {
+		"definition": "stealth",
+		"x": 258,
+		"y": 172
 	},
 	"warrior_tachi_t2_11": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 10220
+		"x": 308,
+		"y": 208
 	},
 	"class_warrior_capstone": {
 		"definition": "capstone_warrior",
-		"x": 224,
-		"y": 9780
+		"x": 386,
+		"y": 198
 	},
 	"class_ranger_root": {
 		"definition": "move_speed",
-		"x": 32,
-		"y": 12000
+		"x": 37,
+		"y": 50
 	},
 	"ranger_bows_root": {
 		"definition": "ranged_damage",
-		"x": 64,
-		"y": 12000
+		"x": 74,
+		"y": 100
 	},
 	"ranger_bows_t0_1": {
 		"definition": "bow_speed",
-		"x": 96,
-		"y": 11960
-	},
-	"ranger_bows_t1_1": {
-		"definition": "ranged_damage",
-		"x": 96,
-		"y": 12000
-	},
-	"ranger_bows_t2_1": {
-		"definition": "ranged_resistance",
-		"x": 96,
-		"y": 12040
+		"x": 110,
+		"y": 150
 	},
 	"ranger_bows_t0_2": {
 		"definition": "crossbow_speed",
-		"x": 128,
-		"y": 11900
-	},
-	"ranger_bows_t0_7": {
-		"definition": "crossbow_speed",
-		"x": 128,
-		"y": 11940
-	},
-	"ranger_bows_t1_2": {
-		"definition": "repair_cost",
-		"x": 128,
-		"y": 11980
-	},
-	"ranger_bows_t1_7": {
-		"definition": "repair_cost",
-		"x": 128,
-		"y": 12020
-	},
-	"ranger_bows_t2_2": {
-		"definition": "fall_reduction",
-		"x": 128,
-		"y": 12060
-	},
-	"ranger_bows_t2_7": {
-		"definition": "fall_reduction",
-		"x": 128,
-		"y": 12100
+		"x": 143,
+		"y": 202
 	},
 	"ranger_bows_t0_3": {
 		"definition": "bow_speed",
-		"x": 160,
-		"y": 11780
+		"x": 178,
+		"y": 254
+	},
+	"ranger_bows_t0_4": {
+		"definition": "crossbow_speed",
+		"x": 212,
+		"y": 306
 	},
 	"ranger_bows_t0_5": {
 		"definition": "bow_speed",
-		"x": 160,
-		"y": 11820
+		"x": 175,
+		"y": 256
+	},
+	"ranger_bows_t0_6": {
+		"definition": "crossbow_speed",
+		"x": 209,
+		"y": 308
+	},
+	"ranger_bows_t0_7": {
+		"definition": "crossbow_speed",
+		"x": 138,
+		"y": 206
 	},
 	"ranger_bows_t0_8": {
 		"definition": "bow_speed",
-		"x": 160,
-		"y": 11860
+		"x": 171,
+		"y": 259
+	},
+	"ranger_bows_t0_9": {
+		"definition": "crossbow_speed",
+		"x": 204,
+		"y": 311
 	},
 	"ranger_bows_t0_10": {
 		"definition": "bow_speed",
-		"x": 160,
-		"y": 11900
+		"x": 182,
+		"y": 251
+	},
+	"ranger_bows_t0_11": {
+		"definition": "crossbow_speed",
+		"x": 217,
+		"y": 302
+	},
+	"ranger_bows_t1_1": {
+		"definition": "ranged_damage",
+		"x": 101,
+		"y": 156
+	},
+	"ranger_bows_t1_2": {
+		"definition": "repair_cost",
+		"x": 131,
+		"y": 210
 	},
 	"ranger_bows_t1_3": {
 		"definition": "ranged_damage",
-		"x": 160,
-		"y": 11940
+		"x": 163,
+		"y": 264
+	},
+	"ranger_bows_t1_4": {
+		"definition": "repair_cost",
+		"x": 193,
+		"y": 318
 	},
 	"ranger_bows_t1_5": {
 		"definition": "ranged_damage",
 		"x": 160,
-		"y": 11980
-	},
-	"ranger_bows_t1_8": {
-		"definition": "ranged_damage",
-		"x": 160,
-		"y": 12020
-	},
-	"ranger_bows_t1_10": {
-		"definition": "ranged_damage",
-		"x": 160,
-		"y": 12060
-	},
-	"ranger_bows_t2_3": {
-		"definition": "ranged_resistance",
-		"x": 160,
-		"y": 12100
-	},
-	"ranger_bows_t2_5": {
-		"definition": "ranged_resistance",
-		"x": 160,
-		"y": 12140
-	},
-	"ranger_bows_t2_8": {
-		"definition": "ranged_resistance",
-		"x": 160,
-		"y": 12180
-	},
-	"ranger_bows_t2_10": {
-		"definition": "ranged_resistance",
-		"x": 160,
-		"y": 12220
-	},
-	"ranger_bows_t0_4": {
-		"definition": "crossbow_speed",
-		"x": 192,
-		"y": 11780
-	},
-	"ranger_bows_t0_6": {
-		"definition": "crossbow_speed",
-		"x": 192,
-		"y": 11820
-	},
-	"ranger_bows_t0_9": {
-		"definition": "crossbow_speed",
-		"x": 192,
-		"y": 11860
-	},
-	"ranger_bows_t0_11": {
-		"definition": "crossbow_speed",
-		"x": 192,
-		"y": 11900
-	},
-	"ranger_bows_t1_4": {
-		"definition": "repair_cost",
-		"x": 192,
-		"y": 11940
+		"y": 266
 	},
 	"ranger_bows_t1_6": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 11980
+		"x": 190,
+		"y": 320
+	},
+	"ranger_bows_t1_7": {
+		"definition": "repair_cost",
+		"x": 125,
+		"y": 214
+	},
+	"ranger_bows_t1_8": {
+		"definition": "ranged_damage",
+		"x": 155,
+		"y": 268
 	},
 	"ranger_bows_t1_9": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 12020
+		"x": 185,
+		"y": 323
+	},
+	"ranger_bows_t1_10": {
+		"definition": "ranged_damage",
+		"x": 167,
+		"y": 261
 	},
 	"ranger_bows_t1_11": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 12060
+		"x": 198,
+		"y": 315
+	},
+	"ranger_bows_t2_1": {
+		"definition": "ranged_resistance",
+		"x": 91,
+		"y": 162
+	},
+	"ranger_bows_t2_2": {
+		"definition": "fall_reduction",
+		"x": 118,
+		"y": 218
+	},
+	"ranger_bows_t2_3": {
+		"definition": "ranged_resistance",
+		"x": 147,
+		"y": 273
 	},
 	"ranger_bows_t2_4": {
 		"definition": "fall_reduction",
-		"x": 192,
-		"y": 12100
+		"x": 174,
+		"y": 329
+	},
+	"ranger_bows_t2_5": {
+		"definition": "ranged_resistance",
+		"x": 144,
+		"y": 275
 	},
 	"ranger_bows_t2_6": {
 		"definition": "fall_reduction",
-		"x": 192,
-		"y": 12140
+		"x": 171,
+		"y": 331
+	},
+	"ranger_bows_t2_7": {
+		"definition": "fall_reduction",
+		"x": 113,
+		"y": 221
+	},
+	"ranger_bows_t2_8": {
+		"definition": "ranged_resistance",
+		"x": 139,
+		"y": 277
 	},
 	"ranger_bows_t2_9": {
 		"definition": "fall_reduction",
-		"x": 192,
-		"y": 12180
+		"x": 165,
+		"y": 333
+	},
+	"ranger_bows_t2_10": {
+		"definition": "ranged_resistance",
+		"x": 151,
+		"y": 271
 	},
 	"ranger_bows_t2_11": {
 		"definition": "fall_reduction",
-		"x": 192,
-		"y": 12220
+		"x": 179,
+		"y": 326
 	},
 	"ranger_running_root": {
 		"definition": "sprint_speed",
-		"x": 64,
-		"y": 14000
+		"x": 11,
+		"y": 124
 	},
 	"ranger_running_t0_1": {
 		"definition": "sprint_speed",
-		"x": 96,
-		"y": 13960
-	},
-	"ranger_running_t1_1": {
-		"definition": "jump",
-		"x": 96,
-		"y": 14000
-	},
-	"ranger_running_t2_1": {
-		"definition": "fall_reduction",
-		"x": 96,
-		"y": 14040
+		"x": 15,
+		"y": 185
 	},
 	"ranger_running_t0_2": {
 		"definition": "step_height",
-		"x": 128,
-		"y": 13900
-	},
-	"ranger_running_t0_7": {
-		"definition": "step_height",
-		"x": 128,
-		"y": 13940
-	},
-	"ranger_running_t1_2": {
-		"definition": "stamina",
-		"x": 128,
-		"y": 13980
-	},
-	"ranger_running_t1_7": {
-		"definition": "stamina",
-		"x": 128,
-		"y": 14020
-	},
-	"ranger_running_t2_2": {
-		"definition": "move_speed",
-		"x": 128,
-		"y": 14060
-	},
-	"ranger_running_t2_7": {
-		"definition": "move_speed",
-		"x": 128,
-		"y": 14100
+		"x": 16,
+		"y": 247
 	},
 	"ranger_running_t0_3": {
 		"definition": "sprint_speed",
-		"x": 160,
-		"y": 13780
-	},
-	"ranger_running_t0_5": {
-		"definition": "sprint_speed",
-		"x": 160,
-		"y": 13820
-	},
-	"ranger_running_t0_8": {
-		"definition": "sprint_speed",
-		"x": 160,
-		"y": 13860
-	},
-	"ranger_running_t0_10": {
-		"definition": "sprint_speed",
-		"x": 160,
-		"y": 13900
-	},
-	"ranger_running_t1_3": {
-		"definition": "jump",
-		"x": 160,
-		"y": 13940
-	},
-	"ranger_running_t1_5": {
-		"definition": "jump",
-		"x": 160,
-		"y": 13980
-	},
-	"ranger_running_t1_8": {
-		"definition": "jump",
-		"x": 160,
-		"y": 14020
-	},
-	"ranger_running_t1_10": {
-		"definition": "jump",
-		"x": 160,
-		"y": 14060
-	},
-	"ranger_running_t2_3": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 14100
-	},
-	"ranger_running_t2_5": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 14140
-	},
-	"ranger_running_t2_8": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 14180
-	},
-	"ranger_running_t2_10": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 14220
+		"x": 18,
+		"y": 309
 	},
 	"ranger_running_t0_4": {
 		"definition": "step_height",
-		"x": 192,
-		"y": 13780
+		"x": 20,
+		"y": 371
+	},
+	"ranger_running_t0_5": {
+		"definition": "sprint_speed",
+		"x": 15,
+		"y": 310
 	},
 	"ranger_running_t0_6": {
 		"definition": "step_height",
-		"x": 192,
-		"y": 13820
+		"x": 16,
+		"y": 372
+	},
+	"ranger_running_t0_7": {
+		"definition": "step_height",
+		"x": 9,
+		"y": 248
+	},
+	"ranger_running_t0_8": {
+		"definition": "sprint_speed",
+		"x": 10,
+		"y": 310
 	},
 	"ranger_running_t0_9": {
 		"definition": "step_height",
-		"x": 192,
-		"y": 13860
+		"x": 10,
+		"y": 372
+	},
+	"ranger_running_t0_10": {
+		"definition": "sprint_speed",
+		"x": 23,
+		"y": 309
 	},
 	"ranger_running_t0_11": {
 		"definition": "step_height",
-		"x": 192,
-		"y": 13900
+		"x": 26,
+		"y": 371
+	},
+	"ranger_running_t1_1": {
+		"definition": "jump",
+		"x": 4,
+		"y": 186
+	},
+	"ranger_running_t1_2": {
+		"definition": "stamina",
+		"x": 1,
+		"y": 248
+	},
+	"ranger_running_t1_3": {
+		"definition": "jump",
+		"x": 0,
+		"y": 310
 	},
 	"ranger_running_t1_4": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 13940
+		"x": -2,
+		"y": 372
+	},
+	"ranger_running_t1_5": {
+		"definition": "jump",
+		"x": -3,
+		"y": 310
 	},
 	"ranger_running_t1_6": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 13980
+		"x": -6,
+		"y": 372
+	},
+	"ranger_running_t1_7": {
+		"definition": "stamina",
+		"x": -5,
+		"y": 248
+	},
+	"ranger_running_t1_8": {
+		"definition": "jump",
+		"x": -8,
+		"y": 310
 	},
 	"ranger_running_t1_9": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 14020
+		"x": -12,
+		"y": 372
+	},
+	"ranger_running_t1_10": {
+		"definition": "jump",
+		"x": 5,
+		"y": 310
 	},
 	"ranger_running_t1_11": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 14060
+		"x": 4,
+		"y": 372
+	},
+	"ranger_running_t2_1": {
+		"definition": "fall_reduction",
+		"x": -7,
+		"y": 186
+	},
+	"ranger_running_t2_2": {
+		"definition": "move_speed",
+		"x": -13,
+		"y": 248
+	},
+	"ranger_running_t2_3": {
+		"definition": "fall_reduction",
+		"x": -18,
+		"y": 309
 	},
 	"ranger_running_t2_4": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 14100
+		"x": -24,
+		"y": 371
+	},
+	"ranger_running_t2_5": {
+		"definition": "fall_reduction",
+		"x": -22,
+		"y": 309
 	},
 	"ranger_running_t2_6": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 14140
+		"x": -28,
+		"y": 371
+	},
+	"ranger_running_t2_7": {
+		"definition": "move_speed",
+		"x": -20,
+		"y": 247
+	},
+	"ranger_running_t2_8": {
+		"definition": "fall_reduction",
+		"x": -27,
+		"y": 309
 	},
 	"ranger_running_t2_9": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 14180
+		"x": -34,
+		"y": 370
+	},
+	"ranger_running_t2_10": {
+		"definition": "fall_reduction",
+		"x": -13,
+		"y": 310
 	},
 	"ranger_running_t2_11": {
 		"definition": "move_speed",
-		"x": 192,
-		"y": 14220
+		"x": -18,
+		"y": 372
 	},
 	"ranger_swimming_root": {
 		"definition": "water_efficiency",
-		"x": 64,
-		"y": 16000
+		"x": -34,
+		"y": 119
 	},
 	"ranger_swimming_t0_1": {
 		"definition": "water_efficiency",
-		"x": 96,
-		"y": 15960
-	},
-	"ranger_swimming_t1_1": {
-		"definition": "submerged_mining_speed",
-		"x": 96,
-		"y": 16000
-	},
-	"ranger_swimming_t2_1": {
-		"definition": "natural_regeneration",
-		"x": 96,
-		"y": 16040
+		"x": -53,
+		"y": 178
 	},
 	"ranger_swimming_t0_2": {
 		"definition": "oxygen",
-		"x": 128,
-		"y": 15900
-	},
-	"ranger_swimming_t0_7": {
-		"definition": "oxygen",
-		"x": 128,
-		"y": 15940
-	},
-	"ranger_swimming_t1_2": {
-		"definition": "trident_damage",
-		"x": 128,
-		"y": 15980
-	},
-	"ranger_swimming_t1_7": {
-		"definition": "trident_damage",
-		"x": 128,
-		"y": 16020
-	},
-	"ranger_swimming_t2_2": {
-		"definition": "healing",
-		"x": 128,
-		"y": 16060
-	},
-	"ranger_swimming_t2_7": {
-		"definition": "healing",
-		"x": 128,
-		"y": 16100
+		"x": -74,
+		"y": 237
 	},
 	"ranger_swimming_t0_3": {
 		"definition": "water_efficiency",
-		"x": 160,
-		"y": 15780
-	},
-	"ranger_swimming_t0_5": {
-		"definition": "water_efficiency",
-		"x": 160,
-		"y": 15820
-	},
-	"ranger_swimming_t0_8": {
-		"definition": "water_efficiency",
-		"x": 160,
-		"y": 15860
-	},
-	"ranger_swimming_t0_10": {
-		"definition": "water_efficiency",
-		"x": 160,
-		"y": 15900
-	},
-	"ranger_swimming_t1_3": {
-		"definition": "submerged_mining_speed",
-		"x": 160,
-		"y": 15940
-	},
-	"ranger_swimming_t1_5": {
-		"definition": "submerged_mining_speed",
-		"x": 160,
-		"y": 15980
-	},
-	"ranger_swimming_t1_8": {
-		"definition": "submerged_mining_speed",
-		"x": 160,
-		"y": 16020
-	},
-	"ranger_swimming_t1_10": {
-		"definition": "submerged_mining_speed",
-		"x": 160,
-		"y": 16060
-	},
-	"ranger_swimming_t2_3": {
-		"definition": "natural_regeneration",
-		"x": 160,
-		"y": 16100
-	},
-	"ranger_swimming_t2_5": {
-		"definition": "natural_regeneration",
-		"x": 160,
-		"y": 16140
-	},
-	"ranger_swimming_t2_8": {
-		"definition": "natural_regeneration",
-		"x": 160,
-		"y": 16180
-	},
-	"ranger_swimming_t2_10": {
-		"definition": "natural_regeneration",
-		"x": 160,
-		"y": 16220
+		"x": -94,
+		"y": 295
 	},
 	"ranger_swimming_t0_4": {
 		"definition": "oxygen",
-		"x": 192,
-		"y": 15780
+		"x": -115,
+		"y": 354
+	},
+	"ranger_swimming_t0_5": {
+		"definition": "water_efficiency",
+		"x": -97,
+		"y": 294
 	},
 	"ranger_swimming_t0_6": {
 		"definition": "oxygen",
-		"x": 192,
-		"y": 15820
+		"x": -119,
+		"y": 353
+	},
+	"ranger_swimming_t0_7": {
+		"definition": "oxygen",
+		"x": -80,
+		"y": 235
+	},
+	"ranger_swimming_t0_8": {
+		"definition": "water_efficiency",
+		"x": -102,
+		"y": 293
 	},
 	"ranger_swimming_t0_9": {
 		"definition": "oxygen",
-		"x": 192,
-		"y": 15860
+		"x": -124,
+		"y": 351
+	},
+	"ranger_swimming_t0_10": {
+		"definition": "water_efficiency",
+		"x": -89,
+		"y": 297
 	},
 	"ranger_swimming_t0_11": {
 		"definition": "oxygen",
-		"x": 192,
-		"y": 15900
+		"x": -109,
+		"y": 356
+	},
+	"ranger_swimming_t1_1": {
+		"definition": "submerged_mining_speed",
+		"x": -63,
+		"y": 175
+	},
+	"ranger_swimming_t1_2": {
+		"definition": "trident_damage",
+		"x": -88,
+		"y": 232
+	},
+	"ranger_swimming_t1_3": {
+		"definition": "submerged_mining_speed",
+		"x": -112,
+		"y": 289
 	},
 	"ranger_swimming_t1_4": {
 		"definition": "trident_damage",
-		"x": 192,
-		"y": 15940
+		"x": -136,
+		"y": 346
+	},
+	"ranger_swimming_t1_5": {
+		"definition": "submerged_mining_speed",
+		"x": -115,
+		"y": 288
 	},
 	"ranger_swimming_t1_6": {
 		"definition": "trident_damage",
-		"x": 192,
-		"y": 15980
+		"x": -139,
+		"y": 345
+	},
+	"ranger_swimming_t1_7": {
+		"definition": "trident_damage",
+		"x": -94,
+		"y": 229
+	},
+	"ranger_swimming_t1_8": {
+		"definition": "submerged_mining_speed",
+		"x": -119,
+		"y": 286
 	},
 	"ranger_swimming_t1_9": {
 		"definition": "trident_damage",
-		"x": 192,
-		"y": 16020
+		"x": -145,
+		"y": 343
+	},
+	"ranger_swimming_t1_10": {
+		"definition": "submerged_mining_speed",
+		"x": -107,
+		"y": 291
 	},
 	"ranger_swimming_t1_11": {
 		"definition": "trident_damage",
-		"x": 192,
-		"y": 16060
+		"x": -130,
+		"y": 349
+	},
+	"ranger_swimming_t2_1": {
+		"definition": "natural_regeneration",
+		"x": -73,
+		"y": 171
+	},
+	"ranger_swimming_t2_2": {
+		"definition": "healing",
+		"x": -102,
+		"y": 226
+	},
+	"ranger_swimming_t2_3": {
+		"definition": "natural_regeneration",
+		"x": -129,
+		"y": 282
 	},
 	"ranger_swimming_t2_4": {
 		"definition": "healing",
-		"x": 192,
-		"y": 16100
+		"x": -156,
+		"y": 338
+	},
+	"ranger_swimming_t2_5": {
+		"definition": "natural_regeneration",
+		"x": -132,
+		"y": 281
 	},
 	"ranger_swimming_t2_6": {
 		"definition": "healing",
-		"x": 192,
-		"y": 16140
+		"x": -160,
+		"y": 336
+	},
+	"ranger_swimming_t2_7": {
+		"definition": "healing",
+		"x": -108,
+		"y": 223
+	},
+	"ranger_swimming_t2_8": {
+		"definition": "natural_regeneration",
+		"x": -136,
+		"y": 279
 	},
 	"ranger_swimming_t2_9": {
 		"definition": "healing",
-		"x": 192,
-		"y": 16180
+		"x": -165,
+		"y": 333
+	},
+	"ranger_swimming_t2_10": {
+		"definition": "natural_regeneration",
+		"x": -124,
+		"y": 284
 	},
 	"ranger_swimming_t2_11": {
 		"definition": "healing",
-		"x": 192,
-		"y": 16220
+		"x": -151,
+		"y": 340
 	},
 	"ranger_exploration_root": {
 		"definition": "move_speed",
-		"x": 64,
-		"y": 18000
+		"x": 54,
+		"y": 111
 	},
 	"ranger_exploration_t0_1": {
 		"definition": "move_speed",
-		"x": 96,
-		"y": 17960
-	},
-	"ranger_exploration_t1_1": {
-		"definition": "fall_reduction",
-		"x": 96,
-		"y": 18000
-	},
-	"ranger_exploration_t2_1": {
-		"definition": "luck",
-		"x": 96,
-		"y": 18040
+		"x": 81,
+		"y": 168
 	},
 	"ranger_exploration_t0_2": {
 		"definition": "sprint_speed",
-		"x": 128,
-		"y": 17900
-	},
-	"ranger_exploration_t0_7": {
-		"definition": "sprint_speed",
-		"x": 128,
-		"y": 17940
-	},
-	"ranger_exploration_t1_2": {
-		"definition": "step_height",
-		"x": 128,
-		"y": 17980
-	},
-	"ranger_exploration_t1_7": {
-		"definition": "step_height",
-		"x": 128,
-		"y": 18020
-	},
-	"ranger_exploration_t2_2": {
-		"definition": "experience_gain",
-		"x": 128,
-		"y": 18060
-	},
-	"ranger_exploration_t2_7": {
-		"definition": "experience_gain",
-		"x": 128,
-		"y": 18100
+		"x": 104,
+		"y": 225
 	},
 	"ranger_exploration_t0_3": {
 		"definition": "move_speed",
-		"x": 160,
-		"y": 17780
-	},
-	"ranger_exploration_t0_5": {
-		"definition": "move_speed",
-		"x": 160,
-		"y": 17820
-	},
-	"ranger_exploration_t0_8": {
-		"definition": "move_speed",
-		"x": 160,
-		"y": 17860
-	},
-	"ranger_exploration_t0_10": {
-		"definition": "move_speed",
-		"x": 160,
-		"y": 17900
-	},
-	"ranger_exploration_t1_3": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 17940
-	},
-	"ranger_exploration_t1_5": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 17980
-	},
-	"ranger_exploration_t1_8": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 18020
-	},
-	"ranger_exploration_t1_10": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 18060
-	},
-	"ranger_exploration_t2_3": {
-		"definition": "luck",
-		"x": 160,
-		"y": 18100
-	},
-	"ranger_exploration_t2_5": {
-		"definition": "luck",
-		"x": 160,
-		"y": 18140
-	},
-	"ranger_exploration_t2_8": {
-		"definition": "luck",
-		"x": 160,
-		"y": 18180
-	},
-	"ranger_exploration_t2_10": {
-		"definition": "luck",
-		"x": 160,
-		"y": 18220
+		"x": 129,
+		"y": 282
 	},
 	"ranger_exploration_t0_4": {
 		"definition": "sprint_speed",
-		"x": 192,
-		"y": 17780
+		"x": 152,
+		"y": 339
+	},
+	"ranger_exploration_t0_5": {
+		"definition": "move_speed",
+		"x": 125,
+		"y": 283
 	},
 	"ranger_exploration_t0_6": {
 		"definition": "sprint_speed",
-		"x": 192,
-		"y": 17820
+		"x": 149,
+		"y": 341
+	},
+	"ranger_exploration_t0_7": {
+		"definition": "sprint_speed",
+		"x": 98,
+		"y": 228
+	},
+	"ranger_exploration_t0_8": {
+		"definition": "move_speed",
+		"x": 121,
+		"y": 285
 	},
 	"ranger_exploration_t0_9": {
 		"definition": "sprint_speed",
-		"x": 192,
-		"y": 17860
+		"x": 143,
+		"y": 343
+	},
+	"ranger_exploration_t0_10": {
+		"definition": "move_speed",
+		"x": 133,
+		"y": 280
 	},
 	"ranger_exploration_t0_11": {
 		"definition": "sprint_speed",
-		"x": 192,
-		"y": 17900
+		"x": 158,
+		"y": 337
+	},
+	"ranger_exploration_t1_1": {
+		"definition": "fall_reduction",
+		"x": 71,
+		"y": 172
+	},
+	"ranger_exploration_t1_2": {
+		"definition": "step_height",
+		"x": 90,
+		"y": 231
+	},
+	"ranger_exploration_t1_3": {
+		"definition": "fall_reduction",
+		"x": 112,
+		"y": 289
 	},
 	"ranger_exploration_t1_4": {
 		"definition": "step_height",
-		"x": 192,
-		"y": 17940
+		"x": 132,
+		"y": 348
+	},
+	"ranger_exploration_t1_5": {
+		"definition": "fall_reduction",
+		"x": 108,
+		"y": 290
 	},
 	"ranger_exploration_t1_6": {
 		"definition": "step_height",
-		"x": 192,
-		"y": 17980
+		"x": 128,
+		"y": 349
+	},
+	"ranger_exploration_t1_7": {
+		"definition": "step_height",
+		"x": 84,
+		"y": 233
+	},
+	"ranger_exploration_t1_8": {
+		"definition": "fall_reduction",
+		"x": 104,
+		"y": 292
 	},
 	"ranger_exploration_t1_9": {
 		"definition": "step_height",
-		"x": 192,
-		"y": 18020
+		"x": 122,
+		"y": 351
+	},
+	"ranger_exploration_t1_10": {
+		"definition": "fall_reduction",
+		"x": 116,
+		"y": 287
 	},
 	"ranger_exploration_t1_11": {
 		"definition": "step_height",
-		"x": 192,
-		"y": 18060
+		"x": 138,
+		"y": 346
+	},
+	"ranger_exploration_t2_1": {
+		"definition": "luck",
+		"x": 60,
+		"y": 176
+	},
+	"ranger_exploration_t2_2": {
+		"definition": "experience_gain",
+		"x": 77,
+		"y": 236
+	},
+	"ranger_exploration_t2_3": {
+		"definition": "luck",
+		"x": 94,
+		"y": 295
 	},
 	"ranger_exploration_t2_4": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 18100
+		"x": 111,
+		"y": 355
+	},
+	"ranger_exploration_t2_5": {
+		"definition": "luck",
+		"x": 91,
+		"y": 296
 	},
 	"ranger_exploration_t2_6": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 18140
+		"x": 107,
+		"y": 356
+	},
+	"ranger_exploration_t2_7": {
+		"definition": "experience_gain",
+		"x": 70,
+		"y": 238
+	},
+	"ranger_exploration_t2_8": {
+		"definition": "luck",
+		"x": 86,
+		"y": 298
 	},
 	"ranger_exploration_t2_9": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 18180
+		"x": 101,
+		"y": 358
+	},
+	"ranger_exploration_t2_10": {
+		"definition": "luck",
+		"x": 99,
+		"y": 294
 	},
 	"ranger_exploration_t2_11": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 18220
+		"x": 117,
+		"y": 353
 	},
 	"ranger_sailing_root": {
 		"definition": "mount_speed",
-		"x": 64,
-		"y": 20000
+		"x": -12,
+		"y": 123
 	},
 	"ranger_sailing_t0_1": {
 		"definition": "mount_speed",
-		"x": 96,
-		"y": 19960
-	},
-	"ranger_sailing_t1_1": {
-		"definition": "oxygen",
-		"x": 96,
-		"y": 20000
-	},
-	"ranger_sailing_t2_1": {
-		"definition": "fall_reduction",
-		"x": 96,
-		"y": 20040
+		"x": -19,
+		"y": 185
 	},
 	"ranger_sailing_t0_2": {
 		"definition": "water_efficiency",
-		"x": 128,
-		"y": 19900
-	},
-	"ranger_sailing_t0_7": {
-		"definition": "water_efficiency",
-		"x": 128,
-		"y": 19940
-	},
-	"ranger_sailing_t1_2": {
-		"definition": "trident_damage",
-		"x": 128,
-		"y": 19980
-	},
-	"ranger_sailing_t1_7": {
-		"definition": "trident_damage",
-		"x": 128,
-		"y": 20020
-	},
-	"ranger_sailing_t2_2": {
-		"definition": "resistance",
-		"x": 128,
-		"y": 20060
-	},
-	"ranger_sailing_t2_7": {
-		"definition": "resistance",
-		"x": 128,
-		"y": 20100
+		"x": -29,
+		"y": 246
 	},
 	"ranger_sailing_t0_3": {
 		"definition": "mount_speed",
-		"x": 160,
-		"y": 19780
-	},
-	"ranger_sailing_t0_5": {
-		"definition": "mount_speed",
-		"x": 160,
-		"y": 19820
-	},
-	"ranger_sailing_t0_8": {
-		"definition": "mount_speed",
-		"x": 160,
-		"y": 19860
-	},
-	"ranger_sailing_t0_10": {
-		"definition": "mount_speed",
-		"x": 160,
-		"y": 19900
-	},
-	"ranger_sailing_t1_3": {
-		"definition": "oxygen",
-		"x": 160,
-		"y": 19940
-	},
-	"ranger_sailing_t1_5": {
-		"definition": "oxygen",
-		"x": 160,
-		"y": 19980
-	},
-	"ranger_sailing_t1_8": {
-		"definition": "oxygen",
-		"x": 160,
-		"y": 20020
-	},
-	"ranger_sailing_t1_10": {
-		"definition": "oxygen",
-		"x": 160,
-		"y": 20060
-	},
-	"ranger_sailing_t2_3": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 20100
-	},
-	"ranger_sailing_t2_5": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 20140
-	},
-	"ranger_sailing_t2_8": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 20180
-	},
-	"ranger_sailing_t2_10": {
-		"definition": "fall_reduction",
-		"x": 160,
-		"y": 20220
+		"x": -38,
+		"y": 308
 	},
 	"ranger_sailing_t0_4": {
 		"definition": "water_efficiency",
-		"x": 192,
-		"y": 19780
+		"x": -48,
+		"y": 369
+	},
+	"ranger_sailing_t0_5": {
+		"definition": "mount_speed",
+		"x": -42,
+		"y": 307
 	},
 	"ranger_sailing_t0_6": {
 		"definition": "water_efficiency",
-		"x": 192,
-		"y": 19820
+		"x": -52,
+		"y": 368
+	},
+	"ranger_sailing_t0_7": {
+		"definition": "water_efficiency",
+		"x": -36,
+		"y": 245
+	},
+	"ranger_sailing_t0_8": {
+		"definition": "mount_speed",
+		"x": -47,
+		"y": 306
 	},
 	"ranger_sailing_t0_9": {
 		"definition": "water_efficiency",
-		"x": 192,
-		"y": 19860
+		"x": -58,
+		"y": 367
+	},
+	"ranger_sailing_t0_10": {
+		"definition": "mount_speed",
+		"x": -33,
+		"y": 308
 	},
 	"ranger_sailing_t0_11": {
 		"definition": "water_efficiency",
-		"x": 192,
-		"y": 19900
+		"x": -42,
+		"y": 370
+	},
+	"ranger_sailing_t1_1": {
+		"definition": "oxygen",
+		"x": -30,
+		"y": 184
+	},
+	"ranger_sailing_t1_2": {
+		"definition": "trident_damage",
+		"x": -44,
+		"y": 244
+	},
+	"ranger_sailing_t1_3": {
+		"definition": "oxygen",
+		"x": -57,
+		"y": 305
 	},
 	"ranger_sailing_t1_4": {
 		"definition": "trident_damage",
-		"x": 192,
-		"y": 19940
+		"x": -70,
+		"y": 365
+	},
+	"ranger_sailing_t1_5": {
+		"definition": "oxygen",
+		"x": -60,
+		"y": 304
 	},
 	"ranger_sailing_t1_6": {
 		"definition": "trident_damage",
-		"x": 192,
-		"y": 19980
+		"x": -74,
+		"y": 365
+	},
+	"ranger_sailing_t1_7": {
+		"definition": "trident_damage",
+		"x": -51,
+		"y": 243
+	},
+	"ranger_sailing_t1_8": {
+		"definition": "oxygen",
+		"x": -65,
+		"y": 303
 	},
 	"ranger_sailing_t1_9": {
 		"definition": "trident_damage",
-		"x": 192,
-		"y": 20020
+		"x": -80,
+		"y": 363
+	},
+	"ranger_sailing_t1_10": {
+		"definition": "oxygen",
+		"x": -52,
+		"y": 306
 	},
 	"ranger_sailing_t1_11": {
 		"definition": "trident_damage",
-		"x": 192,
-		"y": 20060
+		"x": -64,
+		"y": 366
+	},
+	"ranger_sailing_t2_1": {
+		"definition": "fall_reduction",
+		"x": -41,
+		"y": 181
+	},
+	"ranger_sailing_t2_2": {
+		"definition": "resistance",
+		"x": -58,
+		"y": 241
+	},
+	"ranger_sailing_t2_3": {
+		"definition": "fall_reduction",
+		"x": -75,
+		"y": 301
 	},
 	"ranger_sailing_t2_4": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 20100
+		"x": -92,
+		"y": 361
+	},
+	"ranger_sailing_t2_5": {
+		"definition": "fall_reduction",
+		"x": -78,
+		"y": 300
 	},
 	"ranger_sailing_t2_6": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 20140
+		"x": -96,
+		"y": 360
+	},
+	"ranger_sailing_t2_7": {
+		"definition": "resistance",
+		"x": -65,
+		"y": 239
+	},
+	"ranger_sailing_t2_8": {
+		"definition": "fall_reduction",
+		"x": -83,
+		"y": 299
 	},
 	"ranger_sailing_t2_9": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 20180
+		"x": -101,
+		"y": 358
+	},
+	"ranger_sailing_t2_10": {
+		"definition": "fall_reduction",
+		"x": -70,
+		"y": 302
 	},
 	"ranger_sailing_t2_11": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 20220
+		"x": -86,
+		"y": 362
 	},
 	"ranger_fishing_root": {
 		"definition": "luck",
-		"x": 64,
-		"y": 22000
+		"x": 33,
+		"y": 119
 	},
 	"ranger_fishing_t0_1": {
 		"definition": "luck",
-		"x": 96,
-		"y": 21960
-	},
-	"ranger_fishing_t1_1": {
-		"definition": "trident_damage",
-		"x": 96,
-		"y": 22000
-	},
-	"ranger_fishing_t2_1": {
-		"definition": "consuming_speed",
-		"x": 96,
-		"y": 22040
+		"x": 49,
+		"y": 179
 	},
 	"ranger_fishing_t0_2": {
 		"definition": "fortune",
-		"x": 128,
-		"y": 21900
-	},
-	"ranger_fishing_t0_7": {
-		"definition": "fortune",
-		"x": 128,
-		"y": 21940
-	},
-	"ranger_fishing_t1_2": {
-		"definition": "water_efficiency",
-		"x": 128,
-		"y": 21980
-	},
-	"ranger_fishing_t1_7": {
-		"definition": "water_efficiency",
-		"x": 128,
-		"y": 22020
-	},
-	"ranger_fishing_t2_2": {
-		"definition": "mount_speed",
-		"x": 128,
-		"y": 22060
-	},
-	"ranger_fishing_t2_7": {
-		"definition": "mount_speed",
-		"x": 128,
-		"y": 22100
+		"x": 61,
+		"y": 240
 	},
 	"ranger_fishing_t0_3": {
 		"definition": "luck",
-		"x": 160,
-		"y": 21780
-	},
-	"ranger_fishing_t0_5": {
-		"definition": "luck",
-		"x": 160,
-		"y": 21820
-	},
-	"ranger_fishing_t0_8": {
-		"definition": "luck",
-		"x": 160,
-		"y": 21860
-	},
-	"ranger_fishing_t0_10": {
-		"definition": "luck",
-		"x": 160,
-		"y": 21900
-	},
-	"ranger_fishing_t1_3": {
-		"definition": "trident_damage",
-		"x": 160,
-		"y": 21940
-	},
-	"ranger_fishing_t1_5": {
-		"definition": "trident_damage",
-		"x": 160,
-		"y": 21980
-	},
-	"ranger_fishing_t1_8": {
-		"definition": "trident_damage",
-		"x": 160,
-		"y": 22020
-	},
-	"ranger_fishing_t1_10": {
-		"definition": "trident_damage",
-		"x": 160,
-		"y": 22060
-	},
-	"ranger_fishing_t2_3": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 22100
-	},
-	"ranger_fishing_t2_5": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 22140
-	},
-	"ranger_fishing_t2_8": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 22180
-	},
-	"ranger_fishing_t2_10": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 22220
+		"x": 75,
+		"y": 301
 	},
 	"ranger_fishing_t0_4": {
 		"definition": "fortune",
-		"x": 192,
-		"y": 21780
+		"x": 88,
+		"y": 362
+	},
+	"ranger_fishing_t0_5": {
+		"definition": "luck",
+		"x": 71,
+		"y": 302
 	},
 	"ranger_fishing_t0_6": {
 		"definition": "fortune",
-		"x": 192,
-		"y": 21820
+		"x": 84,
+		"y": 362
+	},
+	"ranger_fishing_t0_7": {
+		"definition": "fortune",
+		"x": 55,
+		"y": 242
+	},
+	"ranger_fishing_t0_8": {
+		"definition": "luck",
+		"x": 67,
+		"y": 303
 	},
 	"ranger_fishing_t0_9": {
 		"definition": "fortune",
-		"x": 192,
-		"y": 21860
+		"x": 78,
+		"y": 364
+	},
+	"ranger_fishing_t0_10": {
+		"definition": "luck",
+		"x": 80,
+		"y": 300
 	},
 	"ranger_fishing_t0_11": {
 		"definition": "fortune",
-		"x": 192,
-		"y": 21900
+		"x": 94,
+		"y": 360
+	},
+	"ranger_fishing_t1_1": {
+		"definition": "trident_damage",
+		"x": 38,
+		"y": 182
+	},
+	"ranger_fishing_t1_2": {
+		"definition": "water_efficiency",
+		"x": 47,
+		"y": 244
+	},
+	"ranger_fishing_t1_3": {
+		"definition": "trident_damage",
+		"x": 57,
+		"y": 305
 	},
 	"ranger_fishing_t1_4": {
 		"definition": "water_efficiency",
-		"x": 192,
-		"y": 21940
+		"x": 66,
+		"y": 366
+	},
+	"ranger_fishing_t1_5": {
+		"definition": "trident_damage",
+		"x": 53,
+		"y": 305
 	},
 	"ranger_fishing_t1_6": {
 		"definition": "water_efficiency",
-		"x": 192,
-		"y": 21980
+		"x": 62,
+		"y": 367
+	},
+	"ranger_fishing_t1_7": {
+		"definition": "water_efficiency",
+		"x": 40,
+		"y": 245
+	},
+	"ranger_fishing_t1_8": {
+		"definition": "trident_damage",
+		"x": 48,
+		"y": 306
 	},
 	"ranger_fishing_t1_9": {
 		"definition": "water_efficiency",
-		"x": 192,
-		"y": 22020
+		"x": 56,
+		"y": 368
+	},
+	"ranger_fishing_t1_10": {
+		"definition": "trident_damage",
+		"x": 62,
+		"y": 304
 	},
 	"ranger_fishing_t1_11": {
 		"definition": "water_efficiency",
-		"x": 192,
-		"y": 22060
+		"x": 72,
+		"y": 365
+	},
+	"ranger_fishing_t2_1": {
+		"definition": "consuming_speed",
+		"x": 27,
+		"y": 184
+	},
+	"ranger_fishing_t2_2": {
+		"definition": "mount_speed",
+		"x": 32,
+		"y": 246
+	},
+	"ranger_fishing_t2_3": {
+		"definition": "consuming_speed",
+		"x": 38,
+		"y": 308
 	},
 	"ranger_fishing_t2_4": {
 		"definition": "mount_speed",
-		"x": 192,
-		"y": 22100
+		"x": 44,
+		"y": 369
+	},
+	"ranger_fishing_t2_5": {
+		"definition": "consuming_speed",
+		"x": 35,
+		"y": 308
 	},
 	"ranger_fishing_t2_6": {
 		"definition": "mount_speed",
-		"x": 192,
-		"y": 22140
+		"x": 40,
+		"y": 370
+	},
+	"ranger_fishing_t2_7": {
+		"definition": "mount_speed",
+		"x": 25,
+		"y": 247
+	},
+	"ranger_fishing_t2_8": {
+		"definition": "consuming_speed",
+		"x": 30,
+		"y": 309
 	},
 	"ranger_fishing_t2_9": {
 		"definition": "mount_speed",
-		"x": 192,
-		"y": 22180
+		"x": 34,
+		"y": 370
+	},
+	"ranger_fishing_t2_10": {
+		"definition": "consuming_speed",
+		"x": 43,
+		"y": 307
 	},
 	"ranger_fishing_t2_11": {
 		"definition": "mount_speed",
-		"x": 192,
-		"y": 22220
+		"x": 50,
+		"y": 369
 	},
 	"ranger_taming_root": {
 		"definition": "tamed_damage",
-		"x": 64,
-		"y": 24000
+		"x": -56,
+		"y": 111
 	},
 	"ranger_taming_t0_1": {
 		"definition": "mount_speed",
-		"x": 96,
-		"y": 23960
-	},
-	"ranger_taming_t1_1": {
-		"definition": "tamed_resistance",
-		"x": 96,
-		"y": 24000
-	},
-	"ranger_taming_t2_1": {
-		"definition": "luck",
-		"x": 96,
-		"y": 24040
+		"x": -84,
+		"y": 166
 	},
 	"ranger_taming_t0_2": {
 		"definition": "tamed_damage",
-		"x": 128,
-		"y": 23900
-	},
-	"ranger_taming_t0_7": {
-		"definition": "tamed_damage",
-		"x": 128,
-		"y": 23940
-	},
-	"ranger_taming_t1_2": {
-		"definition": "healing",
-		"x": 128,
-		"y": 23980
-	},
-	"ranger_taming_t1_7": {
-		"definition": "healing",
-		"x": 128,
-		"y": 24020
-	},
-	"ranger_taming_t2_2": {
-		"definition": "max_health",
-		"x": 128,
-		"y": 24060
-	},
-	"ranger_taming_t2_7": {
-		"definition": "max_health",
-		"x": 128,
-		"y": 24100
+		"x": -116,
+		"y": 219
 	},
 	"ranger_taming_t0_3": {
 		"definition": "mount_speed",
-		"x": 160,
-		"y": 23780
-	},
-	"ranger_taming_t0_5": {
-		"definition": "mount_speed",
-		"x": 160,
-		"y": 23820
-	},
-	"ranger_taming_t0_8": {
-		"definition": "mount_speed",
-		"x": 160,
-		"y": 23860
-	},
-	"ranger_taming_t0_10": {
-		"definition": "mount_speed",
-		"x": 160,
-		"y": 23900
-	},
-	"ranger_taming_t1_3": {
-		"definition": "tamed_resistance",
-		"x": 160,
-		"y": 23940
-	},
-	"ranger_taming_t1_5": {
-		"definition": "tamed_resistance",
-		"x": 160,
-		"y": 23980
-	},
-	"ranger_taming_t1_8": {
-		"definition": "tamed_resistance",
-		"x": 160,
-		"y": 24020
-	},
-	"ranger_taming_t1_10": {
-		"definition": "tamed_resistance",
-		"x": 160,
-		"y": 24060
-	},
-	"ranger_taming_t2_3": {
-		"definition": "luck",
-		"x": 160,
-		"y": 24100
-	},
-	"ranger_taming_t2_5": {
-		"definition": "luck",
-		"x": 160,
-		"y": 24140
-	},
-	"ranger_taming_t2_8": {
-		"definition": "luck",
-		"x": 160,
-		"y": 24180
-	},
-	"ranger_taming_t2_10": {
-		"definition": "luck",
-		"x": 160,
-		"y": 24220
+		"x": -147,
+		"y": 273
 	},
 	"ranger_taming_t0_4": {
 		"definition": "tamed_damage",
-		"x": 192,
-		"y": 23780
+		"x": -178,
+		"y": 327
+	},
+	"ranger_taming_t0_5": {
+		"definition": "mount_speed",
+		"x": -150,
+		"y": 272
 	},
 	"ranger_taming_t0_6": {
 		"definition": "tamed_damage",
-		"x": 192,
-		"y": 23820
+		"x": -181,
+		"y": 325
+	},
+	"ranger_taming_t0_7": {
+		"definition": "tamed_damage",
+		"x": -122,
+		"y": 216
+	},
+	"ranger_taming_t0_8": {
+		"definition": "mount_speed",
+		"x": -154,
+		"y": 269
 	},
 	"ranger_taming_t0_9": {
 		"definition": "tamed_damage",
-		"x": 192,
-		"y": 23860
+		"x": -186,
+		"y": 322
+	},
+	"ranger_taming_t0_10": {
+		"definition": "mount_speed",
+		"x": -142,
+		"y": 276
 	},
 	"ranger_taming_t0_11": {
 		"definition": "tamed_damage",
-		"x": 192,
-		"y": 23900
+		"x": -172,
+		"y": 330
+	},
+	"ranger_taming_t1_1": {
+		"definition": "tamed_resistance",
+		"x": -94,
+		"y": 160
+	},
+	"ranger_taming_t1_2": {
+		"definition": "healing",
+		"x": -129,
+		"y": 212
+	},
+	"ranger_taming_t1_3": {
+		"definition": "tamed_resistance",
+		"x": -163,
+		"y": 264
 	},
 	"ranger_taming_t1_4": {
 		"definition": "healing",
-		"x": 192,
-		"y": 23940
+		"x": -197,
+		"y": 316
+	},
+	"ranger_taming_t1_5": {
+		"definition": "tamed_resistance",
+		"x": -165,
+		"y": 262
 	},
 	"ranger_taming_t1_6": {
 		"definition": "healing",
-		"x": 192,
-		"y": 23980
+		"x": -200,
+		"y": 314
+	},
+	"ranger_taming_t1_7": {
+		"definition": "healing",
+		"x": -135,
+		"y": 208
+	},
+	"ranger_taming_t1_8": {
+		"definition": "tamed_resistance",
+		"x": -170,
+		"y": 259
 	},
 	"ranger_taming_t1_9": {
 		"definition": "healing",
-		"x": 192,
-		"y": 24020
+		"x": -205,
+		"y": 310
+	},
+	"ranger_taming_t1_10": {
+		"definition": "tamed_resistance",
+		"x": -158,
+		"y": 267
 	},
 	"ranger_taming_t1_11": {
 		"definition": "healing",
-		"x": 192,
-		"y": 24060
+		"x": -192,
+		"y": 319
+	},
+	"ranger_taming_t2_1": {
+		"definition": "luck",
+		"x": -103,
+		"y": 155
+	},
+	"ranger_taming_t2_2": {
+		"definition": "max_health",
+		"x": -141,
+		"y": 204
+	},
+	"ranger_taming_t2_3": {
+		"definition": "luck",
+		"x": -178,
+		"y": 254
 	},
 	"ranger_taming_t2_4": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 24100
+		"x": -215,
+		"y": 303
+	},
+	"ranger_taming_t2_5": {
+		"definition": "luck",
+		"x": -181,
+		"y": 252
 	},
 	"ranger_taming_t2_6": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 24140
+		"x": -218,
+		"y": 301
+	},
+	"ranger_taming_t2_7": {
+		"definition": "max_health",
+		"x": -147,
+		"y": 200
+	},
+	"ranger_taming_t2_8": {
+		"definition": "luck",
+		"x": -185,
+		"y": 249
 	},
 	"ranger_taming_t2_9": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 24180
+		"x": -223,
+		"y": 297
+	},
+	"ranger_taming_t2_10": {
+		"definition": "luck",
+		"x": -174,
+		"y": 257
 	},
 	"ranger_taming_t2_11": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 24220
+		"x": -210,
+		"y": 307
 	},
 	"class_ranger_capstone": {
 		"definition": "capstone_ranger",
-		"x": 224,
-		"y": 23780
+		"x": -207,
+		"y": 381
 	},
 	"class_mystic_root": {
 		"definition": "magic_damage",
-		"x": 32,
-		"y": 26000
+		"x": -50,
+		"y": 37
 	},
 	"mystic_magic_root": {
 		"definition": "spell_damage",
-		"x": 64,
-		"y": 26000
+		"x": -124,
+		"y": -1
 	},
 	"mystic_magic_t0_1": {
 		"definition": "spell_damage",
-		"x": 96,
-		"y": 25960
-	},
-	"mystic_magic_t1_1": {
-		"definition": "max_mana",
-		"x": 96,
-		"y": 26000
-	},
-	"mystic_magic_t2_1": {
-		"definition": "magic_resistance",
-		"x": 96,
-		"y": 26040
+		"x": -186,
+		"y": -4
 	},
 	"mystic_magic_t0_2": {
 		"definition": "magic_damage",
-		"x": 128,
-		"y": 25900
-	},
-	"mystic_magic_t0_7": {
-		"definition": "magic_damage",
-		"x": 128,
-		"y": 25940
-	},
-	"mystic_magic_t1_2": {
-		"definition": "mana_regen",
-		"x": 128,
-		"y": 25980
-	},
-	"mystic_magic_t1_7": {
-		"definition": "mana_regen",
-		"x": 128,
-		"y": 26020
-	},
-	"mystic_magic_t2_2": {
-		"definition": "healing",
-		"x": 128,
-		"y": 26060
-	},
-	"mystic_magic_t2_7": {
-		"definition": "healing",
-		"x": 128,
-		"y": 26100
+		"x": -248,
+		"y": -12
 	},
 	"mystic_magic_t0_3": {
 		"definition": "spell_damage",
-		"x": 160,
-		"y": 25780
-	},
-	"mystic_magic_t0_5": {
-		"definition": "spell_damage",
-		"x": 160,
-		"y": 25820
-	},
-	"mystic_magic_t0_8": {
-		"definition": "spell_damage",
-		"x": 160,
-		"y": 25860
-	},
-	"mystic_magic_t0_10": {
-		"definition": "spell_damage",
-		"x": 160,
-		"y": 25900
-	},
-	"mystic_magic_t1_3": {
-		"definition": "max_mana",
-		"x": 160,
-		"y": 25940
-	},
-	"mystic_magic_t1_5": {
-		"definition": "max_mana",
-		"x": 160,
-		"y": 25980
-	},
-	"mystic_magic_t1_8": {
-		"definition": "max_mana",
-		"x": 160,
-		"y": 26020
-	},
-	"mystic_magic_t1_10": {
-		"definition": "max_mana",
-		"x": 160,
-		"y": 26060
-	},
-	"mystic_magic_t2_3": {
-		"definition": "magic_resistance",
-		"x": 160,
-		"y": 26100
-	},
-	"mystic_magic_t2_5": {
-		"definition": "magic_resistance",
-		"x": 160,
-		"y": 26140
-	},
-	"mystic_magic_t2_8": {
-		"definition": "magic_resistance",
-		"x": 160,
-		"y": 26180
-	},
-	"mystic_magic_t2_10": {
-		"definition": "magic_resistance",
-		"x": 160,
-		"y": 26220
+		"x": -309,
+		"y": -18
 	},
 	"mystic_magic_t0_4": {
 		"definition": "magic_damage",
-		"x": 192,
-		"y": 25780
+		"x": -371,
+		"y": -25
+	},
+	"mystic_magic_t0_5": {
+		"definition": "spell_damage",
+		"x": -309,
+		"y": -23
 	},
 	"mystic_magic_t0_6": {
 		"definition": "magic_damage",
-		"x": 192,
-		"y": 25820
+		"x": -371,
+		"y": -32
+	},
+	"mystic_magic_t0_7": {
+		"definition": "magic_damage",
+		"x": -247,
+		"y": -23
+	},
+	"mystic_magic_t0_8": {
+		"definition": "spell_damage",
+		"x": -308,
+		"y": -32
 	},
 	"mystic_magic_t0_9": {
 		"definition": "magic_damage",
-		"x": 192,
-		"y": 25860
+		"x": -370,
+		"y": -42
+	},
+	"mystic_magic_t0_10": {
+		"definition": "spell_damage",
+		"x": -310,
+		"y": -9
 	},
 	"mystic_magic_t0_11": {
 		"definition": "magic_damage",
-		"x": 192,
-		"y": 25900
+		"x": -372,
+		"y": -14
+	},
+	"mystic_magic_t1_1": {
+		"definition": "max_mana",
+		"x": -185,
+		"y": -23
+	},
+	"mystic_magic_t1_2": {
+		"definition": "mana_regen",
+		"x": -245,
+		"y": -37
+	},
+	"mystic_magic_t1_3": {
+		"definition": "max_mana",
+		"x": -306,
+		"y": -50
 	},
 	"mystic_magic_t1_4": {
 		"definition": "mana_regen",
-		"x": 192,
-		"y": 25940
+		"x": -367,
+		"y": -63
+	},
+	"mystic_magic_t1_5": {
+		"definition": "max_mana",
+		"x": -305,
+		"y": -55
 	},
 	"mystic_magic_t1_6": {
 		"definition": "mana_regen",
-		"x": 192,
-		"y": 25980
+		"x": -365,
+		"y": -70
+	},
+	"mystic_magic_t1_7": {
+		"definition": "mana_regen",
+		"x": -243,
+		"y": -49
+	},
+	"mystic_magic_t1_8": {
+		"definition": "max_mana",
+		"x": -303,
+		"y": -64
 	},
 	"mystic_magic_t1_9": {
 		"definition": "mana_regen",
-		"x": 192,
-		"y": 26020
+		"x": -363,
+		"y": -80
+	},
+	"mystic_magic_t1_10": {
+		"definition": "max_mana",
+		"x": -307,
+		"y": -41
 	},
 	"mystic_magic_t1_11": {
 		"definition": "mana_regen",
-		"x": 192,
-		"y": 26060
+		"x": -368,
+		"y": -53
+	},
+	"mystic_magic_t2_1": {
+		"definition": "magic_resistance",
+		"x": -181,
+		"y": -42
+	},
+	"mystic_magic_t2_2": {
+		"definition": "healing",
+		"x": -240,
+		"y": -63
+	},
+	"mystic_magic_t2_3": {
+		"definition": "magic_resistance",
+		"x": -299,
+		"y": -81
 	},
 	"mystic_magic_t2_4": {
 		"definition": "healing",
-		"x": 192,
-		"y": 26100
+		"x": -358,
+		"y": -101
+	},
+	"mystic_magic_t2_5": {
+		"definition": "magic_resistance",
+		"x": -298,
+		"y": -87
 	},
 	"mystic_magic_t2_6": {
 		"definition": "healing",
-		"x": 192,
-		"y": 26140
+		"x": -356,
+		"y": -108
+	},
+	"mystic_magic_t2_7": {
+		"definition": "healing",
+		"x": -237,
+		"y": -74
+	},
+	"mystic_magic_t2_8": {
+		"definition": "magic_resistance",
+		"x": -295,
+		"y": -95
 	},
 	"mystic_magic_t2_9": {
 		"definition": "healing",
-		"x": 192,
-		"y": 26180
+		"x": -353,
+		"y": -118
+	},
+	"mystic_magic_t2_10": {
+		"definition": "magic_resistance",
+		"x": -301,
+		"y": -73
 	},
 	"mystic_magic_t2_11": {
 		"definition": "healing",
-		"x": 192,
-		"y": 26220
+		"x": -361,
+		"y": -91
 	},
 	"mystic_enchanting_root": {
 		"definition": "magic_damage",
-		"x": 64,
-		"y": 28000
+		"x": -118,
+		"y": 38
 	},
 	"mystic_enchanting_t0_1": {
 		"definition": "magic_damage",
-		"x": 96,
-		"y": 27960
-	},
-	"mystic_enchanting_t1_1": {
-		"definition": "repair_cost",
-		"x": 96,
-		"y": 28000
-	},
-	"mystic_enchanting_t2_1": {
-		"definition": "armor_shred",
-		"x": 96,
-		"y": 28040
+		"x": -178,
+		"y": 56
 	},
 	"mystic_enchanting_t0_2": {
 		"definition": "magic_resistance",
-		"x": 128,
-		"y": 27900
-	},
-	"mystic_enchanting_t0_7": {
-		"definition": "magic_resistance",
-		"x": 128,
-		"y": 27940
-	},
-	"mystic_enchanting_t1_2": {
-		"definition": "experience_gain",
-		"x": 128,
-		"y": 27980
-	},
-	"mystic_enchanting_t1_7": {
-		"definition": "experience_gain",
-		"x": 128,
-		"y": 28020
-	},
-	"mystic_enchanting_t2_2": {
-		"definition": "toughness_shred",
-		"x": 128,
-		"y": 28060
-	},
-	"mystic_enchanting_t2_7": {
-		"definition": "toughness_shred",
-		"x": 128,
-		"y": 28100
+		"x": -239,
+		"y": 67
 	},
 	"mystic_enchanting_t0_3": {
 		"definition": "magic_damage",
-		"x": 160,
-		"y": 27780
-	},
-	"mystic_enchanting_t0_5": {
-		"definition": "magic_damage",
-		"x": 160,
-		"y": 27820
-	},
-	"mystic_enchanting_t0_8": {
-		"definition": "magic_damage",
-		"x": 160,
-		"y": 27860
-	},
-	"mystic_enchanting_t0_10": {
-		"definition": "magic_damage",
-		"x": 160,
-		"y": 27900
-	},
-	"mystic_enchanting_t1_3": {
-		"definition": "repair_cost",
-		"x": 160,
-		"y": 27940
-	},
-	"mystic_enchanting_t1_5": {
-		"definition": "repair_cost",
-		"x": 160,
-		"y": 27980
-	},
-	"mystic_enchanting_t1_8": {
-		"definition": "repair_cost",
-		"x": 160,
-		"y": 28020
-	},
-	"mystic_enchanting_t1_10": {
-		"definition": "repair_cost",
-		"x": 160,
-		"y": 28060
-	},
-	"mystic_enchanting_t2_3": {
-		"definition": "armor_shred",
-		"x": 160,
-		"y": 28100
-	},
-	"mystic_enchanting_t2_5": {
-		"definition": "armor_shred",
-		"x": 160,
-		"y": 28140
-	},
-	"mystic_enchanting_t2_8": {
-		"definition": "armor_shred",
-		"x": 160,
-		"y": 28180
-	},
-	"mystic_enchanting_t2_10": {
-		"definition": "armor_shred",
-		"x": 160,
-		"y": 28220
+		"x": -299,
+		"y": 81
 	},
 	"mystic_enchanting_t0_4": {
 		"definition": "magic_resistance",
-		"x": 192,
-		"y": 27780
+		"x": -360,
+		"y": 94
+	},
+	"mystic_enchanting_t0_5": {
+		"definition": "magic_damage",
+		"x": -301,
+		"y": 76
 	},
 	"mystic_enchanting_t0_6": {
 		"definition": "magic_resistance",
-		"x": 192,
-		"y": 27820
+		"x": -362,
+		"y": 87
+	},
+	"mystic_enchanting_t0_7": {
+		"definition": "magic_resistance",
+		"x": -242,
+		"y": 56
+	},
+	"mystic_enchanting_t0_8": {
+		"definition": "magic_damage",
+		"x": -303,
+		"y": 67
 	},
 	"mystic_enchanting_t0_9": {
 		"definition": "magic_resistance",
-		"x": 192,
-		"y": 27860
+		"x": -364,
+		"y": 77
+	},
+	"mystic_enchanting_t0_10": {
+		"definition": "magic_damage",
+		"x": -297,
+		"y": 90
 	},
 	"mystic_enchanting_t0_11": {
 		"definition": "magic_resistance",
-		"x": 192,
-		"y": 27900
+		"x": -357,
+		"y": 104
+	},
+	"mystic_enchanting_t1_1": {
+		"definition": "repair_cost",
+		"x": -182,
+		"y": 37
+	},
+	"mystic_enchanting_t1_2": {
+		"definition": "experience_gain",
+		"x": -244,
+		"y": 42
+	},
+	"mystic_enchanting_t1_3": {
+		"definition": "repair_cost",
+		"x": -306,
+		"y": 50
 	},
 	"mystic_enchanting_t1_4": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 27940
+		"x": -368,
+		"y": 56
+	},
+	"mystic_enchanting_t1_5": {
+		"definition": "repair_cost",
+		"x": -307,
+		"y": 44
 	},
 	"mystic_enchanting_t1_6": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 27980
+		"x": -369,
+		"y": 49
+	},
+	"mystic_enchanting_t1_7": {
+		"definition": "experience_gain",
+		"x": -246,
+		"y": 30
+	},
+	"mystic_enchanting_t1_8": {
+		"definition": "repair_cost",
+		"x": -308,
+		"y": 35
 	},
 	"mystic_enchanting_t1_9": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 28020
+		"x": -370,
+		"y": 39
+	},
+	"mystic_enchanting_t1_10": {
+		"definition": "repair_cost",
+		"x": -304,
+		"y": 58
 	},
 	"mystic_enchanting_t1_11": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 28060
+		"x": -366,
+		"y": 67
+	},
+	"mystic_enchanting_t2_1": {
+		"definition": "armor_shred",
+		"x": -185,
+		"y": 18
+	},
+	"mystic_enchanting_t2_2": {
+		"definition": "toughness_shred",
+		"x": -247,
+		"y": 16
+	},
+	"mystic_enchanting_t2_3": {
+		"definition": "armor_shred",
+		"x": -309,
+		"y": 18
 	},
 	"mystic_enchanting_t2_4": {
 		"definition": "toughness_shred",
-		"x": 192,
-		"y": 28100
+		"x": -372,
+		"y": 18
+	},
+	"mystic_enchanting_t2_5": {
+		"definition": "armor_shred",
+		"x": -310,
+		"y": 12
 	},
 	"mystic_enchanting_t2_6": {
 		"definition": "toughness_shred",
-		"x": 192,
-		"y": 28140
+		"x": -372,
+		"y": 11
+	},
+	"mystic_enchanting_t2_7": {
+		"definition": "toughness_shred",
+		"x": -248,
+		"y": 5
+	},
+	"mystic_enchanting_t2_8": {
+		"definition": "armor_shred",
+		"x": -310,
+		"y": 3
 	},
 	"mystic_enchanting_t2_9": {
 		"definition": "toughness_shred",
-		"x": 192,
-		"y": 28180
+		"x": -372,
+		"y": 0
+	},
+	"mystic_enchanting_t2_10": {
+		"definition": "armor_shred",
+		"x": -309,
+		"y": 26
 	},
 	"mystic_enchanting_t2_11": {
 		"definition": "toughness_shred",
-		"x": 192,
-		"y": 28220
+		"x": -371,
+		"y": 28
 	},
 	"mystic_alchemy_root": {
 		"definition": "healing",
-		"x": 64,
-		"y": 30000
+		"x": -100,
+		"y": 74
 	},
 	"mystic_alchemy_t0_1": {
 		"definition": "healing",
-		"x": 96,
-		"y": 29960
-	},
-	"mystic_alchemy_t1_1": {
-		"definition": "magic_resistance",
-		"x": 96,
-		"y": 30000
-	},
-	"mystic_alchemy_t2_1": {
-		"definition": "magic_damage",
-		"x": 96,
-		"y": 30040
+		"x": -151,
+		"y": 109
 	},
 	"mystic_alchemy_t0_2": {
 		"definition": "natural_regeneration",
-		"x": 128,
-		"y": 29900
-	},
-	"mystic_alchemy_t0_7": {
-		"definition": "natural_regeneration",
-		"x": 128,
-		"y": 29940
-	},
-	"mystic_alchemy_t1_2": {
-		"definition": "resistance",
-		"x": 128,
-		"y": 29980
-	},
-	"mystic_alchemy_t1_7": {
-		"definition": "resistance",
-		"x": 128,
-		"y": 30020
-	},
-	"mystic_alchemy_t2_2": {
-		"definition": "life_steal",
-		"x": 128,
-		"y": 30060
-	},
-	"mystic_alchemy_t2_7": {
-		"definition": "life_steal",
-		"x": 128,
-		"y": 30100
+		"x": -205,
+		"y": 139
 	},
 	"mystic_alchemy_t0_3": {
 		"definition": "healing",
-		"x": 160,
-		"y": 29780
-	},
-	"mystic_alchemy_t0_5": {
-		"definition": "healing",
-		"x": 160,
-		"y": 29820
-	},
-	"mystic_alchemy_t0_8": {
-		"definition": "healing",
-		"x": 160,
-		"y": 29860
-	},
-	"mystic_alchemy_t0_10": {
-		"definition": "healing",
-		"x": 160,
-		"y": 29900
-	},
-	"mystic_alchemy_t1_3": {
-		"definition": "magic_resistance",
-		"x": 160,
-		"y": 29940
-	},
-	"mystic_alchemy_t1_5": {
-		"definition": "magic_resistance",
-		"x": 160,
-		"y": 29980
-	},
-	"mystic_alchemy_t1_8": {
-		"definition": "magic_resistance",
-		"x": 160,
-		"y": 30020
-	},
-	"mystic_alchemy_t1_10": {
-		"definition": "magic_resistance",
-		"x": 160,
-		"y": 30060
-	},
-	"mystic_alchemy_t2_3": {
-		"definition": "magic_damage",
-		"x": 160,
-		"y": 30100
-	},
-	"mystic_alchemy_t2_5": {
-		"definition": "magic_damage",
-		"x": 160,
-		"y": 30140
-	},
-	"mystic_alchemy_t2_8": {
-		"definition": "magic_damage",
-		"x": 160,
-		"y": 30180
-	},
-	"mystic_alchemy_t2_10": {
-		"definition": "magic_damage",
-		"x": 160,
-		"y": 30220
+		"x": -258,
+		"y": 172
 	},
 	"mystic_alchemy_t0_4": {
 		"definition": "natural_regeneration",
-		"x": 192,
-		"y": 29780
+		"x": -312,
+		"y": 203
+	},
+	"mystic_alchemy_t0_5": {
+		"definition": "healing",
+		"x": -261,
+		"y": 167
 	},
 	"mystic_alchemy_t0_6": {
 		"definition": "natural_regeneration",
-		"x": 192,
-		"y": 29820
+		"x": -315,
+		"y": 197
+	},
+	"mystic_alchemy_t0_7": {
+		"definition": "natural_regeneration",
+		"x": -212,
+		"y": 129
+	},
+	"mystic_alchemy_t0_8": {
+		"definition": "healing",
+		"x": -266,
+		"y": 159
 	},
 	"mystic_alchemy_t0_9": {
 		"definition": "natural_regeneration",
-		"x": 192,
-		"y": 29860
+		"x": -321,
+		"y": 188
+	},
+	"mystic_alchemy_t0_10": {
+		"definition": "healing",
+		"x": -253,
+		"y": 179
 	},
 	"mystic_alchemy_t0_11": {
 		"definition": "natural_regeneration",
-		"x": 192,
-		"y": 29900
+		"x": -306,
+		"y": 212
+	},
+	"mystic_alchemy_t1_1": {
+		"definition": "magic_resistance",
+		"x": -161,
+		"y": 93
+	},
+	"mystic_alchemy_t1_2": {
+		"definition": "resistance",
+		"x": -219,
+		"y": 117
+	},
+	"mystic_alchemy_t1_3": {
+		"definition": "magic_resistance",
+		"x": -275,
+		"y": 144
 	},
 	"mystic_alchemy_t1_4": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 29940
+		"x": -331,
+		"y": 170
+	},
+	"mystic_alchemy_t1_5": {
+		"definition": "magic_resistance",
+		"x": -277,
+		"y": 139
 	},
 	"mystic_alchemy_t1_6": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 29980
+		"x": -334,
+		"y": 163
+	},
+	"mystic_alchemy_t1_7": {
+		"definition": "resistance",
+		"x": -224,
+		"y": 107
+	},
+	"mystic_alchemy_t1_8": {
+		"definition": "magic_resistance",
+		"x": -281,
+		"y": 131
 	},
 	"mystic_alchemy_t1_9": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 30020
+		"x": -339,
+		"y": 154
+	},
+	"mystic_alchemy_t1_10": {
+		"definition": "magic_resistance",
+		"x": -270,
+		"y": 152
 	},
 	"mystic_alchemy_t1_11": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 30060
+		"x": -326,
+		"y": 179
+	},
+	"mystic_alchemy_t2_1": {
+		"definition": "magic_damage",
+		"x": -170,
+		"y": 75
+	},
+	"mystic_alchemy_t2_2": {
+		"definition": "life_steal",
+		"x": -230,
+		"y": 94
+	},
+	"mystic_alchemy_t2_3": {
+		"definition": "magic_damage",
+		"x": -288,
+		"y": 115
 	},
 	"mystic_alchemy_t2_4": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 30100
+		"x": -347,
+		"y": 134
+	},
+	"mystic_alchemy_t2_5": {
+		"definition": "magic_damage",
+		"x": -290,
+		"y": 109
 	},
 	"mystic_alchemy_t2_6": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 30140
+		"x": -349,
+		"y": 128
+	},
+	"mystic_alchemy_t2_7": {
+		"definition": "life_steal",
+		"x": -234,
+		"y": 83
+	},
+	"mystic_alchemy_t2_8": {
+		"definition": "magic_damage",
+		"x": -293,
+		"y": 101
 	},
 	"mystic_alchemy_t2_9": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 30180
+		"x": -353,
+		"y": 118
+	},
+	"mystic_alchemy_t2_10": {
+		"definition": "magic_damage",
+		"x": -285,
+		"y": 123
 	},
 	"mystic_alchemy_t2_11": {
 		"definition": "life_steal",
-		"x": 192,
-		"y": 30220
+		"x": -343,
+		"y": 144
 	},
 	"mystic_trading_root": {
 		"definition": "luck",
-		"x": 64,
-		"y": 32000
+		"x": -117,
+		"y": -40
 	},
 	"mystic_trading_t0_1": {
 		"definition": "luck",
-		"x": 96,
-		"y": 31960
-	},
-	"mystic_trading_t1_1": {
-		"definition": "experience_gain",
-		"x": 96,
-		"y": 32000
-	},
-	"mystic_trading_t2_1": {
-		"definition": "stealth",
-		"x": 96,
-		"y": 32040
+		"x": -175,
+		"y": -62
 	},
 	"mystic_trading_t0_2": {
 		"definition": "max_health",
-		"x": 128,
-		"y": 31900
-	},
-	"mystic_trading_t0_7": {
-		"definition": "max_health",
-		"x": 128,
-		"y": 31940
-	},
-	"mystic_trading_t1_2": {
-		"definition": "healing",
-		"x": 128,
-		"y": 31980
-	},
-	"mystic_trading_t1_7": {
-		"definition": "healing",
-		"x": 128,
-		"y": 32020
-	},
-	"mystic_trading_t2_2": {
-		"definition": "resistance",
-		"x": 128,
-		"y": 32060
-	},
-	"mystic_trading_t2_7": {
-		"definition": "resistance",
-		"x": 128,
-		"y": 32100
+		"x": -231,
+		"y": -90
 	},
 	"mystic_trading_t0_3": {
 		"definition": "luck",
-		"x": 160,
-		"y": 31780
-	},
-	"mystic_trading_t0_5": {
-		"definition": "luck",
-		"x": 160,
-		"y": 31820
-	},
-	"mystic_trading_t0_8": {
-		"definition": "luck",
-		"x": 160,
-		"y": 31860
-	},
-	"mystic_trading_t0_10": {
-		"definition": "luck",
-		"x": 160,
-		"y": 31900
-	},
-	"mystic_trading_t1_3": {
-		"definition": "experience_gain",
-		"x": 160,
-		"y": 31940
-	},
-	"mystic_trading_t1_5": {
-		"definition": "experience_gain",
-		"x": 160,
-		"y": 31980
-	},
-	"mystic_trading_t1_8": {
-		"definition": "experience_gain",
-		"x": 160,
-		"y": 32020
-	},
-	"mystic_trading_t1_10": {
-		"definition": "experience_gain",
-		"x": 160,
-		"y": 32060
-	},
-	"mystic_trading_t2_3": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 32100
-	},
-	"mystic_trading_t2_5": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 32140
-	},
-	"mystic_trading_t2_8": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 32180
-	},
-	"mystic_trading_t2_10": {
-		"definition": "stealth",
-		"x": 160,
-		"y": 32220
+		"x": -288,
+		"y": -115
 	},
 	"mystic_trading_t0_4": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 31780
+		"x": -344,
+		"y": -141
+	},
+	"mystic_trading_t0_5": {
+		"definition": "luck",
+		"x": -286,
+		"y": -120
 	},
 	"mystic_trading_t0_6": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 31820
+		"x": -342,
+		"y": -147
+	},
+	"mystic_trading_t0_7": {
+		"definition": "max_health",
+		"x": -227,
+		"y": -100
+	},
+	"mystic_trading_t0_8": {
+		"definition": "luck",
+		"x": -282,
+		"y": -128
 	},
 	"mystic_trading_t0_9": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 31860
+		"x": -337,
+		"y": -157
+	},
+	"mystic_trading_t0_10": {
+		"definition": "luck",
+		"x": -291,
+		"y": -106
 	},
 	"mystic_trading_t0_11": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 31900
+		"x": -348,
+		"y": -131
+	},
+	"mystic_trading_t1_1": {
+		"definition": "experience_gain",
+		"x": -168,
+		"y": -80
+	},
+	"mystic_trading_t1_2": {
+		"definition": "healing",
+		"x": -221,
+		"y": -113
+	},
+	"mystic_trading_t1_3": {
+		"definition": "experience_gain",
+		"x": -275,
+		"y": -144
 	},
 	"mystic_trading_t1_4": {
 		"definition": "healing",
-		"x": 192,
-		"y": 31940
+		"x": -328,
+		"y": -176
+	},
+	"mystic_trading_t1_5": {
+		"definition": "experience_gain",
+		"x": -272,
+		"y": -149
 	},
 	"mystic_trading_t1_6": {
 		"definition": "healing",
-		"x": 192,
-		"y": 31980
+		"x": -324,
+		"y": -182
+	},
+	"mystic_trading_t1_7": {
+		"definition": "healing",
+		"x": -215,
+		"y": -123
+	},
+	"mystic_trading_t1_8": {
+		"definition": "experience_gain",
+		"x": -267,
+		"y": -157
 	},
 	"mystic_trading_t1_9": {
 		"definition": "healing",
-		"x": 192,
-		"y": 32020
+		"x": -319,
+		"y": -191
+	},
+	"mystic_trading_t1_10": {
+		"definition": "experience_gain",
+		"x": -279,
+		"y": -136
 	},
 	"mystic_trading_t1_11": {
 		"definition": "healing",
-		"x": 192,
-		"y": 32060
+		"x": -333,
+		"y": -167
+	},
+	"mystic_trading_t2_1": {
+		"definition": "stealth",
+		"x": -159,
+		"y": -97
+	},
+	"mystic_trading_t2_2": {
+		"definition": "resistance",
+		"x": -208,
+		"y": -135
+	},
+	"mystic_trading_t2_3": {
+		"definition": "stealth",
+		"x": -258,
+		"y": -172
 	},
 	"mystic_trading_t2_4": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 32100
+		"x": -308,
+		"y": -209
+	},
+	"mystic_trading_t2_5": {
+		"definition": "stealth",
+		"x": -255,
+		"y": -177
 	},
 	"mystic_trading_t2_6": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 32140
+		"x": -304,
+		"y": -215
+	},
+	"mystic_trading_t2_7": {
+		"definition": "resistance",
+		"x": -201,
+		"y": -145
+	},
+	"mystic_trading_t2_8": {
+		"definition": "stealth",
+		"x": -250,
+		"y": -184
 	},
 	"mystic_trading_t2_9": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 32180
+		"x": -297,
+		"y": -223
+	},
+	"mystic_trading_t2_10": {
+		"definition": "stealth",
+		"x": -263,
+		"y": -164
 	},
 	"mystic_trading_t2_11": {
 		"definition": "resistance",
-		"x": 192,
-		"y": 32220
+		"x": -314,
+		"y": -200
 	},
 	"class_mystic_capstone": {
 		"definition": "capstone_mystic",
-		"x": 224,
-		"y": 31780
+		"x": -402,
+		"y": -164
 	},
 	"class_artisan_root": {
 		"definition": "mining_speed",
-		"x": 32,
-		"y": 34000
+		"x": 37,
+		"y": -50
 	},
 	"artisan_mining_root": {
 		"definition": "mining_speed",
-		"x": 64,
-		"y": 34000
+		"x": 0,
+		"y": -124
 	},
 	"artisan_mining_t0_1": {
 		"definition": "mining_speed",
-		"x": 96,
-		"y": 33960
-	},
-	"artisan_mining_t1_1": {
-		"definition": "fortune",
-		"x": 96,
-		"y": 34000
-	},
-	"artisan_mining_t2_1": {
-		"definition": "luck",
-		"x": 96,
-		"y": 34040
+		"x": 1,
+		"y": -186
 	},
 	"artisan_mining_t0_2": {
 		"definition": "breaking_speed",
-		"x": 128,
-		"y": 33900
-	},
-	"artisan_mining_t0_7": {
-		"definition": "breaking_speed",
-		"x": 128,
-		"y": 33940
-	},
-	"artisan_mining_t1_2": {
-		"definition": "pickaxe_speed",
-		"x": 128,
-		"y": 33980
-	},
-	"artisan_mining_t1_7": {
-		"definition": "pickaxe_speed",
-		"x": 128,
-		"y": 34020
-	},
-	"artisan_mining_t2_2": {
-		"definition": "experience_gain",
-		"x": 128,
-		"y": 34060
-	},
-	"artisan_mining_t2_7": {
-		"definition": "experience_gain",
-		"x": 128,
-		"y": 34100
+		"x": 6,
+		"y": -248
 	},
 	"artisan_mining_t0_3": {
 		"definition": "mining_speed",
-		"x": 160,
-		"y": 33780
-	},
-	"artisan_mining_t0_5": {
-		"definition": "mining_speed",
-		"x": 160,
-		"y": 33820
-	},
-	"artisan_mining_t0_8": {
-		"definition": "mining_speed",
-		"x": 160,
-		"y": 33860
-	},
-	"artisan_mining_t0_10": {
-		"definition": "mining_speed",
-		"x": 160,
-		"y": 33900
-	},
-	"artisan_mining_t1_3": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 33940
-	},
-	"artisan_mining_t1_5": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 33980
-	},
-	"artisan_mining_t1_8": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 34020
-	},
-	"artisan_mining_t1_10": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 34060
-	},
-	"artisan_mining_t2_3": {
-		"definition": "luck",
-		"x": 160,
-		"y": 34100
-	},
-	"artisan_mining_t2_5": {
-		"definition": "luck",
-		"x": 160,
-		"y": 34140
-	},
-	"artisan_mining_t2_8": {
-		"definition": "luck",
-		"x": 160,
-		"y": 34180
-	},
-	"artisan_mining_t2_10": {
-		"definition": "luck",
-		"x": 160,
-		"y": 34220
+		"x": 10,
+		"y": -310
 	},
 	"artisan_mining_t0_4": {
 		"definition": "breaking_speed",
-		"x": 192,
-		"y": 33780
+		"x": 14,
+		"y": -372
+	},
+	"artisan_mining_t0_5": {
+		"definition": "mining_speed",
+		"x": 14,
+		"y": -310
 	},
 	"artisan_mining_t0_6": {
 		"definition": "breaking_speed",
-		"x": 192,
-		"y": 33820
+		"x": 19,
+		"y": -372
+	},
+	"artisan_mining_t0_7": {
+		"definition": "breaking_speed",
+		"x": 14,
+		"y": -248
+	},
+	"artisan_mining_t0_8": {
+		"definition": "mining_speed",
+		"x": 20,
+		"y": -309
 	},
 	"artisan_mining_t0_9": {
 		"definition": "breaking_speed",
-		"x": 192,
-		"y": 33860
+		"x": 26,
+		"y": -371
+	},
+	"artisan_mining_t0_10": {
+		"definition": "mining_speed",
+		"x": 4,
+		"y": -310
 	},
 	"artisan_mining_t0_11": {
 		"definition": "breaking_speed",
-		"x": 192,
-		"y": 33900
+		"x": 7,
+		"y": -372
+	},
+	"artisan_mining_t1_1": {
+		"definition": "fortune",
+		"x": 14,
+		"y": -185
+	},
+	"artisan_mining_t1_2": {
+		"definition": "pickaxe_speed",
+		"x": 23,
+		"y": -247
+	},
+	"artisan_mining_t1_3": {
+		"definition": "fortune",
+		"x": 31,
+		"y": -308
 	},
 	"artisan_mining_t1_4": {
 		"definition": "pickaxe_speed",
-		"x": 192,
-		"y": 33940
+		"x": 40,
+		"y": -370
+	},
+	"artisan_mining_t1_5": {
+		"definition": "fortune",
+		"x": 35,
+		"y": -308
 	},
 	"artisan_mining_t1_6": {
 		"definition": "pickaxe_speed",
-		"x": 192,
-		"y": 33980
+		"x": 45,
+		"y": -369
+	},
+	"artisan_mining_t1_7": {
+		"definition": "pickaxe_speed",
+		"x": 31,
+		"y": -246
+	},
+	"artisan_mining_t1_8": {
+		"definition": "fortune",
+		"x": 41,
+		"y": -307
 	},
 	"artisan_mining_t1_9": {
 		"definition": "pickaxe_speed",
-		"x": 192,
-		"y": 34020
+		"x": 52,
+		"y": -368
+	},
+	"artisan_mining_t1_10": {
+		"definition": "fortune",
+		"x": 25,
+		"y": -309
 	},
 	"artisan_mining_t1_11": {
 		"definition": "pickaxe_speed",
-		"x": 192,
-		"y": 34060
+		"x": 33,
+		"y": -371
+	},
+	"artisan_mining_t2_1": {
+		"definition": "luck",
+		"x": 27,
+		"y": -184
+	},
+	"artisan_mining_t2_2": {
+		"definition": "experience_gain",
+		"x": 41,
+		"y": -245
+	},
+	"artisan_mining_t2_3": {
+		"definition": "luck",
+		"x": 53,
+		"y": -306
 	},
 	"artisan_mining_t2_4": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 34100
+		"x": 65,
+		"y": -366
+	},
+	"artisan_mining_t2_5": {
+		"definition": "luck",
+		"x": 56,
+		"y": -305
 	},
 	"artisan_mining_t2_6": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 34140
+		"x": 70,
+		"y": -365
+	},
+	"artisan_mining_t2_7": {
+		"definition": "experience_gain",
+		"x": 48,
+		"y": -243
+	},
+	"artisan_mining_t2_8": {
+		"definition": "luck",
+		"x": 62,
+		"y": -304
 	},
 	"artisan_mining_t2_9": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 34180
+		"x": 77,
+		"y": -364
+	},
+	"artisan_mining_t2_10": {
+		"definition": "luck",
+		"x": 47,
+		"y": -306
 	},
 	"artisan_mining_t2_11": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 34220
+		"x": 58,
+		"y": -367
 	},
 	"artisan_building_root": {
 		"definition": "break_speed",
-		"x": 64,
-		"y": 36000
+		"x": -74,
+		"y": -99
 	},
 	"artisan_building_t0_1": {
 		"definition": "break_speed",
-		"x": 96,
-		"y": 35960
-	},
-	"artisan_building_t1_1": {
-		"definition": "step_height",
-		"x": 96,
-		"y": 36000
-	},
-	"artisan_building_t2_1": {
-		"definition": "experience_gain",
-		"x": 96,
-		"y": 36040
+		"x": -111,
+		"y": -149
 	},
 	"artisan_building_t0_2": {
 		"definition": "block_reach",
-		"x": 128,
-		"y": 35900
-	},
-	"artisan_building_t0_7": {
-		"definition": "block_reach",
-		"x": 128,
-		"y": 35940
-	},
-	"artisan_building_t1_2": {
-		"definition": "repair_cost",
-		"x": 128,
-		"y": 35980
-	},
-	"artisan_building_t1_7": {
-		"definition": "repair_cost",
-		"x": 128,
-		"y": 36020
-	},
-	"artisan_building_t2_2": {
-		"definition": "max_health",
-		"x": 128,
-		"y": 36060
-	},
-	"artisan_building_t2_7": {
-		"definition": "max_health",
-		"x": 128,
-		"y": 36100
+		"x": -144,
+		"y": -202
 	},
 	"artisan_building_t0_3": {
 		"definition": "break_speed",
-		"x": 160,
-		"y": 35780
-	},
-	"artisan_building_t0_5": {
-		"definition": "break_speed",
-		"x": 160,
-		"y": 35820
-	},
-	"artisan_building_t0_8": {
-		"definition": "break_speed",
-		"x": 160,
-		"y": 35860
-	},
-	"artisan_building_t0_10": {
-		"definition": "break_speed",
-		"x": 160,
-		"y": 35900
-	},
-	"artisan_building_t1_3": {
-		"definition": "step_height",
-		"x": 160,
-		"y": 35940
-	},
-	"artisan_building_t1_5": {
-		"definition": "step_height",
-		"x": 160,
-		"y": 35980
-	},
-	"artisan_building_t1_8": {
-		"definition": "step_height",
-		"x": 160,
-		"y": 36020
-	},
-	"artisan_building_t1_10": {
-		"definition": "step_height",
-		"x": 160,
-		"y": 36060
-	},
-	"artisan_building_t2_3": {
-		"definition": "experience_gain",
-		"x": 160,
-		"y": 36100
-	},
-	"artisan_building_t2_5": {
-		"definition": "experience_gain",
-		"x": 160,
-		"y": 36140
-	},
-	"artisan_building_t2_8": {
-		"definition": "experience_gain",
-		"x": 160,
-		"y": 36180
-	},
-	"artisan_building_t2_10": {
-		"definition": "experience_gain",
-		"x": 160,
-		"y": 36220
+		"x": -178,
+		"y": -254
 	},
 	"artisan_building_t0_4": {
 		"definition": "block_reach",
-		"x": 192,
-		"y": 35780
+		"x": -212,
+		"y": -306
+	},
+	"artisan_building_t0_5": {
+		"definition": "break_speed",
+		"x": -175,
+		"y": -256
 	},
 	"artisan_building_t0_6": {
 		"definition": "block_reach",
-		"x": 192,
-		"y": 35820
+		"x": -208,
+		"y": -308
+	},
+	"artisan_building_t0_7": {
+		"definition": "block_reach",
+		"x": -137,
+		"y": -206
+	},
+	"artisan_building_t0_8": {
+		"definition": "break_speed",
+		"x": -170,
+		"y": -259
 	},
 	"artisan_building_t0_9": {
 		"definition": "block_reach",
-		"x": 192,
-		"y": 35860
+		"x": -202,
+		"y": -312
+	},
+	"artisan_building_t0_10": {
+		"definition": "break_speed",
+		"x": -183,
+		"y": -250
 	},
 	"artisan_building_t0_11": {
 		"definition": "block_reach",
-		"x": 192,
-		"y": 35900
+		"x": -218,
+		"y": -302
+	},
+	"artisan_building_t1_1": {
+		"definition": "step_height",
+		"x": -100,
+		"y": -157
+	},
+	"artisan_building_t1_2": {
+		"definition": "repair_cost",
+		"x": -129,
+		"y": -212
+	},
+	"artisan_building_t1_3": {
+		"definition": "step_height",
+		"x": -160,
+		"y": -265
 	},
 	"artisan_building_t1_4": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 35940
+		"x": -190,
+		"y": -320
+	},
+	"artisan_building_t1_5": {
+		"definition": "step_height",
+		"x": -157,
+		"y": -267
 	},
 	"artisan_building_t1_6": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 35980
+		"x": -186,
+		"y": -322
+	},
+	"artisan_building_t1_7": {
+		"definition": "repair_cost",
+		"x": -123,
+		"y": -215
+	},
+	"artisan_building_t1_8": {
+		"definition": "step_height",
+		"x": -152,
+		"y": -270
 	},
 	"artisan_building_t1_9": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 36020
+		"x": -180,
+		"y": -326
+	},
+	"artisan_building_t1_10": {
+		"definition": "step_height",
+		"x": -165,
+		"y": -262
 	},
 	"artisan_building_t1_11": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 36060
+		"x": -196,
+		"y": -316
+	},
+	"artisan_building_t2_1": {
+		"definition": "experience_gain",
+		"x": -89,
+		"y": -163
+	},
+	"artisan_building_t2_2": {
+		"definition": "max_health",
+		"x": -114,
+		"y": -220
+	},
+	"artisan_building_t2_3": {
+		"definition": "experience_gain",
+		"x": -141,
+		"y": -276
 	},
 	"artisan_building_t2_4": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 36100
+		"x": -168,
+		"y": -332
+	},
+	"artisan_building_t2_5": {
+		"definition": "experience_gain",
+		"x": -138,
+		"y": -278
 	},
 	"artisan_building_t2_6": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 36140
+		"x": -163,
+		"y": -334
+	},
+	"artisan_building_t2_7": {
+		"definition": "max_health",
+		"x": -107,
+		"y": -223
+	},
+	"artisan_building_t2_8": {
+		"definition": "experience_gain",
+		"x": -133,
+		"y": -280
 	},
 	"artisan_building_t2_9": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 36180
+		"x": -157,
+		"y": -337
+	},
+	"artisan_building_t2_10": {
+		"definition": "experience_gain",
+		"x": -147,
+		"y": -273
 	},
 	"artisan_building_t2_11": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 36220
+		"x": -174,
+		"y": -329
 	},
 	"artisan_woodcutting_root": {
 		"definition": "axe_speed",
-		"x": 64,
-		"y": 38000
+		"x": 52,
+		"y": -113
 	},
 	"artisan_woodcutting_t0_1": {
 		"definition": "axe_speed",
-		"x": 96,
-		"y": 37960
-	},
-	"artisan_woodcutting_t1_1": {
-		"definition": "break_speed",
-		"x": 96,
-		"y": 38000
-	},
-	"artisan_woodcutting_t2_1": {
-		"definition": "fortune",
-		"x": 96,
-		"y": 38040
+		"x": 78,
+		"y": -169
 	},
 	"artisan_woodcutting_t0_2": {
 		"definition": "axe_damage",
-		"x": 128,
-		"y": 37900
-	},
-	"artisan_woodcutting_t0_7": {
-		"definition": "axe_damage",
-		"x": 128,
-		"y": 37940
-	},
-	"artisan_woodcutting_t1_2": {
-		"definition": "stamina",
-		"x": 128,
-		"y": 37980
-	},
-	"artisan_woodcutting_t1_7": {
-		"definition": "stamina",
-		"x": 128,
-		"y": 38020
-	},
-	"artisan_woodcutting_t2_2": {
-		"definition": "repair_cost",
-		"x": 128,
-		"y": 38060
-	},
-	"artisan_woodcutting_t2_7": {
-		"definition": "repair_cost",
-		"x": 128,
-		"y": 38100
+		"x": 109,
+		"y": -223
 	},
 	"artisan_woodcutting_t0_3": {
 		"definition": "axe_speed",
-		"x": 160,
-		"y": 37780
+		"x": 138,
+		"y": -278
+	},
+	"artisan_woodcutting_t0_4": {
+		"definition": "axe_damage",
+		"x": 168,
+		"y": -332
 	},
 	"artisan_woodcutting_t0_5": {
 		"definition": "axe_speed",
-		"x": 160,
-		"y": 37820
+		"x": 141,
+		"y": -276
+	},
+	"artisan_woodcutting_t0_6": {
+		"definition": "axe_damage",
+		"x": 172,
+		"y": -330
+	},
+	"artisan_woodcutting_t0_7": {
+		"definition": "axe_damage",
+		"x": 116,
+		"y": -219
 	},
 	"artisan_woodcutting_t0_8": {
 		"definition": "axe_speed",
-		"x": 160,
-		"y": 37860
+		"x": 147,
+		"y": -273
+	},
+	"artisan_woodcutting_t0_9": {
+		"definition": "axe_damage",
+		"x": 178,
+		"y": -327
 	},
 	"artisan_woodcutting_t0_10": {
 		"definition": "axe_speed",
-		"x": 160,
-		"y": 37900
+		"x": 133,
+		"y": -280
+	},
+	"artisan_woodcutting_t0_11": {
+		"definition": "axe_damage",
+		"x": 161,
+		"y": -335
+	},
+	"artisan_woodcutting_t1_1": {
+		"definition": "break_speed",
+		"x": 90,
+		"y": -163
+	},
+	"artisan_woodcutting_t1_2": {
+		"definition": "stamina",
+		"x": 124,
+		"y": -215
 	},
 	"artisan_woodcutting_t1_3": {
 		"definition": "break_speed",
-		"x": 160,
-		"y": 37940
+		"x": 157,
+		"y": -267
+	},
+	"artisan_woodcutting_t1_4": {
+		"definition": "stamina",
+		"x": 190,
+		"y": -320
 	},
 	"artisan_woodcutting_t1_5": {
 		"definition": "break_speed",
 		"x": 160,
-		"y": 37980
-	},
-	"artisan_woodcutting_t1_8": {
-		"definition": "break_speed",
-		"x": 160,
-		"y": 38020
-	},
-	"artisan_woodcutting_t1_10": {
-		"definition": "break_speed",
-		"x": 160,
-		"y": 38060
-	},
-	"artisan_woodcutting_t2_3": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 38100
-	},
-	"artisan_woodcutting_t2_5": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 38140
-	},
-	"artisan_woodcutting_t2_8": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 38180
-	},
-	"artisan_woodcutting_t2_10": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 38220
-	},
-	"artisan_woodcutting_t0_4": {
-		"definition": "axe_damage",
-		"x": 192,
-		"y": 37780
-	},
-	"artisan_woodcutting_t0_6": {
-		"definition": "axe_damage",
-		"x": 192,
-		"y": 37820
-	},
-	"artisan_woodcutting_t0_9": {
-		"definition": "axe_damage",
-		"x": 192,
-		"y": 37860
-	},
-	"artisan_woodcutting_t0_11": {
-		"definition": "axe_damage",
-		"x": 192,
-		"y": 37900
-	},
-	"artisan_woodcutting_t1_4": {
-		"definition": "stamina",
-		"x": 192,
-		"y": 37940
+		"y": -265
 	},
 	"artisan_woodcutting_t1_6": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 37980
+		"x": 194,
+		"y": -317
+	},
+	"artisan_woodcutting_t1_7": {
+		"definition": "stamina",
+		"x": 131,
+		"y": -211
+	},
+	"artisan_woodcutting_t1_8": {
+		"definition": "break_speed",
+		"x": 165,
+		"y": -262
 	},
 	"artisan_woodcutting_t1_9": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 38020
+		"x": 200,
+		"y": -314
+	},
+	"artisan_woodcutting_t1_10": {
+		"definition": "break_speed",
+		"x": 152,
+		"y": -270
 	},
 	"artisan_woodcutting_t1_11": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 38060
+		"x": 184,
+		"y": -323
+	},
+	"artisan_woodcutting_t2_1": {
+		"definition": "fortune",
+		"x": 101,
+		"y": -156
+	},
+	"artisan_woodcutting_t2_2": {
+		"definition": "repair_cost",
+		"x": 139,
+		"y": -206
+	},
+	"artisan_woodcutting_t2_3": {
+		"definition": "fortune",
+		"x": 175,
+		"y": -256
 	},
 	"artisan_woodcutting_t2_4": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 38100
+		"x": 212,
+		"y": -306
+	},
+	"artisan_woodcutting_t2_5": {
+		"definition": "fortune",
+		"x": 178,
+		"y": -254
 	},
 	"artisan_woodcutting_t2_6": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 38140
+		"x": 216,
+		"y": -303
+	},
+	"artisan_woodcutting_t2_7": {
+		"definition": "repair_cost",
+		"x": 145,
+		"y": -201
+	},
+	"artisan_woodcutting_t2_8": {
+		"definition": "fortune",
+		"x": 183,
+		"y": -250
 	},
 	"artisan_woodcutting_t2_9": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 38180
+		"x": 221,
+		"y": -299
+	},
+	"artisan_woodcutting_t2_10": {
+		"definition": "fortune",
+		"x": 170,
+		"y": -259
 	},
 	"artisan_woodcutting_t2_11": {
 		"definition": "repair_cost",
-		"x": 192,
-		"y": 38220
+		"x": 206,
+		"y": -310
 	},
 	"artisan_farming_root": {
 		"definition": "fortune",
-		"x": 64,
-		"y": 40000
+		"x": -26,
+		"y": -121
 	},
 	"artisan_farming_t0_1": {
 		"definition": "consuming_speed",
-		"x": 96,
-		"y": 39960
-	},
-	"artisan_farming_t1_1": {
-		"definition": "fortune",
-		"x": 96,
-		"y": 40000
-	},
-	"artisan_farming_t2_1": {
-		"definition": "healing",
-		"x": 96,
-		"y": 40040
+		"x": -38,
+		"y": -182
 	},
 	"artisan_farming_t0_2": {
 		"definition": "stamina",
-		"x": 128,
-		"y": 39900
-	},
-	"artisan_farming_t0_7": {
-		"definition": "stamina",
-		"x": 128,
-		"y": 39940
-	},
-	"artisan_farming_t1_2": {
-		"definition": "break_speed",
-		"x": 128,
-		"y": 39980
-	},
-	"artisan_farming_t1_7": {
-		"definition": "break_speed",
-		"x": 128,
-		"y": 40020
-	},
-	"artisan_farming_t2_2": {
-		"definition": "natural_regeneration",
-		"x": 128,
-		"y": 40060
-	},
-	"artisan_farming_t2_7": {
-		"definition": "natural_regeneration",
-		"x": 128,
-		"y": 40100
+		"x": -47,
+		"y": -244
 	},
 	"artisan_farming_t0_3": {
 		"definition": "consuming_speed",
-		"x": 160,
-		"y": 39780
-	},
-	"artisan_farming_t0_5": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 39820
-	},
-	"artisan_farming_t0_8": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 39860
-	},
-	"artisan_farming_t0_10": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 39900
-	},
-	"artisan_farming_t1_3": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 39940
-	},
-	"artisan_farming_t1_5": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 39980
-	},
-	"artisan_farming_t1_8": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 40020
-	},
-	"artisan_farming_t1_10": {
-		"definition": "fortune",
-		"x": 160,
-		"y": 40060
-	},
-	"artisan_farming_t2_3": {
-		"definition": "healing",
-		"x": 160,
-		"y": 40100
-	},
-	"artisan_farming_t2_5": {
-		"definition": "healing",
-		"x": 160,
-		"y": 40140
-	},
-	"artisan_farming_t2_8": {
-		"definition": "healing",
-		"x": 160,
-		"y": 40180
-	},
-	"artisan_farming_t2_10": {
-		"definition": "healing",
-		"x": 160,
-		"y": 40220
+		"x": -56,
+		"y": -305
 	},
 	"artisan_farming_t0_4": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 39780
+		"x": -65,
+		"y": -366
+	},
+	"artisan_farming_t0_5": {
+		"definition": "consuming_speed",
+		"x": -53,
+		"y": -306
 	},
 	"artisan_farming_t0_6": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 39820
+		"x": -61,
+		"y": -367
+	},
+	"artisan_farming_t0_7": {
+		"definition": "stamina",
+		"x": -39,
+		"y": -245
+	},
+	"artisan_farming_t0_8": {
+		"definition": "consuming_speed",
+		"x": -47,
+		"y": -306
 	},
 	"artisan_farming_t0_9": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 39860
+		"x": -54,
+		"y": -368
+	},
+	"artisan_farming_t0_10": {
+		"definition": "consuming_speed",
+		"x": -62,
+		"y": -304
 	},
 	"artisan_farming_t0_11": {
 		"definition": "stamina",
-		"x": 192,
-		"y": 39900
+		"x": -72,
+		"y": -365
+	},
+	"artisan_farming_t1_1": {
+		"definition": "fortune",
+		"x": -26,
+		"y": -184
+	},
+	"artisan_farming_t1_2": {
+		"definition": "break_speed",
+		"x": -30,
+		"y": -246
+	},
+	"artisan_farming_t1_3": {
+		"definition": "fortune",
+		"x": -35,
+		"y": -308
 	},
 	"artisan_farming_t1_4": {
 		"definition": "break_speed",
-		"x": 192,
-		"y": 39940
+		"x": -40,
+		"y": -370
+	},
+	"artisan_farming_t1_5": {
+		"definition": "fortune",
+		"x": -31,
+		"y": -308
 	},
 	"artisan_farming_t1_6": {
 		"definition": "break_speed",
-		"x": 192,
-		"y": 39980
+		"x": -35,
+		"y": -370
+	},
+	"artisan_farming_t1_7": {
+		"definition": "break_speed",
+		"x": -22,
+		"y": -247
+	},
+	"artisan_farming_t1_8": {
+		"definition": "fortune",
+		"x": -25,
+		"y": -309
 	},
 	"artisan_farming_t1_9": {
 		"definition": "break_speed",
-		"x": 192,
-		"y": 40020
+		"x": -28,
+		"y": -371
+	},
+	"artisan_farming_t1_10": {
+		"definition": "fortune",
+		"x": -41,
+		"y": -307
 	},
 	"artisan_farming_t1_11": {
 		"definition": "break_speed",
-		"x": 192,
-		"y": 40060
+		"x": -47,
+		"y": -369
+	},
+	"artisan_farming_t2_1": {
+		"definition": "healing",
+		"x": -13,
+		"y": -186
+	},
+	"artisan_farming_t2_2": {
+		"definition": "natural_regeneration",
+		"x": -13,
+		"y": -248
+	},
+	"artisan_farming_t2_3": {
+		"definition": "healing",
+		"x": -14,
+		"y": -310
 	},
 	"artisan_farming_t2_4": {
 		"definition": "natural_regeneration",
-		"x": 192,
-		"y": 40100
+		"x": -14,
+		"y": -372
+	},
+	"artisan_farming_t2_5": {
+		"definition": "healing",
+		"x": -10,
+		"y": -310
 	},
 	"artisan_farming_t2_6": {
 		"definition": "natural_regeneration",
-		"x": 192,
-		"y": 40140
+		"x": -9,
+		"y": -372
+	},
+	"artisan_farming_t2_7": {
+		"definition": "natural_regeneration",
+		"x": -5,
+		"y": -248
+	},
+	"artisan_farming_t2_8": {
+		"definition": "healing",
+		"x": -4,
+		"y": -310
 	},
 	"artisan_farming_t2_9": {
 		"definition": "natural_regeneration",
-		"x": 192,
-		"y": 40180
+		"x": -2,
+		"y": -372
+	},
+	"artisan_farming_t2_10": {
+		"definition": "healing",
+		"x": -20,
+		"y": -309
 	},
 	"artisan_farming_t2_11": {
 		"definition": "natural_regeneration",
-		"x": 192,
-		"y": 40220
+		"x": -21,
+		"y": -371
 	},
 	"artisan_smithing_root": {
 		"definition": "repair_cost",
-		"x": 64,
-		"y": 42000
+		"x": 26,
+		"y": -121
 	},
 	"artisan_smithing_t0_1": {
 		"definition": "repair_cost",
-		"x": 96,
-		"y": 41960
-	},
-	"artisan_smithing_t1_1": {
-		"definition": "sword_damage",
-		"x": 96,
-		"y": 42000
-	},
-	"artisan_smithing_t2_1": {
-		"definition": "trident_damage",
-		"x": 96,
-		"y": 42040
+		"x": 41,
+		"y": -181
 	},
 	"artisan_smithing_t0_2": {
 		"definition": "experience_gain",
-		"x": 128,
-		"y": 41900
-	},
-	"artisan_smithing_t0_7": {
-		"definition": "experience_gain",
-		"x": 128,
-		"y": 41940
-	},
-	"artisan_smithing_t1_2": {
-		"definition": "axe_damage",
-		"x": 128,
-		"y": 41980
-	},
-	"artisan_smithing_t1_7": {
-		"definition": "axe_damage",
-		"x": 128,
-		"y": 42020
-	},
-	"artisan_smithing_t2_2": {
-		"definition": "armor_shred",
-		"x": 128,
-		"y": 42060
-	},
-	"artisan_smithing_t2_7": {
-		"definition": "armor_shred",
-		"x": 128,
-		"y": 42100
+		"x": 59,
+		"y": -241
 	},
 	"artisan_smithing_t0_3": {
 		"definition": "repair_cost",
-		"x": 160,
-		"y": 41780
-	},
-	"artisan_smithing_t0_5": {
-		"definition": "repair_cost",
-		"x": 160,
-		"y": 41820
-	},
-	"artisan_smithing_t0_8": {
-		"definition": "repair_cost",
-		"x": 160,
-		"y": 41860
-	},
-	"artisan_smithing_t0_10": {
-		"definition": "repair_cost",
-		"x": 160,
-		"y": 41900
-	},
-	"artisan_smithing_t1_3": {
-		"definition": "sword_damage",
-		"x": 160,
-		"y": 41940
-	},
-	"artisan_smithing_t1_5": {
-		"definition": "sword_damage",
-		"x": 160,
-		"y": 41980
-	},
-	"artisan_smithing_t1_8": {
-		"definition": "sword_damage",
-		"x": 160,
-		"y": 42020
-	},
-	"artisan_smithing_t1_10": {
-		"definition": "sword_damage",
-		"x": 160,
-		"y": 42060
-	},
-	"artisan_smithing_t2_3": {
-		"definition": "trident_damage",
-		"x": 160,
-		"y": 42100
-	},
-	"artisan_smithing_t2_5": {
-		"definition": "trident_damage",
-		"x": 160,
-		"y": 42140
-	},
-	"artisan_smithing_t2_8": {
-		"definition": "trident_damage",
-		"x": 160,
-		"y": 42180
-	},
-	"artisan_smithing_t2_10": {
-		"definition": "trident_damage",
-		"x": 160,
-		"y": 42220
+		"x": 76,
+		"y": -301
 	},
 	"artisan_smithing_t0_4": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 41780
+		"x": 93,
+		"y": -360
+	},
+	"artisan_smithing_t0_5": {
+		"definition": "repair_cost",
+		"x": 79,
+		"y": -300
 	},
 	"artisan_smithing_t0_6": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 41820
+		"x": 97,
+		"y": -359
+	},
+	"artisan_smithing_t0_7": {
+		"definition": "experience_gain",
+		"x": 67,
+		"y": -239
+	},
+	"artisan_smithing_t0_8": {
+		"definition": "repair_cost",
+		"x": 85,
+		"y": -298
 	},
 	"artisan_smithing_t0_9": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 41860
+		"x": 104,
+		"y": -357
+	},
+	"artisan_smithing_t0_10": {
+		"definition": "repair_cost",
+		"x": 70,
+		"y": -302
 	},
 	"artisan_smithing_t0_11": {
 		"definition": "experience_gain",
-		"x": 192,
-		"y": 41900
+		"x": 86,
+		"y": -362
+	},
+	"artisan_smithing_t1_1": {
+		"definition": "sword_damage",
+		"x": 53,
+		"y": -178
+	},
+	"artisan_smithing_t1_2": {
+		"definition": "axe_damage",
+		"x": 76,
+		"y": -236
+	},
+	"artisan_smithing_t1_3": {
+		"definition": "sword_damage",
+		"x": 96,
+		"y": -295
 	},
 	"artisan_smithing_t1_4": {
 		"definition": "axe_damage",
-		"x": 192,
-		"y": 41940
+		"x": 118,
+		"y": -353
+	},
+	"artisan_smithing_t1_5": {
+		"definition": "sword_damage",
+		"x": 100,
+		"y": -293
 	},
 	"artisan_smithing_t1_6": {
 		"definition": "axe_damage",
-		"x": 192,
-		"y": 41980
+		"x": 122,
+		"y": -351
+	},
+	"artisan_smithing_t1_7": {
+		"definition": "axe_damage",
+		"x": 83,
+		"y": -234
+	},
+	"artisan_smithing_t1_8": {
+		"definition": "sword_damage",
+		"x": 106,
+		"y": -291
 	},
 	"artisan_smithing_t1_9": {
 		"definition": "axe_damage",
-		"x": 192,
-		"y": 42020
+		"x": 129,
+		"y": -349
+	},
+	"artisan_smithing_t1_10": {
+		"definition": "sword_damage",
+		"x": 91,
+		"y": -296
 	},
 	"artisan_smithing_t1_11": {
 		"definition": "axe_damage",
-		"x": 192,
-		"y": 42060
+		"x": 111,
+		"y": -355
+	},
+	"artisan_smithing_t2_1": {
+		"definition": "trident_damage",
+		"x": 66,
+		"y": -174
+	},
+	"artisan_smithing_t2_2": {
+		"definition": "armor_shred",
+		"x": 92,
+		"y": -230
+	},
+	"artisan_smithing_t2_3": {
+		"definition": "trident_damage",
+		"x": 116,
+		"y": -287
 	},
 	"artisan_smithing_t2_4": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 42100
+		"x": 142,
+		"y": -344
+	},
+	"artisan_smithing_t2_5": {
+		"definition": "trident_damage",
+		"x": 120,
+		"y": -286
 	},
 	"artisan_smithing_t2_6": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 42140
+		"x": 146,
+		"y": -342
+	},
+	"artisan_smithing_t2_7": {
+		"definition": "armor_shred",
+		"x": 99,
+		"y": -227
+	},
+	"artisan_smithing_t2_8": {
+		"definition": "trident_damage",
+		"x": 125,
+		"y": -283
 	},
 	"artisan_smithing_t2_9": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 42180
+		"x": 153,
+		"y": -339
+	},
+	"artisan_smithing_t2_10": {
+		"definition": "trident_damage",
+		"x": 111,
+		"y": -289
 	},
 	"artisan_smithing_t2_11": {
 		"definition": "armor_shred",
-		"x": 192,
-		"y": 42220
+		"x": 135,
+		"y": -346
 	},
 	"artisan_cooking_root": {
 		"definition": "healing",
-		"x": 64,
-		"y": 44000
+		"x": -52,
+		"y": -113
 	},
 	"artisan_cooking_t0_1": {
 		"definition": "consuming_speed",
-		"x": 96,
-		"y": 43960
-	},
-	"artisan_cooking_t1_1": {
-		"definition": "natural_regeneration",
-		"x": 96,
-		"y": 44000
-	},
-	"artisan_cooking_t2_1": {
-		"definition": "stamina",
-		"x": 96,
-		"y": 44040
+		"x": -76,
+		"y": -170
 	},
 	"artisan_cooking_t0_2": {
 		"definition": "healing",
-		"x": 128,
-		"y": 43900
-	},
-	"artisan_cooking_t0_7": {
-		"definition": "healing",
-		"x": 128,
-		"y": 43940
-	},
-	"artisan_cooking_t1_2": {
-		"definition": "max_health",
-		"x": 128,
-		"y": 43980
-	},
-	"artisan_cooking_t1_7": {
-		"definition": "max_health",
-		"x": 128,
-		"y": 44020
-	},
-	"artisan_cooking_t2_2": {
-		"definition": "fall_reduction",
-		"x": 128,
-		"y": 44060
-	},
-	"artisan_cooking_t2_7": {
-		"definition": "fall_reduction",
-		"x": 128,
-		"y": 44100
+		"x": -98,
+		"y": -228
 	},
 	"artisan_cooking_t0_3": {
 		"definition": "consuming_speed",
-		"x": 160,
-		"y": 43780
-	},
-	"artisan_cooking_t0_5": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 43820
-	},
-	"artisan_cooking_t0_8": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 43860
-	},
-	"artisan_cooking_t0_10": {
-		"definition": "consuming_speed",
-		"x": 160,
-		"y": 43900
-	},
-	"artisan_cooking_t1_3": {
-		"definition": "natural_regeneration",
-		"x": 160,
-		"y": 43940
-	},
-	"artisan_cooking_t1_5": {
-		"definition": "natural_regeneration",
-		"x": 160,
-		"y": 43980
-	},
-	"artisan_cooking_t1_8": {
-		"definition": "natural_regeneration",
-		"x": 160,
-		"y": 44020
-	},
-	"artisan_cooking_t1_10": {
-		"definition": "natural_regeneration",
-		"x": 160,
-		"y": 44060
-	},
-	"artisan_cooking_t2_3": {
-		"definition": "stamina",
-		"x": 160,
-		"y": 44100
-	},
-	"artisan_cooking_t2_5": {
-		"definition": "stamina",
-		"x": 160,
-		"y": 44140
-	},
-	"artisan_cooking_t2_8": {
-		"definition": "stamina",
-		"x": 160,
-		"y": 44180
-	},
-	"artisan_cooking_t2_10": {
-		"definition": "stamina",
-		"x": 160,
-		"y": 44220
+		"x": -120,
+		"y": -286
 	},
 	"artisan_cooking_t0_4": {
 		"definition": "healing",
-		"x": 192,
-		"y": 43780
+		"x": -142,
+		"y": -344
+	},
+	"artisan_cooking_t0_5": {
+		"definition": "consuming_speed",
+		"x": -116,
+		"y": -287
 	},
 	"artisan_cooking_t0_6": {
 		"definition": "healing",
-		"x": 192,
-		"y": 43820
+		"x": -138,
+		"y": -346
+	},
+	"artisan_cooking_t0_7": {
+		"definition": "healing",
+		"x": -90,
+		"y": -231
+	},
+	"artisan_cooking_t0_8": {
+		"definition": "consuming_speed",
+		"x": -111,
+		"y": -289
 	},
 	"artisan_cooking_t0_9": {
 		"definition": "healing",
-		"x": 192,
-		"y": 43860
+		"x": -131,
+		"y": -348
+	},
+	"artisan_cooking_t0_10": {
+		"definition": "consuming_speed",
+		"x": -125,
+		"y": -283
 	},
 	"artisan_cooking_t0_11": {
 		"definition": "healing",
-		"x": 192,
-		"y": 43900
+		"x": -148,
+		"y": -341
+	},
+	"artisan_cooking_t1_1": {
+		"definition": "natural_regeneration",
+		"x": -64,
+		"y": -174
+	},
+	"artisan_cooking_t1_2": {
+		"definition": "max_health",
+		"x": -81,
+		"y": -234
+	},
+	"artisan_cooking_t1_3": {
+		"definition": "natural_regeneration",
+		"x": -100,
+		"y": -293
 	},
 	"artisan_cooking_t1_4": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 43940
+		"x": -118,
+		"y": -353
+	},
+	"artisan_cooking_t1_5": {
+		"definition": "natural_regeneration",
+		"x": -96,
+		"y": -295
 	},
 	"artisan_cooking_t1_6": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 43980
+		"x": -113,
+		"y": -354
+	},
+	"artisan_cooking_t1_7": {
+		"definition": "max_health",
+		"x": -74,
+		"y": -237
+	},
+	"artisan_cooking_t1_8": {
+		"definition": "natural_regeneration",
+		"x": -91,
+		"y": -296
 	},
 	"artisan_cooking_t1_9": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 44020
+		"x": -107,
+		"y": -356
+	},
+	"artisan_cooking_t1_10": {
+		"definition": "natural_regeneration",
+		"x": -106,
+		"y": -291
 	},
 	"artisan_cooking_t1_11": {
 		"definition": "max_health",
-		"x": 192,
-		"y": 44060
+		"x": -124,
+		"y": -351
+	},
+	"artisan_cooking_t2_1": {
+		"definition": "stamina",
+		"x": -52,
+		"y": -179
+	},
+	"artisan_cooking_t2_2": {
+		"definition": "fall_reduction",
+		"x": -65,
+		"y": -239
+	},
+	"artisan_cooking_t2_3": {
+		"definition": "stamina",
+		"x": -79,
+		"y": -300
 	},
 	"artisan_cooking_t2_4": {
 		"definition": "fall_reduction",
-		"x": 192,
-		"y": 44100
+		"x": -93,
+		"y": -360
+	},
+	"artisan_cooking_t2_5": {
+		"definition": "stamina",
+		"x": -76,
+		"y": -301
 	},
 	"artisan_cooking_t2_6": {
 		"definition": "fall_reduction",
-		"x": 192,
-		"y": 44140
+		"x": -88,
+		"y": -361
+	},
+	"artisan_cooking_t2_7": {
+		"definition": "fall_reduction",
+		"x": -57,
+		"y": -241
+	},
+	"artisan_cooking_t2_8": {
+		"definition": "stamina",
+		"x": -70,
+		"y": -302
 	},
 	"artisan_cooking_t2_9": {
 		"definition": "fall_reduction",
-		"x": 192,
-		"y": 44180
+		"x": -82,
+		"y": -363
+	},
+	"artisan_cooking_t2_10": {
+		"definition": "stamina",
+		"x": -85,
+		"y": -298
 	},
 	"artisan_cooking_t2_11": {
 		"definition": "fall_reduction",
-		"x": 192,
-		"y": 44220
+		"x": -100,
+		"y": -358
 	},
 	"class_artisan_capstone": {
 		"definition": "capstone_artisan",
-		"x": 224,
-		"y": 43780
+		"x": -166,
+		"y": -401
 	}
 }
