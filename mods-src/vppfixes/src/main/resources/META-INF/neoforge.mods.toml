@@ -35,8 +35,8 @@ description = '''${mod_description}'''
     ordering = "AFTER"
     side = "BOTH"
 
-# Tom's Simple Storage is the mod whose MultiInventoryAccess$MultiChangeTracker this mod
-# guards (GitHub #165). Declared OPTIONAL + ordering AFTER so toms_storage's classes are
+# Tom's Simple Storage is the mod whose MultiInventoryAccess (inner class MultiChangeTracker)
+# this mod guards (GitHub #165). Declared OPTIONAL + ordering AFTER so toms_storage's classes are
 # loaded before Mixin applies TomsStorageMultiChangeTrackerMixin; the mixin targets a
 # package-private inner class by string, so this mod loads and does nothing if toms_storage
 # is absent (Mixin simply never finds the target class to apply to).
