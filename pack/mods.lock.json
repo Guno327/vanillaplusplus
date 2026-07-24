@@ -1104,6 +1104,38 @@
       "note": "TODO.md item 5 (scaffold only - discoverable/upgradeable Curios trinkets; wave-2 wires loot placement into scripts/gen_structure_loot.py's rarity tiers and builds the duplicate-combine mechanic): dozens of Curios-slot trinkets, mostly loot-found not craftable. Verified via its own neoforge.mods.toml: zero hard deps beyond neoforge [21.0.133-beta,) (installed 21.1.235 satisfies) + minecraft 1.21.1 - accessories/cloth-config/curios/trinkets are all listed optional, and this pack's installed Curios 9.5.1 is auto-detected for soft integration"
     },
     {
+      "slug": "shatterbyte-lib",
+      "project_id": "RH2KUdKJ",
+      "version_id": "yVCCi6TK",
+      "version_number": "0.6.2",
+      "filename": "OctoLib-NEOFORGE-0.6.2+1.21.jar",
+      "url": "https://cdn.modrinth.com/data/RH2KUdKJ/versions/yVCCi6TK/OctoLib-NEOFORGE-0.6.2%2B1.21.jar",
+      "hashes": {
+        "sha1": "f4f66d677b104c6af7f5c0f7e3c08d8e4370ecad",
+        "sha512": "c33faa056c9d5403f06b7aa883290c86c33dcea3502f99720df98eccbd819cd3050fb2ffecf048f2dbee1b69a14e9dc6c23245f35ba3a78e46b056859666a60a"
+      },
+      "filesize": 544378,
+      "side": "both",
+      "phase": 16,
+      "note": "GitHub #155: OctoLib (modId 'octolib') - required library dependency of Relics (relics requires octolib [0.5.0.1,)). Own hard deps minecraft/neoforge/architectury [13.0.2,) all satisfied (architectury-api 13.0.8, Phase 4). ARR license, referenced by URL not bundled."
+    },
+    {
+      "slug": "relics-mod",
+      "project_id": "OCJRPujW",
+      "version_id": "WKEe9sPL",
+      "version_number": "0.12.8",
+      "filename": "relics-1.21.1-0.12.8.jar",
+      "url": "https://cdn.modrinth.com/data/OCJRPujW/versions/WKEe9sPL/relics-1.21.1-0.12.8.jar",
+      "hashes": {
+        "sha1": "1fe7d57ebfa56ebd0aeecfed01075f8b55b94ef7",
+        "sha512": "4490d5d1f7ae24fe69135151b5730018ec7f2e64970349d590564c70d8d67f94d805c5680866086b4c8ba9afb4999b9c0b97b869b6fb24a90808e9ca73974b7f"
+      },
+      "filesize": 5007593,
+      "side": "both",
+      "phase": 16,
+      "note": "GitHub #155: Relics - loot-found curio/trinket relics deepening the Curios experience. Requires curios [9.3.1+1.21.1,) (9.5.1) and octolib [0.5.0.1,) (shatterbyte-lib 0.6.2). ARR license, referenced by URL not bundled."
+    },
+    {
       "slug": "resourceful-config",
       "project_id": "M1953qlQ",
       "version_id": "lSbyRD6v",

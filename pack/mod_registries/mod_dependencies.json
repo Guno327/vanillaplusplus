@@ -1537,6 +1537,34 @@
       ],
       "version_number": "2.0.9"
     },
+    "relics-mod": {
+      "provided": [
+        "relics"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.140-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "curios",
+          "versionRange": "[9.3.1+1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "octolib",
+          "versionRange": "[0.5.0.1,)"
+        }
+      ],
+      "version_number": "0.12.8"
+    },
     "resourceful-config": {
       "provided": [
         "resourcefulconfig"
@@ -1617,6 +1645,29 @@
         }
       ],
       "version_number": "1.0.2"
+    },
+    "shatterbyte-lib": {
+      "provided": [
+        "octolib"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "architectury",
+          "versionRange": "[13.0.2,)"
+        }
+      ],
+      "version_number": "0.6.2"
     },
     "silent-gear": {
       "provided": [
@@ -1988,6 +2039,24 @@
       ],
       "version_number": "21.1.11+neoforge-1.21.1"
     },
+    "vppfixes": {
+      "provided": [
+        "vppfixes"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.1.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21.1,1.22)"
+        }
+      ],
+      "version_number": "1.0.0"
+    },
     "vppintegration": {
       "provided": [
         "vppintegration"
@@ -2352,25 +2421,7 @@
         }
       ],
       "version_number": "1.21.1-NeoForge-4.1.1"
-    },
-    "vppfixes": {
-      "provided": [
-        "vppfixes"
-      ],
-      "required": [
-        {
-          "enforced": true,
-          "modId": "neoforge",
-          "versionRange": "[21.1.0,)"
-        },
-        {
-          "enforced": true,
-          "modId": "minecraft",
-          "versionRange": "[1.21.1,1.22)"
-        }
-      ],
-      "version_number": "1.0.0"
     }
   },
-  "source_lockfile_mod_count": 116
+  "source_lockfile_mod_count": 118
 }
