@@ -34,6 +34,16 @@ import java.util.Set;
 public final class QuestProgressAttachment {
 
     private final Set<ResourceLocation> completed = new HashSet<>();
+    /**
+     * Quest ids whose rewards have already been granted (GitHub #164 item 5,
+     * claim-on-hand-in half). Separate from {@link #completed}: a quest can be
+     * complete for a long time before its player opens the quest screen and
+     * presses Claim, and the two are checked independently by
+     * {@link dev.vanillaplusplus.vppquests.quest.QuestProgressTracker#claimReward}
+     * so rewards are granted exactly once per quest per player, never on
+     * completion itself.
+     */
+    private final Set<ResourceLocation> claimed = new HashSet<>();
     /** Keyed by {@code questId + "#" + taskIndex} -> progress count toward that task's target. */
     private final Map<String, Integer> taskProgress = new HashMap<>();
 
@@ -47,6 +57,18 @@ public final class QuestProgressAttachment {
 
     public Set<ResourceLocation> completedQuests() {
         return Set.copyOf(completed);
+    }
+
+    public boolean isClaimed(ResourceLocation questId) {
+        return claimed.contains(questId);
+    }
+
+    public void markClaimed(ResourceLocation questId) {
+        claimed.add(questId);
+    }
+
+    public Set<ResourceLocation> claimedQuests() {
+        return Set.copyOf(claimed);
     }
 
     public int taskProgress(ResourceLocation questId, int taskIndex) {
@@ -63,11 +85,18 @@ public final class QuestProgressAttachment {
 
     public static final Codec<QuestProgressAttachment> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.listOf().fieldOf("completed").forGetter(a -> List.copyOf(a.completed)),
-            Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("taskProgress").forGetter(a -> Map.copyOf(a.taskProgress))
-    ).apply(instance, (completedList, progressMap) -> {
+            Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("taskProgress").forGetter(a -> Map.copyOf(a.taskProgress)),
+            // Optional + defaulted so existing save data (and old sync payloads
+            // from a server mid-rollout) without a "claimed" field still parses
+            // instead of failing decode - same forward-compat shape the rest of
+            // this codec doesn't need yet only because this is the first field
+            // added since GitHub #164 item 5's claim system.
+            ResourceLocation.CODEC.listOf().optionalFieldOf("claimed", List.of()).forGetter(a -> List.copyOf(a.claimed))
+    ).apply(instance, (completedList, progressMap, claimedList) -> {
         QuestProgressAttachment attachment = new QuestProgressAttachment();
         attachment.completed.addAll(completedList);
         attachment.taskProgress.putAll(progressMap);
+        attachment.claimed.addAll(claimedList);
         return attachment;
     }));
 

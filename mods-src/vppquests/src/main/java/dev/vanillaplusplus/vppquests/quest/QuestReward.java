@@ -1,7 +1,10 @@
 package dev.vanillaplusplus.vppquests.quest;
 
 import com.google.gson.JsonObject;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * The 5 reward types {@code quests.js} already implements (only item/xp are
@@ -14,10 +17,27 @@ public sealed interface QuestReward {
 
     String type();
 
+    /**
+     * Human-readable, registry-resolved reward line for the quest-panel GUI
+     * (GitHub #164 item 5, reward-display half) - mirrors
+     * {@link QuestTask#describe(int)}'s same "resolve the id to a display
+     * name, don't show raw namespace:path" convention. Every case overrides
+     * this; there is no sane generic fallback across 5 unrelated shapes.
+     */
+    Component describe();
+
     record ItemReward(ResourceLocation item, int count) implements QuestReward {
         @Override
         public String type() {
             return "item";
+        }
+
+        @Override
+        public Component describe() {
+            Component name = BuiltInRegistries.ITEM.getOptional(item)
+                    .map(resolved -> (Component) new ItemStack(resolved).getHoverName())
+                    .orElseGet(() -> Component.literal(item.toString()));
+            return Component.literal(count + "x ").append(name);
         }
     }
 
@@ -26,12 +46,22 @@ public sealed interface QuestReward {
         public String type() {
             return "xp";
         }
+
+        @Override
+        public Component describe() {
+            return Component.literal(amount + " " + category + " XP");
+        }
     }
 
     record CommandReward(String command) implements QuestReward {
         @Override
         public String type() {
             return "command";
+        }
+
+        @Override
+        public Component describe() {
+            return Component.literal("Special reward");
         }
     }
 
@@ -40,12 +70,22 @@ public sealed interface QuestReward {
         public String type() {
             return "gamestage";
         }
+
+        @Override
+        public Component describe() {
+            return Component.literal("Unlocks: " + stage);
+        }
     }
 
     record ToastReward(String title, String description) implements QuestReward {
         @Override
         public String type() {
             return "toast";
+        }
+
+        @Override
+        public Component describe() {
+            return Component.literal(title);
         }
     }
 
