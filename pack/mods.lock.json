@@ -262,8 +262,8 @@
       "url": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "local_path": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "hashes": {
-        "sha1": "8e649596d67bc90b261ce674012cdba83c51f0a4",
-        "sha512": "9cb2a5dc4723e1fa926d8de78acc731a5887450440d65a765f9a1469113eb170a60f7f45dc17576f4c086f50d02fa2a0f1b8a9a21a34051492a8264adaf62011"
+        "sha1": "fad7ef1c38570ff8978e0a8458f858f1ce29cd23",
+        "sha512": "7e1b87311e5f029baa5e6ac45226ad05fd9ea8d6acae60802bf2d51be3d7c479fc2a991573a7b0401103a33180ba6178ec82db9a0717f49df339e792bfc3d818"
       },
       "filesize": 19371,
       "side": "both",
