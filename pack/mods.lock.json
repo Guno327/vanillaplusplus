@@ -262,8 +262,8 @@
       "url": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "local_path": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "hashes": {
-        "sha1": "fad7ef1c38570ff8978e0a8458f858f1ce29cd23",
-        "sha512": "7e1b87311e5f029baa5e6ac45226ad05fd9ea8d6acae60802bf2d51be3d7c479fc2a991573a7b0401103a33180ba6178ec82db9a0717f49df339e792bfc3d818"
+        "sha1": "8e649596d67bc90b261ce674012cdba83c51f0a4",
+        "sha512": "9cb2a5dc4723e1fa926d8de78acc731a5887450440d65a765f9a1469113eb170a60f7f45dc17576f4c086f50d02fa2a0f1b8a9a21a34051492a8264adaf62011"
       },
       "filesize": 19371,
       "side": "both",
@@ -343,13 +343,13 @@
       "url": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "local_path": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "hashes": {
-        "sha1": "bb51e20086182011400ca75300e4e27f497da680",
-        "sha512": "02521a04109f4a2410ee441cb0367292f4a2840c9b7383d119db2c44353dc1b9020cab20de4745b933ed055f6ac7885c2f3593fb2407c2cd7342c9405427456b"
+        "sha1": "ab42c429da078b3caa7aee2439e6a9cbb83599d2",
+        "sha512": "53fe8aab4b06fb4bf965cae5e50cea48d9fa38254db9dae6bc8066efdc3c81aff33b985e8c5c8f6ba38913f1313fd577fa5dc5fd52998c50393df9642488786e"
       },
-      "filesize": 6449,
+      "filesize": 6294,
       "side": "both",
       "phase": 7,
-      "note": "GitHub #143 hotfix: Mixin-only pack-fix mod that deep-copies Ars Nouveau's live list-backed ars_nouveau:spell_resolver SynchedEntityData value at pack time (server tick thread) so the Netty IO thread never serializes a concurrently-mutated object graph -> fixes the set_entity_data ConcurrentModificationException that booted clients. Built from mods-src/vppfixes/ (source:local); see that dir's README.md. hashes/filesize pin the jar produced by its NeoForge moddev build."
+      "note": "GitHub #143 fix (v0.5.4, reconciled into v0.6.0): Mixin-only pack-fix mod that deep-copies vanilla COMPONENT/OPTIONAL_COMPONENT (custom-name) SynchedEntityData values at pack time so the Netty IO thread never encodes a concurrently-mutated Component siblings list -> fixes the set_entity_data ConcurrentModificationException that booted clients. Matched by serializer reference. Built reproducibly from mods-src/vppfixes/ (source:local)."
     },
     {
       "slug": "placebo",
@@ -1864,8 +1864,8 @@
       "url": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
       "local_path": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
       "hashes": {
-        "sha1": "5dda08770a94bbdf736e338e6d43c1763da6badc",
-        "sha512": "270b019e43c2a38208befb20a9636b35399dd90845fd23346ad4bc55061db0440290e440c3b844831ff0d6e202575fbc7a3f8a7572649f5d6aa09988d49202cc"
+        "sha1": "279374944ae9cf4e97a0b7be1392b914ccc293dc",
+        "sha512": "b9f4522e20b0b845da8b5bf82bb05b662cf461407285c8e36e001d92a14a1128df2011fd5e9eece061b1a34b94283bc1e2fbd76cabb7eec90dbbd10a276f6326"
       },
       "filesize": 54281,
       "side": "both",

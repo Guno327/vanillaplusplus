@@ -1,7 +1,7 @@
 {
   "_comment": "Registry of every published release's server-bundle asset. `releases` maps each release tag -> its GitHub asset (assetName) + pinned sha256 (SRI, what pkgs.fetchurl verifies) + sha256Hex (plain, for the module's warn-on-mismatch check) + size + neoforgeVersion. `latest` is an ALIAS naming whichever tag is the current RECOMMENDED release; nix/module.nix's `releaseTag` option defaults to \"latest\" and resolves through it. `repo` is the public GitHub owner/name the assets are fetched from. Every mint APPENDS its release here via scripts/update_nix_release.py; moving `latest` is a deliberate separate act (--set-latest / --set-latest-to <tag>). Do not hand-edit hashes except in emergencies; re-run the script to confirm.",
   "repo": "Guno327/vanillaplusplus",
-  "latest": "v0.5.3",
+  "latest": "v0.5.4",
   "releases": {
     "v0.1.0": {
       "version": "0.1.0",
@@ -83,6 +83,16 @@
       "size": 381951259,
       "sha256": "sha256-yY6hHdklHbFG8MG4yDgbVDeLAMTQQdJpnDcBAq+ihtc=",
       "sha256Hex": "c98ea11dd9251db146f0c1b8c8381b54378b00c4d041d2699c370102afa286d7",
+      "neoforgeVersion": "21.1.235"
+    },
+    "v0.5.4": {
+      "version": "0.5.4",
+      "assetName": "vanilla-plus-plus-server-0.5.4.zip",
+      "assetId": 487806862,
+      "assetApiUrl": "https://api.github.com/repos/Guno327/vanillaplusplus/releases/assets/487806862",
+      "size": 381951096,
+      "sha256": "sha256-6OP/Qs2YaOEJGMN2DnbRwsLfupJNbvD9oTAA2UvJHeg=",
+      "sha256Hex": "e8e3ff42cd9868e10918c3760e76d1c2c2dfba924d6ef0fda13000d94bc91de8",
       "neoforgeVersion": "21.1.235"
     }
   }
