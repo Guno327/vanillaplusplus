@@ -38,14 +38,15 @@ import java.util.Optional;
  *   <li>{@code checkmark} tasks are satisfied as soon as their dependencies
  *   are (no explicit "/quest check" acknowledgement command exists in this
  *   scaffold).</li>
- *   <li>{@code gamestage} tasks/rewards are intentionally NOT wired to any
- *   specific gamestage mod - {@code vppquests} is meant to stay a
- *   standalone, Modrinth-publishable mod (this project's own README, the
- *   {@code mods-src/<modid>/} convention GitHub #67 established), so a hard
- *   dependency on this pack's specific progression-stage mod would break
- *   that. The field round-trips through the data model/JSON/network layers
- *   unchanged for a later pack-side bridge to hook, but is never satisfied
- *   by this tracker on its own.</li>
+ *   <li>{@code gamestage} tasks resolve through the optional, pack-supplied
+ *   {@link GamestageBridge} rather than a hard dependency on any specific
+ *   stage mod - keeping {@code vppquests} standalone/Modrinth-publishable
+ *   (this project's own README, the {@code mods-src/<modid>/} convention
+ *   GitHub #67 established). With no resolver wired the task stays
+ *   unsatisfiable (the historical default); the Vanilla++ pack wires it to
+ *   KubeJS {@code player.stages} so the chapter-"enter" quests complete on
+ *   reaching each age (GitHub #166). {@code gamestage} <em>rewards</em> are
+ *   still a no-op here for the same standalone reason.</li>
  *   <li>{@code xp} rewards grant vanilla experience points, not this pack's
  *   RPG-skill-mod categories, for the same standalone-mod reason.</li>
  * </ul>
@@ -209,7 +210,11 @@ public final class QuestProgressTracker {
                 yield Math.min(killed, kill.count());
             }
             case QuestTask.Dimension dimension -> player.level().dimension().location().equals(dimension.dimension()) ? 1 : 0;
-            case QuestTask.Gamestage ignored -> 0; // see class doc - deliberately unwired in this standalone scaffold
+            // Resolved through the pack-supplied GamestageBridge (GitHub #166):
+            // unwired standalone -> 0 (default), but the Vanilla++ pack points
+            // it at KubeJS player.stages so the 9 chapter-"enter" quests
+            // complete once their age's stage is reached.
+            case QuestTask.Gamestage gamestage -> GamestageBridge.hasStage(player, gamestage.stage()) ? 1 : 0;
             case QuestTask.Checkmark ignored -> 1; // satisfied as soon as its dependencies are, see class doc
         };
     }
