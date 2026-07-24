@@ -3,6 +3,7 @@ package dev.vanillaplusplus.vppquests.client.gui;
 import dev.vanillaplusplus.vppquests.client.ClientQuestState;
 import dev.vanillaplusplus.vppquests.quest.Quest;
 import dev.vanillaplusplus.vppquests.quest.QuestChapter;
+import dev.vanillaplusplus.vppquests.quest.QuestReward;
 import dev.vanillaplusplus.vppquests.quest.QuestTask;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -36,6 +37,19 @@ import java.util.List;
  * long text no longer trails off the page (item&nbsp;1), and task lines show
  * registry-resolved display names rather than raw ids (item&nbsp;4, via
  * {@link QuestTask#describe(int)}).
+ *
+ * <p><b>Reward display + Claim button (GitHub #164 item 5).</b> The detail
+ * panel now lists each quest's rewards ({@link QuestReward#describe()}) below
+ * its tasks, and - once every task is done - a Claim button. Rewards are no
+ * longer auto-granted on completion; clicking Claim is what actually requests
+ * the grant, via {@link ClientQuestState#requestClaim}, which the server
+ * re-validates before granting anything (see
+ * {@code QuestProgressTracker#claimReward}). The button is drawn/hit-tested
+ * manually, the same way the chapter strip above already is, rather than as a
+ * vanilla {@link Button} widget - its position depends on the word-wrapped
+ * height of the currently *selected* quest's description/tasks/rewards, which
+ * changes without an {@link #init()} rebuild (selecting a quest is just a
+ * field write), so a fixed-position vanilla widget can't track it.
  */
 public final class QuestScreen extends Screen {
 
@@ -64,11 +78,30 @@ public final class QuestScreen extends Screen {
     private static final int PANEL_X = 210;
     private static final int PANEL_MARGIN = 10;
 
+    /** Claim button geometry, matching the chapter strip's own fixed-size convention. */
+    private static final int CLAIM_BUTTON_W = 80;
+    private static final int CLAIM_BUTTON_H = 20;
+
     private ResourceLocation selectedChapter;
     private Quest selectedQuest;
 
     /** Horizontal scroll offset of the chapter strip, clamped in render/input. */
     private int chapterScrollX;
+
+    /**
+     * Claim button hit-box for the currently rendered frame, recomputed every
+     * {@link #renderDetailPanel} call (its y depends on word-wrapped text
+     * heights that change per selected quest) - {@code null} when no claimable
+     * button should be drawn/hit-tested this frame (no quest selected, quest
+     * incomplete, or already claimed).
+     */
+    private ClaimButtonBounds claimButtonBounds;
+
+    private record ClaimButtonBounds(int x, int y, int w, int h, boolean alreadyClaimed) {
+        boolean contains(double mouseX, double mouseY) {
+            return mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h;
+        }
+    }
 
     public QuestScreen() {
         super(Component.translatable("gui.vppquests.quest_screen.title"));
@@ -136,7 +169,7 @@ public final class QuestScreen extends Screen {
         graphics.drawWordWrap(font, title, CONTENT_X, TITLE_Y, CONTENT_WIDTH, 0xFFFFFF);
 
         if (selectedQuest != null) {
-            renderDetailPanel(graphics);
+            renderDetailPanel(graphics, mouseX, mouseY);
         }
     }
 
@@ -184,7 +217,7 @@ public final class QuestScreen extends Screen {
         }
     }
 
-    private void renderDetailPanel(GuiGraphics graphics) {
+    private void renderDetailPanel(GuiGraphics graphics, int mouseX, int mouseY) {
         int x = PANEL_X;
         int y = contentTop();
         int wrap = Math.max(60, width - PANEL_X - PANEL_MARGIN);
@@ -208,6 +241,50 @@ public final class QuestScreen extends Screen {
             graphics.drawWordWrap(font, taskComp, x, y, wrap, 0xAAAAAA);
             y += font.wordWrapHeight(taskComp, wrap) + 2;
         }
+
+        y = renderRewards(graphics, x, y, wrap, mouseX, mouseY);
+    }
+
+    /**
+     * Renders the rewards list plus (if the quest is complete) the Claim
+     * button, and refreshes {@link #claimButtonBounds} for this frame's
+     * hit-testing. Returns the y cursor after everything drawn here, in case
+     * a future panel section is added below it.
+     */
+    private int renderRewards(GuiGraphics graphics, int x, int y, int wrap, int mouseX, int mouseY) {
+        List<QuestReward> rewards = selectedQuest.rewards();
+        claimButtonBounds = null;
+
+        if (!rewards.isEmpty()) {
+            y += 6;
+            Component header = Component.literal("Rewards:");
+            graphics.drawWordWrap(font, header, x, y, wrap, 0xFFFFFF);
+            y += font.wordWrapHeight(header, wrap) + 2;
+
+            for (QuestReward reward : rewards) {
+                Component rewardComp = Component.literal("- ").append(reward.describe());
+                graphics.drawWordWrap(font, rewardComp, x, y, wrap, 0x55FF55);
+                y += font.wordWrapHeight(rewardComp, wrap) + 2;
+            }
+        }
+
+        boolean complete = ClientQuestState.isComplete(selectedQuest.id());
+        if (!complete) {
+            return y;
+        }
+
+        y += 6;
+        boolean claimed = ClientQuestState.isClaimed(selectedQuest.id());
+        claimButtonBounds = new ClaimButtonBounds(x, y, CLAIM_BUTTON_W, CLAIM_BUTTON_H, claimed);
+
+        boolean hovered = !claimed && claimButtonBounds.contains(mouseX, mouseY);
+        int bg = claimed ? 0xFF404040 : (hovered ? 0xFF3A8F3A : 0xFF2D6B2D);
+        graphics.fill(x, y, x + CLAIM_BUTTON_W, y + CLAIM_BUTTON_H, bg);
+        String label = claimed ? "Claimed" : "Claim";
+        graphics.drawCenteredString(font, label, x + CLAIM_BUTTON_W / 2, y + (CLAIM_BUTTON_H - font.lineHeight) / 2 + 1,
+                claimed ? 0xAAAAAA : 0xFFFFFF);
+
+        return y + CLAIM_BUTTON_H;
     }
 
     /** Truncates {@code text} with a trailing ellipsis to fit {@code maxWidth} px. */
@@ -230,6 +307,11 @@ public final class QuestScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && claimButtonBounds != null && !claimButtonBounds.alreadyClaimed()
+                && claimButtonBounds.contains(mouseX, mouseY)) {
+            ClientQuestState.requestClaim(selectedQuest.id());
+            return true;
+        }
         if (button == 0 && mouseY >= STRIP_Y && mouseY < STRIP_Y + STRIP_H
                 && mouseX >= CONTENT_X && mouseX < stripRight()) {
             List<QuestChapter> chapters = ClientQuestState.chaptersSorted();

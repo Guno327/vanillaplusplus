@@ -18,9 +18,15 @@ import java.util.Optional;
 
 /**
  * Server-side tick-driven quest evaluator: for each online player, checks
- * every not-yet-completed quest whose dependencies are already satisfied,
- * updates {@link QuestProgressAttachment} task counters, and grants rewards
- * on completion.
+ * every not-yet-completed quest whose dependencies are already satisfied and
+ * updates {@link QuestProgressAttachment} task counters, marking a quest
+ * complete once all its tasks are. <b>Rewards are NOT granted here</b>
+ * (GitHub #164 item 5, claim-on-hand-in system): completion only unlocks the
+ * Claim button in the quest-panel GUI. The actual grant happens exactly once
+ * per quest per player via {@link #claimReward}, which {@code ModNetworking}'s
+ * server-side {@code ClaimQuestRewardPayload} handler calls after re-validating
+ * completion/not-already-claimed against this same player's own server-side
+ * attachment - the client is never trusted for the grant.
  *
  * <p><b>Deliberate Phase A simplifications (disclosed, mirroring the same
  * "does the player currently hold/satisfy X" pragmatism
@@ -103,9 +109,13 @@ public final class QuestProgressTracker {
             }
 
             if (allTasksDone) {
+                // GitHub #164 item 5 (claim system): completion no longer
+                // grants rewards. It only unlocks the Claim button in
+                // QuestScreen; grantRewards(...) now runs exclusively from
+                // claimReward(...) below, on an explicit player-initiated,
+                // server-validated request.
                 progress.markComplete(quest.id());
                 changed = true;
-                grantRewards(player, quest);
                 player.sendSystemMessage(Component.translatable("vppquests.quest.completed", quest.title()));
             }
         }
@@ -220,6 +230,42 @@ public final class QuestProgressTracker {
             case QuestTask.Gamestage gamestage -> GamestageBridge.hasStage(player, gamestage.stage()) ? 1 : 0;
             case QuestTask.Checkmark ignored -> 1; // satisfied as soon as its dependencies are, see class doc
         };
+    }
+
+    /**
+     * Server-validated claim entry point for {@code ModNetworking}'s
+     * {@code ClaimQuestRewardPayload} handler (GitHub #164 item 5). Grants
+     * {@code quest}'s rewards exactly once per quest per player: the caller
+     * hands this a real {@link net.minecraft.server.level.ServerPlayer} (never
+     * client-asserted data), and this method re-derives everything else from
+     * that player's own server-side {@link QuestProgressAttachment} - the
+     * quest must be complete and not already claimed, or the call is a silent
+     * no-op. This is the ONLY path in the mod that grants rewards; the old
+     * auto-grant-on-completion call in {@link #evaluate} was removed as part
+     * of this same change.
+     */
+    public static void claimReward(net.minecraft.server.level.ServerPlayer player, ResourceLocation questId) {
+        Optional<Quest> resolved = QuestRegistry.get().quest(questId);
+        if (resolved.isEmpty()) {
+            VppQuests.LOGGER.warn("vppquests: {} tried to claim unknown quest {}", player.getGameProfile().getName(), questId);
+            return;
+        }
+        Quest quest = resolved.get();
+
+        QuestProgressAttachment progress = player.getData(ModAttachments.QUEST_PROGRESS);
+        if (!progress.isComplete(questId)) {
+            VppQuests.LOGGER.warn("vppquests: {} tried to claim not-yet-complete quest {}", player.getGameProfile().getName(), questId);
+            return;
+        }
+        if (progress.isClaimed(questId)) {
+            // Not a warning: a doubled click, a resent packet, or a stale
+            // client GUI state are all ordinary and must never double-grant.
+            return;
+        }
+
+        progress.markClaimed(questId);
+        grantRewards(player, quest);
+        syncProgress(player, progress);
     }
 
     private static void grantRewards(net.minecraft.server.level.ServerPlayer player, Quest quest) {
