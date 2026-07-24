@@ -49,6 +49,20 @@ public final class ServerQuestEvents {
         }
     }
 
+    /**
+     * Credits {@code onlyFromCrafting} quest tasks the moment an item is
+     * crafted (GitHub #164 item 2), so a crafted-then-consumed item isn't
+     * missed by the once-per-second inventory poll. Delegates to
+     * {@link QuestProgressTracker#onItemCrafted}, which also re-evaluates the
+     * quest for immediate completion.
+     */
+    @SubscribeEvent
+    static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            QuestProgressTracker.onItemCrafted(serverPlayer, event.getCrafting());
+        }
+    }
+
     @SubscribeEvent
     static void onServerTick(ServerTickEvent.Post event) {
         tickCounter++;

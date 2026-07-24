@@ -1,0 +1,24 @@
+# Tom's Simple Storage - per-world SERVER config, seeded from defaultconfigs/.
+#
+# GitHub #165: the Storage Terminal displayed no items (you could still insert
+# through it) once a terminal network included a modded container whose
+# IItemHandler is not thread-safe (e.g. Sophisticated Storage barrels/chests,
+# added in #70). Tom's builds the terminal's item list on a parallel/off-thread
+# stream when runMultithreaded=true (StorageTerminalBlockEntity.updateServer ->
+# streamWrappedStacks(true) -> InventoryChangeTracker.prepForOffThread reading
+# getStackInSlot off the main thread). That off-thread read throws for such
+# containers; the block-entity tick has no try/catch, so the list build aborts
+# and stays empty, while inserts (pushStack) run on a separate synchronous path
+# and keep working -- exactly the reported symptom.
+#
+# Forcing the single-threaded path makes the display read slot contents on the
+# main thread, the same place inserts already work. Tom's multithreading only
+# helps very large networks; this pack's Tier-1 "dumb storage" networks are
+# small, so the cost is negligible.
+#
+# NOTE: NeoForge SERVER configs are per-world. This file only seeds NEW worlds
+# (copied to <world>/serverconfig/ when that file is absent). Existing worlds
+# must have runMultithreaded set to false in their own
+# saves/<world>/serverconfig/toms_storage-server.toml (or that file deleted so
+# it re-seeds from here).
+runMultithreaded = false
