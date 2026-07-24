@@ -73,8 +73,22 @@ public final class QuestProgressTracker {
             List<QuestTask> tasks = quest.tasks();
             for (int i = 0; i < tasks.size(); i++) {
                 QuestTask task = tasks.get(i);
-                int current = evaluateTask(player, task);
                 int previous = progress.taskProgress(quest.id(), i);
+                int current = evaluateTask(player, task);
+                // "onlyFromCrafting" item tasks are a monotonic latch: the
+                // once-per-second inventory poll can only ever *raise* their
+                // progress, never lower it. This is the core GitHub #164 item 2
+                // fix - a crafted-then-immediately-consumed item (Andesite
+                // Alloy -> casing, a Silent Gear pickaxe reforged, etc.) is
+                // gone from the inventory before the next poll, so a pure
+                // "count what you currently hold" check would silently miss it.
+                // The craft counts are accumulated event-side in
+                // onItemCrafted(...); here we just make sure the poll never
+                // erases them. (The quest text is "Craft or pick up ...", so a
+                // still-held item is still honoured via the max.)
+                if (task instanceof QuestTask.Item item && item.onlyFromCrafting()) {
+                    current = Math.max(previous, current);
+                }
                 if (current != previous) {
                     progress.setTaskProgress(quest.id(), i, current);
                     changed = true;
@@ -95,6 +109,71 @@ public final class QuestProgressTracker {
         if (changed) {
             syncProgress(player, progress);
         }
+    }
+
+    /**
+     * Event-side counterpart to the tick poll (GitHub #164 item 2): called
+     * from {@link ServerQuestEvents} on every {@code ItemCraftedEvent}, it
+     * credits {@code onlyFromCrafting} item tasks the instant the item is
+     * crafted - before the player can consume it - then re-runs the normal
+     * {@link #evaluate} pass so a quest whose last task this satisfied
+     * completes immediately rather than waiting for some unrelated later
+     * trigger. Accumulated per-task counts live in the same
+     * {@link QuestProgressAttachment#taskProgress} map the poll reads, and the
+     * poll's monotonic-latch rule keeps them from being clobbered.
+     */
+    public static void onItemCrafted(net.minecraft.server.level.ServerPlayer player, ItemStack crafted) {
+        if (crafted.isEmpty()) {
+            return;
+        }
+        QuestProgressAttachment progress = player.getData(ModAttachments.QUEST_PROGRESS);
+        boolean credited = false;
+
+        for (Quest quest : QuestRegistry.get().allQuests()) {
+            if (progress.isComplete(quest.id())) {
+                continue;
+            }
+            // Note: intentionally NOT gated on dependenciesSatisfied here. A
+            // player who crafts the target item *before* clearing the quest's
+            // prerequisites should still get the craft credited (it's stored
+            // in the latch); the quest then completes the moment its
+            // prerequisites are met, rather than silently losing that craft
+            // and forcing a re-craft. evaluate(...) still enforces the
+            // dependency gate before it ever marks the quest complete.
+            List<QuestTask> tasks = quest.tasks();
+            for (int i = 0; i < tasks.size(); i++) {
+                if (tasks.get(i) instanceof QuestTask.Item item
+                        && item.onlyFromCrafting()
+                        && craftMatches(item, crafted)) {
+                    int previous = progress.taskProgress(quest.id(), i);
+                    int next = Math.min(item.count(), previous + crafted.getCount());
+                    if (next != previous) {
+                        progress.setTaskProgress(quest.id(), i, next);
+                        credited = true;
+                    }
+                }
+            }
+        }
+
+        if (credited) {
+            // Re-run the full evaluator so completion/reward/sync happen now,
+            // in one place, instead of duplicating that logic here. evaluate()
+            // only syncs quests it actually touched, so also push progress
+            // explicitly - a craft credited to a still-locked quest changes
+            // the attachment but is skipped by evaluate's dependency gate.
+            evaluate(player);
+            syncProgress(player, progress);
+        }
+    }
+
+    private static boolean craftMatches(QuestTask.Item task, ItemStack crafted) {
+        if (task.tag()) {
+            return crafted.is(net.minecraft.tags.TagKey.create(
+                    net.minecraft.core.registries.Registries.ITEM, task.item()));
+        }
+        return BuiltInRegistries.ITEM.getOptional(task.item())
+                .map(crafted::is)
+                .orElse(false);
     }
 
     private static boolean dependenciesSatisfied(Quest quest, QuestProgressAttachment progress) {

@@ -1,7 +1,11 @@
 package dev.vanillaplusplus.vppquests.quest;
 
 import com.google.gson.JsonObject;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * The 5 task types this pack's existing quest system already implements
@@ -26,10 +30,45 @@ public sealed interface QuestTask {
     /** One-line progress description for the GUI detail panel, e.g. "3/5 zombies killed". */
     String describeProgress(int currentCount);
 
+    /**
+     * Human-readable, registry-resolved progress line for the GUI (GitHub
+     * #164 item&nbsp;4): renders item/entity <em>display names</em> - and, for
+     * tag-based item tasks, an "Any &lt;tag&gt;" phrasing - instead of the raw
+     * {@code namespace:path} ids {@link #describeProgress(int)} emits. The
+     * default falls back to the raw string so the four boolean-style task
+     * types (which have no id worth prettifying) need no override.
+     */
+    default Component describe(int currentCount) {
+        return Component.literal(describeProgress(currentCount));
+    }
+
     /** How many progress "ticks" complete this task - 1 for boolean-style tasks. */
     int targetCount();
 
-    record Item(ResourceLocation item, int count, boolean consume, boolean onlyFromCrafting) implements QuestTask {
+    /**
+     * Title-cases a resource-location path segment for display, e.g.
+     * {@code "andesite_alloy"} -> {@code "Andesite Alloy"}. Used only as the
+     * last-resort readable form for tag ids (which have no {@code ItemStack}
+     * display name to borrow) and unresolved ids.
+     */
+    private static String prettifyPath(String path) {
+        StringBuilder out = new StringBuilder(path.length());
+        boolean capNext = true;
+        for (char c : path.toCharArray()) {
+            if (c == '_' || c == '/') {
+                out.append(' ');
+                capNext = true;
+            } else if (capNext) {
+                out.append(Character.toUpperCase(c));
+                capNext = false;
+            } else {
+                out.append(c);
+            }
+        }
+        return out.toString();
+    }
+
+    record Item(ResourceLocation item, int count, boolean consume, boolean onlyFromCrafting, boolean tag) implements QuestTask {
         @Override
         public String type() {
             return "item";
@@ -37,7 +76,27 @@ public sealed interface QuestTask {
 
         @Override
         public String describeProgress(int currentCount) {
-            return Math.min(currentCount, count) + "/" + count + " " + item;
+            return Math.min(currentCount, count) + "/" + count + " " + (tag ? "#" : "") + item;
+        }
+
+        @Override
+        public Component describe(int currentCount) {
+            return Component.literal(Math.min(currentCount, count) + "/" + count + " ").append(displayName());
+        }
+
+        /**
+         * The player-facing name of what this task wants: a tag renders as
+         * "Any &lt;Tag Path&gt;", a concrete item as its {@code ItemStack}
+         * hover name (falling back to a title-cased path if the id is not in
+         * the registry, e.g. a mod that isn't installed).
+         */
+        public Component displayName() {
+            if (tag) {
+                return Component.literal("Any " + prettifyPath(item.getPath()));
+            }
+            return BuiltInRegistries.ITEM.getOptional(item)
+                    .map(resolved -> (Component) new ItemStack(resolved).getHoverName())
+                    .orElseGet(() -> Component.literal(prettifyPath(item.getPath())));
         }
 
         @Override
@@ -55,6 +114,15 @@ public sealed interface QuestTask {
         @Override
         public String describeProgress(int currentCount) {
             return Math.min(currentCount, count) + "/" + count + " " + entity + " killed";
+        }
+
+        @Override
+        public Component describe(int currentCount) {
+            Component name = BuiltInRegistries.ENTITY_TYPE.getOptional(entity)
+                    .map(EntityType::getDescription)
+                    .orElseGet(() -> Component.literal(prettifyPath(entity.getPath())));
+            return Component.literal(Math.min(currentCount, count) + "/" + count + " ").append(name)
+                    .append(Component.literal(" killed"));
         }
 
         @Override
@@ -122,11 +190,16 @@ public sealed interface QuestTask {
     static QuestTask fromJson(JsonObject json) {
         String type = json.get("type").getAsString();
         return switch (type) {
-            case "item" -> new Item(
-                    ResourceLocation.parse(json.get("item").getAsString()),
-                    json.has("count") ? json.get("count").getAsInt() : 1,
-                    !json.has("consume") || json.get("consume").getAsBoolean(),
-                    json.has("onlyFromCrafting") && json.get("onlyFromCrafting").getAsBoolean());
+            case "item" -> {
+                String rawItem = json.get("item").getAsString();
+                boolean isTag = rawItem.startsWith("#");
+                yield new Item(
+                        ResourceLocation.parse(isTag ? rawItem.substring(1) : rawItem),
+                        json.has("count") ? json.get("count").getAsInt() : 1,
+                        !json.has("consume") || json.get("consume").getAsBoolean(),
+                        json.has("onlyFromCrafting") && json.get("onlyFromCrafting").getAsBoolean(),
+                        isTag);
+            }
             case "kill" -> new Kill(
                     ResourceLocation.parse(json.get("entity").getAsString()),
                     json.has("count") ? json.get("count").getAsInt() : 1);
