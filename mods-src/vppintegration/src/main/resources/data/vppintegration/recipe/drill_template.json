@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "vppintegration:blueprints/drill",
+  "key": {
+    "#": {
+      "tag": "silentgear:template_boards"
+    },
+    "/": {
+      "tag": "c:rods/wooden"
+    }
+  },
+  "pattern": [
+    "###",
+    "###",
+    " / "
+  ],
+  "result": {
+    "count": 1,
+    "id": "vppintegration:drill_template"
+  }
+}
