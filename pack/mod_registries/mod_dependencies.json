@@ -1108,32 +1108,6 @@
       ],
       "version_number": "1.21.1+2.4.0-release"
     },
-    "jade": {
-      "provided": [
-        "jade"
-      ],
-      "required": [
-        {
-          "enforced": true,
-          "modId": "neoforge",
-          "versionRange": "[21.0.143, )"
-        }
-      ],
-      "version_number": "15.10.5+neoforge"
-    },
-    "jade-addons-forge": {
-      "provided": [
-        "jadeaddons"
-      ],
-      "required": [
-        {
-          "enforced": true,
-          "modId": "jade",
-          "versionRange": "[15.10, )"
-        }
-      ],
-      "version_number": "6.1.0+neoforge"
-    },
     "jei": {
       "provided": [
         "jei"
@@ -1446,24 +1420,6 @@
         }
       ],
       "version_number": "1.21.1-1.6.16"
-    },
-    "patchouli": {
-      "provided": [
-        "patchouli"
-      ],
-      "required": [
-        {
-          "enforced": true,
-          "modId": "neoforge",
-          "versionRange": "[21.0.31-beta,)"
-        },
-        {
-          "enforced": true,
-          "modId": "minecraft",
-          "versionRange": "[1.21.1,1.21.2)"
-        }
-      ],
-      "version_number": "1.21.1-93-neoforge"
     },
     "placebo": {
       "provided": [
@@ -1957,6 +1913,19 @@
       ],
       "version_number": "1.1.1"
     },
+    "the-one-probe": {
+      "provided": [
+        "theoneprobe"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[20.4,)"
+        }
+      ],
+      "version_number": "1.21_neo-12.0.8"
+    },
     "time-in-a-bottle-fix-tiab-fix": {
       "provided": [
         "tiabfix"
@@ -2423,5 +2392,5 @@
       "version_number": "1.21.1-NeoForge-4.1.1"
     }
   },
-  "source_lockfile_mod_count": 118
+  "source_lockfile_mod_count": 116
 }
