@@ -525,3 +525,407 @@ ServerEvents.recipes(event => {
         'alltheores:netherite_gear',
     ]).id('vanillaplusplus:network_receiver_netherite_gear')
 })
+
+// #91 THIRD TRANCHE (feat/91-material-sinks-full): tranches one/two sank every
+// AllTheOres GEAR (all 24 metals). A fresh, condition-aware consumer scan of
+// all 104 installed jars (every recipe json, with neoforge:conditions
+// evaluated against the REAL installed modid set parsed from each jar's
+// [[mods]] blocks incl. Jar-in-Jar - so ATO's own plate/rod/gem-dust recipes
+// that are gated on immersiveengineering/enderio/mekanism/thermal, none of
+// which is installed, are correctly counted as ABSENT, not as live consumers)
+// plus this pack's own data + kubejs found the remaining universal dead ends:
+//   - 14 PLATE byproducts with no live consumer. The other 10 metals' plates
+//     ARE consumed via #c:plates/<metal> (brass/copper/gold/iron/steel/
+//     electrum/zinc by Create/CreateAddition/TFMG/Numismatics; aluminum/lead/
+//     nickel already sunk in tranche one) and are left untouched.
+//   - 21 ROD byproducts with no live consumer. Only copper/iron/steel rods
+//     have a live #c:rods/<metal> consumer (CreateAddition/SilentGear/
+//     Stellaris) - left untouched.
+//   - 5 GEM DUSTs (ruby/sapphire/peridot/fluorite/cinnabar): produced by a
+//     live ore-hammer crushing recipe but with no consumer (the gem itself
+//     became a SilentGear material in #102; its dust stayed dead).
+// = 40 items. ATO's clump/shard/crystal/dirty_dust intermediates were verified
+// UNOBTAINABLE in this pack (no live producer - they belong to Mekanism/IE
+// processing that isn't installed), so they are not real dead ends and get no
+// sink.
+//
+// Same convention as tranches one/two: an ADDITIONAL required ingredient, the
+// LITERAL alltheores: item id (never a c: tag - the #61 tag-bypass class),
+// never a cheaper alt path, one dead-end item per recipe. Every stock
+// ingredient is preserved at its exact stock multiplicity; shaped hosts are
+// re-authored as an equivalent SHAPELESS recipe (a strict relaxation - every
+// arrangement that used to craft still works) so the extra ingredient fits.
+// Result counts are preserved (event.remove drops the stock recipe; the
+// re-authored one keeps the stock output count). HARD CONSTRAINT honoured: a
+// table craft has at most 9 slots, so only hosts whose stock recipe fills <=8
+// cells were chosen - every recipe below is <=9 ingredients and remains
+// craftable in a normal grid.
+//
+// REACHABILITY: every ATO plate/rod/gem-dust is craftable EARLY via an ATO
+// ore hammer (a stone-tier tool) + the metal ingot / gem - NOT via Create
+// pressing - so there is no bootstrap deadlock (a Create machine gated on a
+// rod does not need that machine to make the rod) and every sink material is
+// reachable at or before its host recipe's tier. Materials are still bucketed
+// by rough rarity for feel, matching the tier band each metal's gear got in
+// tranche two.
+ServerEvents.recipes(event => {
+    // --- EARLY (Andesite Age band): common metals -> foundational Create machines ---
+    event.remove({ id: 'create:crafting/kinetics/encased_fan' })
+    event.shapeless('create:encased_fan', [
+        'create:shaft',
+        'create:andesite_casing',
+        'create:propeller',
+        'alltheores:tin_rod',
+    ]).id('vanillaplusplus:encased_fan_tin_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/mechanical_press' })
+    event.shapeless('create:mechanical_press', [
+        'create:shaft',
+        'create:andesite_casing',
+        '#c:storage_blocks/iron',
+        'alltheores:bronze_plate',
+    ]).id('vanillaplusplus:mechanical_press_bronze_plate')
+
+    event.remove({ id: 'create:crafting/kinetics/mechanical_drill' })
+    event.shapeless('create:mechanical_drill', [
+        'create:andesite_alloy',
+        'create:andesite_alloy',
+        'create:andesite_alloy',
+        '#c:ingots/iron',
+        'create:andesite_casing',
+        'alltheores:nickel_rod',
+    ]).id('vanillaplusplus:mechanical_drill_nickel_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/mechanical_saw' })
+    event.shapeless('create:mechanical_saw', [
+        '#c:plates/iron',
+        '#c:plates/iron',
+        '#c:plates/iron',
+        '#c:ingots/iron',
+        'create:andesite_casing',
+        'alltheores:zinc_rod',
+    ]).id('vanillaplusplus:mechanical_saw_zinc_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/millstone' })
+    event.shapeless('create:millstone', [
+        'create:cogwheel',
+        'create:andesite_casing',
+        '#c:stones',
+        'alltheores:lead_rod',
+    ]).id('vanillaplusplus:millstone_lead_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/mechanical_mixer' })
+    event.shapeless('create:mechanical_mixer', [
+        'create:cogwheel',
+        'create:andesite_casing',
+        'create:whisk',
+        'alltheores:aluminum_rod',
+    ]).id('vanillaplusplus:mechanical_mixer_aluminum_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/depot' })
+    event.shapeless('create:depot', [
+        'create:andesite_alloy',
+        'create:andesite_casing',
+        'alltheores:tin_plate',
+    ]).id('vanillaplusplus:depot_tin_plate')
+
+    event.remove({ id: 'create:crafting/kinetics/mechanical_bearing' })
+    event.shapeless('create:mechanical_bearing', [
+        '#minecraft:wooden_slabs',
+        'create:andesite_casing',
+        'create:shaft',
+        'alltheores:bronze_rod',
+    ]).id('vanillaplusplus:mechanical_bearing_bronze_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/hand_crank' })
+    event.shapeless('create:hand_crank', [
+        '#minecraft:planks',
+        '#minecraft:planks',
+        '#minecraft:planks',
+        'create:andesite_alloy',
+        'alltheores:brass_rod',
+    ]).id('vanillaplusplus:hand_crank_brass_rod')
+
+    // --- MID (Brass Age band): alloys/precious metals + the 5 gem dusts -> Create brass kinetics/logistics, CreateAddition, Numismatics, Refined Storage grid ---
+    event.remove({ id: 'create:crafting/kinetics/mechanical_arm' })
+    event.shapeless('create:mechanical_arm', [
+        '#c:plates/brass',
+        '#c:plates/brass',
+        '#c:plates/brass',
+        'create:andesite_alloy',
+        'create:precision_mechanism',
+        'create:brass_casing',
+        'alltheores:constantan_rod',
+    ]).id('vanillaplusplus:mechanical_arm_constantan_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/deployer' })
+    event.shapeless('create:deployer', [
+        'create:electron_tube',
+        'create:andesite_casing',
+        'create:brass_hand',
+        'alltheores:invar_rod',
+    ]).id('vanillaplusplus:deployer_invar_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/sequenced_gearshift' })
+    event.shapeless('create:sequenced_gearshift', [
+        'create:brass_casing',
+        'create:cogwheel',
+        'create:electron_tube',
+        'alltheores:gold_rod',
+    ]).id('vanillaplusplus:sequenced_gearshift_gold_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/fluid_tank' })
+    event.shapeless('create:fluid_tank', [
+        '#c:plates/copper',
+        '#c:plates/copper',
+        '#c:barrels/wooden',
+        'alltheores:silver_plate',
+    ]).id('vanillaplusplus:fluid_tank_silver_plate')
+
+    event.remove({ id: 'create:crafting/kinetics/portable_storage_interface' })
+    event.shapeless('create:portable_storage_interface', [
+        'create:andesite_casing',
+        'create:chute',
+        'alltheores:uranium_rod',
+    ]).id('vanillaplusplus:portable_storage_interface_uranium_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/weighted_ejector' })
+    event.shapeless('create:weighted_ejector', [
+        '#c:plates/gold',
+        'create:depot',
+        'create:cogwheel',
+        'alltheores:silver_rod',
+    ]).id('vanillaplusplus:weighted_ejector_silver_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/rotation_speed_controller' })
+    event.shapeless('create:rotation_speed_controller', [
+        'create:precision_mechanism',
+        'create:brass_casing',
+        'alltheores:constantan_plate',
+    ]).id('vanillaplusplus:rotation_speed_controller_constantan_plate')
+
+    event.remove({ id: 'create:crafting/logistics/brass_funnel' })
+    event.shapeless(Item.of('create:brass_funnel', 2), [
+        'create:electron_tube',
+        '#c:ingots/brass',
+        'minecraft:dried_kelp',
+        'alltheores:invar_plate',
+    ]).id('vanillaplusplus:brass_funnel_invar_plate')
+
+    event.remove({ id: 'createaddition:crafting/capacitor_1' })
+    event.shapeless('createaddition:capacitor', [
+        '#c:plates/zinc',
+        '#c:plates/copper',
+        'minecraft:redstone_torch',
+        'alltheores:uranium_plate',
+    ]).id('vanillaplusplus:capacitor_uranium_plate')
+
+    event.remove({ id: 'createaddition:crafting/connector' })
+    event.shapeless(Item.of('createaddition:connector', 3), [
+        '#c:rods/copper',
+        'create:andesite_alloy',
+        '#c:slime_balls',
+        'alltheores:cinnabar_dust',
+    ]).id('vanillaplusplus:connector_cinnabar_dust')
+
+    event.remove({ id: 'createaddition:crafting/modular_accumulator' })
+    event.shapeless('createaddition:modular_accumulator', [
+        '#c:rods/copper',
+        'createaddition:capacitor',
+        'createaddition:capacitor',
+        'create:brass_casing',
+        '#c:wires/electrum',
+        'alltheores:ruby_dust',
+    ]).id('vanillaplusplus:modular_accumulator_ruby_dust')
+
+    event.remove({ id: 'numismatics:crafting/bank_terminal' })
+    event.shapeless('numismatics:bank_terminal', [
+        'create:precision_mechanism',
+        'create:industrial_iron_block',
+        'create:electron_tube',
+        'alltheores:sapphire_dust',
+    ]).id('vanillaplusplus:bank_terminal_sapphire_dust')
+
+    event.remove({ id: 'create:crafting/kinetics/elevator_pulley' })
+    event.shapeless('create:elevator_pulley', [
+        'create:brass_casing',
+        'minecraft:dried_kelp_block',
+        '#c:plates/iron',
+        'alltheores:peridot_dust',
+    ]).id('vanillaplusplus:elevator_pulley_peridot_dust')
+
+    event.remove({ id: 'refinedstorage:crafting_grid' })
+    event.shapeless('refinedstorage:crafting_grid', [
+        'refinedstorage:grid',
+        'refinedstorage:advanced_processor',
+        '#c:player_workstations/crafting_tables',
+        'alltheores:fluorite_dust',
+    ]).id('vanillaplusplus:crafting_grid_fluorite_dust')
+
+    // --- LATE (Precision/Induction band): late alloys -> Create automation logistics + Refined Storage pattern grid ---
+    event.remove({ id: 'create:crafting/kinetics/mechanical_piston' })
+    event.shapeless('create:mechanical_piston', [
+        '#minecraft:wooden_slabs',
+        'create:andesite_casing',
+        'create:piston_extension_pole',
+        'alltheores:diamond_plate',
+    ]).id('vanillaplusplus:mechanical_piston_diamond_plate')
+
+    event.remove({ id: 'create:crafting/logistics/brass_tunnel' })
+    event.shapeless(Item.of('create:brass_tunnel', 2), [
+        'create:electron_tube',
+        '#c:ingots/brass',
+        '#c:ingots/brass',
+        'minecraft:dried_kelp',
+        'minecraft:dried_kelp',
+        'alltheores:signalum_plate',
+    ]).id('vanillaplusplus:brass_tunnel_signalum_plate')
+
+    event.remove({ id: 'create:crafting/kinetics/display_board' })
+    event.shapeless(Item.of('create:display_board', 2), [
+        'create:andesite_alloy',
+        'create:andesite_alloy',
+        'create:electron_tube',
+        'alltheores:lumium_plate',
+    ]).id('vanillaplusplus:display_board_lumium_plate')
+
+    event.remove({ id: 'refinedstorage:pattern_grid' })
+    event.shapeless('refinedstorage:pattern_grid', [
+        'refinedstorage:grid',
+        'refinedstorage:advanced_processor',
+        'refinedstorage:pattern',
+        'alltheores:platinum_plate',
+    ]).id('vanillaplusplus:pattern_grid_platinum_plate')
+
+    event.remove({ id: 'create:crafting/kinetics/clutch' })
+    event.shapeless('create:clutch', [
+        'create:andesite_casing',
+        'create:shaft',
+        '#c:dusts/redstone',
+        'alltheores:electrum_rod',
+    ]).id('vanillaplusplus:clutch_electrum_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/gearshift' })
+    event.shapeless('create:gearshift', [
+        'create:andesite_casing',
+        'create:cogwheel',
+        '#c:dusts/redstone',
+        'alltheores:diamond_rod',
+    ]).id('vanillaplusplus:gearshift_diamond_rod')
+
+    event.remove({ id: 'create:crafting/logistics/stockpile_switch' })
+    event.shapeless('create:stockpile_switch', [
+        'create:electron_tube',
+        'create:brass_casing',
+        'minecraft:comparator',
+        'alltheores:lumium_rod',
+    ]).id('vanillaplusplus:stockpile_switch_lumium_rod')
+
+    event.remove({ id: 'create:crafting/kinetics/cuckoo_clock' })
+    event.shapeless('create:cuckoo_clock', [
+        '#minecraft:planks',
+        'create:andesite_casing',
+        'minecraft:clock',
+        'alltheores:platinum_rod',
+    ]).id('vanillaplusplus:cuckoo_clock_platinum_rod')
+
+    event.remove({ id: 'create:crafting/logistics/content_observer' })
+    event.shapeless('create:content_observer', [
+        'create:electron_tube',
+        'create:brass_casing',
+        'minecraft:observer',
+        'alltheores:signalum_rod',
+    ]).id('vanillaplusplus:content_observer_signalum_rod')
+
+    // --- TOP (Starforged+ band): rare/space metals -> Stellaris rocketry + Silent Gear endgame machines ---
+    event.remove({ id: 'stellaris:misc/rocket_fin' })
+    event.shapeless('stellaris:rocket_fin', [
+        '#c:ingots/steel',
+        '#c:ingots/steel',
+        '#c:ingots/steel',
+        '#c:ingots/steel',
+        '#c:ingots/steel',
+        'alltheores:enderium_plate',
+    ]).id('vanillaplusplus:rocket_fin_enderium_plate')
+
+    event.remove({ id: 'stellaris:misc/rocket_nose_cone' })
+    event.shapeless('stellaris:rocket_nose_cone', [
+        'minecraft:redstone',
+        '#c:ingots/steel',
+        '#c:ingots/steel',
+        '#c:ingots/steel',
+        '#c:ingots/steel',
+        'alltheores:iridium_plate',
+    ]).id('vanillaplusplus:rocket_nose_cone_iridium_plate')
+
+    event.remove({ id: 'stellaris:misc/engine_fan' })
+    event.shapeless('stellaris:engine_fan', [
+        '#c:nuggets/steel',
+        '#c:nuggets/steel',
+        '#c:nuggets/steel',
+        '#c:nuggets/steel',
+        '#c:ingots/steel',
+        'alltheores:osmium_plate',
+    ]).id('vanillaplusplus:engine_fan_osmium_plate')
+
+    event.remove({ id: 'stellaris:misc/oxygen_tank' })
+    event.shapeless('stellaris:oxygen_tank', [
+        '#c:nuggets/steel',
+        '#c:ingots/steel',
+        '#c:ingots/steel',
+        'alltheores:netherite_plate',
+    ]).id('vanillaplusplus:oxygen_tank_netherite_plate')
+
+    event.remove({ id: 'stellaris:misc/modules/base_module_tier_1' })
+    event.shapeless('stellaris:base_module_tier_1', [
+        'stellaris:heavy_metal_nugget',
+        'stellaris:heavy_metal_nugget',
+        'stellaris:heavy_metal_nugget',
+        'stellaris:heavy_metal_nugget',
+        'stellaris:heavy_metal_nugget',
+        'stellaris:heavy_metal_nugget',
+        'minecraft:gold_nugget',
+        'minecraft:gold_nugget',
+        'alltheores:enderium_rod',
+    ]).id('vanillaplusplus:base_module_tier_1_enderium_rod')
+
+    event.remove({ id: 'silentgear:metal_press' })
+    event.shapeless('silentgear:metal_press', [
+        '#c:obsidians',
+        '#c:obsidians',
+        '#c:obsidians',
+        '#c:obsidians',
+        '#c:ingots/tyrian_steel',
+        '#c:ingots/tyrian_steel',
+        '#c:rods/iron',
+        '#c:rods/iron',
+        'alltheores:iridium_rod',
+    ]).id('vanillaplusplus:metal_press_iridium_rod')
+
+    event.remove({ id: 'silentgear:refabricator' })
+    event.shapeless('silentgear:refabricator', [
+        '#c:ingots/iron',
+        '#c:ingots/iron',
+        '#c:gems/diamond',
+        '#c:gems/diamond',
+        '#c:gems/bort',
+        '#minecraft:planks',
+        '#minecraft:planks',
+        '#c:storage_blocks/iron',
+        'alltheores:netherite_rod',
+    ]).id('vanillaplusplus:refabricator_netherite_rod')
+
+    event.remove({ id: 'silentgear:alloy_forge' })
+    event.shapeless('silentgear:alloy_forge', [
+        '#c:ingots/crimson_steel',
+        '#c:ingots/crimson_steel',
+        '#c:ingots/crimson_steel',
+        '#c:ingots/crimson_steel',
+        'minecraft:blackstone',
+        'minecraft:blackstone',
+        'minecraft:blackstone',
+        '#c:storage_blocks/iron',
+        'alltheores:osmium_rod',
+    ]).id('vanillaplusplus:alloy_forge_osmium_rod')
+
+})

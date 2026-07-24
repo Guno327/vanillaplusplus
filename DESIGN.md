@@ -1450,6 +1450,72 @@ ingredients actually resolving in a
 real crafting grid and JEI showing each gear as required both need a live
 client, flagged `verify-in-game`.
 
+**GitHub issue #91, third tranche — the last 40 dead ends: plates, rods,
+gem dusts** (`feat/91-material-sinks-full`). Tranches one and two sank every
+ATO *gear* (all 24 metals). This tranche closes the class out by re-scanning
+with a **condition-aware consumer scan** of all 104 installed jars: every
+recipe json is parsed, and each recipe's `neoforge:conditions` are evaluated
+against the *real* installed modid set (parsed from every jar's `[[mods]]`
+blocks incl. Jar-in-Jar) — so ATO's own plate/rod/gem-dust recipes that are
+gated on `immersiveengineering`/`enderio`/`mekanism`/`thermal` (none
+installed) are correctly counted as **absent**, not as live consumers. That
+corrects the coarser tranche-two read: of the 24 metals' plates, only 10
+(brass/copper/gold/iron/steel/electrum/zinc + aluminum/lead/nickel) are
+actually consumed via `#c:plates/<metal>` by Create/CreateAddition/TFMG/
+Numismatics and stay untouched; the other **14 plates** are dead. Of the
+rods, only copper/iron/steel are consumed (CreateAddition/SilentGear/
+Stellaris via `#c:rods/<metal>`); the other **21 rods** are dead. Plus **5
+gem dusts** (ruby/sapphire/peridot/fluorite/cinnabar) that *are* produced
+(an ore-hammer crushing recipe, live) but have no consumer — the gem itself
+became a Silent Gear material in #102, its dust stayed dead. **= 40 items.**
+ATO's `clump`/`shard`/`crystal`/`dirty_dust` intermediates were checked and
+found **unobtainable** in this pack (no live producer — they belong to the
+Mekanism/IE processing chains that aren't installed), so they are *not* real
+dead ends and get no sink.
+
+Same convention as tranches one/two: one **additional required** ingredient,
+the **literal `alltheores:` item id** (never a `c:` tag — the #61 tag-bypass
+class), never a cheaper alt path, stock ingredients preserved at exact
+multiplicity, and shaped hosts re-authored as an equivalent shapeless recipe
+(a strict relaxation) so a further ingredient fits without fighting the 3x3
+grid; result counts preserved (e.g. CreateAddition Connector ×3). **Hard
+9-slot rule:** a table craft has at most 9 cells, so a host whose stock
+recipe already fills all 9 (many RS/TFMG/Stellaris machine recipes, Tom's
+`open_crate`/`filing_cabinet`, Create `water_wheel`) cannot take a 10th
+ingredient without becoming uncraftable — so only hosts with **≤8 stock
+cells** were chosen, and every re-authored recipe is ≤9 ingredients and
+still craftable in a normal grid (a selftest addition below would also catch
+a regression here). Reachability is not a concern: every ATO plate/rod/
+gem-dust is craftable **early** via an ATO ore hammer (a stone-tier tool) +
+the ingot/gem — *not* via Create pressing — so no host machine is gated
+behind a byproduct that needs that same machine to exist (no bootstrap
+deadlock), and each material is reachable at or before its host recipe's
+tier. Materials are rarity-bucketed for feel, matching the tier band each
+metal's gear got in tranche two: **common metals → foundational Create
+machines** (encased_fan, mechanical_press/drill/saw, millstone,
+mechanical_mixer, depot, mechanical_bearing, hand_crank); **alloys/precious +
+the 5 gem dusts → Create brass kinetics/logistics, CreateAddition,
+Numismatics bank terminal, RS crafting grid** (mechanical_arm, deployer,
+sequenced_gearshift, fluid_tank, portable_storage_interface, weighted_ejector,
+rotation_speed_controller, brass_funnel, elevator_pulley, capacitor,
+connector, modular_accumulator, bank_terminal, crafting_grid); **late alloys
+→ Create automation logistics + RS pattern grid** (mechanical_piston,
+brass_tunnel, display_board, clutch, gearshift, stockpile_switch,
+cuckoo_clock, content_observer, pattern_grid); **rare/space metals →
+Stellaris rocketry + Silent Gear endgame machines** (rocket_fin,
+rocket_nose_cone, engine_fan, oxygen_tank, base_module_tier_1, metal_press,
+refabricator, alloy_forge). Host recipes were chosen to avoid every id
+already re-authored by `storage.js`, `tier_gating.js`, or tranches one/two,
+and to avoid the three RS recipes (`controller`/`disk_drive`/`grid`) that
+`selftest.js` separately asserts on. `ST_MATERIAL_SINK_RECIPES` in `selftest.js` extended
+to all **64** sinks (24 gears + 40 new) — that list is now the literal
+dead-end inventory, one entry per id, each asserting its host recipe
+resolves and demands that exact item. Validated fast-tier: `run_all.py`
+green (incl. `check_mod_dependencies_offline`, `lint_rhino`), all 40 host
+outputs + 64 sink ids + every referenced `c:`/mod tag verified against the
+installed jars' registries. The in-grid craft + JEI "required" display need
+a live client, flagged `verify-in-game`.
+
 ### Gear overhaul: unified smithing/boss-drop progression + expanded melee variety (post-Phase 9)
 
 After all 9 original phases shipped, a follow-up request tightened the
