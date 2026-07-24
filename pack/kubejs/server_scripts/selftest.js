@@ -44,24 +44,24 @@ const ST_TIER_IDS = [
     'rootborn', 'andesite_age', 'brass_age', 'precision_age', 'induction_age',
     'starforged_age', 'lunar_frontier', 'martian_frontier', 'inner_system', 'jovian_frontier',
 ]
-// Issue #71 ("Expand Skill Trees / Categories"): 12 -> 23 categories - kept
-// in sync by hand with gen_skill_tree.py's CATEGORY_SPECS ids.
-const ST_SKILL_CATEGORIES = [
-    'alchemy', 'bows', 'building', 'cooking', 'daggers', 'enchanting',
-    'exploration', 'farming', 'fishing', 'greatswords', 'longswords',
-    'magic', 'mining', 'running', 'sailing', 'smithing', 'spears',
-    'swimming', 'swords', 'tachi', 'taming', 'trading', 'woodcutting',
-]
-// Issue #71 also expanded 15 -> 34 skill nodes per category - kept in sync
-// by hand with gen_skill_tree.py's per-category node count (12 -> 23
-// categories x 15 -> 34 nodes = 782 total, per
-// pack/kubejs/data/puffish_skills/puffish_skills/categories/*/skills.json).
-// Issue #77: this drifted out of sync with the actual shipped node count
-// once before (asserted 15 for two release cycles after #71 shipped 34) -
-// scripts/ci/check_selftest_skill_sync.py now cross-checks both this
-// constant and ST_SKILL_CATEGORIES above against the real generated data on
-// every fast-tier CI run so that can't happen silently again.
-const ST_SKILL_NODE_COUNT_PER_CATEGORY = 34
+// Issue #116 ("Converge all skill trees into ONE unified tree") SUPERSEDES
+// issue #71's 23-category structure with exactly ONE puffish_skills
+// category - kept in sync by hand with gen_skill_tree.py's
+// UNIFIED_CATEGORY_ID. All 23 of #71's categories (mining, swords, bows,
+// ... woodcutting) still exist as subtrees woven into this one category
+// (see gen_skill_tree.py's FORMER_SPECS/CLASS_SPECS), they just no longer
+// have their own puffish_skills category id.
+const ST_SKILL_CATEGORIES = ['adventurer']
+// Issue #116's unified tree has 791 total skill nodes in its one category
+// (1 shared "origin" root + 4 class roots + 23 former-categories x 34 nodes
+// + 4 class capstones = 1 + 4 + 782 + 4 = 791) - kept in sync by hand with
+// gen_skill_tree.py's actual output (pack/kubejs/data/puffish_skills/
+// puffish_skills/categories/adventurer/skills.json). Issue #77's drift
+// class (a hardcoded node count silently falling out of sync with the
+// generator) is exactly why scripts/ci/check_selftest_skill_sync.py
+// cross-checks both this constant and ST_SKILL_CATEGORIES above against the
+// real generated data on every fast-tier CI run.
+const ST_SKILL_NODE_COUNT_PER_CATEGORY = 791
 const ST_COIN_ITEM_IDS = [
     'numismatics:spur', 'numismatics:bevel', 'numismatics:sprocket',
     'numismatics:cog', 'numismatics:crown', 'numismatics:sun',
@@ -153,7 +153,7 @@ stCheck('ProgressiveStages: 10 tier ids resolve on player.stages without throwin
     return { pass: true, detail: ST_TIER_IDS.length + ' ids resolved' }
 })
 
-stCheck('SkillsAPI: 23 skill categories all present', () => {
+stCheck('SkillsAPI: the unified skill category is present', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
     let missing = []
     for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
@@ -161,10 +161,10 @@ stCheck('SkillsAPI: 23 skill categories all present', () => {
         let opt = ST_SkillsAPIClass.getCategory(catRl)
         if (!opt.isPresent()) missing.push(ST_SKILL_CATEGORIES[i])
     }
-    return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 23 present' : 'missing: ' + missing.join(',') }
+    return { pass: missing.length === 0, detail: missing.length === 0 ? ('present: ' + ST_SKILL_CATEGORIES.join(',')) : 'missing: ' + missing.join(',') }
 })
 
-stCheck('SkillsAPI: all 23 skill categories have an Experience/level source (points wiring)', () => {
+stCheck('SkillsAPI: the unified skill category has an Experience/level source (points wiring)', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
     let missing = []
     for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
@@ -173,44 +173,46 @@ stCheck('SkillsAPI: all 23 skill categories have an Experience/level source (poi
         if (!catOpt.isPresent()) { missing.push(ST_SKILL_CATEGORIES[i] + '(category missing)'); continue }
         if (!catOpt.get().getExperience().isPresent()) missing.push(ST_SKILL_CATEGORIES[i])
     }
-    return { pass: missing.length === 0, detail: missing.length === 0 ? 'all 23 wired' : 'missing Experience: ' + missing.join(',') }
+    return { pass: missing.length === 0, detail: missing.length === 0 ? 'wired' : 'missing Experience: ' + missing.join(',') }
 })
 
 // issue #24 ("plenty of skill points but unable to allocate them") ground-
-// truthed root cause: every one of the 12 categories' skills.json had ZERO
-// nodes with "root": true (scripts/gen_skill_tree.py never set it). Per
-// javap against the installed puffish_skills-0.18.1-1.21-neoforge.jar,
+// truthed root cause: every one of the (then-12) categories' skills.json
+// had ZERO nodes with "root": true (scripts/gen_skill_tree.py never set
+// it). Per javap against the installed
+// puffish_skills-0.18.1-1.21-neoforge.jar,
 // net.puffish.skillsmod.server.data.CategoryData.getSkillState only reaches
 // AVAILABLE/AFFORDABLE (clickable) via a root node or a `normal` edge from
 // an already-unlocked node - with unlockedSkills starting empty for every
 // player and zero roots, every node in every category was permanently
-// LOCKED regardless of points held. Fixed in scripts/gen_skill_tree.py
-// (n0 now carries "root": true) + regenerated pack/kubejs/data/
-// puffish_skills/puffish_skills/categories/*/skills.json.
+// LOCKED regardless of points held. Fixed in scripts/gen_skill_tree.py and
+// still true under issue #116's unified tree, just with only ONE root node
+// total now ("origin" - see gen_skill_tree.py's module docstring) instead
+// of one per category, because there is only one category left.
 //
-// This exact invariant ("at least one root node per category") is NOT
-// re-checked here at L1: the public net.puffish.skillsmod.api surface only
-// exposes per-node unlock STATE via Skill#getState(ServerPlayer), which
-// needs a real connected player - this command runs over cmd_fifo with no
-// attached ServerPlayer (see this file's own header comment), so that check
-// would always SKIP under the L1 harness and never actually catch a
-// regression. There is also no way to read the raw skills.json "root" field
-// from KubeJS/Rhino directly - java.io/java.nio are hard-blocked by this
-// pack's installed KubeJS's own kubejs.classfilter.txt (ground-truthed the
-// same way food_selftest.js's config/solonion.json check documents; see
-// that file's comment for the extraction). The static, always-reliable,
-// pre-boot check for this invariant lives instead in
-// scripts/ci/check_skill_trees.py (run via scripts/ci/run_all.py) - it
-// parses skills.json directly and asserts every category has >=1 root node
-// plus that every "definition" reference resolves, catching this bug class
-// (and the silent-node-drop variant) well before a boot is ever attempted.
-// What L1 CAN and does check here instead: that every category's skill
-// node count survived config parsing intact (34/34) - a bad "definition"
+// This exact invariant ("at least one root node") is NOT re-checked here at
+// L1: the public net.puffish.skillsmod.api surface only exposes per-node
+// unlock STATE via Skill#getState(ServerPlayer), which needs a real
+// connected player - this command runs over cmd_fifo with no attached
+// ServerPlayer (see this file's own header comment), so that check would
+// always SKIP under the L1 harness and never actually catch a regression.
+// There is also no way to read the raw skills.json "root" field from
+// KubeJS/Rhino directly - java.io/java.nio are hard-blocked by this pack's
+// installed KubeJS's own kubejs.classfilter.txt (ground-truthed the same
+// way food_selftest.js's config/solonion.json check documents; see that
+// file's comment for the extraction). The static, always-reliable, pre-boot
+// check for this invariant lives instead in scripts/ci/check_skill_trees.py
+// (run via scripts/ci/run_all.py) - it parses skills.json directly and
+// asserts exactly 1 root node for the whole tree plus that every
+// "definition" reference resolves, catching this bug class (and the
+// silent-node-drop variant) well before a boot is ever attempted.
+// What L1 CAN and does check here instead: that the unified category's
+// skill node count survived config parsing intact - a bad "definition"
 // reference doesn't fail the datapack load, it silently drops just that
 // node (net.puffish.skillsmod.config.skill.SkillConfig.parse), which would
-// show up here as a category with fewer than 34 skills reachable through
-// the API.
-stCheck('SkillsAPI: all 23 skill categories retained their full 34-node skill count after parsing', () => {
+// show up here as fewer than ST_SKILL_NODE_COUNT_PER_CATEGORY skills
+// reachable through the API.
+stCheck('SkillsAPI: the unified skill category retained its full node count after parsing', () => {
     if (!ST_SkillsAPIClass) return { pass: false, detail: 'SkillsAPI class unavailable' }
     let bad = []
     for (let i = 0; i < ST_SKILL_CATEGORIES.length; i++) {
@@ -220,7 +222,7 @@ stCheck('SkillsAPI: all 23 skill categories retained their full 34-node skill co
         let count = catOpt.get().streamSkills().toArray().length
         if (count !== ST_SKILL_NODE_COUNT_PER_CATEGORY) bad.push(ST_SKILL_CATEGORIES[i] + '=' + count)
     }
-    return { pass: bad.length === 0, detail: bad.length === 0 ? ('all 23 have ' + ST_SKILL_NODE_COUNT_PER_CATEGORY + '/' + ST_SKILL_NODE_COUNT_PER_CATEGORY + ' nodes') : 'bad counts: ' + bad.join(',') }
+    return { pass: bad.length === 0, detail: bad.length === 0 ? (ST_SKILL_NODE_COUNT_PER_CATEGORY + '/' + ST_SKILL_NODE_COUNT_PER_CATEGORY + ' nodes') : 'bad counts: ' + bad.join(',') }
 })
 
 stCheck('Numismatics: bank account/balance reachable for a player', (server, player) => {
@@ -1032,137 +1034,6 @@ stCheck('progression_stage_bridge: psbSyncPartyStages runs against the real OPAC
     if (!ST_OpenPACServerAPIClass) return { skip: true, detail: 'OpenPACServerAPI class unavailable, nothing to exercise' }
     let grants = psbSyncPartyStages(server) // throwing is the failure mode under test; 0 grants is expected/fine with no real party formed
     return { pass: typeof grants === 'number', detail: grants + ' stage grant(s) made (0 expected with no real party formed in this console-only run)' }
-})
-
-// GitHub #33: bespoke quest tracker replacing FTB Quests (pack/kubejs/
-// server_scripts/quests.js). NOTE: this repo's existing selftest.js had NO
-// coverage at all for the two earlier Phase-6 KubeJS-only quest-style
-// systems (achievements.js/dailies.js - grepped this file for "achiev"/
-// "dailies"/"bounty" before writing these, found nothing) despite the task
-// that produced this file asking for "the same rigor as achievements.js's
-// existing selftest coverage" - there is no such coverage to match, so
-// these checks instead follow this file's own general house style (guarded
-// player checks, boot-level wiring checks, a real regression-guard round
-// trip that restores what it touched) - the same shape as the
-// progression_stage_bridge checks directly above.
-stCheck('quests: QUEST_CHAPTERS loaded with 10 chapters / 62 quests / 87 dependencies', () => {
-    if (typeof QUEST_CHAPTERS === 'undefined') {
-        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
-    }
-    let chapters = QUEST_CHAPTERS.length
-    let quests = 0
-    let deps = 0
-    for (let i = 0; i < QUEST_CHAPTERS.length; i++) {
-        quests += QUEST_CHAPTERS[i].quests.length
-        for (let j = 0; j < QUEST_CHAPTERS[i].quests.length; j++) {
-            deps += QUEST_CHAPTERS[i].quests[j].dependencies.length
-        }
-    }
-    let ok = chapters === 10 && quests === 62 && deps === 87
-    return { pass: ok, detail: `chapters=${chapters} quests=${quests} deps=${deps}` }
-})
-
-stCheck('quests: progress-storage round trip on a synthetic id (no real quest touched)', server => {
-    if (typeof markQuestComplete !== 'function' || typeof isQuestComplete !== 'function'
-        || typeof questsEnsureCompound !== 'function' || typeof QUESTS_PROGRESS_ROOT_KEY === 'undefined') {
-        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
-    }
-    let key = 'vpp_selftest_probe_team'
-    let qid = 'vpp_selftest_probe_quest'
-    let before = isQuestComplete(server, key, qid)
-    markQuestComplete(server, key, qid)
-    let after = isQuestComplete(server, key, qid)
-    // Clean up: this key/id pair is synthetic and never appears in
-    // QUEST_CHAPTERS, but remove it anyway so nothing lingers in
-    // persistentData across repeated selftest runs.
-    let root = questsEnsureCompound(server.persistentData, QUESTS_PROGRESS_ROOT_KEY)
-    if (root.contains(key, 10)) root.remove(key)
-    return { pass: !before && after, detail: 'before=' + before + ' after=' + after }
-})
-
-stCheck('quests: getProgressKey resolves for a live player without throwing', (server, player) => {
-    if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
-    if (typeof getProgressKey !== 'function') {
-        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
-    }
-    let key = getProgressKey(player)
-    return { pass: typeof key === 'string' && key.length > 0, detail: 'key=' + key }
-})
-
-stCheck('quests: checkTask resolves item/kill/dimension/gamestage task types without throwing', (server, player) => {
-    if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
-    if (typeof checkTask !== 'function') {
-        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
-    }
-    checkTask(player, { type: 'item', item: 'minecraft:stone', count: 1 })
-    checkTask(player, { type: 'kill', entity: 'minecraft:zombie', count: 1 })
-    checkTask(player, { type: 'dimension', dimension: 'minecraft:overworld' })
-    checkTask(player, { type: 'gamestage', stage: 'rootborn' })
-    return { pass: true, detail: 'ok' }
-})
-
-stCheck('quests command node is registered, with all 10 chapter subcommands', server => {
-    let root = server.getCommands().getDispatcher().getRoot()
-    let children = root.getChildren().toArray()
-    let questsNode = null
-    for (let i = 0; i < children.length; i++) {
-        if (String(children[i].getName()) === 'quests') { questsNode = children[i]; break }
-    }
-    if (!questsNode) return { pass: false, detail: 'quests command missing' }
-    let subChildren = questsNode.getChildren().toArray()
-    let names = []
-    for (let i = 0; i < subChildren.length; i++) names.push(String(subChildren[i].getName()))
-    let missing = []
-    for (let i = 0; i < QUEST_CHAPTERS.length; i++) {
-        if (names.indexOf(QUEST_CHAPTERS[i].id) < 0) missing.push(QUEST_CHAPTERS[i].id)
-    }
-    return { pass: missing.length === 0, detail: missing.length === 0 ? (names.length + ' chapter subcommands present') : ('missing: ' + missing.join(',')) }
-})
-
-stCheck('quest check node is registered, with all checkmark-quest subcommands', server => {
-    let root = server.getCommands().getDispatcher().getRoot()
-    let children = root.getChildren().toArray()
-    let questNode = null
-    for (let i = 0; i < children.length; i++) {
-        if (String(children[i].getName()) === 'quest') { questNode = children[i]; break }
-    }
-    if (!questNode) return { pass: false, detail: 'quest command missing' }
-    let questChildren = questNode.getChildren().toArray()
-    let checkNode = null
-    for (let i = 0; i < questChildren.length; i++) {
-        if (String(questChildren[i].getName()) === 'check') { checkNode = questChildren[i]; break }
-    }
-    if (!checkNode) return { pass: false, detail: 'quest check subcommand missing' }
-    let idChildren = checkNode.getChildren().toArray()
-    let names = []
-    for (let i = 0; i < idChildren.length; i++) names.push(String(idChildren[i].getName()))
-    let missing = []
-    for (let i = 0; i < CHECKMARK_QUEST_IDS.length; i++) {
-        if (names.indexOf(CHECKMARK_QUEST_IDS[i]) < 0) missing.push(CHECKMARK_QUEST_IDS[i])
-    }
-    return { pass: missing.length === 0 && CHECKMARK_QUEST_IDS.length === 4, detail: missing.length === 0 ? (names.length + ' checkmark subcommands present, expected 4') : ('missing: ' + missing.join(',')) }
-})
-
-// Real end-to-end round trip through runCheckmarkCheck() - same
-// disclosed-real-side-effect precedent as the economy sell round-trip
-// check above (that one permanently pays out real coins; this one
-// permanently grants the "Welcome to Vanilla++" quest's real +10 mining
-// XP reward the first time this runs for a given player/team - both are
-// small, disclosed, and the only way to prove the actual completion path
-// works end to end rather than just its individual pieces in isolation).
-stCheck('quests: checkmark completion round-trip via runCheckmarkCheck (rootborn__welcome)', (server, player) => {
-    if (!player) return { skip: true, detail: 'no player online (console-only L1 run)' }
-    if (typeof runCheckmarkCheck !== 'function' || typeof CHECKMARK_QUEST_IDS === 'undefined' || CHECKMARK_QUEST_IDS.length === 0) {
-        return { pass: false, detail: 'quests.js did not load into the shared server_scripts scope' }
-    }
-    let qid = CHECKMARK_QUEST_IDS[0] // 'rootborn__welcome' - no dependencies, always eligible
-    let progressKey = getProgressKey(player)
-    if (isQuestComplete(server, progressKey, qid)) {
-        return { skip: true, detail: qid + ' already complete for this player/team - nothing safe to probe without a duplicate grant' }
-    }
-    runCheckmarkCheck(player, qid)
-    let ok = isQuestComplete(server, progressKey, qid)
-    return { pass: ok, detail: ok ? (qid + ' completed and recorded (real, permanent - see check header comment)') : (qid + ' did not record as complete') }
 })
 
 // ---- helpers ----

@@ -1004,34 +1004,45 @@ fundamentally a tier-ladder extension).
   satisfying "the player causing these mobs to spawn should also influence
   their base difficulty based on their level/progression." Above a small
   threshold, the mob's `generic.max_health`/`generic.attack_damage` are
-  scaled via `modifyAttribute(..., 'multiply_base')` and it gets a
-  star-rating custom name (color-coded gray→dark_red) as the "look at it
-  and tell" indicator — a nametag rather than a fancier visual (glow
-  outline/particles) since that's what's reliably implementable via
-  KubeJS scripting without client-side rendering work. **Bug #101, fixed**:
-  the star rating was originally set via
-  `entity.setCustomName(Text.of('*'.repeat(starCount))...)`, which REPLACES
-  customName outright rather than adding to it — Minecraft uses
-  getName()/customName verbatim both for the nameplate and for death
+  scaled via `modifyAttribute(..., 'multiply_base')`, and every monster
+  (not just scaled ones) gets its own name recolored by relative
+  difficulty as the "look at it and tell" indicator — a colored nametag
+  rather than a fancier visual (glow outline/particles) since that's what's
+  reliably implementable via KubeJS scripting without client-side
+  rendering work. **Bug #101, two fix passes**. Pass 1 (#110): the name was
+  originally set via `entity.setCustomName(Text.of('*'.repeat(starCount))...)`,
+  which REPLACES customName outright rather than adding to it — Minecraft
+  uses getName()/customName verbatim both for the nameplate and for death
   messages, so every scaled mob's name became a bare string of asterisks
-  everywhere, including "You were killed by **". Fixed by capturing
-  `entity.getName()` (the untouched default species name, since nothing has
-  set a customName on the entity yet at that point) and appending the star
-  rating as a suffix instead of replacing it, so both nameplate and death
-  message now read e.g. "Zombie **" — difficulty is still visible at a
-  glance, but the real name survives. `EntityEvents.death`
+  everywhere, including "You were killed by **". #110 fixed this by
+  capturing `entity.getName()` (the untouched default species name, since
+  nothing has set a customName on the entity yet at that point) and
+  appending a star rating as a suffix instead of replacing it, e.g.
+  "Zombie **". That shipped in v0.5.2, but the owner re-tested in-game and
+  reported the suffix itself read as clutter/noise ("a randomly long string
+  of asterisks", 1-6 raw `*` chars depending on tier) — not the bug
+  reopening, but the fix's own UX being unwanted. Pass 2 (this fix):
+  dropped the star suffix entirely per the owner's simpler ask — leave
+  `entity.getName()` completely untouched and just color the whole name by
+  a 4-tier relative-difficulty scale (green = weaker than you, yellow =
+  similar, red = harder, dark_purple = much harder/probably impossible;
+  "purple" isn't a vanilla ChatFormatting name, dark_purple is the closest
+  match), applied to every monster including baseline (green) ones, not
+  just mobs above the attribute-scaling threshold. `EntityEvents.death`
   grants bonus Numismatics currency proportional to how far above baseline
   the killed mob's difficulty was, covering "rewards scale with difficulty."
   **Verification gap, disclosed**: this only exercises at actual mob-spawn
   time, which the headless boot-test sandbox can't trigger (no player
   present) — confirmed only that the script loads without syntax errors
   (7/7 KubeJS scripts, 0 errors), not that the runtime logic behaves as
-  designed. Several API calls here were corrected mid-implementation after
-  decompiling KubeJS's actual class files rather than trusting a first
-  guess (e.g. `entity.getAttribute(id).setBaseValue(...)` doesn't exist —
-  the real API is `entity.modifyAttribute(attributeId, modifierId, amount,
-  operation)`) — same "verify against the installed jar" discipline this
-  whole project has needed repeatedly.
+  designed; the owner's in-game re-test is what caught pass 1's UX problem,
+  and pass 2 needs the same in-game confirmation. Several API calls here
+  were corrected mid-implementation after decompiling KubeJS's actual class
+  files rather than trusting a first guess (e.g.
+  `entity.getAttribute(id).setBaseValue(...)` doesn't exist — the real API
+  is `entity.modifyAttribute(attributeId, modifierId, amount, operation)`)
+  — same "verify against the installed jar" discipline this whole project
+  has needed repeatedly.
 - **Dungeons + bosses with unique drops**: YUNG's Better Dungeons overhauls
   vanilla's dungeon structure into larger multi-room layouts (the "some
   sort of dungeons" ask). Apotheosis separately ships its own
@@ -3556,14 +3567,200 @@ literal forging minigame. Not implemented here since inventing a
 replacement mechanic wasn't in scope for this investigation — flagged for
 owner/PM decision.
 
-**Not done, and why**: `pack/manifest.json`/`pack/mods.lock.json` were
-deliberately left untouched — a trial add-then-revert was done during
-investigation (to hash the real jar via `scripts/resolve_mods.py` and
-confirm no dependency surprises) but reverted once the blocking finding
-above was confirmed, since shipping the mod with no working integration and
-no other use in this pack would be dead weight contradicting the "every
-manifest edit should do something real" bar the rest of this file holds
-itself to.
+**Not done, and why (superseded — see below)**: `pack/manifest.json`/
+`pack/mods.lock.json` were deliberately left untouched — a trial
+add-then-revert was done during investigation (to hash the real jar via
+`scripts/resolve_mods.py` and confirm no dependency surprises) but reverted
+once the blocking finding above was confirmed, since shipping the mod with
+no working integration and no other use in this pack would be dead weight
+contradicting the "every manifest edit should do something real" bar the
+rest of this file holds itself to.
+
+**UPDATE (2026-07-23, wiring #67 in for real)**: option (a) above was built
+— `mods-src/vppintegration/` (GitHub #97/#117) is the hand-rolled Java
+bridge across exactly the `MATERIAL_LIST`/assembly boundary this
+investigation flagged as the blocker, and both **overgeared** and
+**vppintegration** are now real `pack/manifest.json`/`mods.lock.json`
+entries, confirmed via an actual L0 boot (server reaches `Done(`, mixin
+applies, all 6 example forging recipes register with zero errors, 0 KubeJS
+errors/warnings). See `DECISIONS.md`'s "#67" entry for the full activation
+writeup, including two real defects the boot test caught and fixed (a wrong
+Silent Gear item id in the sword recipes, and a config-not-yet-loaded crash
+in the stats bridge). Ships the 6 example recipes as a first working slice;
+the full material-tier ladder (steel through Allthemodium/Vibranium/
+Unobtainium, cold-forging for gemstones) remains a follow-up — see
+`mods-src/vppintegration/README.md`'s "Extending to the pack's full
+material ladder".
+
+### Client-rendering follow-ups: #103 dynamic lights (dropped) + epic-tweaks removal (post-v0.5.x hotfix)
+
+Two follow-ups to the v0.5.x client-crash incident (see HANDOFF.md's
+"RELEASE GATE" note and DECISIONS.md's "L3 client boot+join becomes a
+REQUIRED release gate" entry for the full incident), built on top of
+`hotfix/remove-sodium-dynamic-lights-splitpackage` (PR #132). Both
+findings are ground-truthed against the real jars (`jar tf`/`javap`/CFR,
+`.tools/jdk-21.0.11+10`), not assumed from Modrinth metadata.
+
+**#103, dynamic lights — investigated a conflict-free replacement, found
+none, RECOMMENDING THE MOD STAY DROPPED.** `sodium-dynamic-lights` was
+removed because it bundles the `dev.lambdaurora.lambdynlights.api` package
+directly inside its own jar, and `ars-nouveau-1.21.1-5.12.1.jar` jar-in-jars
+its own separate copy of that exact package
+(`META-INF/jarjar/lambdynamiclights-api-4.5.1+1.21.1-mojmap.jar`, confirmed
+via `jar tf`+extraction) — two distinct Java modules exporting the same
+package is a hard `java.lang.module.ResolutionException` at client launch,
+before any mod code runs, regardless of which mod "wins" a version check.
+Every candidate replacement checked for split-package risk against ars-nouveau's
+bundled copy, plus the two extra checks the incident called for
+(exported-package collisions and missing-AT files):
+
+- **`lambdynamiclights-unofficial-neoforge` 3.1.4** (the port DESIGN.md's
+  original #103 writeup rejected for being "stale" relative to this pack's
+  Sodium line): downloaded and extracted the real jar — it bundles
+  `dev/lambdaurora/lambdynlights/api/*` directly inside itself (same
+  bundling pattern as the removed `sodium-dynamic-lights`), so it
+  **guarantees the identical split-package crash** with ars-nouveau. Staleness
+  was a real secondary problem but the split-package collision alone already
+  disqualifies it.
+- **`lambdynamiclights` (official, unified multi-loader project) 4.5.1+1.21.1**,
+  the current NeoForge build (matches ars-nouveau's own bundled
+  `lambdynlights_api` version exactly): its packaging is a nested JarJar
+  chain — the distributed jar JIJs one `lambdynlights_runtime` jar (modid
+  `lambdynlights_runtime`, confirmed via its own `neoforge.mods.toml`),
+  which declares itself needing `lambdynlights_api` (>=4.5.1+1.21.1 — would
+  correctly resolve to ars-nouveau's own JIJ'd copy, no second module, no
+  collision), **but also** `spruceui` (>=6.2.5+1.21.1) and `yumi_mc_core`
+  (>=1.0.0-alpha.15+1.21.1) as separate required, non-bundled dependencies.
+  Neither `spruceui` nor `yumi-mc-foundation`/`yumi_mc_core` nor `pridelib`
+  exist as standalone Modrinth projects (confirmed: `/v2/project/<slug>`
+  404s for all three, and Modrinth search turns up nothing matching)
+  — they are LambdAurora-internal libraries with no independent NeoForge
+  distribution found. The jar does contain a second, unreferenced nested
+  jar (`META-INF/jars/lambdynamiclights-4.5.1+1.21.1.jar`, absent from
+  `META-INF/jarjar/metadata.json`'s "jars" list) that itself bundles
+  `lambdynlights_api`+`spruceui`+`yumi-mc-foundation`+`pridelib` — but
+  NeoForge's JarJar loader only extracts paths its metadata.json actually
+  declares, so this looks like inert multi-loader-build baggage, not a
+  real dependency source for the NeoForge distribution. Net result: this
+  candidate would fail to load at all on NeoForge with this pack's mod set
+  (missing `spruceui`/`yumi_mc_core`), a different failure mode from
+  split-package but equally disqualifying.
+- **Tschipcraft's `dynamic-lights`** (6.67M downloads, actively maintained
+  through MC 26.2/June 2026): fully independent implementation, own
+  namespace (`net.tschipcraft.dynamiclights`), zero relation to the
+  LambDynamicLights API — genuinely conflict-free. But it is architecturally
+  a **server-authoritative world-modification mod**, not a client rendering
+  effect: its own `neoforge.mods.toml` description states "This mod is
+  completely server-side!" — it places real, temporary light-emitting
+  blocks in the world near light sources rather than faking client-side
+  lighting. That is a materially different feature with real side effects
+  (interacts with block-update-sensitive systems — redstone, sculk sensors,
+  any automation that scans for specific blocks) outside a client-rendering
+  follow-up's scope, and outside the "client-side only" instruction this
+  pass was scoped to. Noted as a real, working option for a **future,
+  separately-scoped feature decision** (would need `side:both` and a
+  gameplay-impact review), not adopted here.
+- **`ryoamiclights`**: last released 0.2.11 in August 2024, no build past
+  MC 1.21.1's early cycle and explicitly declared `incompatible` by
+  `lambdynlights_runtime`'s own toml — dead/abandoned relative to this
+  pack's other picks' maintenance bar, not pursued further.
+
+**Verdict: #103 stays dropped.** Every LambDynamicLights-lineage NeoForge
+build either collides with ars-nouveau's bundled API copy or can't actually
+load due to unobtainable transitive dependencies, and the one truly
+independent alternative is a different (server-side, world-mutating)
+feature than what was asked for. Matches the task's own framing: client-side
+eye-candy is not worth another repeated client crash. GitHub issue #103
+stays open with this evidence recorded (not closed) so it can be revisited
+if ars-nouveau ever drops/upgrades its bundled `lambdynlights_api`, or if
+`spruceui`/`yumi_mc_core` are ever published standalone.
+
+**Bonus finding, same "check for missing ATs" instruction — a real,
+independent packaging bug in `iris-flw-compat` 2.4.0 (unrelated to dynamic
+lights, not fixed here, disclosed for owner review).** Its
+`neoforge.mods.toml` declares `[[accessTransformers]] file="accesstransformer.cfg"`
+— a bare filename with no `META-INF/` prefix — but the actual AT file only
+exists in the jar at `META-INF/accesstransformer.cfg`. Cross-checked against
+every other AT-declaring mod actually installed in this pack
+(`epic-fight`, `geckolib`, `krypton_fnp`, `dynamic-fps`,
+`sophisticatedbackpacks`/`core`/`storage`, `create-dragons-plus`,
+`allthemodium`'s own in-toml documentation comment) — every single one
+declares the full `file="META-INF/accesstransformer.cfg"` path; `iris-flw-compat`
+is the only one that doesn't. This matches the exact
+"Access transformer file accesstransformer.cfg provided by mod irisflw does
+not exist!" warning this pass was told to check for. Confirmed present in
+**both** the currently-pinned 2.4.0 and the prior 2.3.1 release (downloaded
+and inspected both) — a long-standing upstream bug, not a regression, and
+not fixed by any newer release (2.4.0 is still the latest as of this pass).
+Because the referenced AT file can't be found at the path the mod itself
+declares, its own access-widening patches most likely never apply — a
+plausible contributor to the Create/Flywheel-under-shaders visual glitches
+this same addon exists to fix, though that would need a live client with
+shaders enabled to confirm. Not independently fixable from this pack (we
+ship manifest/config, not a repackaged third-party jar) — recorded here for
+an upstream bug report and left as a disclosed, pre-existing gap; the mod
+still loads (this is a WARN, not fatal) and stays installed.
+
+**#69/#84 follow-up — epic-tweaks 1.2.0 is INCOMPATIBLE with the currently
+pinned Epic Fight (21.17.3.1) and has no update; REMOVED, replaced with a
+native re-implementation.** The v0.5.x hotfix (PR #132) forced all three of
+`epictweaks-client.toml`'s options to `false` as an emergency stop-gap after
+finding `epic-tweaks`' `autoswitch_mode` throws
+`java.lang.NoSuchFieldError: ClientConfig.combatPreferredItems` on every
+client tick with a local player present — a field Epic Fight renamed to
+`COMBAT_CATEGORIZED_ITEMS` sometime after epic-tweaks' last release
+(2025-09-09) with no update since. Re-checked the Modrinth version-metadata
+API this pass: **still nothing newer than 1.2.0 for NeoForge 1.21.1** — the
+project's only other releases are older Forge 1.19.2-1.20.1 builds. Since no
+compatible update exists, this pass removed `epic-tweaks` from
+`pack/manifest.json`/`pack/mods.lock.json` entirely (root-cause fix, not
+just leaving the config neutered) — the neutered-config state still shipped
+a live footgun, since epic-tweaks has its own in-game Cloth Config screen a
+player could use to flip `autoswitch_mode` back on and crash their own
+client regardless of what the pack's shipped config file says.
+
+Removal outcome for the two features it degraded:
+- **#84 (Q-drop/hotbar keybind lock while holding a combat weapon): fully
+  resolved by removal alone, no replacement needed.** The actual lock-in
+  bug was epic-tweaks' OWN `PlayerPatchMixin#onToggleMode` (its
+  `enforce_mode` option) canceling the player's manual "Switch Mode"
+  keypress while holding a combat-preferred item — not anything native to
+  Epic Fight. With epic-tweaks gone, nothing cancels that keybind at all;
+  Epic Fight's own "Switch Mode" key always works, subject only to its own
+  separate, self-clearing ~1s post-combat-input lock
+  (`ControlEngine#isSwitchOrDropBlocked()`) that applies identically
+  whether or not epic-tweaks was ever installed.
+- **#69 (ladder-animation hijack): reimplemented server-side in
+  `pack/kubejs/server_scripts/epicfight_mode_sync.js`, DESIGN-SENSITIVE,
+  flagged for owner review.** `autoswitch_mode` was the one feature #69
+  actually depended on (auto-enter Vanilla Mode — and its non-clunky
+  vanilla ladder animation — when not holding a "combat preferred" item).
+  Reimplemented using Epic Fight's own stable public API instead of
+  epic-tweaks' broken client mixin: `EpicFightCapabilities.getItemCapability
+  (ItemStack)` (javap-confirmed public static method) checked
+  `instanceof WeaponCapability` (the exact same capability check
+  epic-tweaks' own sweep used, per this pack's earlier #84/#108 writeup
+  above), and the mode switch itself goes through Epic Fight's own
+  `/epicfight mode <vanilla|epicfight> [target]` command
+  (`PlayerModeCommand`, registered by Epic Fight itself, requiring only
+  `CommandSourceStack.hasPermission(2)` — javap-confirmed on its `requires`
+  predicate — trivially satisfied by `player.server.runCommandSilent(...)`,
+  the same idiom already used throughout this pack). This is server-
+  authoritative (no client/server mode desync risk) and reads Epic Fight's
+  stable capability API directly instead of a third-party addon's internal
+  config field that can silently fall out of sync with a Fight version
+  bump, which is exactly the failure class being fixed. Polls every 10
+  ticks (twice a second) over `event.server.players`, tracking last-known
+  state in `player.persistentData` to skip redundant command dispatches —
+  `PlayerPatch#toMode` itself also no-ops if already in the target mode
+  (javap-confirmed). `filter_animation_first_person` (a pure first-person
+  rendering nicety with no gameplay effect and no config-free Epic Fight
+  equivalent, same bytecode audit as the original #69/#84 investigation) is
+  accepted as a disclosed, minor cosmetic regression — not worth a mixin of
+  our own. **Needs a live playtest** to confirm the 0.5s poll cadence feels
+  as responsive as epic-tweaks' every-tick original, and that mode actually
+  switches correctly in practice — verify-in-game, see the script's own
+  header comment for the full evidence trail.
 
 ### Versioning
 
@@ -3710,3 +3907,622 @@ it and cross-checks the snapshot's own freshness:
   keep passing with the new check in the list.
 - Verified via `python3 scripts/ci/run_all.py` (PASS, now 11 checks) and
   `python3 -m unittest discover -s scripts/ci/tests` (281 tests, OK).
+
+### GitHub issue #109 — custom questing mod + questline rebuild: design proposal (PLAN ONLY, no implementation yet)
+
+**Status: awaiting owner approval.** This section is a design proposal, not
+a build log — no mod code, quest content, or manifest changes exist yet.
+Owner's ask, verbatim: drop the current chat-command/vanilla-advancement
+quest system for a real custom mod with its own GUI and in-game tracking,
+*then* — once that lands — rebuild the entire questline to be extensive
+enough that a player can blindly follow it start to finish, with existing
+players' progress carried forward at every step.
+
+#### Why the current system "feels off" (ground-truthed, not assumed)
+
+The quest system has been rebuilt twice already, both moves forced by
+licensing/redistribution, neither by UX choice:
+
+- **Phase 4** used FTB Quests (`scripts/gen_quests.py` → SNBT), a real quest
+  book with a proper dependency-tree GUI, tracking, and a quest-giver-style
+  UX — but FTB Quests is CurseForge-exclusive with no redistribution
+  permission for this project (DESIGN.md's Phase 4 + "Quest-book overhaul"
+  sections). It also turned out to force all progress to be team-keyed
+  (`TeamData`), which broke the per-player daily/lifetime requirement once
+  real multi-team parties existed (Phase 6).
+- **#33** replaced it with a bespoke KubeJS tracker
+  (`pack/kubejs/server_scripts/quests.js`, generated by
+  `scripts/gen_quests.py`): progress in `persistentData`, rewards granted
+  directly, but **no GUI at all** — `/quests`, `/quests <chapter>`, and
+  `/quest check <id>` chat commands only.
+- **#36/#37, then #66** bolted a GUI layer on top using vanilla
+  advancements (`pack/kubejs/data/vanillaplusplus/advancement/quests/*.json`,
+  written by the same generator from the same quest dicts) — free, no new
+  mod, no redistribution review. But vanilla's advancement screen is not
+  built to be a quest book: it's **single-parent only** (a `dependencies`
+  list gets collapsed to just its first entry as `parent` —
+  `build_advancement()`'s own comment: "vanilla advancements are
+  single-parent trees, not [DAGs]"), constrained to a shallow visibility
+  window (`AdvancementVisibilityEvaluator`'s depth-2 rule, the exact bug
+  #66 had to work around), has no task-progress bar or reward preview
+  beyond a toast + a static description string, and has no "what do I do
+  next" affordance — a player has to already know the tree exists and dig
+  through Minecraft's own advancement tab to find it site-unseen.
+
+So "feels off" decomposes concretely into: no real multi-dependency quest
+graph, no persistent/glanceable tracker HUD, no task-progress feedback,
+and a GUI that was never designed to be a quest book in the first place.
+A purpose-built mod fixes all four; nothing short of one does, since every
+existing GUI option in this pack is either unavailable (FTB, licensing) or
+not actually a quest-book widget (vanilla advancements).
+
+#### Proposed mod: `mods-src/vppquests/`
+
+Follows the `mods-src/<modid>/` convention `#67` established
+(`vppintegration` is the worked example: own `build.gradle`/
+`settings.gradle`/`gradle.properties`, `src/main/java`+`src/main/resources`,
+own `README.md`+`LICENSE`, Modrinth-publishable standalone, no pack-specific
+glue baked in). Working modid: `vppquests` ("VPP Quests"). NeoForge 1.21.1.
+
+**Data model (data-driven JSON, so `gen_quests.py`-style generation still
+works — a generator writes files, it doesn't matter that the runtime is
+Java instead of KubeJS):**
+
+- A quest is one JSON file under
+  `data/<namespace>/vppquests/quest/<chapter>/<slug>.json`, mirroring the
+  vanilla advancement-folder convention this pack already uses elsewhere
+  (`pack/kubejs/data/vanillaplusplus/advancement/...`) so a datapack
+  reload/`/reload` behaves the same way players already expect:
+  ```
+  {
+    "chapter": "andesite_age",
+    "title": "...", "description": ["...", "..."],
+    "icon": "minecraft:iron_pickaxe",
+    "frame": "task | goal | challenge",
+    "dependencies": ["andesite_age__enter", "rootborn__first_hunt"],  // real
+                                                                        // multi-parent DAG, not
+                                                                        // collapsed to one parent
+    "tasks": [ {"type": "item", "item": "...", "count": 1, "consume": true, "onlyFromCrafting": true},
+               {"type": "kill", "entity": "...", "count": 1},
+               {"type": "dimension", "dimension": "..."},
+               {"type": "gamestage", "stage": "..."},
+               {"type": "checkmark"} ],           // same 5 task types as today, extensible
+    "rewards": [ {"type": "item", ...}, {"type": "xp", "category": "...", "amount": ...},
+                 {"type": "command", ...}, {"type": "gamestage", ...}, {"type": "toast", ...} ],
+    "criticalPath": true   // NEW — see questline-rebuild section: marks quests on
+                           // the "blindly follow this" spine so the tracker HUD
+                           // can compute "next" deterministically
+  }
+  ```
+  Same 5 task types / 5 reward types `quests.js` already implements (only
+  `item`/`xp` are actually exercised by today's 62 quests, per
+  `gen_quests.py`'s own docstring) — carried over verbatim, not
+  reinvented, plus one new field (`criticalPath`) the rebuild needs.
+- A chapter is a small JSON/registry entry (id, title, subtitle lines,
+  icon, order index) — 1:1 with the existing 10
+  `ProgressiveStages` tier chapters (`rootborn` → `jovian_frontier`), same
+  mapping this pack's tier ladder table already defines.
+- Server-side: a datapack `JsonReloadListener` (or NeoForge's
+  `SimpleJsonResourceReloadListener`, ground-truthed against a real
+  NeoForge 1.21.1 mod before implementation, not guessed) parses all quest
+  JSON into an in-memory registry at reload, same "generate, don't
+  hand-type" discipline this pack already holds every other pack-content
+  path to.
+
+**GUI:** a `Screen` opened via a keybind (same affordance as vanilla's `L`
+key for advancements), two panes:
+- A quest map — nodes (icon + title) laid out by chapter with dependency
+  lines drawn between them, pannable within a chapter, **a real DAG**
+  (multi-parent edges render as multiple lines into one node, unlike the
+  vanilla-advancement single-parent collapse). Chapter tabs across the top
+  matching the 10 (soon more) tier chapters.
+- A detail panel — click a node for full description, live task-progress
+  (e.g. "3/5 zombies killed"), and reward preview — the concrete gap
+  vanilla advancements can't fill (their description is one static string
+  no progress bar).
+- A small persistent tracker HUD overlay (opt-out-able) showing the
+  player's current critical-path quest and its live task progress without
+  opening the full screen — this is what actually delivers "blindly follow
+  the next quest," not the full-screen GUI alone.
+- Toast on completion, matching today's parity with vanilla's own toast
+  UX (players already expect it from the advancement-based version).
+
+**Progress tracking/persistence:** NeoForge 1.21.1 **data attachments**
+(`AttachmentType`, the modern replacement for the old Forge capability
+system) on the player entity — `QuestProgressAttachment` holding a set of
+completed quest ids plus a `Map<questId, taskProgressCounts>` for
+in-progress quests, synced to the owning client via a versioned custom
+payload (`IPayloadHandler`) whenever it changes, so the GUI/HUD render
+client-side off a live mirror rather than round-tripping to the server per
+frame. Team/party-shared progress for the preset track is preserved via
+the **same seam** `quests.js`'s `getProgressKey()` already established and
+that `#32` already proved is a one-function change: a Java-side
+`getPartyKey(player)` calling Open Parties and Claims'
+`getPartyByMember(UUID)`, with the attachment keyed by that id when a
+party exists and by player UUID when solo. Critically, **the literal
+`instructions.md` requirement carries over unchanged**: quest *completion*
+state is party-shared (any teammate finishing a task marks it done for
+everyone), but *reward* grants stay strictly per-player — same
+distinction `quests.js`'s header comment already flags as easy to get
+backwards.
+
+Whether the existing **Lifetime Achievements** (`achievements.js`) and
+**Daily Bounties** (`dailies.js`) chapters also move into this mod's GUI as
+separate tabs, or stay exactly as-is (plain KubeJS, chat-command-only,
+inherently per-player since nothing routes through party/team state) is
+flagged as an **open question below** — recommended default: fold them in
+as separate tabs for a unified GUI (the whole point of #109 is "it feels
+off," and leaving two of the three quest layers in chat-command land only
+half-fixes that), but this triples the migration/generation surface, so
+it's called out explicitly rather than assumed.
+
+#### Migration / backwards compatibility
+
+Today's authoritative progress state is `quests.js`'s
+`server.persistentData` compound, keyed by `getProgressKey()` (party id or
+per-player fallback) → quest id → completion boolean; the mirrored vanilla
+advancement grants are a client-visible side effect of the same completion
+event, not a second source of truth. Two migrations are needed, at two
+different points in the rollout (matching the phasing below), because the
+task explicitly orders "build the mod" before "rebuild the questline":
+
+1. **Mod cutover migration (Phase A→B, identity mapping).** Phase A ports
+   today's 62 quests into the new mod's JSON schema **verbatim, same ids**
+   (`rootborn__welcome`, `andesite_age__enter`, etc. unchanged) —
+   deliberately, so this first migration is an identity function, not a
+   heuristic: on first boot with both the old KubeJS data present and the
+   new mod installed, a one-time migration reads the old
+   `persistentData` completion map per party/player, writes the same set
+   of quest ids into the new attachment as already-complete, and marks
+   them with a "rewards already historically granted, do not re-grant"
+   flag so nothing gets double-paid. A schema-version int stored in the
+   attachment makes this idempotent — reruns / relogins no-op once
+   already migrated.
+2. **Questline-rebuild migration (Phase D, heuristic mapping).** Once the
+   questline is rebuilt with new, more granular quest ids, an existing
+   player's old completed set no longer aligns 1:1 with the new tree (a
+   player who'd finished the old 6-quest "Brass Age" chapter should not
+   have to re-earn Brass Age's now-15 granular quests, but individual new
+   quests genuinely didn't exist before). This needs a hand-authored
+   mapping table — `old_quest_id → [new_quest_ids implied complete]` — built
+   as part of the questline-rebuild PR itself (whoever writes the new
+   content is the only one positioned to say what old progress implies),
+   applied as a second, separately-versioned migration pass. **This is
+   the single riskiest correctness surface in the whole plan** — flagged
+   for explicit owner sign-off on the mapping table before it ships, and
+   it needs a synthetic-save test fixture (a fake old completion set) in
+   CI the same way `test_check_quests.py`/`test_run_all.py` already test
+   this pack's generators, since no sandbox here can boot a real client
+   through the GUI to verify by hand.
+3. **New players** (no old-system record at all) skip migration entirely
+   and start fresh in the new mod — no special-casing needed.
+4. **Safety net**: keep `quests.js`/`achievements.js`/`dailies.js` and the
+   advancement-generation code present-but-inert for one release after
+   cutover (commands simply not registered, matching this pack's existing
+   conservative pattern of validating a replacement fully before removing
+   the thing it replaces — e.g. the FTB suite stayed installed until #32
+   proved OPAC's replacement worked), then delete once the new mod is
+   confirmed stable in practice.
+
+#### Questline rebuild: structure and methodology (not the content itself)
+
+- **Chapters stay 1:1 with tiers** — one chapter per `ProgressiveStages`
+  stage (currently 10: `rootborn` → `jovian_frontier`, per DESIGN.md's tier
+  ladder table; grows automatically as future tiers are added, e.g. any
+  further space-tier expansion past Jovian Frontier).
+- **Within a chapter, three quest classes**, each with a distinct role:
+  1. **Gate quest** (unchanged pattern) — the tier-unlock `gamestage`
+     trigger, always the chapter's terminal node and the entry point into
+     the next chapter's first quest.
+  2. **Mandatory core-path quests** (the actual rebuild content) — instead
+     of today's sampled handful of side-quests per tier, enumerate *every*
+     progression-relevant milestone the tier ladder table and each phase
+     of this file already documents as being introduced at that tier
+     (every new mod's core machine/building, every Create milestone column
+     in the tier-ladder table, every storage-rung upgrade) and give each
+     one its own quest with a `criticalPath: true` flag. This is the
+     "cover every progression-centric milestone no matter how small" ask
+     taken literally, bounded by a concrete per-tier checklist (the tier
+     ladder table + each phase section's own mod list) rather than
+     open-ended brainstorming, so scope stays enumerable rather than
+     infinite.
+  3. **Side/optional quests** — existing side-system coverage (magic,
+     taming, fishing, Curios, etc.) stays, `criticalPath: false`, still
+     rewarded but not required for the tracker's "next" computation.
+- **"Blindly followable" chaining rule, made mechanical, not aspirational**:
+  every `criticalPath` quest must have exactly one obvious next
+  `criticalPath` quest already unlocked (or be the chapter's gate feeding
+  the next chapter's first `criticalPath` quest) — i.e. the critical-path
+  quests form a single linear spine per chapter (side quests hang off it
+  as optional branches, never sit *on* it). The tracker HUD's "next quest"
+  is then just "the player's nearest incomplete `criticalPath` quest,"
+  computed deterministically instead of guessed from an arbitrary
+  incomplete-quest list. This is a CI-checkable invariant (extend
+  `scripts/ci/check_quests.py`'s replacement to assert the critical-path
+  subgraph of each chapter is a single chain, not a tree/forest) — worth
+  calling out now since it turns "blindly followable" from a review
+  opinion into something the test suite enforces.
+- **Authoring stays generator-driven**: an updated `gen_quests.py`
+  (Python → this mod's JSON, same "generate, don't hand-type" discipline
+  every other pack-content path in this repo already follows) built the
+  same way today's is — cross-referencing the tier ladder table and each
+  mod's real item/entity ids (jar-extraction-verified, not guessed, same
+  standard this file holds every other content generator to).
+- **Scale estimate, not a commitment**: today's book is 62 quests across
+  10 chapters. Enumerating every milestone in the tier-ladder table plus
+  every phase's mod list, instead of a sampled handful per tier, likely
+  lands in the 150–250 quest range — not written now, this is a sizing
+  flag for the owner, not a locked number.
+- **Recurring layers (lifetime/daily) are explicitly NOT part of the
+  critical-path spine** — they're per-player side-reward systems, not
+  "beat the modpack" steps, so they don't need a "next quest" affordance
+  the way the preset track does, regardless of whether they end up sharing
+  the same GUI (open question above).
+
+#### Phasing (multi-PR, dependencies noted)
+
+- **Phase A — mod scaffold + GUI + verbatim content port.** Build
+  `mods-src/vppquests/`, the data model, the data attachment, networking,
+  and the GUI; port today's 62 quests unchanged (same ids/content) so the
+  mod itself gets validated against known-good content before any new
+  quest design work happens. No migration yet — ships alongside the old
+  system still active (dual-write or simply not yet the source of truth).
+- **Phase B — migration (identity mapping).** Land the Phase-A→B migration
+  described above once Phase A is boot-verified stable. Old system stays
+  installed as the safety net for one release.
+- **Phase C — cutover.** Remove `quests.js`/`achievements.js` (if not
+  folded in)/`dailies.js` (if not folded in)/the advancement-generation
+  code once Phase B's migration is confirmed correct in practice. This is
+  the actual "drop the old system" moment.
+- **Phase D — questline rebuild.** New, extensive content using the
+  critical-path methodology above, landed only after Phase C, per the
+  owner's own ordering ("before porting any existing quests to this new
+  mod, rebuild the entire questline" — read as: build the mod and get
+  existing content working first, *then* do the rebuild on top of a
+  proven mod, using the heuristic mapping-table migration for existing
+  players' already-earned progress).
+- **Phase E (optional, can slot in anywhere ≥ Phase A) — fold
+  achievements/dailies into the same GUI as separate tabs**, if the owner
+  wants the unified-GUI recommendation above rather than leaving those two
+  systems as chat commands.
+
+Each phase is independently reviewable/PR-able; A blocks B blocks C blocks
+D, E can land any time after A.
+
+#### Risks / open questions for the owner
+
+1. **Custom GUI rendering is the single largest implementation risk** in
+   this whole plan — a pannable dependency-tree canvas is real rendering
+   work, not a data problem. Recommend Phase A ship a simpler
+   list-per-chapter-with-detail-panel view first (a prettier version of
+   today's `/quests <chapter>` output) and treat the full pannable tree as
+   a stretch goal within Phase A or a fast-follow, rather than blocking
+   the whole mod on getting tree-rendering right on the first attempt.
+2. **The questline-rebuild migration (Phase D) is a judgment call, not a
+   mechanical translation** — the mapping table needs explicit owner
+   review before it ships, and a synthetic-save CI fixture to test against
+   since nothing here can boot a real client through the GUI.
+3. **Party/team progress-sharing semantics must be preserved exactly**
+   (share progress, never rewards) — getting this backwards is a silent
+   regression of a requirement `instructions.md` states literally, not a
+   style preference.
+4. **Payload/schema versioning for future quest-content updates** — once
+   this mod ships, later content patches need old clients not to desync
+   against a newer quest-JSON schema; not fully solved here, flagged for
+   Phase A's actual implementation to design deliberately rather than
+   default into.
+5. **Granularity bar for "every progression-centric milestone no matter
+   how small"** — does every mod's very first machine deserve its own
+   quest, or only ones that actually gate further progress? The per-tier
+   checklist methodology bounds scope either way, but the owner should
+   confirm which bar before Phase D's content gets written, since it's the
+   difference between ~150 and ~300+ quests.
+6. **Should Lifetime Achievements / Daily Bounties fold into the new GUI**
+   (Phase E) or stay chat-command-only indefinitely? Recommended default
+   above is "fold in," but it's an explicit ask for owner confirmation
+   since it changes Phase A/E's scope.
+7. **This is likely the largest single effort in this pack's history** — a
+   full custom mod with client/server networking and bespoke GUI rendering,
+   plus a full questline rewrite touching every tier. Recommend the owner
+   approve the phasing/scope above explicitly (not just the general idea)
+   before Phase A implementation starts.
+
+### GitHub issue #109 — custom questing mod: cutover complete (vppquests is now the sole quest system)
+
+**Final status, superseding the Phase A/B/C status notes this section used
+to carry individually** (kept as one consolidated note rather than three,
+since the earlier Phase B migration work described below was itself
+removed as part of this cutover - a Phase B "status" section describing
+now-deleted code would be misleading kept separate).
+
+The full architecture proposal (data model, GUI, party-sharing seam,
+questline-rebuild methodology, and the owner's original open questions) is
+still written up in the "design proposal" section above (originally PR
+#111) - treat its migration-plan and phasing (A-E) subsections as
+historical: the owner short-circuited that phasing once real-world use
+surfaced a different priority (see below).
+
+**What actually shipped, across three PRs:**
+1. **Scaffold** (#123): `mods-src/vppquests/` as a compiling, standalone
+   NeoForge 1.21.1 mod - the quest/chapter/task/reward data model, a
+   `SimplePreparableReloadListener`-based registry, a
+   `QuestProgressAttachment` data attachment with a tick-driven tracker,
+   client sync payloads, and a first-pass list-view GUI (`QuestScreen`,
+   opened via a keybind).
+2. **Wiring + content port** (#144): `pack/manifest.json` gained a
+   `vppquests` entry (`source: "local"`, phase 26, `side: "both"`) so the
+   mod actually loads, and `scripts/gen_vppquests_data.py` ported the
+   existing 62-quest/10-chapter book (content only, not the delivery
+   mechanism) into `vppquests`' own JSON schema. At this point both the old
+   KubeJS quest tracker and the new mod ran side by side, with a
+   `QuestLegacyMigration` step carrying old completed-quest ids forward on
+   login - the standard "old system stays installed as a safety net" caution
+   this file's phase-plan/release-engineering sections apply to every
+   cutover.
+3. **Full cutover** (this section): the owner reported in 0.5.2 that the
+   old system (`quests.js`, GitHub #33 + its #36/#66 vanilla-advancement
+   GUI bolt-on) was **broken end to end** - progress wasn't being
+   recognized at all, for anyone. That changes the calculus entirely: there
+   was no working system left to preserve a safety net for, and no correct
+   progress left worth migrating. The owner directed, verbatim: drop quest
+   porting/migration, implement the complete custom quest system, don't
+   worry about keeping or porting the existing (broken) quests. A separate,
+   standing protocol change landed alongside this: in-game verification is
+   no longer a pre-merge gate for any feature before 1.0.0 - "we can move
+   forward without an in-game test of this system - it will be tested once
+   a release is minted," so this cutover was not held back waiting for a
+   live-server pass the way the wiring PR's own open question had asked
+   about.
+
+   **Removed** (not deprecated-in-place): `pack/kubejs/server_scripts/
+   quests.js`, `scripts/gen_quests.py` (the KubeJS-tracker + vanilla-
+   advancement generator), the 62 generated advancement JSON files under
+   `pack/kubejs/data/vanillaplusplus/advancement/quests/`, their two CI
+   checks (`check_quests.py`/`check_advancements.py`, dropped from
+   `run_all.py`'s `CHECKS` list along with their unit test files), the
+   quest-specific block of `stCheck`s in `selftest.js` (the ones exercising
+   `quests.js`'s own globals - `progression_stage_bridge`'s unrelated
+   checks right above that block were untouched), and
+   `QuestLegacyMigration.java` plus the `legacyMigrated` Codec field it
+   needed on `QuestProgressAttachment` - there is no more legacy system to
+   migrate from, so carrying that dead code forward would have been exactly
+   the kind of "migrate a broken thing's state" work the owner said to
+   skip.
+
+   **Kept**: the 62-quest/10-chapter *content* (which wasn't what was
+   broken) - `scripts/gen_vppquests_data.py` is now fully self-contained
+   (the task/reward builder functions and `CHAPTER_DEFS`/`build_*` chapter
+   data were copied in from the last version of the now-deleted
+   `gen_quests.py`, verbatim, not re-transcribed) rather than importing
+   from a module that no longer exists. Regenerating produced byte-identical
+   output to what was already committed, confirming no content drift from
+   the copy. A new fast-tier check, `scripts/ci/check_vppquests.py`,
+   replaces `check_quests.py`/`check_advancements.py`'s role, validating
+   this same content in its new home.
+
+   **`achievements.js`/`dailies.js` were explicitly checked and left
+   untouched.** These are separate features (lifetime achievements, daily
+   bounties) that happen to sit next to `quests.js` in the same directory
+   but share no code with it - both grep clean for every quest-specific
+   helper (`getProgressKey`, `questsEnsureCompound`, `isQuestComplete`,
+   etc.) and instead use their own `player.persistentData`-based
+   persistence. Both already grant GitHub #120's unified `adventurer`
+   skill-XP category, unrelated to and unaffected by this cutover - no XP
+   reconciliation was needed because there was nothing shared to
+   reconcile.
+
+`vppquests` is now the pack's sole quest system: no legacy fallback, no
+migration path, no dual GUI. Its own `criticalPath` flag, party-sharing
+seam, gamestage bridge, and a real pannable dependency-graph canvas all
+remain unimplemented follow-ups (see `mods-src/vppquests/README.md`'s
+"does NOT include yet" section) - none of them block this cutover, since
+the mod's existing list-view GUI and tick-driven tracker are a complete,
+working replacement for what `quests.js` used to do (when it worked).
+
+Verified: `./gradlew build`/`clean build` (mods-src/vppquests, JDK 21)
+succeed; `python3 scripts/ci/run_all.py` - 10/10 checks PASS (down from 12:
+`check_quests.py`/`check_advancements.py` removed, none replace them since
+`check_vppquests.py` already covers the surviving content); `python3 -m
+unittest discover -s scripts/ci/tests` - 311 tests OK (down from 336: the
+removed checks' own test files are gone). No in-game/boot-tier gate was
+required before this landed, per the owner's standing protocol change
+above - boot-tier verification happens at whoever runs it against this
+branch, same as every other feature until 1.0.0.
+
+### Skill trees converged into one unified tree (GitHub #116)
+
+Owner feedback: 23 category tabs (GitHub #71) got unwieldy to navigate.
+GitHub #116 asked for a single massive tree instead, with four asks: (1)
+one unified tree weaving all the buff categories together instead of 23
+tabs, (2) unified XP feeding one player level, weighted by action
+difficulty, (3) multiple mutually-exclusive starting "classes", and (4)
+some strong, unique deep skills that need real investment to reach. This
+SUPERSEDES #71's 23-category structure — it's a rebuild of that generator's
+output, not an addition alongside it.
+
+**Topology.** `scripts/gen_skill_tree.py` now emits exactly ONE
+`puffish_skills` category (`UNIFIED_CATEGORY_ID = "adventurer"`), not 23.
+Every one of #71's 23 categories (mining, swords, bows, ... woodcutting)
+survives unchanged as a 34-node subtree (`FORMER_SPECS`, byte-for-byte the
+same `sources`/`themes`/`root_attr` columns #71 tuned) — they're rewoven
+into the one tree, not deleted. The tree has 4 layers:
+
+1. **`origin`** — the single global root node (`"root": true`; the *only*
+   root left, replacing #71's one-per-category root). A small universal
+   Max Health bonus, free the instant the datapack loads.
+2. **4 class roots**, connected to `origin` via `normal` edges (all 4
+   visible/purchasable from the start): Warrior (swords/daggers/
+   greatswords/longswords/spears/tachi), Ranger (bows/running/swimming/
+   exploration/sailing/fishing/taming), Mystic (magic/enchanting/alchemy/
+   trading), Artisan (mining/building/woodcutting/farming/smithing/
+   cooking) — every #71 category assigned to exactly one class by real
+   thematic fit (asserted at import time in `gen_skill_tree.py`).
+3. **23 former-category subtrees**, one `normal` edge per class → each of
+   its assigned formers' root node, then each former's own #71-shaped
+   34-node tree (1 local root + 3 themed 11-node branches) underneath,
+   untouched from #71.
+4. **4 capstones**, one per class, each one `normal` edge past a specific
+   deep leaf of that class's last former's last theme-branch — 7 edges
+   from `origin` (`origin → class root → former root → theme root → depth1
+   → depth2 → depth3 leaf → capstone`). Each combines two attribute
+   rewards at ~5-7x a regular node's magnitude (`CAPSTONE_DEFS`) — asks
+   for real investment before paying off, and structurally verified by
+   `check_skill_trees.py`'s new `max_depth` stat (real tree: depth 7,
+   asserted ≥6 in `test_real_generated_output_passes`).
+
+Total: 791 nodes (1 origin + 4 class roots + 23×34 former nodes + 4
+capstones), 53 shared definitions (deduped by attribute id across every
+former that uses the same buff — a nice side effect of merging into one
+`definitions.json`, down from 23 duplicated copies before).
+
+**Mutually-exclusive class starts (ask 3).** The 4 class-root nodes are
+additionally linked by a full `exclusive` clique — all `C(4,2)=6` pairs —
+in `connections.json`'s `exclusive` group. This is the exact mechanism
+this repo's *pre-#71* generator used for its old per-category spec forks
+(git history: `trunk → normal edges to BOTH fork options, PLUS one
+exclusive edge between them`), generalized from a pair to a 4-clique:
+`net.puffish.skillsmod.server.data.CategoryData.getSkillState` excludes a
+skill once ≥1 of its declared exclusive neighbors is unlocked
+(`required_exclusions` defaults to 1) — so unlocking any one class root
+immediately excludes the other 3, permanently, until a `/respec` (which
+calls `Category#resetSkills`, re-evaluating exclusion live off the now-empty
+unlocked set and un-excluding all 4 again). #71's point 2 ("no exclusivity")
+still holds *within* a chosen class — nothing inside a former-category
+subtree is ever exclusive, only the class choice itself.
+
+**Unified XP, one player level (ask 2).** All 23 formers' `sources` lists
+(unchanged `mine_block`/`kill_entity`/`fish_item`/`smelt_item`/
+`enchant_item`/`increase_stat` entries from #71) are concatenated into the
+one category's `experience.json`, so every action — from a walking step to
+killing the Ender Dragon — feeds the same level. Difficulty weighting
+carries over from #71 almost entirely unchanged and is now load-bearing
+across the *whole* tree instead of one category: passive movement
+(running/swimming/sailing/exploration) is worth a small fraction of a
+point per game unit (0.015–0.03 XP/cm); block-breaking is a few flat
+points, tiered by real rarity (stone=1 up to diamond/emerald=14); weapon
+kills are `base_xp + dropped_xp`, where `dropped_xp` is the entity's own
+vanilla XP-orb amount — this is what makes "killing a strong enemy" worth
+more with zero extra bookkeeping, since a wither or ender dragon's vanilla
+XP drop already dwarfs a zombie's. `EXPERIENCE_EXPR`'s base constant is
+raised from #71's `70` to `900` (same `900 * (1.13 ^ level)` shape,
+`^` not `pow(...)` per issue #79) because #71's curve was tuned for ONE
+category filled by ONE family of actions, and this tree now pours in XP
+from all 23 formers' worth of actions simultaneously — this is a
+provisional first-order estimate (flagged the same way skill_respec.js's
+"respec is free for now" call is), not yet playtested. The player-facing
+"one unified level" ask is satisfied for free by having only one category
+left: `net.puffish.skillsmod.api.SkillsAPI.getCategory(...).getExperience()
+.getLevel(player)` already IS puffish_skills' own native per-category
+level — `pack/kubejs/server_scripts/leaderboard.js`'s `computeLevel()`
+used to sum across 23 categories by hand; it now just reads the one
+category's level directly (`SKILL_CATEGORIES = ['adventurer']`).
+
+**Downstream files updated in the same change** (not just the generator +
+generated data, since leaving them pointed at dead category ids would
+silently break the pack even though they're outside this issue's primary
+scope): `pack/kubejs/server_scripts/skills.js` (Building's out-of-band
+`BlockEvents.placed` XP grant now targets the unified category id, not the
+now-nonexistent `building` category), `skill_respec.js` (`/respec` no
+longer takes a category argument — there's only one category to reset, and
+resetting it also un-excludes the class-root clique so a respec lets a
+player switch classes too), and `leaderboard.js` (`SKILL_CATEGORIES`
+shrunk to the one id, `/leaderboard level`'s display text updated).
+
+**CI updated for the new shape.** `scripts/ci/check_skill_trees.py`: the
+old "`exclusive` is banned outright" rule is gone (#116 needs it again,
+just only at the class-root clique) — `exclusive` connections are now
+validated the same way `normal` ones always have been (shape + every
+referenced id resolves, no self-loops), and a new `max_depth` stat backs
+up the capstone depth claim. The reachability walk still only follows
+`normal` edges — `exclusive` edges are a same-endpoint add-on that
+constrains what's *unlockable* at runtime, not what's *reachable*
+structurally, so #71's original reachability invariant needed no logic
+change. `scripts/ci/check_skill_expressions.py` needed zero changes (it
+already globs `categories/*/experience.json`, generic over however many
+categories exist). `pack/kubejs/server_scripts/selftest.js`'s
+`ST_SKILL_CATEGORIES`/`ST_SKILL_NODE_COUNT_PER_CATEGORY` constants were
+updated to `['adventurer']`/`791` — `scripts/ci/check_selftest_skill_sync.py`
+needed zero code changes since its comparison logic was already generic
+over category count. `scripts/ci/tests/test_check_skill_trees.py`'s
+`test_exclusive_connection_is_banned` became
+`test_exclusive_connection_is_allowed_and_counted` (plus two new tests for
+dangling-reference/self-loop validation), and
+`test_real_generated_output_passes` now asserts exactly 1 category, ≥500
+skills, ≥6 exclusive pairs, and max depth ≥6 instead of "≥20 categories".
+
+Verified via `python3 scripts/ci/run_all.py` (PASS) and
+`python3 -m unittest discover -s scripts/ci/tests` (229 tests OK). Not
+verified: actual in-game skill-tree UI rendering of the 4-class layout, the
+class-exclusivity lockout/respec round-trip under a real connected player,
+and whether the raised `900`-base XP curve feels right in practice — all
+flagged verify-in-game, consistent with this repo's console-only L1
+boot-test limitation (no real `ServerPlayer` — see `check_skill_trees.py`'s
+own docstring for why this bug class can only be caught statically).
+
+### `vppfixes`: a standing home for third-party mod bugs a mixin has to fix (GitHub #143)
+
+`mods-src/vppfixes/` is the pack's 3rd custom mod (after `vppintegration`
+and `vppquests`, same `mods-src/<modid>/` convention #67 established), but
+a different kind of thing from either: a small, **mixin-only** mod whose
+sole purpose is hosting our own bytecode-level fixes for third-party mod
+bugs/incompatibilities that can't be solved any other way. It's not a
+feature mod — it exists to be as boring and empty as possible, and to grow
+by exactly one mixin each time (and only when) the fix ladder below is
+exhausted.
+
+**The fix ladder — mixin is the last resort, in this order:**
+
+1. **Mod config disables the broken behavior.** If a config toggle exists
+   that turns off the offending code path, use it — zero maintenance,
+   zero bytecode risk.
+2. **Version bump**, if upstream has already fixed it in a newer release
+   that's otherwise compatible with this pack's NeoForge/MC pin.
+3. **Remove or replace the mod**, if it isn't load-bearing for the pack's
+   design (an archetype, a required dependency of one, or otherwise
+   irreplaceable) — the cheapest permanent fix is not needing the buggy
+   code at all.
+4. **A `vppfixes` mixin** — only when 1-3 all fail *and* the mod is
+   load-bearing (can't be removed without breaking a pack pillar). This
+   is deliberately the expensive, fragile option, picked last.
+
+**Discipline every `vppfixes` mixin follows**, no exceptions:
+
+- **String-id/reflection-keyed, never a hard compile dependency** on the
+  target mod — mixins target vanilla/NeoForge classes and match the
+  third-party behavior by registry-id string (or equivalent runtime
+  lookup), so the mixin is a harmless no-op if the target mod is absent
+  and never needs the target mod's jar on the compile classpath.
+- **Pass-through for everything else** — the non-targeted, overwhelming
+  majority case must be untouched (same object, same behavior, no extra
+  allocation beyond one cheap lookup).
+- **Degrade gracefully** — any failure in the patched path logs once and
+  falls back to old (buggy-but-known) behavior; a `vppfixes` mixin must
+  never crash or stall the tick thread, even in the failure case.
+- **Documented** with what it patches and why, in the mixin's own
+  `README.md`/class doc — not just in a commit message — so a future
+  NeoForge bump or an upstream fix lands with the context to remove it.
+- **Re-validated on every NeoForge version bump.** Mixins into vanilla
+  core classes are the most fragile thing this pack ships; a version bump
+  must re-check every `vppfixes` mixin still applies and still targets a
+  real method signature, not assume it silently keeps working.
+- **Reported upstream.** Every `vppfixes` mixin should have a matching bug
+  report filed against the third-party mod it patches, so the fix can
+  eventually land there and the mixin can be deleted — `vppfixes` mixins
+  are meant to be temporary scaffolding, not permanent forks.
+
+**Archetype / fix #1 — GitHub #143**: Ars Nouveau registers its
+`ars_nouveau:spell_resolver` entity-data serializer via
+`EntityDataSerializer.forValueType`, whose `copy()` is identity, then
+stores a live, mutable `SpellResolver` object graph as `SynchedEntityData`
+on `EntityProjectileSpell`/`EntitySpellArrow`. The server tick thread
+mutates that same instance while the entity tracker serializes it on the
+Netty IO thread, racing a `ConcurrentModificationException` that boots the
+tracking client — recurring periodically because spell arrows persist
+stuck in the ground. Config-disable and version-bump were both ruled out
+(no Ars config gates the sync; 5.12.1 was already the newest 1.21.1 build
+with no upstream fix) and Ars Nouveau is a load-bearing archetype mod, so
+step 4 applied: a `SynchedEntityDataMixin` deep-copies just that one
+targeted serializer's value on the tick thread before it can reach the IO
+thread, string-id-keyed on `ars_nouveau:spell_resolver`, pass-through for
+every other value, degrading to a logged no-op on any failure. See
+`mods-src/vppfixes/README.md` for the full fix writeup.

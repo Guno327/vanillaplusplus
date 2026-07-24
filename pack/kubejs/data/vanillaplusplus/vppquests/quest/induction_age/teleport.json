@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:induction_age",
+  "title": "Teleportation",
+  "description": [
+    "Craft a Waystone - intra-world teleportation, gated all the way to this tier on purpose."
+  ],
+  "icon": "waystones:waystone",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:induction_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "waystones:waystone",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 150
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 1
+    }
+  ]
+}

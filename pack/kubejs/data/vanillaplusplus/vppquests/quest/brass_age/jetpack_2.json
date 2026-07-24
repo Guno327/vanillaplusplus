@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:brass_age",
+  "title": "Andesite Jetpack",
+  "description": [
+    "Craft the Andesite Jetpack - fuel-fired propellers, rung 2 of the mobility ladder."
+  ],
+  "icon": "create_sa:andesite_jetpack_chestplate",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:brass_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "create_sa:andesite_jetpack_chestplate",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 50
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 4
+    }
+  ]
+}

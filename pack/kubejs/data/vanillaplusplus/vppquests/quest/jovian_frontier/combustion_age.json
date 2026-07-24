@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:jovian_frontier",
+  "title": "The Combustion Age",
+  "description": [
+    "Craft a TFMG Engine Cylinder - the final rung of the endgame automation ladder."
+  ],
+  "icon": "tfmg:engine_cylinder",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:jovian_frontier/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "tfmg:engine_cylinder",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 250
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 7
+    }
+  ]
+}

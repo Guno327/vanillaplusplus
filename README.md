@@ -168,21 +168,43 @@ pending as of this writing (#44). The release script can still record an
 optional `modrinth` pin with `--modrinth`, but nothing in the module reads
 it.
 
+**Third-party mod jars (#141).** The release archive no longer bundles any
+of the ~113 third-party mod jars (license audit found many are
+all-rights-reserved/custom-licensed with no clear redistribution
+permission — see `THIRD_PARTY.md`). This module fetches each one itself as
+its own declarative, sha512-verified `pkgs.fetchurl` derivation, read
+straight from `pack/mods.lock.json` (passed into the module via
+`flake.nix`'s `modsLock`), and syncs the result into `dataDir/mods/`
+independently of the release-archive sync above. Nothing to configure —
+this is automatic and unconditional.
+
 > **Validation status, stated plainly**: `nix` could not be installed in
 > this project's own sandboxed development environment (no root, `/nix`
 > cannot be created — a single-user install was attempted and failed at
-> exactly that step), and this remained true when #28's GitHub-fetch
-> default was added. The flake and module were written and carefully
-> reviewed by hand and cross-checked against real nixpkgs source
-> (`pkgs/build-support/fetchurl/default.nix`/`builder.sh`,
-> `lib/types.nix`, `pkgs/top-level/all-packages.nix` for `jdk21_headless`
-> on the pinned `nixos-25.11` branch), but **`nix flake check` / `nix
-> build` / `nixos-rebuild` have not actually been run against them,
-> `pkgs.fetchurl` default included.** Treat this as reviewed-but-untested
-> and sanity-check the evaluation (`nix flake check`, then a
-> `nixos-rebuild build-vm` or similar) on your own machine before relying
-> on it. See `DECISIONS.md`'s dated entries for the full writeup of what
-> was verified vs. assumed.
+> exactly that step), and this remained true through #28's GitHub-fetch
+> default and #141's per-mod fixed-output-derivation change. The flake and
+> module were written and carefully reviewed by hand and cross-checked
+> against real nixpkgs source (`pkgs/build-support/fetchurl/default.nix`/
+> `builder.sh`, `lib/types.nix`, `pkgs/top-level/all-packages.nix` for
+> `jdk21_headless` on the pinned `nixos-25.11` branch), but **`nix flake
+> check` / `nix build` / `nixos-rebuild` have not actually been run against
+> them.** For #141 specifically, the *equivalent* logic (URL+sha1 fetch of
+> every third-party mod, syncing them into a mods/ tree, then booting a
+> real server against the result) WAS verified end-to-end outside Nix —
+> the released zip was built, `install_mods.py` downloaded and
+> sha1-verified all 100 server-side mods from their real CDN URLs, and the
+> resulting server booted cleanly (`Done (34.125s)!`, no fatal errors) —
+> but the Nix expressions themselves (the fixed-output derivations, the
+> `--exclude=/mods` rsync split, `modsLock` plumbing through `flake.nix`)
+> are reviewed-but-untested. Run these before relying on it:
+> ```
+> nix flake check
+> nix eval --impure --expr '(builtins.getFlake (toString ./.)).nixosModules.default'
+> nixos-rebuild build-vm --flake .#<your-host>   # or a real nixos-rebuild switch on a test host
+> ```
+> Sanity-check the evaluation on your own machine first. See `DECISIONS.md`'s
+> dated entries (including the "GitHub #141" one) for the full writeup of
+> what was verified vs. assumed.
 
 ### 1. Referencing this repo as a flake input
 

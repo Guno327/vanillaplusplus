@@ -1,0 +1,105 @@
+plugins {
+    id "java-library"
+    id "eclipse"
+    id "idea"
+    id "maven-publish"
+    id "net.neoforged.moddev" version "2.0.78"
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = neo_version
+
+    parchment {
+        minecraftVersion = minecraft_version
+        mappingsVersion = "2024.11.17"
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+        }
+        server {
+            server()
+            systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            programArgument "--nogui"
+        }
+        data {
+            data()
+            programArguments.addAll "--mod", mod_id, "--all", "--output",
+                    file("src/generated/resources/").getAbsolutePath(),
+                    "--existing", file("src/main/resources/").getAbsolutePath()
+        }
+        configureEach {
+            systemProperty "forge.logging.markers", ""
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir "src/generated/resources" }
+
+repositories {
+    mavenCentral()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.release = 21
+}
+
+tasks.named("processResources", ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(["META-INF/neoforge.mods.toml"]) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+publishing {
+    publications {
+        register("mavenJava", MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = "file://${project.projectDir}/repo"
+        }
+    }
+}
+
+// #145: make the mod jar byte-reproducible so its lockfile-pinned hash is
+// stable across independent Gradle builds (was nondeterministic: timestamps +
+// file ordering differed every build, breaking mods.lock.json sha verification).
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}

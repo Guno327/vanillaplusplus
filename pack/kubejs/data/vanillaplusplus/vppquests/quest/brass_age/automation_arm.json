@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:brass_age",
+  "title": "First Automation",
+  "description": [
+    "Craft a Mechanical Arm - Create's own first crafting-automation block, feeding Refined Storage's Importer/Exporter."
+  ],
+  "icon": "create:mechanical_arm",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:brass_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "create:mechanical_arm",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 50
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 4
+    }
+  ]
+}

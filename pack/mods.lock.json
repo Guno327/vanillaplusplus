@@ -21,8 +21,8 @@
       "filename": "create-1.21.1-6.0.10.jar",
       "url": "https://cdn.modrinth.com/data/LNytGWDc/versions/UjX6dr61/create-1.21.1-6.0.10.jar",
       "hashes": {
-        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b",
-        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353"
+        "sha1": "0e97e49837bed766e6f28a4c95b04885d6acc353",
+        "sha512": "11cc8fc049d2f67f6548c7abfada6b82a3adb5c7ca410a742de04bbca76e03862c518721b88d806f6e6d768a4d68531fdb903a85859b25d1484d550cc7bafd4b"
       },
       "filesize": 19123767,
       "side": "both",
@@ -37,8 +37,8 @@
       "filename": "toms_storage-1.21-2.3.2.jar",
       "url": "https://cdn.modrinth.com/data/XZNI4Cpy/versions/x8jcBWWG/toms_storage-1.21-2.3.2.jar",
       "hashes": {
-        "sha512": "2760e5a25416b949a3396cfe61f4d18a323e692118c7a5e9117388f5b050841962fe5b9a09071d2ffdb0e0baa3014c1082f2ae843020b95f3a02ac47e495c6bd",
-        "sha1": "f850f0718ed1c97d8050c790a4b4592f6bb99b21"
+        "sha1": "f850f0718ed1c97d8050c790a4b4592f6bb99b21",
+        "sha512": "2760e5a25416b949a3396cfe61f4d18a323e692118c7a5e9117388f5b050841962fe5b9a09071d2ffdb0e0baa3014c1082f2ae843020b95f3a02ac47e495c6bd"
       },
       "filesize": 848335,
       "side": "both",
@@ -53,8 +53,8 @@
       "filename": "createaddition-1.6.0.jar",
       "url": "https://cdn.modrinth.com/data/kU1G12Nn/versions/qPr8V4G2/createaddition-1.6.0.jar",
       "hashes": {
-        "sha512": "e3a31eefb15d37bd1a2ba9012d0c00ec92f7c9e57b7a35c993676ea0cc85ba4f35a055a9f98d57636f24a0562d6da18b4e90713f4f46d47959666a097a6a5cea",
-        "sha1": "87b539d41ed238e98b26c607c0c81a973323147e"
+        "sha1": "87b539d41ed238e98b26c607c0c81a973323147e",
+        "sha512": "e3a31eefb15d37bd1a2ba9012d0c00ec92f7c9e57b7a35c993676ea0cc85ba4f35a055a9f98d57636f24a0562d6da18b4e90713f4f46d47959666a097a6a5cea"
       },
       "filesize": 1661802,
       "side": "both",
@@ -85,8 +85,8 @@
       "filename": "rhino-2101.2.8-build.91.jar",
       "url": "https://cdn.modrinth.com/data/sk9knFPE/versions/SqkDvOLG/rhino-2101.2.8-build.91.jar",
       "hashes": {
-        "sha1": "56eab1d464ed0811c64040c64bd047df5cbc3aad",
-        "sha512": "e3d92f663bc07872a83b0a6474b30a75230e9f92a2844fd98da1842ec9a79712bcb7d8e76574cc11ae3aeceb47f2933c60ddd6cf41f3ad7027bd573623730945"
+        "sha512": "e3d92f663bc07872a83b0a6474b30a75230e9f92a2844fd98da1842ec9a79712bcb7d8e76574cc11ae3aeceb47f2933c60ddd6cf41f3ad7027bd573623730945",
+        "sha1": "56eab1d464ed0811c64040c64bd047df5cbc3aad"
       },
       "filesize": 980936,
       "side": "both",
@@ -101,8 +101,8 @@
       "filename": "kubejs-neoforge-2101.7.2-build.368.jar",
       "url": "https://cdn.modrinth.com/data/umyGl7zF/versions/F2nzeC19/kubejs-neoforge-2101.7.2-build.368.jar",
       "hashes": {
-        "sha512": "5e2f1bd1460d8f443ce4bd44ed367d27f9170e50dff2ce9430954206e89651f8969dfbe842c3100b0244f8d58f843fc5fb9c46b5c576430a07f1e5b6dd4b9f7b",
-        "sha1": "edf131afd474151afe076ea975ce5fec5a206ad8"
+        "sha1": "edf131afd474151afe076ea975ce5fec5a206ad8",
+        "sha512": "5e2f1bd1460d8f443ce4bd44ed367d27f9170e50dff2ce9430954206e89651f8969dfbe842c3100b0244f8d58f843fc5fb9c46b5c576430a07f1e5b6dd4b9f7b"
       },
       "filesize": 2281720,
       "side": "both",
@@ -117,8 +117,8 @@
       "filename": "puffish_skills-0.18.1-1.21-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/hqQqvaa4/versions/61GHESto/puffish_skills-0.18.1-1.21-neoforge.jar",
       "hashes": {
-        "sha1": "5873a4805c76f877ed40bcb20c5eedef67a6ccd2",
-        "sha512": "492959678dd2620c38abda1f9a2a39da90161431c12afd1253bb515c295e88793f878b1866d6ea9a44c9e8a88ee413e1b56fe31d64c4e2285eda30595811e95b"
+        "sha512": "492959678dd2620c38abda1f9a2a39da90161431c12afd1253bb515c295e88793f878b1866d6ea9a44c9e8a88ee413e1b56fe31d64c4e2285eda30595811e95b",
+        "sha1": "5873a4805c76f877ed40bcb20c5eedef67a6ccd2"
       },
       "filesize": 616663,
       "side": "both",
@@ -133,8 +133,8 @@
       "filename": "puffish_attributes-0.8.2-1.21-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/FCFcFw09/versions/Fl3WeKhH/puffish_attributes-0.8.2-1.21-neoforge.jar",
       "hashes": {
-        "sha512": "0e4f1617025f41cff598b0cac6b53bff10d0a72ecc7831e009894157edf5a6b31149bd1fd6fe0d3d60feafe0176e467409a2af3550b3003d60098d2ad56e38b9",
-        "sha1": "f4b67aa8da294203203bc8e6cd4b0cbf0a99d9dc"
+        "sha1": "f4b67aa8da294203203bc8e6cd4b0cbf0a99d9dc",
+        "sha512": "0e4f1617025f41cff598b0cac6b53bff10d0a72ecc7831e009894157edf5a6b31149bd1fd6fe0d3d60feafe0176e467409a2af3550b3003d60098d2ad56e38b9"
       },
       "filesize": 235521,
       "side": "both",
@@ -165,8 +165,8 @@
       "filename": "CreateNumismatics-1.0.20+neoforge-mc1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/Jdbbtt0i/versions/guON3qvQ/CreateNumismatics-1.0.20%2Bneoforge-mc1.21.1.jar",
       "hashes": {
-        "sha1": "9883bfd6fef5bd5068f9174ddccba5047849c922",
-        "sha512": "2b4ccd516865997735e1a3ec323615bd32d9388e15cc04097ac455f2b453423fccd21969782ecfd031b3de6ed85506ba5349da24c32f5e3eaaf558c5163cf203"
+        "sha512": "2b4ccd516865997735e1a3ec323615bd32d9388e15cc04097ac455f2b453423fccd21969782ecfd031b3de6ed85506ba5349da24c32f5e3eaaf558c5163cf203",
+        "sha1": "9883bfd6fef5bd5068f9174ddccba5047849c922"
       },
       "filesize": 693446,
       "side": "both",
@@ -181,8 +181,8 @@
       "filename": "create_marketplace-0.4.2.jar",
       "url": "https://cdn.modrinth.com/data/O7RTXyyq/versions/IxMHMYSw/create_marketplace-0.4.2.jar",
       "hashes": {
-        "sha1": "4615dadf2136620557e2b79f5d9e944917c01a8a",
-        "sha512": "d6fba33600cb8f84bba23c763b63d55c25b1b77e75a75beeb802cb6b0131d8330b46217fd6009290f4a2a123ac7003dafefa888b8661ac1197199b60e52cd6cd"
+        "sha512": "d6fba33600cb8f84bba23c763b63d55c25b1b77e75a75beeb802cb6b0131d8330b46217fd6009290f4a2a123ac7003dafefa888b8661ac1197199b60e52cd6cd",
+        "sha1": "4615dadf2136620557e2b79f5d9e944917c01a8a"
       },
       "filesize": 972518,
       "side": "both",
@@ -197,8 +197,8 @@
       "filename": "open-parties-and-claims-neoforge-1.21.1-0.27.8.jar",
       "url": "https://cdn.modrinth.com/data/gF3BGWvG/versions/m0Dp8gyO/open-parties-and-claims-neoforge-1.21.1-0.27.8.jar",
       "hashes": {
-        "sha1": "de75e574aa71b6c5e40e0805dd73bc5157b3c04d",
-        "sha512": "5645e1c513459deecd367e9169eac9e552df72aa35902b279294bdb7b166170a6eae401c1b5157c4c6d0e457f968fefc87e3893c245c92de25fc754f6b4b5efe"
+        "sha512": "5645e1c513459deecd367e9169eac9e552df72aa35902b279294bdb7b166170a6eae401c1b5157c4c6d0e457f968fefc87e3893c245c92de25fc754f6b4b5efe",
+        "sha1": "de75e574aa71b6c5e40e0805dd73bc5157b3c04d"
       },
       "filesize": 1660009,
       "side": "both",
@@ -229,13 +229,46 @@
       "filename": "silent-gear-1.21.1-neoforge-4.2.1.1.jar",
       "url": "https://cdn.modrinth.com/data/73mSSnCf/versions/VRVOMdub/silent-gear-1.21.1-neoforge-4.2.1.1.jar",
       "hashes": {
-        "sha512": "a9760a18eb1564c546376deb475cd84f668aa76f4b947420902949f5014b675292f7fd808fe51dcfcb915ccebbf4e55f77c9865a013b74034b827dafa7564a98",
-        "sha1": "928064b09748d6e963077c114d65f5ce79aff581"
+        "sha1": "928064b09748d6e963077c114d65f5ce79aff581",
+        "sha512": "a9760a18eb1564c546376deb475cd84f668aa76f4b947420902949f5014b675292f7fd808fe51dcfcb915ccebbf4e55f77c9865a013b74034b827dafa7564a98"
       },
       "filesize": 3147675,
       "side": "both",
       "phase": 7,
       "note": "blacksmithing: modular tool/weapon assembly (rod+head+binding at a workstation) replaces flat crafting-table recipes, per instructions.md"
+    },
+    {
+      "slug": "overgeared",
+      "project_id": "SQL3X2Ky",
+      "version_id": "otsHkv1p",
+      "version_number": "1.21.1-1.6.16",
+      "filename": "overgeared-1.21.1-1.6.16.jar",
+      "url": "https://cdn.modrinth.com/data/SQL3X2Ky/versions/otsHkv1p/overgeared-1.21.1-1.6.16.jar",
+      "hashes": {
+        "sha512": "3fa45c11c7aeae5c5c4afe8520b51f21d1c242471b9187c0a355abc1db162d7bd00d73ba9f356885168498eb41abed784e0fc3ffed93e9ab295d7fd7144ced0a",
+        "sha1": "130e2974d57bfeb550334679a226e60a87b85ad1"
+      },
+      "filesize": 1454390,
+      "side": "both",
+      "phase": 7,
+      "note": "GitHub #67: forging-minigame quality system, zero listed deps (confirmed #92 investigation). Both sides - the minigame's own anvil UI is client-rendered, but ForgingRecipe/quality computation/QualityAttributeHandler are server-authoritative. Only wired in for the vppintegration bridge below; not used as a standalone gear-progression path (see DESIGN.md's #67 investigation for why Overgeared can't replace Silent Gear's own crafting)."
+    },
+    {
+      "slug": "vppintegration",
+      "project_id": "vppintegration",
+      "version_id": "1.0.0",
+      "version_number": "1.0.0",
+      "filename": "vppintegration-1.0.0.jar",
+      "url": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
+      "local_path": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
+      "hashes": {
+        "sha1": "8e649596d67bc90b261ce674012cdba83c51f0a4",
+        "sha512": "9cb2a5dc4723e1fa926d8de78acc731a5887450440d65a765f9a1469113eb170a60f7f45dc17576f4c086f50d02fa2a0f1b8a9a21a34051492a8264adaf62011"
+      },
+      "filesize": 19371,
+      "side": "both",
+      "phase": 7,
+      "note": "GitHub #67: hand-rolled Overgeared x Silent Gear quality bridge (mods-src/vppintegration/, see its README.md). Requires both silent-gear and overgeared above at their pinned versions. Ships 6 example forging recipes (copper/iron sword/pickaxe/axe heads) as a first working slice; full material-tier coverage (steel, ATM chain, cold-forging for gemstones) is a follow-up, see mods-src/vppintegration/README.md's 'Extending to the pack's full material ladder'."
     },
     {
       "slug": "epic-fight",
@@ -245,8 +278,8 @@
       "filename": "epic-fight-21.17.3.1-mc1.21.1-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/vu3NZ5Ma/versions/8HHhJt6i/epic-fight-21.17.3.1-mc1.21.1-neoforge.jar",
       "hashes": {
-        "sha1": "fb199b7bbea2fc402da28ab586e73f47e32f8fc0",
-        "sha512": "d39c1d4a2198e7f2080cdc98de890d26d658a02b44c8399a301c7c0005d9991ff97cc94881823a9daa8952f3b89eb3d9197c2f83cf0fbba9c7992c77921b2122"
+        "sha512": "d39c1d4a2198e7f2080cdc98de890d26d658a02b44c8399a301c7c0005d9991ff97cc94881823a9daa8952f3b89eb3d9197c2f83cf0fbba9c7992c77921b2122",
+        "sha1": "fb199b7bbea2fc402da28ab586e73f47e32f8fc0"
       },
       "filesize": 8578288,
       "side": "both",
@@ -293,8 +326,8 @@
       "filename": "ars_nouveau-1.21.1-5.12.1.jar",
       "url": "https://cdn.modrinth.com/data/TKB6INcv/versions/7IK2KsiH/ars_nouveau-1.21.1-5.12.1.jar",
       "hashes": {
-        "sha512": "9cbd5cd7ec692c052a4ca3b6c7d822006380468c75b559fa437cfa72c8a84e45f4c05b457adac28d2cbc13100f733d80b9904de2de5ab979a525417a1b391974",
-        "sha1": "ca5800c6fa315bbf8fd8d833564f98a5f27b81bc"
+        "sha1": "ca5800c6fa315bbf8fd8d833564f98a5f27b81bc",
+        "sha512": "9cbd5cd7ec692c052a4ca3b6c7d822006380468c75b559fa437cfa72c8a84e45f4c05b457adac28d2cbc13100f733d80b9904de2de5ab979a525417a1b391974"
       },
       "filesize": 20724579,
       "side": "both",
@@ -310,13 +343,13 @@
       "url": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "local_path": "mods-src/vppfixes/build/libs/vppfixes-1.0.0.jar",
       "hashes": {
-        "sha1": "61fef79cd995ddeeea7201f5aaf83ece6d9162d9",
-        "sha512": "17ca83295b3c07ec93eab281221736f8e305583c76654dea1808085698998ca9521f31a6eeb5e1dcbb6869d9ac3b099439fc229028adce4f2e5e5fa71cad05fa"
+        "sha1": "ab42c429da078b3caa7aee2439e6a9cbb83599d2",
+        "sha512": "53fe8aab4b06fb4bf965cae5e50cea48d9fa38254db9dae6bc8066efdc3c81aff33b985e8c5c8f6ba38913f1313fd577fa5dc5fd52998c50393df9642488786e"
       },
-      "filesize": 6449,
+      "filesize": 6294,
       "side": "both",
       "phase": 7,
-      "note": "GitHub #143 hotfix: Mixin-only pack-fix mod that deep-copies Ars Nouveau's live list-backed ars_nouveau:spell_resolver SynchedEntityData value at pack time (server tick thread) so the Netty IO thread never serializes a concurrently-mutated object graph -> fixes the set_entity_data ConcurrentModificationException that booted clients. Built from mods-src/vppfixes/ (source:local); see that dir's README.md. hashes/filesize pin the jar produced by its NeoForge moddev build."
+      "note": "GitHub #143 fix (v0.5.4, reconciled into v0.6.0): Mixin-only pack-fix mod that deep-copies vanilla COMPONENT/OPTIONAL_COMPONENT (custom-name) SynchedEntityData values at pack time so the Netty IO thread never encodes a concurrently-mutated Component siblings list -> fixes the set_entity_data ConcurrentModificationException that booted clients. Matched by serializer reference. Built reproducibly from mods-src/vppfixes/ (source:local)."
     },
     {
       "slug": "placebo",
@@ -406,8 +439,8 @@
       "filename": "Apotheosis-1.21.1-8.6.0.jar",
       "url": "https://cdn.modrinth.com/data/rqFWfVlz/versions/H7tse5Fl/Apotheosis-1.21.1-8.6.0.jar",
       "hashes": {
-        "sha512": "a761156ae74296f4f3671738db9a2d9651f4b4f9d65fb3a7ce5b2211be24b206b4f56e3669a2fe15211fe318780e53165d1e6716c350a75dec5973a4f634b385",
-        "sha1": "816c532349f51a370f62ecb47a723bef2a891cf0"
+        "sha1": "816c532349f51a370f62ecb47a723bef2a891cf0",
+        "sha512": "a761156ae74296f4f3671738db9a2d9651f4b4f9d65fb3a7ce5b2211be24b206b4f56e3669a2fe15211fe318780e53165d1e6716c350a75dec5973a4f634b385"
       },
       "filesize": 7111068,
       "side": "both",
@@ -502,8 +535,8 @@
       "filename": "stellaris-1.21-neoforge-1.4.25.jar",
       "url": "https://cdn.modrinth.com/data/ItTQpuBn/versions/5BraaKfR/stellaris-1.21-neoforge-1.4.25.jar",
       "hashes": {
-        "sha1": "d1d5801d054b7ba0b22ce2b35d8d4ec5a5e43401",
-        "sha512": "32045825077f49d2a5e63e3197ff95878996c16a0c00adea5d185cf414f5765c46f92ee828367805eb90fd681e6613b3f1500568b2719eaccd6facac6e69ac79"
+        "sha512": "32045825077f49d2a5e63e3197ff95878996c16a0c00adea5d185cf414f5765c46f92ee828367805eb90fd681e6613b3f1500568b2719eaccd6facac6e69ac79",
+        "sha1": "d1d5801d054b7ba0b22ce2b35d8d4ec5a5e43401"
       },
       "filesize": 9307248,
       "side": "both",
@@ -518,8 +551,8 @@
       "filename": "tfmg_stellaris_compat-1.1.1.jar",
       "url": "https://cdn.modrinth.com/data/x6WYN4Ks/versions/MLHm74pl/tfmg_stellaris_compat-1.1.1.jar",
       "hashes": {
-        "sha512": "913f21fc70e8a8739900b0097305e2b42bf5e9dba95b0b3d926ea58b71c803c98d74c875e8ab7b417ba62302ab8df314e252a3b89040615c8c5ac9eed074f269",
-        "sha1": "7b7a225127bcab9efb8f66b34535c92717f04a41"
+        "sha1": "7b7a225127bcab9efb8f66b34535c92717f04a41",
+        "sha512": "913f21fc70e8a8739900b0097305e2b42bf5e9dba95b0b3d926ea58b71c803c98d74c875e8ab7b417ba62302ab8df314e252a3b89040615c8c5ac9eed074f269"
       },
       "filesize": 81672,
       "side": "both",
@@ -550,8 +583,8 @@
       "filename": "ferritecore-7.0.3-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/uXXizFIs/versions/x7kQWVju/ferritecore-7.0.3-neoforge.jar",
       "hashes": {
-        "sha512": "19af89a2075bb10a63884fa853ebf84b02c79dc3242430ecdad056fd764fdcde367a7303276b329df01b0736e2ef264c5d80c7dc92c6aebd244f556a230bb417",
-        "sha1": "9563692efb708b6b568df27a01ec52f6311928ef"
+        "sha1": "9563692efb708b6b568df27a01ec52f6311928ef",
+        "sha512": "19af89a2075bb10a63884fa853ebf84b02c79dc3242430ecdad056fd764fdcde367a7303276b329df01b0736e2ef264c5d80c7dc92c6aebd244f556a230bb417"
       },
       "filesize": 121559,
       "side": "both",
@@ -566,8 +599,8 @@
       "filename": "c2me-neoforge-mc1.21.1-0.4.0-alpha.0.116.jar",
       "url": "https://cdn.modrinth.com/data/COlSi5iR/versions/5Q757s3v/c2me-neoforge-mc1.21.1-0.4.0-alpha.0.116.jar",
       "hashes": {
-        "sha1": "ed43c962c5162ffc660e61329a65ad6a46da1884",
-        "sha512": "54b5b8026484bf44dc79f46b61965c2d45f4733bb6b580a59d2268c5d4dc11e8ae3fe9238d4ee045292cc3adc80ec9bcfd2e21a4b7433e31dbf1344a52b932f2"
+        "sha512": "54b5b8026484bf44dc79f46b61965c2d45f4733bb6b580a59d2268c5d4dc11e8ae3fe9238d4ee045292cc3adc80ec9bcfd2e21a4b7433e31dbf1344a52b932f2",
+        "sha1": "ed43c962c5162ffc660e61329a65ad6a46da1884"
       },
       "filesize": 3662294,
       "side": "server",
@@ -582,8 +615,8 @@
       "filename": "krypton_fnp-neoforge-1.21.1-0.2.28.1-1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/JkxWVYwU/versions/SUeOFygw/krypton_fnp-neoforge-1.21.1-0.2.28.1-1.21.1.jar",
       "hashes": {
-        "sha1": "3b9253fcfaa11586ce528fbc0a26175991c9408f",
-        "sha512": "72892ac3bee596d30ee5e5d64d78c3da237c3e30c913c58cfadc3fad555c0140e4d04db5ce537805d991e111deeb03c23eea0d10e385ad1b7502b674102cac74"
+        "sha512": "72892ac3bee596d30ee5e5d64d78c3da237c3e30c913c58cfadc3fad555c0140e4d04db5ce537805d991e111deeb03c23eea0d10e385ad1b7502b674102cac74",
+        "sha1": "3b9253fcfaa11586ce528fbc0a26175991c9408f"
       },
       "filesize": 1015871,
       "side": "server",
@@ -646,8 +679,8 @@
       "filename": "cloth-config-15.0.140-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/izKINKFg/cloth-config-15.0.140-neoforge.jar",
       "hashes": {
-        "sha512": "aaf9b010955b8cd294e5a92f069985b18729fd5e2cf22d351f1dff9680f15488688803ec41e77e941cbde130ceb535014ca4c868047d80ab69c2d508e216654d",
-        "sha1": "c3e5733ba4503b102589a026000fd5ce0212f6f2"
+        "sha1": "c3e5733ba4503b102589a026000fd5ce0212f6f2",
+        "sha512": "aaf9b010955b8cd294e5a92f069985b18729fd5e2cf22d351f1dff9680f15488688803ec41e77e941cbde130ceb535014ca4c868047d80ab69c2d508e216654d"
       },
       "filesize": 1163890,
       "side": "both",
@@ -662,8 +695,8 @@
       "filename": "BuildingWands-neoforge-MC1.21.1-3.0.5.jar",
       "url": "https://cdn.modrinth.com/data/XkisZUfp/versions/nvMyIx0w/BuildingWands-neoforge-MC1.21.1-3.0.5.jar",
       "hashes": {
-        "sha512": "32bb82014d41163300adaccb647005e43a64ff9f1e5fd1be5ceb3f51f92497959598f3147d78f001523e85d6b922173b9cbba1623fba88e987b74c2d88cbbf3a",
-        "sha1": "d9664553d584f7478832768107e4dfe11c876857"
+        "sha1": "d9664553d584f7478832768107e4dfe11c876857",
+        "sha512": "32bb82014d41163300adaccb647005e43a64ff9f1e5fd1be5ceb3f51f92497959598f3147d78f001523e85d6b922173b9cbba1623fba88e987b74c2d88cbbf3a"
       },
       "filesize": 465238,
       "side": "both",
@@ -726,8 +759,8 @@
       "filename": "sable-neoforge-1.21.1-2.0.3.jar",
       "url": "https://cdn.modrinth.com/data/T9PomCSv/versions/1L6XJqnY/sable-neoforge-1.21.1-2.0.3.jar",
       "hashes": {
-        "sha512": "c13c4da086001c205361905cd3a6c59a76e3c7d4c082265aaf3baf2fd30c79808f6634bca89aba29db5c096aa7da4066f76454093c306c3ae91c6c0d4d63ae0d",
-        "sha1": "f3ba9a497122ba29d9e94ebe6f9a3a3aaa5fa756"
+        "sha1": "f3ba9a497122ba29d9e94ebe6f9a3a3aaa5fa756",
+        "sha512": "c13c4da086001c205361905cd3a6c59a76e3c7d4c082265aaf3baf2fd30c79808f6634bca89aba29db5c096aa7da4066f76454093c306c3ae91c6c0d4d63ae0d"
       },
       "filesize": 12889000,
       "side": "both",
@@ -774,8 +807,8 @@
       "filename": "waystones-neoforge-1.21.1-21.1.37.jar",
       "url": "https://cdn.modrinth.com/data/LOpKHB2A/versions/az73Oero/waystones-neoforge-1.21.1-21.1.37.jar",
       "hashes": {
-        "sha1": "ffada9b8b212102d7bdd006f773ac0b29c5b815c",
-        "sha512": "d9e90a81376393b4aecd19f527dc68f44908ed0f5cb26b2e3236cdc0373b661225a5365cd448c622c112460a6d005480c14349aa6b1050138f2582261b355595"
+        "sha512": "d9e90a81376393b4aecd19f527dc68f44908ed0f5cb26b2e3236cdc0373b661225a5365cd448c622c112460a6d005480c14349aa6b1050138f2582261b355595",
+        "sha1": "ffada9b8b212102d7bdd006f773ac0b29c5b815c"
       },
       "filesize": 1201931,
       "side": "both",
@@ -822,8 +855,8 @@
       "filename": "Terralith_1.21.1_v2.6.2_Neoforge.jar",
       "url": "https://cdn.modrinth.com/data/8oi3bsk5/versions/IY93YaEe/Terralith_1.21.1_v2.6.2_Neoforge.jar",
       "hashes": {
-        "sha1": "d4a9fe71b841f70edfb4b280f9bf5c58e4a28224",
-        "sha512": "35298f1682567f63dc16658b04cee5498b30819f1c05f9712b4480d7f5eb17059db3b13ab14f81a05fe257149d11ced2cce2030d3727c1747edd8657c53e2a85"
+        "sha512": "35298f1682567f63dc16658b04cee5498b30819f1c05f9712b4480d7f5eb17059db3b13ab14f81a05fe257149d11ced2cce2030d3727c1747edd8657c53e2a85",
+        "sha1": "d4a9fe71b841f70edfb4b280f9bf5c58e4a28224"
       },
       "filesize": 2814865,
       "side": "both",
@@ -870,8 +903,8 @@
       "filename": "YungsBetterMineshafts-1.21.1-NeoForge-5.1.1.jar",
       "url": "https://cdn.modrinth.com/data/HjmxVlSr/versions/Go3nbneL/YungsBetterMineshafts-1.21.1-NeoForge-5.1.1.jar",
       "hashes": {
-        "sha512": "8b01b386f53feeaa55f0c62697578b82e00501e45e428b2a68df6bda34efb6a4b3b4e3582abf13fe767ebcb61aef9368186f53c03999958bef38f31c41a7f8b2",
-        "sha1": "6a14e1d8201f068ca87ef8333e471c5378955906"
+        "sha1": "6a14e1d8201f068ca87ef8333e471c5378955906",
+        "sha512": "8b01b386f53feeaa55f0c62697578b82e00501e45e428b2a68df6bda34efb6a4b3b4e3582abf13fe767ebcb61aef9368186f53c03999958bef38f31c41a7f8b2"
       },
       "filesize": 493967,
       "side": "both",
@@ -886,8 +919,8 @@
       "filename": "YungsBetterStrongholds-1.21.1-NeoForge-5.1.3.jar",
       "url": "https://cdn.modrinth.com/data/kidLKymU/versions/8U0dIfSM/YungsBetterStrongholds-1.21.1-NeoForge-5.1.3.jar",
       "hashes": {
-        "sha1": "5d06a5850af7c577612d4592706a8e156bbe1cbf",
-        "sha512": "385d67e07f2c67af5ea387d92d92949d8f671e8f99204457b6396dbe987ac3b14c2bff765df5fcbaa68016604f82a1fc6ec5a69c012ca22ad088d1a7c9bc135d"
+        "sha512": "385d67e07f2c67af5ea387d92d92949d8f671e8f99204457b6396dbe987ac3b14c2bff765df5fcbaa68016604f82a1fc6ec5a69c012ca22ad088d1a7c9bc135d",
+        "sha1": "5d06a5850af7c577612d4592706a8e156bbe1cbf"
       },
       "filesize": 461244,
       "side": "both",
@@ -918,8 +951,8 @@
       "filename": "YungsBetterJungleTemples-1.21.1-NeoForge-3.1.2.jar",
       "url": "https://cdn.modrinth.com/data/z9Ve58Ih/versions/P00i2hJn/YungsBetterJungleTemples-1.21.1-NeoForge-3.1.2.jar",
       "hashes": {
-        "sha1": "d6b7ce6cf351b09cbd23147ff166c35cfdc572e8",
-        "sha512": "eca4233e874a55886c63d2111b8685d479771d3627bad2922582e65b78c51ba74733dc4624aabf91f2a2178a940a72d9209ae33eef74e34f84f07d62256709d9"
+        "sha512": "eca4233e874a55886c63d2111b8685d479771d3627bad2922582e65b78c51ba74733dc4624aabf91f2a2178a940a72d9209ae33eef74e34f84f07d62256709d9",
+        "sha1": "d6b7ce6cf351b09cbd23147ff166c35cfdc572e8"
       },
       "filesize": 795839,
       "side": "both",
@@ -950,8 +983,8 @@
       "filename": "YungsBetterWitchHuts-1.21.1-NeoForge-4.1.1.jar",
       "url": "https://cdn.modrinth.com/data/t5FRdP87/versions/AvedwcIe/YungsBetterWitchHuts-1.21.1-NeoForge-4.1.1.jar",
       "hashes": {
-        "sha1": "bbf6c91f4a2829c58bc024eaaab821986bc93de6",
-        "sha512": "9baa8a1f36a2a36efc3df58ab9347fd9f326b551ad78e3f600ed9d68862c619752ac0770804807efb15a46fcb4d9f6e2baf6a11f622d3ebb6c865662f6c7bcfd"
+        "sha512": "9baa8a1f36a2a36efc3df58ab9347fd9f326b551ad78e3f600ed9d68862c619752ac0770804807efb15a46fcb4d9f6e2baf6a11f622d3ebb6c865662f6c7bcfd",
+        "sha1": "bbf6c91f4a2829c58bc024eaaab821986bc93de6"
       },
       "filesize": 174789,
       "side": "both",
@@ -982,8 +1015,8 @@
       "filename": "YungsBetterEndIsland-1.21.1-NeoForge-3.1.2.jar",
       "url": "https://cdn.modrinth.com/data/2BwBOmBQ/versions/I52NZ1qK/YungsBetterEndIsland-1.21.1-NeoForge-3.1.2.jar",
       "hashes": {
-        "sha512": "02923a1a97eb81ec13d69bdc6b7e8b36dfb9e6f1a98adfcf103707ec3afde35831ccd4b210e9b3a9c7662541c38ea593a3d94c12171b4072ea7feafa75c95f96",
-        "sha1": "832f2c17425debe74a9f267f4136f1a0f0221d19"
+        "sha1": "832f2c17425debe74a9f267f4136f1a0f0221d19",
+        "sha512": "02923a1a97eb81ec13d69bdc6b7e8b36dfb9e6f1a98adfcf103707ec3afde35831ccd4b210e9b3a9c7662541c38ea593a3d94c12171b4072ea7feafa75c95f96"
       },
       "filesize": 398130,
       "side": "both",
@@ -1014,8 +1047,8 @@
       "filename": "create_power_loader-2.0.5-mc1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/wPQ6GgFE/versions/3Y4r0ItR/create_power_loader-2.0.5-mc1.21.1.jar",
       "hashes": {
-        "sha512": "e4f06cfe79eafa538a2edf45d0b173051475f2a20d6c2352668f6980f4433078f2cdd8ffdd047984c30dfd903142ea37eadde48ff71a3892f18154662f20eb57",
-        "sha1": "5bd3ecef6fc66985e6fdf416706c98fb774ba03d"
+        "sha1": "5bd3ecef6fc66985e6fdf416706c98fb774ba03d",
+        "sha512": "e4f06cfe79eafa538a2edf45d0b173051475f2a20d6c2352668f6980f4433078f2cdd8ffdd047984c30dfd903142ea37eadde48ff71a3892f18154662f20eb57"
       },
       "filesize": 442369,
       "side": "both",
@@ -1078,8 +1111,8 @@
       "filename": "resourcefulconfig-neoforge-1.21-3.0.11.jar",
       "url": "https://cdn.modrinth.com/data/M1953qlQ/versions/lSbyRD6v/resourcefulconfig-neoforge-1.21-3.0.11.jar",
       "hashes": {
-        "sha512": "8e4ccc37732b3f5190e7e98df34dbc1339fe614494fcabf1aeaeab9ad8e5993522964b51be31882000c08c48a6d0096b5458364415bb81f2b2b775a7daf2eb87",
-        "sha1": "6bf2b6ea9c071c00a2abcdc552667fb6f7d21031"
+        "sha1": "6bf2b6ea9c071c00a2abcdc552667fb6f7d21031",
+        "sha512": "8e4ccc37732b3f5190e7e98df34dbc1339fe614494fcabf1aeaeab9ad8e5993522964b51be31882000c08c48a6d0096b5458364415bb81f2b2b775a7daf2eb87"
       },
       "filesize": 341009,
       "side": "both",
@@ -1094,8 +1127,8 @@
       "filename": "resourcefullib-neoforge-1.21-3.0.12.jar",
       "url": "https://cdn.modrinth.com/data/G1hIVOrD/versions/x99nCLTm/resourcefullib-neoforge-1.21-3.0.12.jar",
       "hashes": {
-        "sha512": "a9d20e345faa9bcb297bd95ac9524205834804d1bb13518397dd4f7f62b352b08c3339ee7f7870d3669078ceeb33d5c31ea527aecce4b31d62ec1ff7d8b562c8",
-        "sha1": "24389c8e48ff0e8594e4686b750c494c66a5f8df"
+        "sha1": "24389c8e48ff0e8594e4686b750c494c66a5f8df",
+        "sha512": "a9d20e345faa9bcb297bd95ac9524205834804d1bb13518397dd4f7f62b352b08c3339ee7f7870d3669078ceeb33d5c31ea527aecce4b31d62ec1ff7d8b562c8"
       },
       "filesize": 484332,
       "side": "both",
@@ -1110,8 +1143,8 @@
       "filename": "CreeperOverhaul-neoforge-1.21.1-4.0.6.jar",
       "url": "https://cdn.modrinth.com/data/MI1LWe93/versions/HNrAYCLH/CreeperOverhaul-neoforge-1.21.1-4.0.6.jar",
       "hashes": {
-        "sha1": "5a07cc032df790e7d110ad3dedb7a76253ffd565",
-        "sha512": "880ca9d8d23b527d3583cbe7fa399b2a26421b6ccba1deacd666cf9b61f4af4378157f404ab3789a7ae9c3c8693e2b7f6c8c532e703e5bb0e1881b9cc2879a6e"
+        "sha512": "880ca9d8d23b527d3583cbe7fa399b2a26421b6ccba1deacd666cf9b61f4af4378157f404ab3789a7ae9c3c8693e2b7f6c8c532e703e5bb0e1881b9cc2879a6e",
+        "sha1": "5a07cc032df790e7d110ad3dedb7a76253ffd565"
       },
       "filesize": 1185088,
       "side": "both",
@@ -1126,8 +1159,8 @@
       "filename": "born_in_chaos_[Neoforge]_1.21.1_1.7.6.jar",
       "url": "https://cdn.modrinth.com/data/1kcHy4de/versions/ttcWWp3r/born_in_chaos_%5BNeoforge%5D_1.21.1_1.7.6.jar",
       "hashes": {
-        "sha512": "69310fffb1d60f27c75ece2bf2f6feb06f9b364cd772917544fad06cacf24b195f838c6fc3807ca8d5ae84675fb08db59179ced4d18de71b9b7d8ddabe4b0fe7",
-        "sha1": "73704f38ac368c03716f9cc8f537470d3b352fa2"
+        "sha1": "73704f38ac368c03716f9cc8f537470d3b352fa2",
+        "sha512": "69310fffb1d60f27c75ece2bf2f6feb06f9b364cd772917544fad06cacf24b195f838c6fc3807ca8d5ae84675fb08db59179ced4d18de71b9b7d8ddabe4b0fe7"
       },
       "filesize": 11842184,
       "side": "both",
@@ -1142,8 +1175,8 @@
       "filename": "naturalist-1.0.2-neoforge-1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/F8BQNPWX/versions/t5ONaov5/naturalist-1.0.2-neoforge-1.21.1.jar",
       "hashes": {
-        "sha1": "d026c2c4ac66a9bc656e9b894683d1131054a80a",
-        "sha512": "52ae7bf9574e454382546c8c20e6f96bbb4e928e9800749367b74958d9cdd6f3a759a752840db4b7e12e75c932878b90366db069f1beab1a55e6510b8e860845"
+        "sha512": "52ae7bf9574e454382546c8c20e6f96bbb4e928e9800749367b74958d9cdd6f3a759a752840db4b7e12e75c932878b90366db069f1beab1a55e6510b8e860845",
+        "sha1": "d026c2c4ac66a9bc656e9b894683d1131054a80a"
       },
       "filesize": 5028168,
       "side": "both",
@@ -1158,8 +1191,8 @@
       "filename": "sodium-neoforge-0.8.12+mc1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/AANobbMI/versions/S3DUMfBo/sodium-neoforge-0.8.12%2Bmc1.21.1.jar",
       "hashes": {
-        "sha1": "762251ab3d6825d5accfd89c3f02f1145376105e",
-        "sha512": "2a689e1b1e16acc790c011b42ec21958956207c3b49cb99cb5c006e639786adf1cc36559f9840e2c1d27485c00da9712d34020fa4279eb6810eaa54bf20b19b0"
+        "sha512": "2a689e1b1e16acc790c011b42ec21958956207c3b49cb99cb5c006e639786adf1cc36559f9840e2c1d27485c00da9712d34020fa4279eb6810eaa54bf20b19b0",
+        "sha1": "762251ab3d6825d5accfd89c3f02f1145376105e"
       },
       "filesize": 1291418,
       "side": "client",
@@ -1174,8 +1207,8 @@
       "filename": "entityculling-neoforge-1.10.5-mc1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/NNAgCjsB/versions/5zRIon6w/entityculling-neoforge-1.10.5-mc1.21.1.jar",
       "hashes": {
-        "sha512": "0c22502b84b13d8ac6daffe14ac77e7306b5b7a48f5cd9b3950d9e1d60b3786104aa035fbfdb208b1c9a75ad0e356301a774da32edc3f71cb3a53e2d28fd39e6",
-        "sha1": "420d0006dbc0a20b1c2dd0b3c7c20ddb5cc51fcf"
+        "sha1": "420d0006dbc0a20b1c2dd0b3c7c20ddb5cc51fcf",
+        "sha512": "0c22502b84b13d8ac6daffe14ac77e7306b5b7a48f5cd9b3950d9e1d60b3786104aa035fbfdb208b1c9a75ad0e356301a774da32edc3f71cb3a53e2d28fd39e6"
       },
       "filesize": 1585287,
       "side": "client",
@@ -1222,8 +1255,8 @@
       "filename": "dynamic-fps-3.11.4+minecraft-1.21.0-neoforge.jar",
       "url": "https://cdn.modrinth.com/data/LQ3K71Q1/versions/T238FZpQ/dynamic-fps-3.11.4%2Bminecraft-1.21.0-neoforge.jar",
       "hashes": {
-        "sha1": "35b17e95b2b65930116ccc83e0cc358ac1bfcf9e",
-        "sha512": "8eb18a280b265e598540306275b51a165836f4b14c6c703b6ced11fcac50bfab439e4deb69e222f62614a9f15fa0ef58e5bd84e20e37ae57755d9c2f8b134057"
+        "sha512": "8eb18a280b265e598540306275b51a165836f4b14c6c703b6ced11fcac50bfab439e4deb69e222f62614a9f15fa0ef58e5bd84e20e37ae57755d9c2f8b134057",
+        "sha1": "35b17e95b2b65930116ccc83e0cc358ac1bfcf9e"
       },
       "filesize": 220193,
       "side": "client",
@@ -1254,8 +1287,8 @@
       "filename": "jei-1.21.1-neoforge-19.32.0.359.jar",
       "url": "https://cdn.modrinth.com/data/u6dRKJwZ/versions/MAi4uKUF/jei-1.21.1-neoforge-19.32.0.359.jar",
       "hashes": {
-        "sha1": "7b3f9caf34a42c4614611411e238f7446dabc839",
-        "sha512": "aa23b087254cdfae27405928c710ce632856827fa521ac0cdc9127ca40fff02a95dd8c119cdf77d7912e7ad4d317d4f14f13fa1a0e13a38135ae39be4b42c9bd"
+        "sha512": "aa23b087254cdfae27405928c710ce632856827fa521ac0cdc9127ca40fff02a95dd8c119cdf77d7912e7ad4d317d4f14f13fa1a0e13a38135ae39be4b42c9bd",
+        "sha1": "7b3f9caf34a42c4614611411e238f7446dabc839"
       },
       "filesize": 1616910,
       "side": "both",
@@ -1286,8 +1319,8 @@
       "filename": "xaeroworldmap-neoforge-1.21.1-1.42.0.jar",
       "url": "https://cdn.modrinth.com/data/NcUtCpym/versions/yECb8StH/xaeroworldmap-neoforge-1.21.1-1.42.0.jar",
       "hashes": {
-        "sha1": "43209e577bfcfbbbff1944ec7dc04015e373e9f6",
-        "sha512": "21a058faa12f6944c9c5d6c72d89c60595cd04c2ae5abdd604506e70535eb3d4a3894a3d995794ef4d91fc034d15451e3e8deaf3d7e84f08a84fa22bafb1104a"
+        "sha512": "21a058faa12f6944c9c5d6c72d89c60595cd04c2ae5abdd604506e70535eb3d4a3894a3d995794ef4d91fc034d15451e3e8deaf3d7e84f08a84fa22bafb1104a",
+        "sha1": "43209e577bfcfbbbff1944ec7dc04015e373e9f6"
       },
       "filesize": 1407266,
       "side": "both",
@@ -1334,8 +1367,8 @@
       "filename": "AdvancedLootInfo-neoforge-1.21.1-1.12.0.jar",
       "url": "https://cdn.modrinth.com/data/PEPVViac/versions/y8p1Vq83/AdvancedLootInfo-neoforge-1.21.1-1.12.0.jar",
       "hashes": {
-        "sha1": "d4d48bde7b92449f34281159232650d8dda28ad0",
-        "sha512": "a496418ca955f2912c2c2e1064abe9bea31f9676a15673eab843d2dcfb3e962232bde69b096ff2b647efbab7bbe90546cb38f72cdfbe753ca284d83fe7a7bd24"
+        "sha512": "a496418ca955f2912c2c2e1064abe9bea31f9676a15673eab843d2dcfb3e962232bde69b096ff2b647efbab7bbe90546cb38f72cdfbe753ca284d83fe7a7bd24",
+        "sha1": "d4d48bde7b92449f34281159232650d8dda28ad0"
       },
       "filesize": 720490,
       "side": "both",
@@ -1366,8 +1399,8 @@
       "filename": "justenoughbreeding-neoforge-1.21.1-3.1.0.jar",
       "url": "https://cdn.modrinth.com/data/9Pk89J3g/versions/SMcvKJOF/justenoughbreeding-neoforge-1.21.1-3.1.0.jar",
       "hashes": {
-        "sha512": "99f190d81b27eda80f998958690cdebfec1fc79b316fd09640f4ec1449616c12ae36c02f88ab528e4fcd7ad7d62431bfb8f691ab7442ba269a0ef8836650e71f",
-        "sha1": "e8d4564ea93a3d6c2004e7bf1501b754af377f87"
+        "sha1": "e8d4564ea93a3d6c2004e7bf1501b754af377f87",
+        "sha512": "99f190d81b27eda80f998958690cdebfec1fc79b316fd09640f4ec1449616c12ae36c02f88ab528e4fcd7ad7d62431bfb8f691ab7442ba269a0ef8836650e71f"
       },
       "filesize": 585209,
       "side": "client",
@@ -1382,8 +1415,8 @@
       "filename": "jeed-1.21-2.3.2.jar",
       "url": "https://cdn.modrinth.com/data/EO27GKs1/versions/HpxNIA6x/jeed-1.21-2.3.2.jar",
       "hashes": {
-        "sha1": "144ffaf459b58db14614a7e1ef3425c2594e30b6",
-        "sha512": "b9a1715054bb65e5cd1ee4f2add8ea5c368f425f7b185c9ed8f94b441286741fb991fe7494d725bd76e741b4d3da842a779ec1aa6b51c0df70e4358f5ca66b24"
+        "sha512": "b9a1715054bb65e5cd1ee4f2add8ea5c368f425f7b185c9ed8f94b441286741fb991fe7494d725bd76e741b4d3da842a779ec1aa6b51c0df70e4358f5ca66b24",
+        "sha1": "144ffaf459b58db14614a7e1ef3425c2594e30b6"
       },
       "filesize": 164003,
       "side": "client",
@@ -1398,8 +1431,8 @@
       "filename": "JustEnoughProfessions-neoforge-1.21.1-4.0.5.jar",
       "url": "https://cdn.modrinth.com/data/kB56GtWA/versions/Avs9oGLn/JustEnoughProfessions-neoforge-1.21.1-4.0.5.jar",
       "hashes": {
-        "sha1": "b97a7420738c2ac020ad15e8f6ac472aad288af2",
-        "sha512": "2d9ecd7dbe8a676447009a6943b99f54bb732d084d220c09b79636293e67596f8e0ac1d1a849ad1077126b5e9da4aff31c5bfd81836459190c63b974500c8363"
+        "sha512": "2d9ecd7dbe8a676447009a6943b99f54bb732d084d220c09b79636293e67596f8e0ac1d1a849ad1077126b5e9da4aff31c5bfd81836459190c63b974500c8363",
+        "sha1": "b97a7420738c2ac020ad15e8f6ac472aad288af2"
       },
       "filesize": 24879,
       "side": "both",
@@ -1430,8 +1463,8 @@
       "filename": "prickle-neoforge-1.21.1-21.1.11.jar",
       "url": "https://cdn.modrinth.com/data/aaRl8GiW/versions/EE1FHDyD/prickle-neoforge-1.21.1-21.1.11.jar",
       "hashes": {
-        "sha512": "154d42795ccf1f3e07714775cdb82fd5db17574319286ced13d86b0456b64e4cf5bb89ffbcbfcefce67b73ed0b83e4e2944e493d79d9a385ff9de23006ee7bf5",
-        "sha1": "5174059ecf97340a0de5ef211b938de26c4eaa36"
+        "sha1": "5174059ecf97340a0de5ef211b938de26c4eaa36",
+        "sha512": "154d42795ccf1f3e07714775cdb82fd5db17574319286ced13d86b0456b64e4cf5bb89ffbcbfcefce67b73ed0b83e4e2944e493d79d9a385ff9de23006ee7bf5"
       },
       "filesize": 84812,
       "side": "both",
@@ -1462,8 +1495,8 @@
       "filename": "tiab-neoforge-6.5.4.jar",
       "url": "https://cdn.modrinth.com/data/LQdpBqdS/versions/rG10hU1G/tiab-neoforge-6.5.4.jar",
       "hashes": {
-        "sha512": "c43e6d9d626b8180f3091ba54f8fd4b3290fcfd0abd16c9520a76427193bccd16d2cd67470151f42fb3f18ae9938e9b3c4cb931dd013f0664e8a46d2c77fd5c9",
-        "sha1": "3e6beaac5dbc48627263fee0a864db16eda53529"
+        "sha1": "3e6beaac5dbc48627263fee0a864db16eda53529",
+        "sha512": "c43e6d9d626b8180f3091ba54f8fd4b3290fcfd0abd16c9520a76427193bccd16d2cd67470151f42fb3f18ae9938e9b3c4cb931dd013f0664e8a46d2c77fd5c9"
       },
       "filesize": 77755,
       "side": "both",
@@ -1478,8 +1511,8 @@
       "filename": "tiab-entity-fix-1.0.3.jar",
       "url": "https://cdn.modrinth.com/data/iheu8Wdl/versions/AkqKlib9/tiab-entity-fix-1.0.3.jar",
       "hashes": {
-        "sha1": "60d4dd0c9bcdabf029a78e94efab01726b2aacb7",
-        "sha512": "bd7647fb74ef380350e88bc8ea3a5decbf5715010ebb1bae335abf69103406825e096b17c3a620645343602837ef85a274b6caca4e8e4f7a49fdd7bddbfb3e02"
+        "sha512": "bd7647fb74ef380350e88bc8ea3a5decbf5715010ebb1bae335abf69103406825e096b17c3a620645343602837ef85a274b6caca4e8e4f7a49fdd7bddbfb3e02",
+        "sha1": "60d4dd0c9bcdabf029a78e94efab01726b2aacb7"
       },
       "filesize": 39310,
       "side": "both",
@@ -1526,8 +1559,8 @@
       "filename": "create-central-kitchen-2.5.0.jar",
       "url": "https://cdn.modrinth.com/data/btq68HMO/versions/kmHFmmpV/create-central-kitchen-2.5.0.jar",
       "hashes": {
-        "sha512": "a184285bd2dc3181c7a0cc1a3af8501e5ce6caa566fec14d7f3d06555707fcbac855c3b8f56d71c6e6e223df377c7f05024093046899f4375d5c65580cc62972",
-        "sha1": "caa89b624caad7a9304872a236e74ea4c143972c"
+        "sha1": "caa89b624caad7a9304872a236e74ea4c143972c",
+        "sha512": "a184285bd2dc3181c7a0cc1a3af8501e5ce6caa566fec14d7f3d06555707fcbac855c3b8f56d71c6e6e223df377c7f05024093046899f4375d5c65580cc62972"
       },
       "filesize": 375492,
       "side": "both",
@@ -1574,8 +1607,8 @@
       "filename": "ends_delight-2.6.1+neoforge.1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/yHN0njMr/versions/YTApg6Hl/ends_delight-2.6.1%2Bneoforge.1.21.1.jar",
       "hashes": {
-        "sha1": "0613a535d82b7a3d51d0caf0e04b082cb4c062e9",
-        "sha512": "1cb6893f285ce3bc3b2ab19e355ca14bb409e2b078e202ee273e722357494a68b156be097cbd3ceae860e985787fe37b053446bc1258884e831d7b01b4ad76a9"
+        "sha512": "1cb6893f285ce3bc3b2ab19e355ca14bb409e2b078e202ee273e722357494a68b156be097cbd3ceae860e985787fe37b053446bc1258884e831d7b01b4ad76a9",
+        "sha1": "0613a535d82b7a3d51d0caf0e04b082cb4c062e9"
       },
       "filesize": 258124,
       "side": "both",
@@ -1654,8 +1687,8 @@
       "filename": "gravestone-neoforge-1.21.1-1.0.37.jar",
       "url": "https://cdn.modrinth.com/data/RYtXKJPr/versions/Y29z3Y9Y/gravestone-neoforge-1.21.1-1.0.37.jar",
       "hashes": {
-        "sha1": "b2cc8077ff7184e3791af3edd4b5b894e62b127f",
-        "sha512": "07e1a08d8e1a8c3f7d0a59a3c5a7b03e32862fadbb018067795704683aa8298823cb6d66e739577b7591bef2dfa2bcbe49eafe14cb73920feebb79cd7a539141"
+        "sha512": "07e1a08d8e1a8c3f7d0a59a3c5a7b03e32862fadbb018067795704683aa8298823cb6d66e739577b7591bef2dfa2bcbe49eafe14cb73920feebb79cd7a539141",
+        "sha1": "b2cc8077ff7184e3791af3edd4b5b894e62b127f"
       },
       "filesize": 321955,
       "side": "both",
@@ -1686,8 +1719,8 @@
       "filename": "iris-neoforge-1.8.14-beta.1+mc1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/YL57xq9U/versions/KduFYu4t/iris-neoforge-1.8.14-beta.1%2Bmc1.21.1.jar",
       "hashes": {
-        "sha1": "1bd129cf7bce65d6b1c0543045f0620c98a0f885",
-        "sha512": "33fddb430e16222902eac75b8b3d57c381b0f3cc729f3b56c4628df12ca108f23a0b11e2feb167923d6d14d1fc7e8ee1a977ec421b19d1951bdca74c4092b9c5"
+        "sha512": "33fddb430e16222902eac75b8b3d57c381b0f3cc729f3b56c4628df12ca108f23a0b11e2feb167923d6d14d1fc7e8ee1a977ec421b19d1951bdca74c4092b9c5",
+        "sha1": "1bd129cf7bce65d6b1c0543045f0620c98a0f885"
       },
       "filesize": 2540723,
       "side": "client",
@@ -1718,8 +1751,8 @@
       "filename": "SimplyHarvesting-1.21-3.0.3.jar",
       "url": "https://cdn.modrinth.com/data/P4FVY4ll/versions/9v7K5FZz/SimplyHarvesting-1.21-3.0.3.jar",
       "hashes": {
-        "sha1": "fc2652ce5d584e1e6be9f5368c0743b28d44d102",
-        "sha512": "f4b498cd43caf8f47dd3a3076942824ff4bbff95245365f0f5da2e5e3ad4b85453bdc14ec7dcc38c76dd6b9dc0cb72333d2428b4cda22e4bc1eaff6098a3cbe4"
+        "sha512": "f4b498cd43caf8f47dd3a3076942824ff4bbff95245365f0f5da2e5e3ad4b85453bdc14ec7dcc38c76dd6b9dc0cb72333d2428b4cda22e4bc1eaff6098a3cbe4",
+        "sha1": "fc2652ce5d584e1e6be9f5368c0743b28d44d102"
       },
       "filesize": 12765,
       "side": "server",
@@ -1734,29 +1767,13 @@
       "filename": "fasterladderclimbing-neoforge-1.21.1-1.1.0-1.21.1.jar",
       "url": "https://cdn.modrinth.com/data/jAamHm5q/versions/5IYhxtHw/fasterladderclimbing-neoforge-1.21.1-1.1.0-1.21.1.jar",
       "hashes": {
-        "sha1": "903f86ee38c5018106740b37207ea9c95958ff63",
-        "sha512": "e3e9beaf240d06d13e2f30d2591375c318eda07ef9577f432b992b1df50bc3e60801e6c823aab2d0069e12e1f9edbdf47eb67b9a65b4af2860bbfe60d75b80a5"
+        "sha512": "e3e9beaf240d06d13e2f30d2591375c318eda07ef9577f432b992b1df50bc3e60801e6c823aab2d0069e12e1f9edbdf47eb67b9a65b4af2860bbfe60d75b80a5",
+        "sha1": "903f86ee38c5018106740b37207ea9c95958ff63"
       },
       "filesize": 158139,
       "side": "both",
       "phase": 24,
-      "note": "GitHub issue #69 item 3 (speed half): 'Look up to climb faster and look down to descend faster on climbable blocks' (verbatim from its own neoforge.mods.toml description) - a direct match for the issue's 'faster ladder climbing based on look direction' ask. Verified via version-metadata API and jar extraction: ZERO dependencies beyond neoforge/minecraft. Modrinth lists client_side=unsupported/server_side=required, but that's a metadata mismatch we caught by inspecting the jar directly - it ships a real FasterLadderClimbingNeoForgeClient class, a ClimbConfigScreen/ClimbSpeedSlider settings GUI, and a ClimbPolicyPayload network packet syncing the server's speed policy to the client, so side:both is the ground-truthed classification, not client_side=unsupported. Zero mixins (grep of the jar's own class list confirms no `mixin` package at all) - it hooks a plain NeoForge tick/interact event and calls Player.move()/setDeltaMovement() directly, so it cannot conflict with Epic Fight's mixin-based animation override (see epic-tweaks below) - the two operate on different layers (physics vs. rendering) and were verified to touch none of the same classes. Ground-truthed config defaults via constant-pool disassembly of FasterLadderClimbingSettings.class/ServerClimbPolicy.class (no decompiler available): the mod's own DEFAULT_UP_SPEED/DEFAULT_DOWN_SPEED (0.2/-0.2 blocks-per-tick) exactly equal vanilla's own climb speed - i.e. out of the box, before any config, the mod changes nothing perceptible, because its speed boost is `player's configured speed minus vanilla's own baseline`. The shipped server policy (ServerClimbPolicy.DEFAULT: enabled=true, upSpeedLimit=1.25, downSpeedLimit=-1.25, the mod's own MAX_UP_SPEED/MAX_DOWN_SPEED clamp bounds) is already maximally permissive, so no server.json is shipped. pack/config/fasterladderclimbing/client.json ships this pack's own tuned default (climbUpSpeed 0.6 / climbDownSpeed -0.6, 3x vanilla, within the mod's [0.05,1.25]/[-1.25,-0.05] clamp range) so the QoL is actually felt by default rather than requiring every player to find and raise their own client-side slider first; climbMode is left at the mod's own default (INPUT_FIRST, not the stricter LOOK_ONLY) since normal forward-held ladder climbing already reads look pitch under that mode and INPUT_FIRST avoids fighting ordinary WASD movement, matching the mod author's own recommended default."
-    },
-    {
-      "slug": "epic-tweaks",
-      "project_id": "YHY8IhRT",
-      "version_id": "5P8UAifV",
-      "version_number": "1.2.0",
-      "filename": "epictweaks-neoforge-1.21.1-1.2.0.jar",
-      "url": "https://cdn.modrinth.com/data/YHY8IhRT/versions/5P8UAifV/epictweaks-neoforge-1.21.1-1.2.0.jar",
-      "hashes": {
-        "sha512": "fa59bf0c5c68614b3ac4e92eb38585022b63b4ca5fc605480656bb5f9dfe181912520c6c766dac98213002838a8f5a149ffde3d1e36878018bcef40ae1102246",
-        "sha1": "812c7356191a020fd0b32609d166ea299924d16c"
-      },
-      "filesize": 15123,
-      "side": "client",
-      "phase": 24,
-      "note": "GitHub issue #69 item 3 (animation-hijack half): identifies AND resolves the issue's 'ladder animation is currently being hijacked by some mod and feels clunky/awful' complaint. ROOT CAUSE ground-truthed by grepping every installed jar's contents for 'ladder'/'climb': Epic Fight (this pack's weapon-variety/RPG-leveling combat overhaul, DESIGN.md's Part 3 - not removable, it's load-bearing for the whole weapon-tier system) ships its OWN custom climb animation pair (assets/epicfight/animmodels/animations/biped/living/{climb,pov/climb}.json) plus an UPDATE_Y_TO_NEARBY_LADDER animation event, rendered via its own skeletal-animation pipeline (MixinLivingEntityRenderer/MixinLocalPlayer/MixinLivingEntity/MixinPlayer mixins) that fully replaces vanilla's player-model animation state machine whenever the player is in 'Epic Fight mode' - this is the mod hijacking the ladder animation, not a bug in this pack's own config. No config option exists anywhere in Epic Fight's own ClientConfig/CommonConfig/ServerConfig to disable just the climb motion (ground-truthed via full bytecode string dump of all three classes - only unrelated toggles exist, e.g. CanceledVanillaActions for right-click interactions). The real fix is Epic Fight's OWN dual-mode system: it already renders plain vanilla animations (including vanilla's own non-clunky ladder climb) whenever a player is in 'Vanilla Mode' rather than 'Epic Fight Mode' - vanilla mode is just underused by default because nothing switches the player into it automatically. Epic Tweaks is a small addon (97K downloads/28 followers) whose ONLY dependency is Epic Fight itself (already installed, phase 20) - verified via version-metadata API, zero other deps. Ground-truthed via constant-pool bytecode disassembly of its ClientConfig.class <init> (all three options default `define(name, true)`): autoSwitchMode (auto-switches to Vanilla Mode when not holding a 'combat preferred' item, back to Epic Fight Mode when picking one up), enforceMode (keeps mode consistent with the held item), and filterAnimationFirstPerson ('Forces vanilla rendering in first person view while not holding a combat preferred item, for non-combat motions' - its own shipped comment, default true) are ALL already true out of the box - installing this addon with zero config changes means a player climbing a ladder empty-handed or holding a non-combat item (the overwhelmingly common case) gets vanilla's own climb animation instead of Epic Fight's, with no further setup. Modrinth client_side=required/server_side=optional -> side:both per the standing rule: its PlayerPatchMixin (non-client package, common) mirrors the mode-enforcement logic server-side too, so a matching server install keeps mode state consistent in multiplayer rather than leaving it purely client-predicted. Disclosed honestly: this does not touch Epic Fight's climb animation asset itself, only which mode a player is in when climbing - a player deliberately holding a combat weapon while climbing (relatively rare) still sees Epic Fight's own animation; verify-in-game to confirm the common case now feels right."
+      "note": "GitHub issue #69 item 3 (speed half): 'Look up to climb faster and look down to descend faster on climbable blocks' (verbatim from its own neoforge.mods.toml description) - a direct match for the issue's 'faster ladder climbing based on look direction' ask. Verified via version-metadata API and jar extraction: ZERO dependencies beyond neoforge/minecraft. Modrinth lists client_side=unsupported/server_side=required, but that's a metadata mismatch we caught by inspecting the jar directly - it ships a real FasterLadderClimbingNeoForgeClient class, a ClimbConfigScreen/ClimbSpeedSlider settings GUI, and a ClimbPolicyPayload network packet syncing the server's speed policy to the client, so side:both is the ground-truthed classification, not client_side=unsupported. Zero mixins (grep of the jar's own class list confirms no `mixin` package at all) - it hooks a plain NeoForge tick/interact event and calls Player.move()/setDeltaMovement() directly, so it cannot conflict with Epic Fight's mixin-based animation override (see epicfight_mode_sync.js, pack/kubejs/server_scripts/) - the two operate on different layers (physics vs. rendering) and were verified to touch none of the same classes. Ground-truthed config defaults via constant-pool disassembly of FasterLadderClimbingSettings.class/ServerClimbPolicy.class (no decompiler available): the mod's own DEFAULT_UP_SPEED/DEFAULT_DOWN_SPEED (0.2/-0.2 blocks-per-tick) exactly equal vanilla's own climb speed - i.e. out of the box, before any config, the mod changes nothing perceptible, because its speed boost is `player's configured speed minus vanilla's own baseline`. The shipped server policy (ServerClimbPolicy.DEFAULT: enabled=true, upSpeedLimit=1.25, downSpeedLimit=-1.25, the mod's own MAX_UP_SPEED/MAX_DOWN_SPEED clamp bounds) is already maximally permissive, so no server.json is shipped. pack/config/fasterladderclimbing/client.json ships this pack's own tuned default (climbUpSpeed 0.6 / climbDownSpeed -0.6, 3x vanilla, within the mod's [0.05,1.25]/[-1.25,-0.05] clamp range) so the QoL is actually felt by default rather than requiring every player to find and raise their own client-side slider first; climbMode is left at the mod's own default (INPUT_FIRST, not the stricter LOOK_ONLY) since normal forward-held ladder climbing already reads look pitch under that mode and INPUT_FIRST avoids fighting ordinary WASD movement, matching the mod author's own recommended default."
     },
     {
       "slug": "trashslot",
@@ -1798,8 +1815,8 @@
       "filename": "Controlling-neoforge-1.21.1-19.0.5.jar",
       "url": "https://cdn.modrinth.com/data/xv94TkTM/versions/FaNppCJJ/Controlling-neoforge-1.21.1-19.0.5.jar",
       "hashes": {
-        "sha512": "bd01b2a38a869ea38e5f2a8fcd601e67ea9b132b9883c6ae752bc35dff6e94f6d47b965e31c1ee5c2f6a1221653549680da779fcb5319d199aec261d221d179e",
-        "sha1": "8a34424fc1428778be2fdbfa4da67b21b70bcbfe"
+        "sha1": "8a34424fc1428778be2fdbfa4da67b21b70bcbfe",
+        "sha512": "bd01b2a38a869ea38e5f2a8fcd601e67ea9b132b9883c6ae752bc35dff6e94f6d47b965e31c1ee5c2f6a1221653549680da779fcb5319d199aec261d221d179e"
       },
       "filesize": 77555,
       "side": "client",
@@ -1820,7 +1837,7 @@
       "filesize": 74380,
       "side": "both",
       "phase": 25,
-      "note": "GitHub issue #107: required dep for gravestone-x-curios-api-compat below (its own neoforge.mods.toml declares baguettelib [1.0.0,) REQUIRED). Zero dependencies of its own (version-metadata API confirms an empty dependency list across all its neoforge 1.21.1 releases); pinned to the current latest (2.0.3, 2026-04-05) since the compat mod's own version range is wide open ([1.0.0,)). CORRECTED (client-test-harness hardening, 2026-07-23, same bug class as the epic-tweaks side miss): was side:server on Modrinth's client_side=unsupported/server_side=required metadata alone - wrong. javap decompilation of the actually-installed baguettelib-1.21.1-NeoForge-2.0.3.jar's Baguettelib constructor (which runs unconditionally on both dists, not gated on FMLEnvironment.dist) shows it always calls NetworkManager.create(\"baguettelib\", modBus) and registers an ExamplePacket under channel \"example\" via .serverToClient() - leftover template/boilerplate code, not gated behind any actual feature check. NeoForge's client/server channel-version handshake then requires that exact channel on the client too; with baguettelib absent client-side, every connect attempt is rejected with \"Incompatible client! Please use NeoForge 21.1.235\" (L3's real-client-join tier caught this - Modrinth's client_side/server_side labels only describe the AUTHOR'S INTENDED usage, not what the jar's own code unconditionally does at runtime, and this is the second time that gap has bitten this pack). gravestone-x-curios-api-compat (below) has no network/channel code of its own (confirmed by class listing: only mixins + event handlers, no NetworkManager/registerPacket call) and its neoforge.mods.toml lists baguettelib as a plain required dependency with no side constraint, so it stays side:server unaffected."
+      "note": "GitHub issue #107: required dep for gravestone-x-curios-api-compat below (its own neoforge.mods.toml declares baguettelib [1.0.0,) REQUIRED). Zero dependencies of its own (version-metadata API confirms an empty dependency list across all its neoforge 1.21.1 releases); pinned to the current latest (2.0.3, 2026-04-05) since the compat mod's own version range is wide open ([1.0.0,)). CORRECTED (client-test-harness hardening, 2026-07-23, same bug class as the epic-tweaks side miss): was side:server on Modrinth's client_side=unsupported/server_side=required metadata alone - wrong. javap decompilation of the actually-installed baguettelib-1.21.1-NeoForge-2.0.3.jar's Baguettelib constructor (which runs unconditionally on both dists, not gated on FMLEnvironment.dist) shows it always calls NetworkManager.create(\"baguettelib\", modBus) and registers an ExamplePacket under channel \"example\" via .serverToClient() - leftover template/boilerplate code, not gated behind any actual feature check. NeoForge's client/server channel-version handshake then requires that exact channel on the client too; with baguettelib absent client-side, every connect attempt is rejected with \"Incompatible client! Please use NeoForge 21.1.235\" (L3's real-client-join tier caught this - Modrinth's client_side/server_side labels only describe the AUTHOR'S INTENDED usage, not what the jar's own code unconditionally does at runtime, and this is the second time that gap has bitten this pack). gravestone-x-curios-api-compat (below) has no network/channel code of its own (confirmed by class listing: only mixins + event handlers, no NetworkManager/registerPacket call) and its neoforge.mods.toml lists baguettelib as a plain required dependency with no side constraint, so it stays side:server unaffected - baguettelib now installed on both sides is a superset of before, nothing about the compat mod's own server-only logic needs to change."
     },
     {
       "slug": "gravestone-x-curios-api-compat",
@@ -1830,13 +1847,30 @@
       "filename": "gravestonecurioscompat-1.21.1-NeoForge-4.0.2.jar",
       "url": "https://cdn.modrinth.com/data/NaiL8bPN/versions/ugBtElN2/gravestonecurioscompat-1.21.1-NeoForge-4.0.2.jar",
       "hashes": {
-        "sha512": "c8e93920179c13f1b147a405f7726d74fd12c2b7e46286b8bf52070446230e0fc15962f9b9ea2134c2da580cee6381279bbb67fb987969f253cfab350b77dee7",
-        "sha1": "3674669dcacef907369219ed3869c83889e4f1ee"
+        "sha1": "3674669dcacef907369219ed3869c83889e4f1ee",
+        "sha512": "c8e93920179c13f1b147a405f7726d74fd12c2b7e46286b8bf52070446230e0fc15962f9b9ea2134c2da580cee6381279bbb67fb987969f253cfab350b77dee7"
       },
       "filesize": 17532,
       "side": "server",
       "phase": 25,
       "note": "GitHub issue #107 (BUG): Gravestone restores armour/items to their correct slots but not Curios. Ground-truthed against the actually-installed gravestone-neoforge-1.21.1-1.0.37.jar (phase 22): its own neoforge.mods.toml declares zero Curios dependency and jar extraction confirms zero 'curio'-named classes/resources anywhere in the 198-entry jar - henkelmax's Gravestone Mod has NO Curios integration whatsoever, config toggle or otherwise (ruling out option (a), a config fix - there is no such option to flip). This is option (b): a dedicated compat addon, 'Gravestone x Curios API Compat', exists specifically to close this gap ('allows you to directly equip your Curios items to the respective slots' per its own Modrinth description) - a mod swap (option (c)) is unnecessary and would be far more disruptive than this small, purpose-built addon. Pinned to 4.0.2 (2026-04-07) rather than the older 3.0.1/2.1.0 releases specifically BECAUSE its changelog directly targets this issue's exact complaint: 'Individual slot tracking ensuring curios restore to their original positions' (plus cosmetic-slot support, Curse of Binding handling, and Curios' own keepCurios-config compliance) - a full rewrite over the older versions' simpler restore logic. Ground-truthed via jar extraction of its own neoforge.mods.toml (note: internal package/class names read 'corpsecurioscompat' - a shared codebase with the author's sibling 'Corpse x Curios API Compat' mod for a different death-storage mod; cosmetic naming leftover, not a wrong-jar mixup, confirmed by its mixin targets below): requires gravestone [1.0.24,) (installed 1.0.37 satisfies), curios [9.0.0,) (installed 9.5.1 satisfies), baguettelib [1.0.0,) (added directly above), neoforge [4,) and minecraft [1.21.1,1.22) - all straightforward, no version conflicts. Its two mixins (GraveStoneBlockMixin, CurioStacksHandlerMixin, both required, JAVA_21 compatibility level) directly target henkelmax's actual GraveStoneBlock class and Curios' own CurioStacksHandler class, confirming a genuine, targeted integration rather than a generic reimplementation. Modrinth client_side=unsupported/server_side=required -> side:server (matches: Curios restoration on grave-break is server-authoritative inventory logic, same as Gravestone's own core mechanism). No config shipped - the mod's behavior (restore Curios to original slots on grave pickup) is its sole purpose with no documented toggle found in its class list; verify-in-game that breaking/sneak-picking-up a grave now returns worn Curios items to their original trinket slots instead of the general inventory."
+    },
+    {
+      "slug": "vppquests",
+      "project_id": "vppquests",
+      "version_id": "0.1.0",
+      "version_number": "0.1.0",
+      "filename": "vppquests-0.1.0.jar",
+      "url": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
+      "local_path": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
+      "hashes": {
+        "sha1": "193d14499301d068b32de7d7b1f571c0ee4924df",
+        "sha512": "d24180e4ba7e2e9595a05a0deb6a6eb889cf522e1f70c2219bac0a869ffb4871c2871b858cb087f27f1897fdd72481610f87b77b652c6e0862ee3bca909fcb0b"
+      },
+      "filesize": 55133,
+      "side": "both",
+      "phase": 26,
+      "note": "GitHub #109 Phase C (cutover): wires the hand-rolled vppquests custom questing mod (mods-src/vppquests/, see its README.md and DESIGN.md's '#109' sections) into the pack so it actually loads, following the mods-src/<modid>/ convention #67 established (vppintegration is the other worked example). Both sides required - QuestScreen's GUI and keybind are client-rendered, but QuestRegistry/QuestReloadListener/QuestProgressAttachment/QuestProgressTracker/QuestLegacyMigration are server-authoritative. Ships Phase A (scaffold: data model, data attachment, networking, first-pass list-view GUI) + Phase B (QuestLegacyMigration: one-time identity-mapping carry-forward of a player's already-complete quests out of quests.js's legacy save file) + the deferred half of Phase A (scripts/gen_vppquests_data.py ports the real 62-quest/10-chapter book into pack/kubejs/data/vanillaplusplus/vppquests/{chapter,quest}/**, replacing the 3 placeholder example quests the scaffold originally shipped). DELIBERATE INTERIM STATE (not yet a full cutover - see DESIGN.md's Phase C description, which gates removing the legacy system on Phase B's migration being 'confirmed correct in practice'; no live server has boot-verified that yet in this sandbox): pack/kubejs/server_scripts/quests.js/achievements.js/dailies.js and the advancement-generation code are all left installed and running exactly as before - both quest UIs (this mod's QuestScreen and the old vanilla-advancement GUI) are simultaneously present until an in-game pass confirms the migration is correct, at which point removing the legacy system is the actual Phase C completion. No dependency requirements of its own (a standalone, Modrinth-publishable mod per its own README - zero required deps in its neoforge.mods.toml)."
     }
   ]
 }

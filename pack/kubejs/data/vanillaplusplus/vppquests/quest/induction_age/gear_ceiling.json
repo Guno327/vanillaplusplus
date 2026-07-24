@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:induction_age",
+  "title": "Allthemodium",
+  "description": [
+    "Smelt an Allthemodium Ingot - this pack's own post-netherite Silent Gear material floor, carrying gear progression into the space tiers."
+  ],
+  "icon": "allthemodium:allthemodium_ingot",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:induction_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "allthemodium:allthemodium_ingot",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 150
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 1
+    }
+  ]
+}

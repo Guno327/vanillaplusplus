@@ -1,0 +1,11 @@
+{
+	"unlocked_by_default": true,
+	"title": "Adventurer",
+	"icon": {
+		"type": "item",
+		"data": {
+			"item": "nether_star"
+		}
+	},
+	"background": "textures/gui/advancements/backgrounds/end.png"
+}

@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:induction_age",
+  "title": "Steam-Powered Flight",
+  "description": [
+    "Craft a Steam Vent (Create Aeronautics) - the passive, industrial-scale heat source for sustained airship lift."
+  ],
+  "icon": "aeronautics:steam_vent",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:induction_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "aeronautics:steam_vent",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 150
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 1
+    }
+  ]
+}

@@ -79,7 +79,29 @@ const DISTANCE_STEP_BONUS = 0.15
 const MAX_DISTANCE_FACTOR = 2.5
 const NEARBY_PLAYER_RANGE = 64
 
-const STAR_COLORS = ['gray', 'green', 'yellow', 'gold', 'red', 'dark_red']
+// #101 (2nd pass, 2026-07-23): owner re-tested the star-suffix fix from
+// #110 in-game on v0.5.2 and reported it still reads badly - "a randomly
+// long string of asterisks" after the name (1-6 raw '*' chars depending on
+// starCount looks like noise, not a rating). Requested a simpler scheme
+// instead: leave the mob's real name alone and just COLOR it by relative
+// difficulty - no appended text at all. Four tiers per the owner's own
+// wording: green = weaker than you, yellow = similar strength, red =
+// harder, purple = much harder/probably impossible. "purple" isn't one of
+// vanilla's ChatFormatting color names (dark_purple/light_purple are), so
+// dark_purple is used as the closest match.
+const DIFFICULTY_TIERS = [
+    { max: 1.15, color: 'green' },   // weaker than you
+    { max: 1.6, color: 'yellow' },   // similar strength to you
+    { max: 2.2, color: 'red' },      // harder than you
+    { max: Infinity, color: 'dark_purple' }, // much harder, probably impossible
+]
+
+function difficultyColor(difficulty) {
+    for (const tier of DIFFICULTY_TIERS) {
+        if (difficulty <= tier.max) return tier.color
+    }
+    return DIFFICULTY_TIERS[DIFFICULTY_TIERS.length - 1].color
+}
 
 function distanceFactor(pos, spawnPos) {
     const dx = pos.getX() - spawnPos.getX()
@@ -130,7 +152,17 @@ EntityEvents.spawned(event => {
     const playerFactor = nearestPlayerTierFactor(entity.server.players, entity.blockPosition())
     const difficulty = dimFactor * distFactor * playerFactor
 
-    if (difficulty <= 1.01) return // baseline mob, leave it alone - no nametag clutter
+    entity.persistentData.putDouble('vpp_difficulty', difficulty)
+
+    // Color the mob's own, untouched name by relative difficulty - see the
+    // DIFFICULTY_TIERS comment above for why (replaces #110's star suffix).
+    // Applied to every monster, including baseline ones (green), so the
+    // color itself is the "look at it and tell" signal instead of only
+    // showing a nametag once a mob crosses the scaling threshold.
+    entity.setCustomName(Text.of(entity.getName()).color(difficultyColor(difficulty)))
+    entity.setCustomNameVisible(true)
+
+    if (difficulty <= 1.01) return // baseline mob: name is colored green above, no attribute scaling needed
 
     // add_multiplied_base: finalValue = base * (1 + sum of these modifiers), so
     // passing (difficulty - 1) scales base by `difficulty`.
@@ -144,34 +176,14 @@ EntityEvents.spawned(event => {
     // entity.modifyAttribute() coerces to vanilla's
     // AttributeModifier.Operation enum, whose only valid ids are add_value,
     // add_multiplied_base and add_multiplied_total. Passing 'multiply_base'
-    // threw IllegalArgumentException on EVERY scaled spawn, before setHealth /
-    // the vpp_difficulty tag / the star nametag ran - so mob scaling silently
-    // did nothing at all, and the death-reward bonus that reads that tag never
-    // paid out either. Nothing outside a server-log ERROR line said so.
+    // threw IllegalArgumentException on EVERY scaled spawn, before setHealth
+    // ran - so the health/damage scaling silently did nothing at all (the
+    // vpp_difficulty tag and colored name above are set earlier and were
+    // unaffected, but the death-reward bonus that reads that tag never paid
+    // out either). Nothing outside a server-log ERROR line said so.
     entity.modifyAttribute('minecraft:generic.max_health', 'vanillaplusplus:mob_scaling_health', difficulty - 1, MS_SCALING_OPERATION)
     entity.modifyAttribute('minecraft:generic.attack_damage', 'vanillaplusplus:mob_scaling_damage', difficulty - 1, MS_SCALING_OPERATION)
     entity.setHealth(entity.getMaxHealth())
-
-    entity.persistentData.putDouble('vpp_difficulty', difficulty)
-
-    const starCount = Math.min(Math.floor((difficulty - 1) / 0.3) + 1, STAR_COLORS.length)
-    const color = STAR_COLORS[starCount - 1]
-
-    // #101: this used to be entity.setCustomName(Text.of('*'.repeat(starCount))...)
-    // - i.e. it REPLACED the customName outright with a bare string of
-    // asterisks. Minecraft uses getName()/customName verbatim both for the
-    // above-head nametag AND for death messages ("%s was slain by %s"
-    // substitutes the killed entity's getName()), so that one line clobbered
-    // both: every scaled mob's nameplate AND its death message became just
-    // "**". Fix: capture the mob's real default name first (entity.getName()
-    // is still untouched here - nothing has called setCustomName on this
-    // entity yet, so it's the vanilla translated species name, e.g.
-    // "Zombie") and append the star rating as a suffix instead of replacing
-    // it, so both the nameplate and death message read e.g. "Zombie **".
-    const baseName = entity.getName()
-    const starSuffix = Text.of(' ' + '*'.repeat(starCount)).color(color)
-    entity.setCustomName(Text.of(baseName).append(starSuffix))
-    entity.setCustomNameVisible(true)
 })
 
 // Reward scaling: bonus currency proportional to how much tougher than

@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:lunar_frontier",
+  "title": "One Small Step",
+  "description": [
+    "Travel to the Moon - the real trigger for Martian Frontier."
+  ],
+  "icon": "minecraft:end_crystal",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:lunar_frontier/steel_age"
+  ],
+  "tasks": [
+    {
+      "type": "dimension",
+      "dimension": "stellaris:moon"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "item",
+      "item": "numismatics:crown",
+      "count": 2
+    },
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 1500
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:starforged_age",
+  "title": "Liftoff",
+  "description": [
+    "Launch your rocket and reach Earth orbit - the real trigger for Lunar Frontier."
+  ],
+  "icon": "stellaris:rocket",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:starforged_age/rocket_parts"
+  ],
+  "tasks": [
+    {
+      "type": "dimension",
+      "dimension": "stellaris:earth_orbit"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "item",
+      "item": "numismatics:crown",
+      "count": 2
+    },
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 1200
+    }
+  ]
+}

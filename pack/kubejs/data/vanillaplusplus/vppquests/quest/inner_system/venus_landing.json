@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:inner_system",
+  "title": "Morning Star (optional)",
+  "description": [
+    "Travel to Venus - either inner planet triggers Jovian Frontier, so this and Mercury are both optional."
+  ],
+  "icon": "minecraft:magma_block",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:inner_system/electrical_age"
+  ],
+  "tasks": [
+    {
+      "type": "dimension",
+      "dimension": "stellaris:venus"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 200
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 6
+    }
+  ]
+}

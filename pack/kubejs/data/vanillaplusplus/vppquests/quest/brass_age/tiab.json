@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:brass_age",
+  "title": "Time in a Bottle",
+  "description": [
+    "Craft the Time in a Bottle tick accelerator - one per player, and it won't speed up spawners."
+  ],
+  "icon": "tiab:time_in_a_bottle",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:brass_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "tiab:time_in_a_bottle",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 50
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 4
+    }
+  ]
+}

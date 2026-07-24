@@ -1,0 +1,22 @@
+{
+  "chapter": "vanillaplusplus:rootborn",
+  "title": "Welcome to Vanilla++",
+  "description": [
+    "Punch some trees, then check this book after every tier-up - each chapter is a checklist for that tier's real progression."
+  ],
+  "icon": "minecraft:crafting_table",
+  "frame": "task",
+  "dependencies": [],
+  "tasks": [
+    {
+      "type": "checkmark"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 10
+    }
+  ]
+}

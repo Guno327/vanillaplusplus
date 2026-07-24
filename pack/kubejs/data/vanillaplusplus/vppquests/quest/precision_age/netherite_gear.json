@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:precision_age",
+  "title": "Netherite Gear",
+  "description": [
+    "Craft another Silent Gear pickaxe with Precision Age's material - the tool-tier milestone for this age."
+  ],
+  "icon": "minecraft:netherite_pickaxe",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:precision_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "silentgear:pickaxe",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 90
+    },
+    {
+      "type": "item",
+      "item": "numismatics:sprocket",
+      "count": 1
+    }
+  ]
+}

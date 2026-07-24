@@ -16,6 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import version_kubejs  # noqa: E402  (bakes pack/VERSION into a KubeJS constant, shared with build_mrpack.py)
+import build_local_mods  # noqa: E402  (#145: build this pack's own local mods on demand)
 
 ROOT = Path(__file__).resolve().parent.parent
 LOCKFILE = ROOT / "pack" / "mods.lock.json"
@@ -149,10 +150,33 @@ def ensure_neoforge_installed(lock: dict) -> None:
     print(f"ok      neoforge {version} server install verified")
 
 
+def ensure_local_mods_built(lock: dict) -> None:
+    """#145: this pack's own mods (mods-src/<modid>/) ship as source, not a
+    committed jar - their reproducible-build jar is what the lockfile hash was
+    taken from. Build them here if any local jar is missing or hash-stale so a
+    fresh checkout (or the L3 host / release bundler) has the jars build_server
+    then copies. Builds are byte-reproducible (see each build.gradle's
+    AbstractArchiveTask config), so a rebuilt jar re-matches the pinned sha1;
+    only invoked when needed, since it requires a JDK on PATH."""
+    stale = []
+    for mod in lock["mods"]:
+        lp = mod.get("local_path")
+        if not lp:
+            continue
+        src = ROOT / lp
+        if not src.is_file() or sha1_of(src) != mod["hashes"]["sha1"]:
+            stale.append(mod["slug"])
+    if not stale:
+        return
+    print(f"building local mod(s) (jar missing or hash-stale): {', '.join(stale)}")
+    build_local_mods.main()
+
+
 def main():
     lock = json.loads(LOCKFILE.read_text())
 
     ensure_neoforge_installed(lock)
+    ensure_local_mods_built(lock)
 
     mods_dir = SERVER / "mods"
     mods_dir.mkdir(parents=True, exist_ok=True)
@@ -215,6 +239,15 @@ def main():
         version_kubejs.render_version_script(pack_version, "build_server.py")
     )
     print(f"synced   kubejs/startup_scripts/{version_kubejs.GENERATED_FILENAME} (v{pack_version})")
+
+    # GitHub issue #94 follow-up: same pack/VERSION value, baked as a plain
+    # text file mods-src/vppintegration's Java PackVersionGate reads at
+    # NeoForge's CONFIGURATION network phase - earlier than any KubeJS
+    # script can run. See version_kubejs.py.
+    config_version_path = SERVER / "config" / version_kubejs.CONFIG_VERSION_RELATIVE_PATH
+    config_version_path.parent.mkdir(parents=True, exist_ok=True)
+    config_version_path.write_text(version_kubejs.render_config_version_file(pack_version))
+    print(f"synced   config/{version_kubejs.CONFIG_VERSION_RELATIVE_PATH} (v{pack_version})")
 
     # Performance-tuned JVM args / server.properties (Phase 9) - tracked
     # source files, not the gitignored server/ copies, so the tuning survives

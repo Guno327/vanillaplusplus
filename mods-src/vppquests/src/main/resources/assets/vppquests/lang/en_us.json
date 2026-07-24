@@ -1,0 +1,6 @@
+{
+  "key.categories.vppquests": "VPP Quests",
+  "key.vppquests.open_quests": "Open Quest Book",
+  "gui.vppquests.quest_screen.title": "Quests",
+  "vppquests.quest.completed": "Quest completed: %s"
+}

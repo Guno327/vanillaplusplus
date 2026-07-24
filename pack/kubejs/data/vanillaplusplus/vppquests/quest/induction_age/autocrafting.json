@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:induction_age",
+  "title": "Native Autocrafting",
+  "description": [
+    "Craft an Autocrafting Upgrade - Refined Storage's own pattern-based autocrafter, no more Mechanical Arm needed for storage automation."
+  ],
+  "icon": "refinedstorage:autocrafting_upgrade",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:induction_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "refinedstorage:autocrafting_upgrade",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 150
+    },
+    {
+      "type": "item",
+      "item": "numismatics:cog",
+      "count": 1
+    }
+  ]
+}

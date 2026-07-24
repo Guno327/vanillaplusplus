@@ -1,0 +1,24 @@
+{
+  "chapter": "vanillaplusplus:starforged_age",
+  "title": "True Flight",
+  "description": [
+    "Double-tap jump to toggle flight - it's granted the instant you reached this tier, no item or fuel required, and it survives death."
+  ],
+  "icon": "minecraft:elytra",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:starforged_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "checkmark"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 100
+    }
+  ]
+}

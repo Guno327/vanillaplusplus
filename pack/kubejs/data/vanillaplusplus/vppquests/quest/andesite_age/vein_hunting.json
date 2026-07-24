@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:andesite_age",
+  "title": "Vein Hunting",
+  "description": [
+    "Craft a Vein Finder (Create Ore Excavation) - the entry-level scouting tool for this pack's ore-vein system."
+  ],
+  "icon": "createoreexcavation:vein_finder",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:andesite_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "createoreexcavation:vein_finder",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 30
+    },
+    {
+      "type": "item",
+      "item": "numismatics:spur",
+      "count": 2
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:brass_age",
+  "title": "Enter the Brass Age",
+  "description": [
+    "Automation begins in earnest. Diamond gear, the Nether, and a real powered storage network are all open now."
+  ],
+  "icon": "create:brass_ingot",
+  "frame": "goal",
+  "dependencies": [
+    "vanillaplusplus:andesite_age/into_brass"
+  ],
+  "tasks": [
+    {
+      "type": "gamestage",
+      "stage": "brass_age"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 150
+    },
+    {
+      "type": "item",
+      "item": "create:brass_ingot",
+      "count": 1
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "chapter": "vanillaplusplus:precision_age",
+  "title": "Brass Jetpack",
+  "description": [
+    "Craft the Brass Jetpack - steam-fired, rung 3 of the mobility ladder, and the base item the Induction Age netherite jetpack smiths from."
+  ],
+  "icon": "create_sa:brass_jetpack_chestplate",
+  "frame": "task",
+  "dependencies": [
+    "vanillaplusplus:precision_age/enter"
+  ],
+  "tasks": [
+    {
+      "type": "item",
+      "item": "create_sa:brass_jetpack_chestplate",
+      "count": 1,
+      "consume": true,
+      "onlyFromCrafting": true
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 90
+    },
+    {
+      "type": "item",
+      "item": "numismatics:sprocket",
+      "count": 1
+    }
+  ]
+}

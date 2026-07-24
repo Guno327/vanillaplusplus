@@ -1,0 +1,30 @@
+{
+  "chapter": "vanillaplusplus:inner_system",
+  "title": "Enter the Inner System",
+  "description": [
+    "Mars is conquered. Venus and Mercury - both extreme, comparably hostile - are next."
+  ],
+  "icon": "minecraft:magma_block",
+  "frame": "goal",
+  "dependencies": [
+    "vanillaplusplus:martian_frontier/mars_landing"
+  ],
+  "tasks": [
+    {
+      "type": "gamestage",
+      "stage": "inner_system"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "xp",
+      "category": "adventurer",
+      "amount": 2100
+    },
+    {
+      "type": "item",
+      "item": "tfmg:electric_motor",
+      "count": 1
+    }
+  ]
+}
