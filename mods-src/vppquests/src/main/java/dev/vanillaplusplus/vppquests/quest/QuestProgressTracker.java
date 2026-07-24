@@ -47,8 +47,11 @@ import java.util.Optional;
  *   KubeJS {@code player.stages} so the chapter-"enter" quests complete on
  *   reaching each age (GitHub #166). {@code gamestage} <em>rewards</em> are
  *   still a no-op here for the same standalone reason.</li>
- *   <li>{@code xp} rewards grant vanilla experience points, not this pack's
- *   RPG-skill-mod categories, for the same standalone-mod reason.</li>
+ *   <li>{@code xp} rewards route through the optional, pack-supplied
+ *   {@link QuestRewardBridge}: unwired standalone they grant vanilla
+ *   experience (the historical default), but the reward's {@code category}
+ *   is a skill category, so the Vanilla++ pack wires the bridge to grant
+ *   Pufferfish's Skills XP in that category (GitHub #164 item 5).</li>
  * </ul>
  * A full gameplay-accurate tracker (event-based kill/craft hooks, a real
  * gamestage bridge) is explicitly out of Phase A's scope per the task
@@ -224,7 +227,11 @@ public final class QuestProgressTracker {
             switch (reward) {
                 case QuestReward.ItemReward item -> BuiltInRegistries.ITEM.getOptional(item.item())
                         .ifPresent(resolved -> player.getInventory().placeItemBackInInventory(new ItemStack(resolved, item.count())));
-                case QuestReward.XpReward xp -> player.giveExperiencePoints(xp.amount());
+                // Routed through the pack-supplied QuestRewardBridge (GitHub
+                // #164 item 5): the reward's `category` ("adventurer") is a
+                // skill category, not vanilla XP. Unwired standalone -> vanilla
+                // XP (default); the Vanilla++ pack grants puffish skill XP.
+                case QuestReward.XpReward xp -> QuestRewardBridge.grantSkillXp(player, xp.category(), xp.amount());
                 case QuestReward.CommandReward command -> {
                     String resolved = command.command().replace("{p}", player.getGameProfile().getName());
                     player.getServer().getCommands().performPrefixedCommand(player.createCommandSourceStack(), resolved);
