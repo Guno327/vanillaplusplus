@@ -262,10 +262,10 @@
       "url": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "local_path": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "hashes": {
-        "sha1": "e44767a2601e1dd8bb17514cbf1226699dea3a34",
-        "sha512": "2d704a4fc43ae24c8a88c8db0c9e9dadd9fa8b6a1dc74f0431c2e39bfe29a986534447368e49468f16fdcbd93b1aedfadc6898e6c5d241f69d7271c85db1f05a"
+        "sha1": "1eab81afb90b7271f80165a67587522d77197d89",
+        "sha512": "d1e9a8c2e8afbc8fff0b2bde70b055de33048623f0c9717635b7dcd00a171aeed4d672ed7492e505e18dee560addf371e5c44d67431431c0eac4069a286063ca"
       },
-      "filesize": 68857,
+      "filesize": 76575,
       "side": "both",
       "phase": 7,
       "note": "GitHub #67: hand-rolled Overgeared x Silent Gear quality bridge (mods-src/vppintegration/, see its README.md). Requires both silent-gear and overgeared above at their pinned versions. Ships 6 example forging recipes (copper/iron sword/pickaxe/axe heads) as a first working slice; full material-tier coverage (steel, ATM chain, cold-forging for gemstones) is a follow-up, see mods-src/vppintegration/README.md's 'Extending to the pack's full material ladder'."

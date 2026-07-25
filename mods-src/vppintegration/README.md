@@ -149,6 +149,85 @@ datapack/mixin load cleanly, not gameplay correctness):
   end-to-end in the actual anvil minigame (they now at least load and
   register correctly, per the boot test above).
 
+## Paxel assembly (GitHub #67 Phase 3)
+
+Silent Gear already ships a native, fully-supported "paxel" gear type (`net
+.silentchaos512.gear.item.gear.GearPaxelItem`, plus `silentgear:paxel_head`/
+`paxel_blueprint`/`paxel_template` items, mineable tags, and weapon attributes
+- confirmed present in `server/mods/silent-gear-1.21.1-neoforge-4.2.1.1.jar`;
+this pack does not register a new gear type for it the way `DrillGear.java`
+does for #154's drill). What Silent Gear does NOT ship is a way to build a
+paxel head from this pack's own already-forged pickaxe/axe/shovel heads (its
+own `silentgear:paxel_head` recipe instead consumes 5 raw material items via a
+blueprint, unrelated to the anvil). This mod adds exactly that: combining 3
+same-material pickaxe/axe/shovel heads into a paxel head through the
+Overgeared anvil, with the resulting head's Overgeared quality = the forge
+roll x the 3 input heads' own already-rolled quality.
+
+- `data/overgeared/recipe/forging/paxel_head_silentgear.json` is the ONE
+  recipe needed for every material tier (unlike Phase 2's one-recipe-per-tier
+  ladder) - `silentgear:pickaxe_head`/`axe_head`/`shovel_head` are each a
+  single item id regardless of material (the material is a data component,
+  not part of the item id), so a single 3-key forging pattern
+  (`silentgear:pickaxe_head` + `axe_head` + `shovel_head`) matches any tier.
+  It intentionally omits the `blueprint` field, the same way this mod's
+  existing `iron_hammer_head_silentgear.json` does - Overgeared has no native
+  "paxel" blueprint type to require, and `ForgingRecipe.checkBlueprint`
+  (confirmed via `javap -c`) treats an absent/empty `blueprintTypes` set as
+  "blueprint slot must just be empty", not "recipe invalid".
+- `dev.vanillaplusplus.vppintegration.mixin.PaxelHeadForgingMixin` is a
+  SEPARATE mixin class from `AbstractSmithingAnvilBlockEntityMixin` (both
+  target `AbstractSmithingAnvilBlockEntity`; Mixin supports multiple mixin
+  classes on one target). This was a deliberate, bytecode-driven decision, not
+  a style choice - see the next section.
+- `dev.vanillaplusplus.vppintegration.gear.PaxelHeadRecipe` (pure "3
+  same-material heads" validation) and `dev.vanillaplusplus.vppintegration
+  .quality.PaxelQualityMath` (pure forge-roll x input-quality arithmetic) have
+  zero Minecraft/Silent Gear/Overgeared imports specifically so they're
+  unit-testable on a bare JVM classpath - see `src/test/java/...` (`./gradlew
+  test`, part of `./gradlew build`). `PaxelQualityMath` treats the derived
+  input quality as a fraction (POOR=20% .. MASTER=100%) that scales the forge
+  roll level down, rather than multiplying the two 1..5 levels directly - see
+  that class's own doc for why (unbounded multiplication of two good rolls
+  would blow past the 5-level scale and need clamping to mean "average"
+  instead of reading as "excellent").
+
+### A real defect found in already-merged Phase 1/2 code while building this
+
+Two independent `javap -c` checks against `server/mods/silent-gear-1.21.1-
+neoforge-4.2.1.1.jar` show `AbstractSmithingAnvilBlockEntityMixin`'s existing
+material-correction loop cannot actually apply to any of this pack's Phase
+1/2 forging results (`*_head`/`*_blade` items), Paxel included:
+
+- The loop's filter, `slotStack.getItem() instanceof GearItem`, never matches
+  `silentgear:pickaxe_head`/`axe_head`/`shovel_head`/`hoe_head`/`sword_blade`/
+  `paxel_head`. All of them are `MainPartItem` (which extends
+  `CompoundPartItem`, which extends plain `Item`) - `javap -p` on all three
+  classes shows none of that chain has an `implements` clause naming
+  `net.silentchaos512.gear.api.item.GearItem`. Only the fully-assembled tool
+  items (`GearPickaxeItem`, `GearPaxelItem`, etc.) implement it.
+- Separately, `GearData.recalculateGearData(ItemStack, Player)` (`javap -c`)
+  reads `SgDataComponents.GEAR_CONSTRUCTION` first and returns immediately if
+  it's null - and a bare part/head stack never has that component (only an
+  assembled gear item built from a `PartList` does), so the call is a
+  guaranteed no-op on a head stack regardless of the `instanceof` question
+  above.
+
+Net effect: as merged, `AbstractSmithingAnvilBlockEntityMixin`'s correction
+body appears to be dead code for every one of Phase 1/2's forging recipes -
+it "applies" cleanly (no `MixinApplyError`, matching the boot log) but its
+`@Inject` body's `instanceof` guard is never true for a head/blade result, so
+the loop silently does nothing. This is a pre-existing condition in code this
+Phase 3 change did not introduce and was told to work only within its own
+scope to fix - flagged here (and in the #67 Phase 3 PR) rather than silently
+worked around. `PaxelHeadForgingMixin` does NOT reuse that loop's filter or
+call `recalculateGearData`; it matches on the real item id instead and writes
+`MATERIAL_LIST`/`FORGING_QUALITY` directly via `ItemStack.set(...)` - correct
+for a part item because `CompoundPartItem.getMaterials(ItemStack)`/
+`getPrimaryMaterial(ItemStack)` (`javap`-confirmed) read those components
+directly off the stack on demand, with no separate cached/computed state that
+would need a recalculation call to refresh.
+
 ## Extending to the pack's full material ladder
 
 **Done as of GitHub #67 Phase 2.** `data/overgeared/recipe/forging/

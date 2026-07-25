@@ -76,6 +76,18 @@ import org.slf4j.LoggerFactory;
  *   {@code ItemAttributeModifierEvent} listener, already shipped in the jar,
  *   nothing added here) layers the quality bonus on top for free, exactly the
  *   mechanism the #67 investigation identified as "genuinely pure data".</li>
+ *   <li>{@link dev.vanillaplusplus.vppintegration.mixin.PaxelHeadForgingMixin}
+ *   (GitHub issue #67 Phase 3) combines 3 same-material Silent Gear tool heads
+ *   (pickaxe/axe/shovel heads - the parts Phase 1/2's own forging recipes
+ *   already produce) into a {@code silentgear:paxel_head} through the same
+ *   anvil, whose resulting Overgeared quality is the forge roll multiplied by
+ *   the 3 input heads' own already-rolled quality (see that mixin's class doc
+ *   for why this is a separate mixin class rather than an extra branch on
+ *   {@link dev.vanillaplusplus.vppintegration.mixin.AbstractSmithingAnvilBlockEntityMixin} -
+ *   short version: that mixin's {@code instanceof GearItem}/{@code
+ *   recalculateGearData} correction path is bytecode-confirmed to never apply
+ *   to a bare part/head item at all, Paxel included, so this feature could not
+ *   safely reuse it as-is).</li>
  * </ul>
  *
  * <p>See this mod's README.md for the full design writeup, confidence levels per

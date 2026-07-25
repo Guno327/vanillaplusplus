@@ -72,6 +72,24 @@ PART_TYPE_RESULT_IDS = {
 RESULT_ID_TO_PART_TYPE = {v: k for k, v in PART_TYPE_RESULT_IDS.items()}
 REQUIRED_PART_TYPES = set(PART_TYPE_RESULT_IDS)
 
+# GitHub #67 Phase 3 "Paxel": a structurally DIFFERENT kind of forging recipe
+# from the heated-metal -> tool-head ladder above. It combines 3 same-material
+# Silent Gear tool heads (pickaxe/axe/shovel heads - the exact ids the Phase
+# 1/2 forging recipes already produce) into a silentgear:paxel_head; the
+# per-material correction happens in PaxelHeadForgingMixin, not here. Because
+# its inputs are tool-head item ids (not heated-metal ingots) and its result
+# is paxel_head (not a tool-head part), it is exempt from both the
+# heated-metal key constraint and the (metal x part) coverage matrix - it is
+# validated as a "combination" recipe instead (see check_forging_recipes). SG
+# ships silentgear:paxel_head as a native part item (verified against
+# server/mods/silent-gear-*.jar's data/silentgear), so no new item is added.
+PAXEL_RESULT_ID = "silentgear:paxel_head"
+PAXEL_HEAD_INPUT_IDS = {
+    "silentgear:pickaxe_head",
+    "silentgear:axe_head",
+    "silentgear:shovel_head",
+}
+
 # Overgeared's own native heated-metal items (javap against
 # net.stirdrem.overgeared.item.ModItems: HEATED_IRON_INGOT/HEATED_COPPER_INGOT
 # are the only two backed by a plain vanilla ingredient this pack's own
@@ -167,6 +185,15 @@ def check_forging_recipes(root):
         if not isinstance(pattern, list) or not pattern or not all(isinstance(p, str) for p in pattern):
             errors.append(f"{rel}: 'pattern' is missing/not a non-empty list of strings")
 
+        # A paxel combination recipe (result == paxel_head) is a distinct shape:
+        # its key items are the 3 tool-head ids and it is exempt from the
+        # heated-metal key + coverage rules the metal ladder uses.
+        result_pre = doc.get("result")
+        is_paxel = (
+            isinstance(result_pre, dict)
+            and result_pre.get("id") == PAXEL_RESULT_ID
+        )
+
         # --- key ---
         key = doc.get("key")
         material = None
@@ -179,7 +206,13 @@ def check_forging_recipes(root):
                     continue
                 if "item" in ingredient:
                     item_id = ingredient["item"]
-                    if item_id not in KNOWN_KEY_ITEM_TO_MATERIAL:
+                    if is_paxel:
+                        if item_id not in PAXEL_HEAD_INPUT_IDS:
+                            errors.append(
+                                f"{rel}: paxel combination key item {item_id!r} is not one of "
+                                f"the expected tool-head inputs {sorted(PAXEL_HEAD_INPUT_IDS)}"
+                            )
+                    elif item_id not in KNOWN_KEY_ITEM_TO_MATERIAL:
                         errors.append(
                             f"{rel}: key item {item_id!r} is not a known heated-metal item "
                             f"(native Overgeared or vppintegration's own HeatedMetals.java)"
@@ -200,7 +233,11 @@ def check_forging_recipes(root):
             errors.append(f"{rel}: 'result' is missing/not an object with a string 'id'")
         else:
             result_id = result["id"]
-            if result_id not in RESULT_ID_TO_PART_TYPE:
+            if result_id == PAXEL_RESULT_ID:
+                # Combination recipe: valid result, but not part of the
+                # (metal x part) coverage matrix - leave part_type None.
+                pass
+            elif result_id not in RESULT_ID_TO_PART_TYPE:
                 errors.append(
                     f"{rel}: result id {result_id!r} is not a known Silent Gear tool-head part id "
                     f"(expected one of {sorted(PART_TYPE_RESULT_IDS.values())})"
