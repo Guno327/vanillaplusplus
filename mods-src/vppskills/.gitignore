@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+# gradle-wrapper.jar (a binary) is intentionally NOT committed - vendoring a
+# binary wrapper jar isn't otherwise this repo's convention. gradlew/gradlew.bat
+# (plain shell/bat scripts) ARE committed so a build environment doesn't need
+# its own Gradle install just to bootstrap this one; see README.md "Build
+# instructions" for the one-time `gradle wrapper` step that (re)produces the
+# jar the committed scripts expect at gradle/wrapper/gradle-wrapper.jar.
+gradle/wrapper/gradle-wrapper.jar
+
+# Local compile-only jars (none are actually needed by this mod - it calls no
+# other mod's Java API in phase 1, only its own build-time-ported copy of
+# puffish_skills' generated JSON data - see README.md) - keep the convention
+# consistent with mods-src/vppfixes and mods-src/vppintegration regardless.
+libs/*.jar
+
+# IDE
+.idea/
+*.iml
+out/
+eclipse/
+run/

@@ -1,0 +1,156 @@
+plugins {
+    id "java-library"
+    id "eclipse"
+    id "idea"
+    id "maven-publish"
+    id "net.neoforged.moddev" version "2.0.78"
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = neo_version
+
+    parchment {
+        minecraftVersion = minecraft_version
+        mappingsVersion = "2024.11.17"
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+        }
+        server {
+            server()
+            systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            programArgument "--nogui"
+        }
+        configureEach {
+            systemProperty "forge.logging.markers", ""
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+// --- #163 phase 1: port the pack's real puffish_skills tree data into this ---
+// mod's own jar at build time, under this mod's OWN namespace/asset path
+// (assets/vppskills/tree/categories/**), rather than depending at runtime on a
+// live datapack connection to whatever server the client has joined (remote
+// dedicated-server clients never see the server's "data/" folder locally -
+// only "assets/" ships in every mod jar and is always available client-side).
+// Single source of truth stays pack/kubejs/data/puffish_skills/... - this task
+// only ever reads from it, never writes back (SPEC.md's #163 scope: "Just
+// READ the existing data; do NOT change the generated puffish data").
+//
+// Deterministic by construction (directory listings are explicitly sorted
+// below) so two independent `./gradlew build` runs produce byte-identical
+// content here, which combined with the reproducible-archive settings at the
+// bottom of this file is what makes the final jar's sha1 stable (GitHub #145).
+def puffishCategoriesDir = file("${rootProject.projectDir}/../../pack/kubejs/data/puffish_skills/puffish_skills/categories")
+def skillTreeGenDir = layout.buildDirectory.dir("generated/vppskills/resources")
+
+tasks.register("importSkillTreeData") {
+    inputs.dir(puffishCategoriesDir)
+    def outRoot = skillTreeGenDir.map { it.dir("assets/vppskills/tree/categories") }
+    outputs.dir(outRoot)
+    doLast {
+        def outDir = outRoot.get().asFile
+        // Clean first so a category removed upstream doesn't linger as stale
+        // output (Copy-with-delete semantics, hand-rolled since this task also
+        // writes the generated index.json alongside the copied files).
+        if (outDir.exists()) {
+            outDir.deleteDir()
+        }
+        outDir.mkdirs()
+
+        def categoryDirs = puffishCategoriesDir.listFiles({ f -> f.isDirectory() } as FileFilter)
+        if (categoryDirs == null) {
+            throw new GradleException("importSkillTreeData: ${puffishCategoriesDir} not found or not a directory - " +
+                    "is mods-src/vppskills still nested two levels under the repo root?")
+        }
+        categoryDirs = categoryDirs.toList().sort { it.name }
+
+        def categoryIds = []
+        categoryDirs.each { catDir ->
+            categoryIds << catDir.name
+            def destDir = new File(outDir, catDir.name)
+            destDir.mkdirs()
+            def jsonFiles = catDir.listFiles({ f -> f.isFile() && f.name.endsWith(".json") } as FileFilter)
+            jsonFiles.toList().sort { it.name }.each { f ->
+                new File(destDir, f.name).bytes = f.bytes
+            }
+        }
+
+        new File(outDir, "index.json").text = groovy.json.JsonOutput.toJson(categoryIds)
+    }
+}
+
+sourceSets.main.resources.srcDir(skillTreeGenDir)
+
+tasks.named("processResources").configure {
+    dependsOn("importSkillTreeData")
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.release = 21
+}
+
+tasks.named("processResources", ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(["META-INF/neoforge.mods.toml"]) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+publishing {
+    publications {
+        register("mavenJava", MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = "file://${project.projectDir}/repo"
+        }
+    }
+}
+
+// #145: make the mod jar byte-reproducible so its lockfile-pinned hash is
+// stable across independent Gradle builds (was nondeterministic: timestamps +
+// file ordering differed every build, breaking mods.lock.json sha verification).
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
