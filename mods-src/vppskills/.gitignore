@@ -21,3 +21,6 @@ libs/*.jar
 out/
 eclipse/
 run/
+
+# Runtime logs from moddev run tasks
+logs/
