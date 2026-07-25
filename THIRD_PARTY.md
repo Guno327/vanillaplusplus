@@ -20,16 +20,16 @@ Regenerate any time the same way if mods are added/removed/updated.
 
 | Bucket | Count | Redistribution note |
 |---|---|---|
-| Permissive (MIT / Apache-2.0 / Unlicense / CC0-1.0) | 44 | Free to bundle/redistribute. |
+| Permissive (MIT / Apache-2.0 / Unlicense / CC0-1.0) | 45 | Free to bundle/redistribute. |
 | Weak-copyleft (LGPL-2.1/3.0, MPL-2.0) | 30 | Redistribution allowed; ship license text with the jar. Doesn't touch this repo's own MIT license. |
 | Strong-copyleft (GPL-3.0) | 6 | Redistribution allowed. This pack's own custom Java (`vppintegration`/`vppquests`) derives from none of these -- verified by dependency review -- so no copyleft obligation attaches to this repo's code. |
-| **CC-BY-NC-SA (NonCommercial)** | **4** (`extradelight`, `jade`, `patchouli`, `stellaris`) | Non-commercial use only. See the Modrinth-Rewards research determination below. |
-| ARR / custom "LicenseRef-*" (all-rights-reserved or a bespoke permission page) | 27 | Redistribution NOT clearly granted -- this is the reason the server distribution no longer bundles third-party jars (see "Distribution model" below). |
+| **CC-BY-NC-SA (NonCommercial)** | **2** (`extradelight`, `stellaris`) | Non-commercial use only; kept as accept-risk (#141). See the resolution below. |
+| ARR / custom "LicenseRef-*" (all-rights-reserved or a bespoke permission page) | 26 | Redistribution NOT clearly granted -- this is the reason the server distribution no longer bundles third-party jars (see "Distribution model" below). |
 | CurseForge-sourced, no Modrinth page (`ato`, `allthemodium`) | 2 | No LICENSE file in either mod's GitHub repo -- treated as all-rights-reserved, same distribution constraint as the ARR bucket above. |
 
 ## Distribution model
 
-Per GitHub #141: the released **server bundle does not ship any of these 113
+Per GitHub #141: the released **server bundle does not ship any of these 111
 jars**. It ships an install script
 (`scripts/install_mods.py` / the copy embedded at the root of the release
 zip) plus a URL+hash manifest; the script downloads each jar straight from
@@ -45,27 +45,24 @@ listed in the table below (that table is third-party mods only); Overgeared
 itself, the separate Modrinth mod `vppintegration` bridges to, IS listed
 below since it's third-party.
 
-## CC-BY-NC-SA vs. Modrinth Rewards -- determination
+## CC-BY-NC-SA vs. Modrinth Rewards -- resolved (#141)
 
-**Determination: not a clear violation** (full reasoning in
-[DECISIONS.md](DECISIONS.md)'s "GitHub #141" entry). In short: this pack is
-a free download with no paywall; the only money nearby is Modrinth's own
-Rewards Program (ad revenue Modrinth itself sells/serves on its own site).
-Modrinth's own published mechanics (modrinth.com/legal/cmp-info, the
-"Creators can now make money on Modrinth!" announcement) state that for
-modpacks, revenue is split **80% to the pack's Modrinth dependencies and
-20% to the modpack author** -- meaning most of whatever Rewards this pack's
-inclusion of `jade`/`patchouli`/`stellaris`/`extradelight` generates flows
-to *those mods' own authors*, applied uniformly with no license-based
-carve-out documented anywhere in Modrinth's terms. `jade`/`patchouli` are
-two of the most widely-depended-upon mods on the whole platform, included
-in an enormous number of monetized packs industry-wide, with no known
-enforcement precedent. No mod swap or follow-up issue is being filed;
-this sub-task is closed with this written determination. If the owner
-wants zero residual risk regardless, they can request the swap later --
-`jade`/`patchouli` have many dependents in this pack (e.g. the Apotheosis
-chain requires `patchouli`), so a preemptive swap has real cascade cost
-against a risk this determination finds weak.
+The "Modrinth Rewards ad revenue = commercial use?" question is legally
+untested. Rather than rely on that determination, the owner reviewed the
+NonCommercial audit (#141) and reduced the surface directly:
+
+- **`jade` (CC-BY-NC-SA-4.0) -> The One Probe (MIT):** swapped out (together
+  with `jade-addons-forge`). The One Probe fills the same "look at block ->
+  info HUD" niche under a permissive license, with zero added dependencies.
+- **`patchouli` (CC-BY-NC-SA-3.0):** dropped. Nothing in the pack hard-requires
+  it -- the Apotheosis chain's required deps are `placebo` + `apothic-*` only;
+  boot and L3 confirmed clean without it.
+- **`extradelight` and `stellaris` (both CC-BY-NC-SA-4.0):** kept as
+  **accept-risk**. No permissive 1.21.1 equivalent exists (no equal-scope
+  Farmer's-Delight addon for extradelight yet; stellaris is the entire space
+  endgame and Ad Astra has no 1.21.1 build), and both are deeply woven into the
+  pack's scripts/quests/progression. The residual NC exposure is narrow and
+  mitigated by the URL-reference / no-bundle distribution model above.
 
 ## Full mod list
 
@@ -124,8 +121,7 @@ against a risk this determination finds weak.
 | [ImmediatelyFast](https://modrinth.com/mod/immediatelyfast) | RaphiMC | LGPL-3.0-or-later | Modrinth |
 | [Iris & Oculus Flywheel Compat](https://modrinth.com/mod/iris-flw-compat) | leon-o | CC0-1.0 | Modrinth |
 | [Iris Shaders](https://modrinth.com/mod/iris) | coderbot | LGPL-3.0-only | Modrinth |
-| [Jade Addons (Neo/Forge)](https://modrinth.com/mod/jade-addons-forge) | Snownee | LicenseRef-All-Rights-Reserved | Modrinth |
-| [Jade 🔍](https://modrinth.com/mod/jade) | Snownee | CC-BY-NC-SA-4.0 | Modrinth |
+| [The One Probe](https://modrinth.com/mod/the-one-probe) | McJty | MIT | Modrinth |
 | [JEI / REI / EMI WorldGen](https://modrinth.com/mod/jei-worldgen) | Larsens-Mods (org) | GPL-3.0-only | Modrinth |
 | [Just Enough Breeding (JEBr)](https://modrinth.com/mod/justenoughbreeding) | Christofmeg | MIT | Modrinth |
 | [Just Enough Effect Descriptions (JEED)](https://modrinth.com/mod/just-enough-effect-descriptions-jeed) | MehVahdJukaar | LicenseRef-All-Rights-Reserved | Modrinth |
@@ -142,7 +138,6 @@ against a risk this determination finds weak.
 | [Noisiumed](https://modrinth.com/mod/noisiumed) | imbavirus | [GPL-3.0-only](https://raw.githubusercontent.com/imbavirus/noisiumed/refs/heads/1.21-1.21.1/LICENSE) | Modrinth |
 | [Open Parties and Claims](https://modrinth.com/mod/open-parties-and-claims) | thexaero | LGPL-3.0-only | Modrinth |
 | [Overgeared](https://modrinth.com/mod/overgeared) | StirDrem | MIT | Modrinth |
-| [Patchouli](https://modrinth.com/mod/patchouli) | Vazkii | CC-BY-NC-SA-3.0 | Modrinth |
 | [Placebo](https://modrinth.com/mod/placebo) | Shadows-of-Fire | MIT | Modrinth |
 | [Potentials](https://modrinth.com/mod/potentials) | Fej1Fun | MIT | Modrinth |
 | [Prickle](https://modrinth.com/mod/prickle) | Darkhax | LGPL-2.1-only | Modrinth |

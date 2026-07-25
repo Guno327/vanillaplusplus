@@ -1108,32 +1108,6 @@
       ],
       "version_number": "1.21.1+2.4.0-release"
     },
-    "jade": {
-      "provided": [
-        "jade"
-      ],
-      "required": [
-        {
-          "enforced": true,
-          "modId": "neoforge",
-          "versionRange": "[21.0.143, )"
-        }
-      ],
-      "version_number": "15.10.5+neoforge"
-    },
-    "jade-addons-forge": {
-      "provided": [
-        "jadeaddons"
-      ],
-      "required": [
-        {
-          "enforced": true,
-          "modId": "jade",
-          "versionRange": "[15.10, )"
-        }
-      ],
-      "version_number": "6.1.0+neoforge"
-    },
     "jei": {
       "provided": [
         "jei"
@@ -1447,24 +1421,6 @@
       ],
       "version_number": "1.21.1-1.6.16"
     },
-    "patchouli": {
-      "provided": [
-        "patchouli"
-      ],
-      "required": [
-        {
-          "enforced": true,
-          "modId": "neoforge",
-          "versionRange": "[21.0.31-beta,)"
-        },
-        {
-          "enforced": true,
-          "modId": "minecraft",
-          "versionRange": "[1.21.1,1.21.2)"
-        }
-      ],
-      "version_number": "1.21.1-93-neoforge"
-    },
     "placebo": {
       "provided": [
         "placebo"
@@ -1536,6 +1492,34 @@
         }
       ],
       "version_number": "2.0.9"
+    },
+    "relics-mod": {
+      "provided": [
+        "relics"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21, 1.22)"
+        },
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0.140-beta,)"
+        },
+        {
+          "enforced": true,
+          "modId": "curios",
+          "versionRange": "[9.3.1+1.21.1,)"
+        },
+        {
+          "enforced": true,
+          "modId": "octolib",
+          "versionRange": "[0.5.0.1,)"
+        }
+      ],
+      "version_number": "0.12.8"
     },
     "resourceful-config": {
       "provided": [
@@ -1617,6 +1601,29 @@
         }
       ],
       "version_number": "1.0.2"
+    },
+    "shatterbyte-lib": {
+      "provided": [
+        "octolib"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[21.0,)"
+        },
+        {
+          "enforced": true,
+          "modId": "minecraft",
+          "versionRange": "[1.21,)"
+        },
+        {
+          "enforced": true,
+          "modId": "architectury",
+          "versionRange": "[13.0.2,)"
+        }
+      ],
+      "version_number": "0.6.2"
     },
     "silent-gear": {
       "provided": [
@@ -1905,6 +1912,19 @@
         }
       ],
       "version_number": "1.1.1"
+    },
+    "the-one-probe": {
+      "provided": [
+        "theoneprobe"
+      ],
+      "required": [
+        {
+          "enforced": true,
+          "modId": "neoforge",
+          "versionRange": "[20.4,)"
+        }
+      ],
+      "version_number": "1.21_neo-12.0.8"
     },
     "time-in-a-bottle-fix-tiab-fix": {
       "provided": [

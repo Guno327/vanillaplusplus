@@ -626,10 +626,13 @@ stCheck('progression audit (#61/#127): create:brass_casing no longer accepts all
     }
 })
 
-// #91 (reopened): material_sinks.js routes five previously-dead AllTheOres
-// gear items into real recipe families - same failure mode as the tier
-// gates above (a renamed jar recipe id or removed item would silently
+// #91 (reopened): material_sinks.js routes every previously-dead AllTheOres
+// byproduct (24 gears across tranches 1-2, plus 14 plates + 21 rods + 5 gem
+// dusts in tranche 3) into real recipe families - same failure mode as the
+// tier gates above (a renamed jar recipe id or removed item would silently
 // un-gate/un-sink the material with no error), same Predicate#test probe.
+// This list IS the dead-end inventory: an entry per dead-end id, each
+// asserting its host recipe resolves and demands that exact item.
 const ST_MATERIAL_SINK_RECIPES = [
     { id: 'vanillaplusplus:raw_basic_processor_tin_gear', sink: 'alltheores:tin_gear' },
     { id: 'vanillaplusplus:raw_improved_processor_silver_gear', sink: 'alltheores:silver_gear' },
@@ -658,6 +661,54 @@ const ST_MATERIAL_SINK_RECIPES = [
     { id: 'vanillaplusplus:wireless_transmitter_lumium_gear', sink: 'alltheores:lumium_gear' },
     { id: 'vanillaplusplus:network_transmitter_enderium_gear', sink: 'alltheores:enderium_gear' },
     { id: 'vanillaplusplus:network_receiver_netherite_gear', sink: 'alltheores:netherite_gear' },
+    // #91 third tranche (feat/91-material-sinks-full) - the last 40 dead ATO
+    // byproducts: 14 plates, 21 rods, 5 gem dusts (see material_sinks.js
+    // tranche-three header). Spread across Create, CreateAddition, Numismatics,
+    // Refined Storage, Stellaris and Silent Gear.
+    // early
+    { id: 'vanillaplusplus:encased_fan_tin_rod', sink: 'alltheores:tin_rod' },
+    { id: 'vanillaplusplus:mechanical_press_bronze_plate', sink: 'alltheores:bronze_plate' },
+    { id: 'vanillaplusplus:mechanical_drill_nickel_rod', sink: 'alltheores:nickel_rod' },
+    { id: 'vanillaplusplus:mechanical_saw_zinc_rod', sink: 'alltheores:zinc_rod' },
+    { id: 'vanillaplusplus:millstone_lead_rod', sink: 'alltheores:lead_rod' },
+    { id: 'vanillaplusplus:mechanical_mixer_aluminum_rod', sink: 'alltheores:aluminum_rod' },
+    { id: 'vanillaplusplus:depot_tin_plate', sink: 'alltheores:tin_plate' },
+    { id: 'vanillaplusplus:mechanical_bearing_bronze_rod', sink: 'alltheores:bronze_rod' },
+    { id: 'vanillaplusplus:hand_crank_brass_rod', sink: 'alltheores:brass_rod' },
+    // mid
+    { id: 'vanillaplusplus:mechanical_arm_constantan_rod', sink: 'alltheores:constantan_rod' },
+    { id: 'vanillaplusplus:deployer_invar_rod', sink: 'alltheores:invar_rod' },
+    { id: 'vanillaplusplus:sequenced_gearshift_gold_rod', sink: 'alltheores:gold_rod' },
+    { id: 'vanillaplusplus:fluid_tank_silver_plate', sink: 'alltheores:silver_plate' },
+    { id: 'vanillaplusplus:portable_storage_interface_uranium_rod', sink: 'alltheores:uranium_rod' },
+    { id: 'vanillaplusplus:weighted_ejector_silver_rod', sink: 'alltheores:silver_rod' },
+    { id: 'vanillaplusplus:rotation_speed_controller_constantan_plate', sink: 'alltheores:constantan_plate' },
+    { id: 'vanillaplusplus:brass_funnel_invar_plate', sink: 'alltheores:invar_plate' },
+    { id: 'vanillaplusplus:capacitor_uranium_plate', sink: 'alltheores:uranium_plate' },
+    { id: 'vanillaplusplus:connector_cinnabar_dust', sink: 'alltheores:cinnabar_dust' },
+    { id: 'vanillaplusplus:modular_accumulator_ruby_dust', sink: 'alltheores:ruby_dust' },
+    { id: 'vanillaplusplus:bank_terminal_sapphire_dust', sink: 'alltheores:sapphire_dust' },
+    { id: 'vanillaplusplus:elevator_pulley_peridot_dust', sink: 'alltheores:peridot_dust' },
+    { id: 'vanillaplusplus:crafting_grid_fluorite_dust', sink: 'alltheores:fluorite_dust' },
+    // late
+    { id: 'vanillaplusplus:mechanical_piston_diamond_plate', sink: 'alltheores:diamond_plate' },
+    { id: 'vanillaplusplus:brass_tunnel_signalum_plate', sink: 'alltheores:signalum_plate' },
+    { id: 'vanillaplusplus:display_board_lumium_plate', sink: 'alltheores:lumium_plate' },
+    { id: 'vanillaplusplus:pattern_grid_platinum_plate', sink: 'alltheores:platinum_plate' },
+    { id: 'vanillaplusplus:clutch_electrum_rod', sink: 'alltheores:electrum_rod' },
+    { id: 'vanillaplusplus:gearshift_diamond_rod', sink: 'alltheores:diamond_rod' },
+    { id: 'vanillaplusplus:stockpile_switch_lumium_rod', sink: 'alltheores:lumium_rod' },
+    { id: 'vanillaplusplus:cuckoo_clock_platinum_rod', sink: 'alltheores:platinum_rod' },
+    { id: 'vanillaplusplus:content_observer_signalum_rod', sink: 'alltheores:signalum_rod' },
+    // top
+    { id: 'vanillaplusplus:rocket_fin_enderium_plate', sink: 'alltheores:enderium_plate' },
+    { id: 'vanillaplusplus:rocket_nose_cone_iridium_plate', sink: 'alltheores:iridium_plate' },
+    { id: 'vanillaplusplus:engine_fan_osmium_plate', sink: 'alltheores:osmium_plate' },
+    { id: 'vanillaplusplus:oxygen_tank_netherite_plate', sink: 'alltheores:netherite_plate' },
+    { id: 'vanillaplusplus:base_module_tier_1_enderium_rod', sink: 'alltheores:enderium_rod' },
+    { id: 'vanillaplusplus:metal_press_iridium_rod', sink: 'alltheores:iridium_rod' },
+    { id: 'vanillaplusplus:refabricator_netherite_rod', sink: 'alltheores:netherite_rod' },
+    { id: 'vanillaplusplus:alloy_forge_osmium_rod', sink: 'alltheores:osmium_rod' },
 ]
 
 stCheck('material_sinks.js: every #91 sink recipe resolves and demands its gear (#91)', server => {

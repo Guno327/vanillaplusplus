@@ -1,0 +1,11 @@
+{
+  "gearType.vppintegration.drill": "Drill",
+  "item.vppintegration.drill": "Drill",
+  "item.vppintegration.drill.nameProper": "%s Drill",
+  "item.vppintegration.drill_head": "Drill Head",
+  "item.vppintegration.drill_head.nameProper": "%s Drill Head",
+  "item.vppintegration.drill_blueprint": "Drill Blueprint",
+  "item.vppintegration.drill_template": "Drill Template",
+  "item.vppintegration.blueprint.drill.desc": "Combo digger (AOE pickaxe + shovel)",
+  "jei.vppintegration.drill.desc": "Mines stone, ores, dirt and sand in a 3x3 area - the hammer and excavator combined into one tool."
+}
