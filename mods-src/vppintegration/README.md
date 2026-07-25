@@ -151,24 +151,48 @@ datapack/mixin load cleanly, not gameplay correctness):
 
 ## Extending to the pack's full material ladder
 
-The shipped `data/overgeared/recipe/forging/*_silentgear.json` files only
-cover copper and iron (the two tiers Overgeared already has native
-`heated_*_ingot` items + blasting recipes for) across three part types, as a
-worked example of the pattern. Vanilla++ has several material tiers beyond
-that (steel, and the late-game Allthemodium/Vibranium/Unobtainium chain -
-see the parent repo's `DESIGN.md`). Extending coverage is mechanical, no new
-design needed:
+**Done as of GitHub #67 Phase 2.** `data/overgeared/recipe/forging/
+*_silentgear.json` now covers all 6 Silent Gear tool-head part types (axe/
+hammer/hoe/pickaxe/shovel/sword heads) across the pack's entire metal
+ladder: vanilla copper/iron (Overgeared's own native `heated_copper_ingot`/
+`heated_iron_ingot`) plus this pack's own 7 Create/Allthemodium tiers -
+andesite alloy, brass, refined radiance, allthemodium, vibranium,
+unobtainium, star alloy (the ground-truth source for this list is
+`scripts/gen_gear_materials.py`'s `MATERIALS` constant, not a guess - that
+generator is what actually produces this pack's own Silent Gear material
+JSONs at `pack/kubejs/data/silentgear/silentgear_materials/vpp_*.json`).
+None of those 7 had a native Overgeared `heated_<material>` item, so
+`gear/HeatedMetals.java` registers one plain `Item` per tier (the same
+`registerSimpleItem` idiom Overgeared's own `ModItems` uses for its native
+heated ingots, confirmed via `javap`) plus a `minecraft:blasting` recipe from
+the raw ingot (mirroring `heated_iron_ingot_from_blasting_iron_ingot.json`)
+and an entry in this mod's own `data/overgeared/tags/item/heated_metals.json`
+(additively merges with Overgeared's own same-id tag, so the tongs/cooldown
+mechanic works the same as on native heated ingots). Cold-forging (the 5
+gemstone tiers) was already covered separately and untouched by this pass.
+`scripts/ci/check_forging_recipes.py` enforces full (part type x metal)
+coverage for the whole ladder and validates every `result`/`key` id against
+a ground-truthed constant list, so a future regression (or a newly-added
+pack material tier missing coverage) fails fast in CI rather than silently
+404ing at boot.
+
+The mechanical steps below are still exactly how a *future* material tier
+(e.g. if the pack's ladder grows again) gets added - nothing here is
+Phase-2-specific:
 
 1. For a material Overgeared doesn't already have a `heated_<material>_ingot`
    item for, add one (a plain `Item` registration + a `minecraft:blasting`
    recipe from the raw ingot, mirroring `heated_iron_ingot_from_blasting_iron_ingot.json`
-   in the installed Overgeared jar).
+   in the installed Overgeared jar) - see `HeatedMetals.java`.
 2. Add one `overgeared:forging` recipe per (part type x material) whose
    `key`/`hammering`/`pattern`/`tier`/`category` mirror Overgeared's own
    native recipes for an equivalent tier, and whose `result` is the matching
    Silent Gear part item id (see Silent Gear's own
    `data/silentgear/recipe/gear/*.json` for the full part-item-id list this
    mod's mixin corrects against).
+3. Add the new material/key-item pair to `scripts/ci/check_forging_recipes.py`'s
+   `KNOWN_KEY_ITEM_TO_MATERIAL`/`TARGETED_METALS` constants so the coverage
+   check actually enforces it.
 
 ## Build instructions
 

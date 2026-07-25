@@ -7,5 +7,12 @@
   "item.vppintegration.drill_blueprint": "Drill Blueprint",
   "item.vppintegration.drill_template": "Drill Template",
   "item.vppintegration.blueprint.drill.desc": "Combo digger (AOE pickaxe + shovel)",
-  "jei.vppintegration.drill.desc": "Mines stone, ores, dirt and sand in a 3x3 area - the hammer and excavator combined into one tool."
+  "jei.vppintegration.drill.desc": "Mines stone, ores, dirt and sand in a 3x3 area - the hammer and excavator combined into one tool.",
+  "item.vppintegration.heated_andesite_alloy": "Heated Andesite Alloy",
+  "item.vppintegration.heated_brass_ingot": "Heated Brass Ingot",
+  "item.vppintegration.heated_refined_radiance": "Heated Refined Radiance",
+  "item.vppintegration.heated_allthemodium_ingot": "Heated Allthemodium Ingot",
+  "item.vppintegration.heated_vibranium_ingot": "Heated Vibranium Ingot",
+  "item.vppintegration.heated_unobtainium_ingot": "Heated Unobtainium Ingot",
+  "item.vppintegration.heated_star_alloy": "Heated Star Alloy"
 }

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.0,
+  "group": "andesite_alloy",
+  "ingredient": {
+    "item": "create:andesite_alloy"
+  },
+  "result": {
+    "count": 1,
+    "id": "vppintegration:heated_andesite_alloy"
+  }
+}

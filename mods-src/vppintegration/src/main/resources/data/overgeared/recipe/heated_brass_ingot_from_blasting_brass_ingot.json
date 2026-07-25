@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.0,
+  "group": "brass_ingot",
+  "ingredient": {
+    "item": "create:brass_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "vppintegration:heated_brass_ingot"
+  }
+}

@@ -23,6 +23,7 @@ CHECKS = [
     "check_lockfile.py",
     "lint_rhino.py",
     "check_vppquests.py",
+    "check_forging_recipes.py",
     "check_skill_trees.py",
     "check_skill_expressions.py",
     "check_selftest_skill_sync.py",

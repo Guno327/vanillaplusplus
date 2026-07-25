@@ -1,6 +1,7 @@
 package dev.vanillaplusplus.vppintegration;
 
 import dev.vanillaplusplus.vppintegration.gear.DrillGear;
+import dev.vanillaplusplus.vppintegration.gear.HeatedMetals;
 import dev.vanillaplusplus.vppintegration.network.PackVersionGate;
 import dev.vanillaplusplus.vppintegration.quality.OvergearedSilentGearBridge;
 import dev.vanillaplusplus.vppintegration.quality.QualityBridgeConfig;
@@ -99,6 +100,10 @@ public final class VppIntegration {
         modEventBus.addListener(PackVersionGate::registerConfigurationTask);
         // GitHub #154: Silent Gear "Drill" combo tool (hammer + excavator AOE).
         DrillGear.register(modEventBus);
-        LOGGER.info("vppintegration loaded: Overgeared quality <-> Silent Gear stats bridge active; drill gear registered");
+        // GitHub #67 Phase 2: heated-ingot items for this pack's own material
+        // ladder (Create/Allthemodium tiers), backing data/overgeared/recipe/
+        // forging/*_silentgear.json's coverage of those tiers.
+        HeatedMetals.register(modEventBus);
+        LOGGER.info("vppintegration loaded: Overgeared quality <-> Silent Gear stats bridge active; drill gear + heated-metal ladder registered");
     }
 }

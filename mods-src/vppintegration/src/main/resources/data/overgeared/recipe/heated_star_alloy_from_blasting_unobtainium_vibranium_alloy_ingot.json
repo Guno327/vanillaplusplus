@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.0,
+  "group": "unobtainium_vibranium_alloy_ingot",
+  "ingredient": {
+    "item": "allthemodium:unobtainium_vibranium_alloy_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "vppintegration:heated_star_alloy"
+  }
+}
