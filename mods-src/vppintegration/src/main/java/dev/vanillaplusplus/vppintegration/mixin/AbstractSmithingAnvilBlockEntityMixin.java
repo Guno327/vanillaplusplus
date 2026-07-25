@@ -3,10 +3,9 @@ package dev.vanillaplusplus.vppintegration.mixin;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.silentchaos512.gear.api.item.GearItem;
 import net.silentchaos512.gear.gear.material.MaterialInstance;
+import net.silentchaos512.gear.item.CompoundPartItem;
 import net.silentchaos512.gear.setup.SgDataComponents;
-import net.silentchaos512.gear.util.GearData;
 import net.stirdrem.overgeared.block.entity.AbstractSmithingAnvilBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,7 +17,7 @@ import java.util.List;
 
 /**
  * Corrects the material assignment on a Silent Gear part just forged at an
- * Overgeared anvil, then asks Silent Gear to recompute its stats.
+ * Overgeared anvil.
  *
  * <p>Why this exists (see {@code VppIntegration}'s class doc for the full
  * picture): Overgeared's own forging recipes are static, one-recipe-per-material
@@ -39,6 +38,34 @@ import java.util.List;
  * {@code Material} lookup + {@code MaterialInstance.of(Material)} step is
  * needed at all), which is the exact same "what material is this ingot"
  * lookup Silent Gear's own {@code compound_part} recipe uses internally.
+ *
+ * <p><b>GitHub #171:</b> the result-slot filter previously used {@code
+ * slotStack.getItem() instanceof GearItem} to find "the resulting Silent Gear
+ * part stack", then called {@code GearData.recalculateGearData(slotStack,
+ * player)} afterward. Both were dead/no-op for every forged head this pack's
+ * Phase 1/2 recipes actually produce (confirmed via {@code javap -p} against
+ * {@code silent-gear-1.21.1-neoforge-4.2.1.1.jar}): {@code
+ * silentgear:pickaxe_head}/{@code axe_head}/{@code shovel_head}/{@code
+ * sword_blade} are all {@code MainPartItem}, which extends {@code
+ * CompoundPartItem}, which extends plain {@code Item} - none of that chain
+ * implements {@code net.silentchaos512.gear.api.item.GearItem} (only the
+ * fully-assembled tool items like {@code GearPickaxeItem} do), so the
+ * {@code instanceof GearItem} check never matched and the material was never
+ * written. Separately, {@code GearData.recalculateGearData} reads {@code
+ * SgDataComponents.GEAR_CONSTRUCTION} first and returns immediately if it's
+ * null, which a bare forged head/part stack never has, making that call a
+ * guaranteed no-op regardless. This is the exact same pre-existing condition
+ * a sibling {@code PaxelHeadForgingMixin} (GitHub #67 Phase 3, on a not-yet-
+ * merged branch as of this fix) already documented for its own head-matching
+ * logic - this mixin now uses that same proven idiom: match the result slot
+ * by the
+ * real class ({@code CompoundPartItem}, via {@code instanceof} rather than an
+ * interface it doesn't implement) and write {@code MATERIAL_LIST} directly via
+ * {@code ItemStack.set(...)} with no recalculation call - sufficient because
+ * {@code CompoundPartItem.getMaterials(ItemStack)}/{@code
+ * getPrimaryMaterial(ItemStack)} (confirmed via javap) read that component
+ * directly off the stack on demand; a bare part item has no separately-cached
+ * "computed" state to refresh.
  *
  * <p>Injection point: {@code AbstractSmithingAnvilBlockEntity.craftItem()}.
  * Confirmed via javap against the resolved {@code maven.modrinth:overgeared}
@@ -84,14 +111,9 @@ public abstract class AbstractSmithingAnvilBlockEntityMixin {
 
         for (int i = 0; i < self.getContainerSize(); i++) {
             ItemStack slotStack = self.getItem(i);
-            if (slotStack.isEmpty() || !(slotStack.getItem() instanceof GearItem)) continue;
+            if (slotStack.isEmpty() || !(slotStack.getItem() instanceof CompoundPartItem)) continue;
 
             slotStack.set(SgDataComponents.MATERIAL_LIST.get(), List.of(forgedMaterial));
-
-            // Recompute GearPropertiesData/ItemAttributeModifiers from the
-            // corrected material - the exact same call Silent Gear's own
-            // GearItem default methods make after any part change.
-            GearData.recalculateGearData(slotStack, this.player);
         }
     }
 }
