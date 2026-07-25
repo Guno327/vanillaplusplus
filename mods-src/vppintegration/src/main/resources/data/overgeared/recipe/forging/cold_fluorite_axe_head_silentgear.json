@@ -4,8 +4,9 @@
   "category": "TOOL_HEADS",
   "hammering": 3,
   "key": {
-    "#": { "item": "overgeared:heated_iron_ingot" }
+    "#": { "tag": "c:gems/fluorite" }
   },
+  "need_quenching": false,
   "pattern": [
     "##",
     "# "
@@ -15,5 +16,5 @@
     "id": "silentgear:axe_head"
   },
   "show_notification": false,
-  "tier": "iron"
+  "tier": "above_a"
 }

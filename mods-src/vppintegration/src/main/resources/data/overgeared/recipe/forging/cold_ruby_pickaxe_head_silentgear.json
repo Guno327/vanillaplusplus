@@ -1,19 +1,19 @@
 {
   "type": "overgeared:forging",
-  "blueprint": ["axe"],
+  "blueprint": ["pickaxe"],
   "category": "TOOL_HEADS",
   "hammering": 3,
   "key": {
-    "#": { "item": "overgeared:heated_iron_ingot" }
+    "#": { "tag": "c:gems/ruby" }
   },
+  "need_quenching": false,
   "pattern": [
-    "##",
-    "# "
+    "###"
   ],
   "result": {
     "count": 1,
-    "id": "silentgear:axe_head"
+    "id": "silentgear:pickaxe_head"
   },
   "show_notification": false,
-  "tier": "iron"
+  "tier": "above_a"
 }

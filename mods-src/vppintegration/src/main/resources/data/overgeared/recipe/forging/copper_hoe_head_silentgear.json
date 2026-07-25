@@ -1,19 +1,18 @@
 {
   "type": "overgeared:forging",
-  "blueprint": ["axe"],
+  "blueprint": ["hoe"],
   "category": "TOOL_HEADS",
   "hammering": 3,
   "key": {
-    "#": { "item": "overgeared:heated_iron_ingot" }
+    "#": { "item": "overgeared:heated_copper_ingot" }
   },
   "pattern": [
-    "##",
-    "# "
+    "##"
   ],
   "result": {
     "count": 1,
-    "id": "silentgear:axe_head"
+    "id": "silentgear:hoe_head"
   },
   "show_notification": false,
-  "tier": "iron"
+  "tier": "stone"
 }

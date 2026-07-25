@@ -7,13 +7,12 @@
     "#": { "item": "overgeared:heated_iron_ingot" }
   },
   "pattern": [
-    "##",
-    "# "
+    "###"
   ],
   "result": {
     "count": 1,
     "id": "silentgear:pickaxe_head"
   },
   "show_notification": false,
-  "tier": "copper"
+  "tier": "iron"
 }
