@@ -50,6 +50,39 @@ repositories {
     mavenCentral()
 }
 
+// --- #163 phase 2: unit tests for the direction-independent backend pieces ---
+// (unlock validator, attribute-operation translator, attachment round-trip -
+// see src/test/java). No test infra existed anywhere in mods-src before this,
+// so this is a minimal, from-scratch JUnit 5 setup rather than a convention
+// carried over from a sibling mod. The test sourceSet's classpath is
+// deliberately widened to exactly match sourceSets.main's (rather than relying
+// on whatever "implementation"-derived classpath the java-library plugin
+// would otherwise give "testImplementation") because net.neoforged.moddev
+// attaches the resolved NeoForge/Minecraft jars straight onto the MAIN
+// sourceSet's compile/runtime classpaths, not through a config
+// testImplementation extends by default - tests need the exact same
+// Minecraft/NeoForge classes (AttributeModifier, ResourceLocation, Codec,
+// etc.) this mod's own main code compiles against.
+sourceSets {
+    test {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+dependencies {
+    // Pinned to the exact JUnit 5.10.2 already present in this environment's
+    // Gradle dependency cache (no version bump of any mod/lockfile dependency
+    // here - this is a brand-new test-only dependency, the mod's own
+    // NeoForge/Minecraft/library pins in gradle.properties are untouched).
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+}
+
+tasks.named("test", Test).configure {
+    useJUnitPlatform()
+}
+
 // --- #163 phase 1: port the pack's real puffish_skills tree data into this ---
 // mod's own jar at build time, under this mod's OWN namespace/asset path
 // (assets/vppskills/tree/categories/**), rather than depending at runtime on a
