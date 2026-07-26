@@ -15,19 +15,28 @@ import org.slf4j.LoggerFactory;
  * puffish_skills' generated JSON ({@code tree/SkillTreeLoader}) and a
  * pannable/zoomable proof-of-concept canvas ({@code client.gui.SkillTreeScreen}).
  *
- * <p>Phase 2 (this revision) adds the direction-independent backend pieces
- * needed before any of that can become real: server-authoritative unlock
- * validation ({@code unlock.SkillUnlockValidator}), per-player persistence
+ * <p>Phase 2 added the direction-independent backend pieces needed before
+ * any of that could become real: server-authoritative unlock validation
+ * ({@code unlock.SkillUnlockValidator}), per-player persistence
  * ({@code data.SkillProgressAttachment}, registered below), an attribute
  * -operation translation layer from puffish_skills' reward vocabulary to
  * real NeoForge {@code AttributeModifier}s ({@code reward.AttributeOperationTranslator}),
  * and a progress-sync payload mirroring that state to the client
- * ({@code network.SkillProgressSyncPayload}). None of this is wired to
- * {@code client.gui.SkillTreeScreen}'s clicks yet, no attribute rewards are
- * actually granted yet, and this mod is still NOT wired into
+ * ({@code network.SkillProgressSyncPayload}).
+ *
+ * <p>Phase 3 (this revision) closes the interactive loop phase 2 deliberately
+ * left open: a client-&gt;server unlock-request payload
+ * ({@code network.SkillUnlockRequestPayload}), a server-side handler that
+ * validates it against {@code unlock.SkillUnlockValidator} and re-syncs the
+ * result ({@code server.ServerSkillEvents}, also wired to send-on-login), a
+ * debug/placeholder {@code /vppskills grantpoints} command
+ * ({@code command.VppSkillsCommand}) so the loop is exercisable without the
+ * (still out-of-scope) real XP economy, and {@code client.gui.SkillTreeScreen}
+ * now actually renders allocated/available/locked node states and sends real
+ * unlock requests on click. This mod is still NOT wired into
  * {@code pack/manifest.json} - puffish_skills remains the pack's real,
  * shipped skill system throughout. See this mod's README.md for the full
- * phase-2+ plan and what remains for a later phase.
+ * phase plan and what remains for a later phase.
  */
 @Mod(VppSkills.MODID)
 public final class VppSkills {
@@ -36,6 +45,6 @@ public final class VppSkills {
 
     public VppSkills(IEventBus modEventBus, ModContainer modContainer) {
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
-        LOGGER.info("vppskills loaded (phase 2 backend - not wired into the pack's mod set)");
+        LOGGER.info("vppskills loaded (phase 3 - interactive unlock loop wired, still not in the pack's mod set)");
     }
 }

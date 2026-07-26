@@ -19,11 +19,12 @@ import net.minecraft.client.Minecraft;
  * {@code SkillProgressSyncPayload} handler - same
  * "server pushes, client only ever reads a cached mirror, never round-trips
  * per frame" pattern {@code vppquests}' {@code ClientQuestState} already
- * proved for quest progress. {@code client.gui.SkillTreeScreen} does not read
- * {@link #progress()} yet (per #163 phase-2 scope: click-to-unlock wiring
- * is a follow-up, not this phase - see {@code network.ModNetworking}'s
- * class doc), but the mirror is populated from the moment a
- * {@code SkillProgressSyncPayload} first arrives.
+ * proved for quest progress. As of #163 phase 3, {@code client.gui.SkillTreeScreen}
+ * reads {@link #progress()} every frame (via {@code gui.NodeVisualState}) to
+ * decide each node's allocated/available/locked render state and HUD
+ * points readout - the mirror is populated from the moment a
+ * {@code SkillProgressSyncPayload} first arrives (login-sync, plus a resync
+ * after every unlock attempt - see {@code server.ServerSkillEvents}).
  */
 public final class ClientSkillTreeState {
 

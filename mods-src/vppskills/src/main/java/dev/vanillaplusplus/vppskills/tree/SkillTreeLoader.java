@@ -5,12 +5,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.vanillaplusplus.vppskills.VppSkills;
+import dev.vanillaplusplus.vppskills.reward.AttributeRewardData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +43,24 @@ import java.util.Optional;
  * {@code RegisterClientReloadListenersEvent} - wiring that up so {@code F3+T}
  * picks up edits is a natural, low-risk phase-2 follow-up, not done here to
  * keep this phase's diff to "port the data model + prove the canvas".
+ *
+ * <p><b>Phase 3 addition - {@link #loadFromClasspath}.</b> {@link #load}
+ * only ever worked client-side ({@link ResourceManager} - specifically the
+ * CLIENT one, since this data lives under {@code assets/}, not {@code data/}
+ * - see class doc above). #163 phase 3's server-side unlock handler
+ * (see {@code server.ServerSkillTreeState}) needs the exact same tree data
+ * to validate a click-to-unlock request, but a dedicated server has no
+ * {@link ResourceManager} that loads {@code assets/} paths at all (those are
+ * a client resource-pack concept). Since the data is baked directly into
+ * THIS mod's own jar (by {@code build.gradle}'s {@code importSkillTreeData}
+ * task, into {@code sourceSets.main.resources}), a plain
+ * {@link ClassLoader#getResourceAsStream} read works identically under a
+ * client OR a dedicated server JVM - it's just a classpath resource lookup,
+ * not routed through any resource-pack/reload-listener machinery - so
+ * {@link #loadFromClasspath} is the server-safe sibling of {@link #load}.
+ * Both delegate to the same {@link #loadWith} parsing logic via the
+ * {@link ResourceOpener} seam, so the two entry points can never drift in
+ * how they interpret the JSON.
  */
 public final class SkillTreeLoader {
 
@@ -50,11 +71,34 @@ public final class SkillTreeLoader {
     }
 
     public static SkillTreeData load(ResourceManager resourceManager) {
-        List<String> categoryIds = readIndex(resourceManager);
+        return loadWith(path -> {
+            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
+            Optional<Resource> resource = resourceManager.getResource(location);
+            if (resource.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(resource.get().openAsReader());
+        });
+    }
+
+    /** See class doc "Phase 3 addition" - the server-side (no {@link ResourceManager}) equivalent of {@link #load}. */
+    public static SkillTreeData loadFromClasspath(ClassLoader classLoader) {
+        return loadWith(path -> {
+            String classpathPath = "assets/" + NAMESPACE + "/" + path;
+            var stream = classLoader.getResourceAsStream(classpathPath);
+            if (stream == null) {
+                return Optional.empty();
+            }
+            return Optional.of(new InputStreamReader(stream, StandardCharsets.UTF_8));
+        });
+    }
+
+    private static SkillTreeData loadWith(ResourceOpener opener) {
+        List<String> categoryIds = readIndex(opener);
         Map<String, SkillTreeCategory> categories = new LinkedHashMap<>();
         for (String categoryId : categoryIds) {
             try {
-                categories.put(categoryId, parseCategory(resourceManager, categoryId));
+                categories.put(categoryId, parseCategory(opener, categoryId));
             } catch (IOException | RuntimeException e) {
                 VppSkills.LOGGER.error("vppskills: failed to load skill tree category {}", categoryId, e);
             }
@@ -65,37 +109,38 @@ public final class SkillTreeLoader {
         return new SkillTreeData(categories);
     }
 
-    private static List<String> readIndex(ResourceManager resourceManager) {
-        ResourceLocation indexLoc = ResourceLocation.fromNamespaceAndPath(NAMESPACE, BASE_PATH + "/index.json");
-        Optional<Resource> resource = resourceManager.getResource(indexLoc);
-        if (resource.isEmpty()) {
-            VppSkills.LOGGER.warn("vppskills: {} not found - was importSkillTreeData run before this jar was built?",
-                    indexLoc);
-            return List.of();
-        }
-        try (Reader reader = resource.get().openAsReader()) {
-            JsonArray array = JsonParser.parseReader(reader).getAsJsonArray();
-            List<String> ids = new ArrayList<>();
-            for (JsonElement element : array) {
-                ids.add(element.getAsString());
+    private static List<String> readIndex(ResourceOpener opener) {
+        String path = BASE_PATH + "/index.json";
+        try {
+            Optional<Reader> reader = opener.open(path);
+            if (reader.isEmpty()) {
+                VppSkills.LOGGER.warn("vppskills: {} not found - was importSkillTreeData run before this jar was built?", path);
+                return List.of();
             }
-            return ids;
+            try (Reader r = reader.get()) {
+                JsonArray array = JsonParser.parseReader(r).getAsJsonArray();
+                List<String> ids = new ArrayList<>();
+                for (JsonElement element : array) {
+                    ids.add(element.getAsString());
+                }
+                return ids;
+            }
         } catch (IOException e) {
-            VppSkills.LOGGER.error("vppskills: failed to read {}", indexLoc, e);
+            VppSkills.LOGGER.error("vppskills: failed to read {}", path, e);
             return List.of();
         }
     }
 
-    private static SkillTreeCategory parseCategory(ResourceManager resourceManager, String categoryId) throws IOException {
+    private static SkillTreeCategory parseCategory(ResourceOpener opener, String categoryId) throws IOException {
         String prefix = BASE_PATH + "/" + categoryId + "/";
 
-        JsonObject categoryJson = readJsonObject(resourceManager, prefix + "category.json");
+        JsonObject categoryJson = readJsonObject(opener, prefix + "category.json");
         String title = categoryJson != null && categoryJson.has("title")
                 ? categoryJson.get("title").getAsString()
                 : categoryId;
         String categoryIcon = extractIconItem(categoryJson);
 
-        JsonObject definitionsJson = readJsonObject(resourceManager, prefix + "definitions.json");
+        JsonObject definitionsJson = readJsonObject(opener, prefix + "definitions.json");
         Map<String, JsonObject> definitions = new LinkedHashMap<>();
         if (definitionsJson != null) {
             for (Map.Entry<String, JsonElement> entry : definitionsJson.entrySet()) {
@@ -103,7 +148,7 @@ public final class SkillTreeLoader {
             }
         }
 
-        JsonObject skillsJson = readJsonObject(resourceManager, prefix + "skills.json");
+        JsonObject skillsJson = readJsonObject(opener, prefix + "skills.json");
         List<SkillTreeNode> nodes = new ArrayList<>();
         if (skillsJson != null) {
             for (Map.Entry<String, JsonElement> entry : skillsJson.entrySet()) {
@@ -119,11 +164,12 @@ public final class SkillTreeLoader {
                         nodeJson.has("root") && nodeJson.get("root").getAsBoolean(),
                         definitionId,
                         definition != null && definition.has("title") ? definition.get("title").getAsString() : nodeId,
-                        extractIconItem(definition)));
+                        extractIconItem(definition),
+                        extractRewards(definition)));
             }
         }
 
-        JsonObject connectionsJson = readJsonObject(resourceManager, prefix + "connections.json");
+        JsonObject connectionsJson = readJsonObject(opener, prefix + "connections.json");
         List<SkillTreeConnection> connections = new ArrayList<>();
         if (connectionsJson != null) {
             for (Map.Entry<String, JsonElement> groupEntry : connectionsJson.entrySet()) {
@@ -161,14 +207,54 @@ public final class SkillTreeLoader {
         return data.get("item").getAsString();
     }
 
-    private static JsonObject readJsonObject(ResourceManager resourceManager, String path) throws IOException {
-        ResourceLocation location = ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
-        Optional<Resource> resource = resourceManager.getResource(location);
-        if (resource.isEmpty()) {
+    /**
+     * Extracts a node definition's {@code puffish_skills:attribute} rewards
+     * (see {@link SkillTreeNode}'s "Phase 3 addition" doc) - any other
+     * reward {@code type} in this pack's data is skipped rather than
+     * guessed at, since #163 phase 2 only ported the attribute-reward
+     * vocabulary ({@code reward.AttributeOperationTranslator}).
+     */
+    private static List<AttributeRewardData> extractRewards(JsonObject definition) {
+        if (definition == null || !definition.has("rewards")) {
+            return List.of();
+        }
+        List<AttributeRewardData> rewards = new ArrayList<>();
+        for (JsonElement rewardElement : definition.getAsJsonArray("rewards")) {
+            JsonObject rewardJson = rewardElement.getAsJsonObject();
+            String type = rewardJson.has("type") ? rewardJson.get("type").getAsString() : null;
+            if (!"puffish_skills:attribute".equals(type)) {
+                continue;
+            }
+            JsonObject data = rewardJson.has("data") ? rewardJson.getAsJsonObject("data") : null;
+            if (data == null || !data.has("attribute") || !data.has("value") || !data.has("operation")) {
+                continue;
+            }
+            rewards.add(new AttributeRewardData(
+                    data.get("attribute").getAsString(),
+                    data.get("value").getAsDouble(),
+                    data.get("operation").getAsString()));
+        }
+        return rewards;
+    }
+
+    private static JsonObject readJsonObject(ResourceOpener opener, String path) throws IOException {
+        Optional<Reader> reader = opener.open(path);
+        if (reader.isEmpty()) {
             return null;
         }
-        try (Reader reader = resource.get().openAsReader()) {
-            return JsonParser.parseReader(reader).getAsJsonObject();
+        try (Reader r = reader.get()) {
+            return JsonParser.parseReader(r).getAsJsonObject();
         }
+    }
+
+    /**
+     * Seam between the actual JSON-parsing logic above (shared, tested-once)
+     * and where the bytes come from - a client {@link ResourceManager}
+     * ({@link #load}) or a plain classpath read ({@link #loadFromClasspath})
+     * - see this class's "Phase 3 addition" doc for why both exist.
+     */
+    @FunctionalInterface
+    private interface ResourceOpener {
+        Optional<Reader> open(String path) throws IOException;
     }
 }
