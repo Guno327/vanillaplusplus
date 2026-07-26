@@ -1,0 +1,19 @@
+{
+  "type": "overgeared:forging",
+  "blueprint": ["hoe"],
+  "category": "TOOL_HEADS",
+  "hammering": 3,
+  "key": {
+    "#": { "tag": "c:gems/cinnabar" }
+  },
+  "need_quenching": false,
+  "pattern": [
+    "##"
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:hoe_head"
+  },
+  "show_notification": false,
+  "tier": "above_a"
+}

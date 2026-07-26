@@ -1,0 +1,18 @@
+{
+  "type": "overgeared:forging",
+  "blueprint": ["hoe"],
+  "category": "TOOL_HEADS",
+  "hammering": 3,
+  "key": {
+    "#": { "item": "overgeared:heated_copper_ingot" }
+  },
+  "pattern": [
+    "##"
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:hoe_head"
+  },
+  "show_notification": false,
+  "tier": "stone"
+}

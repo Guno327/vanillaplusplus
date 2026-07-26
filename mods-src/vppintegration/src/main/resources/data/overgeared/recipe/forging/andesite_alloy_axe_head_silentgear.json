@@ -1,0 +1,23 @@
+{
+  "type": "overgeared:forging",
+  "blueprint": [
+    "axe"
+  ],
+  "category": "TOOL_HEADS",
+  "hammering": 3,
+  "key": {
+    "#": {
+      "item": "vppintegration:heated_andesite_alloy"
+    }
+  },
+  "pattern": [
+    "##",
+    "# "
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:axe_head"
+  },
+  "show_notification": false,
+  "tier": "iron"
+}

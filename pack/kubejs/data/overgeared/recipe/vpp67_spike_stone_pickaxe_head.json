@@ -1,0 +1,21 @@
+{
+  "type": "overgeared:rock_knapping",
+  "pattern": [
+    "xxx"
+  ],
+  "ingredient": {
+    "item": "overgeared:knappable_rock"
+  },
+  "result": {
+    "id": "silentgear:pickaxe_head",
+    "count": 1,
+    "components": {
+      "silentgear:material_list": [
+        {
+          "material": "silentgear:stone"
+        }
+      ]
+    }
+  },
+  "show_notification": true
+}

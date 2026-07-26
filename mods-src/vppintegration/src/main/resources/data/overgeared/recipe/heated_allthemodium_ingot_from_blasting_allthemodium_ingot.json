@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.0,
+  "group": "allthemodium_ingot",
+  "ingredient": {
+    "item": "allthemodium:allthemodium_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "vppintegration:heated_allthemodium_ingot"
+  }
+}

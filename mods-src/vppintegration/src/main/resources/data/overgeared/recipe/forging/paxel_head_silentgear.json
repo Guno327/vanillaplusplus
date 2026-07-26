@@ -1,0 +1,19 @@
+{
+  "type": "overgeared:forging",
+  "category": "TOOL_HEADS",
+  "hammering": 3,
+  "key": {
+    "p": { "item": "silentgear:pickaxe_head" },
+    "a": { "item": "silentgear:axe_head" },
+    "s": { "item": "silentgear:shovel_head" }
+  },
+  "pattern": [
+    "pas"
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:paxel_head"
+  },
+  "show_notification": false,
+  "tier": "stone"
+}

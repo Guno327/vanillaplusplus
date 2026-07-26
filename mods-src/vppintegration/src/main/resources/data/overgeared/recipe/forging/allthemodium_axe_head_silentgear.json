@@ -1,0 +1,23 @@
+{
+  "type": "overgeared:forging",
+  "blueprint": [
+    "axe"
+  ],
+  "category": "TOOL_HEADS",
+  "hammering": 4,
+  "key": {
+    "#": {
+      "item": "vppintegration:heated_allthemodium_ingot"
+    }
+  },
+  "pattern": [
+    "##",
+    "# "
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:axe_head"
+  },
+  "show_notification": false,
+  "tier": "above_b"
+}

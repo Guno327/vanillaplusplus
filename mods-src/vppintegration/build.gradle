@@ -97,6 +97,18 @@ dependencies {
     // Maven Central for this artifact; io.github.llamalad7 resolves).
     annotationProcessor "io.github.llamalad7:mixinextras-common:0.4.1"
     implementation "io.github.llamalad7:mixinextras-neoforge:0.4.1"
+
+    // GitHub #67 Phase 3: plain JUnit 5 for this mod's pure-logic classes
+    // (dev.vanillaplusplus.vppintegration.{gear.PaxelHeadRecipe,quality
+    // .PaxelQualityMath}) - both are deliberately free of Minecraft/NeoForge/
+    // Silent Gear/Overgeared imports specifically so they run on a bare JVM
+    // test classpath, no NeoForge test harness needed.
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+}
+
+tasks.named("test", Test).configure {
+    useJUnitPlatform()
 }
 
 tasks.withType(JavaCompile).configureEach {

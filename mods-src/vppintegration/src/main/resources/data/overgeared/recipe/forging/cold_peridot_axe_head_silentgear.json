@@ -1,0 +1,20 @@
+{
+  "type": "overgeared:forging",
+  "blueprint": ["axe"],
+  "category": "TOOL_HEADS",
+  "hammering": 3,
+  "key": {
+    "#": { "tag": "c:gems/peridot" }
+  },
+  "need_quenching": false,
+  "pattern": [
+    "##",
+    "# "
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:axe_head"
+  },
+  "show_notification": false,
+  "tier": "above_a"
+}
