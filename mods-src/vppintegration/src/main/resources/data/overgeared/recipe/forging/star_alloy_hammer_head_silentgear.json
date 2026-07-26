@@ -1,0 +1,21 @@
+{
+  "type": "overgeared:forging",
+  "category": "TOOL_HEADS",
+  "hammering": 4,
+  "has_polishing": false,
+  "key": {
+    "#": {
+      "item": "vppintegration:heated_star_alloy"
+    }
+  },
+  "pattern": [
+    "# ",
+    " #"
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:hammer_head"
+  },
+  "show_notification": false,
+  "tier": "above_b"
+}

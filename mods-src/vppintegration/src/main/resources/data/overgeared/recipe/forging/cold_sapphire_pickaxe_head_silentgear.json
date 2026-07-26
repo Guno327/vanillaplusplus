@@ -1,0 +1,19 @@
+{
+  "type": "overgeared:forging",
+  "blueprint": ["pickaxe"],
+  "category": "TOOL_HEADS",
+  "hammering": 3,
+  "key": {
+    "#": { "tag": "c:gems/sapphire" }
+  },
+  "need_quenching": false,
+  "pattern": [
+    "###"
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:pickaxe_head"
+  },
+  "show_notification": false,
+  "tier": "above_a"
+}

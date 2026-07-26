@@ -1,0 +1,20 @@
+{
+  "type": "overgeared:forging",
+  "blueprint": ["sword"],
+  "category": "TOOL_HEADS",
+  "hammering": 3,
+  "key": {
+    "#": { "tag": "c:gems/cinnabar" }
+  },
+  "need_quenching": false,
+  "pattern": [
+    "#",
+    "#"
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:sword_blade"
+  },
+  "show_notification": false,
+  "tier": "above_a"
+}

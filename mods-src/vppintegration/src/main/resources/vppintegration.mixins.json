@@ -7,7 +7,8 @@
   "mixins": [],
   "client": [],
   "server": [
-    "AbstractSmithingAnvilBlockEntityMixin"
+    "AbstractSmithingAnvilBlockEntityMixin",
+    "PaxelHeadForgingMixin"
   ],
   "injectors": {
     "defaultRequire": 1

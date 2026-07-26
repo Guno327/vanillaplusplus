@@ -1,0 +1,19 @@
+{
+  "type": "overgeared:forging",
+  "blueprint": ["shovel"],
+  "category": "TOOL_HEADS",
+  "hammering": 3,
+  "key": {
+    "#": { "tag": "c:gems/peridot" }
+  },
+  "need_quenching": false,
+  "pattern": [
+    "#"
+  ],
+  "result": {
+    "count": 1,
+    "id": "silentgear:shovel_head"
+  },
+  "show_notification": false,
+  "tier": "above_a"
+}

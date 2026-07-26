@@ -7,8 +7,8 @@
     "#": { "item": "overgeared:heated_copper_ingot" }
   },
   "pattern": [
-    "##",
-    "# "
+    "#",
+    "#"
   ],
   "result": {
     "count": 1,

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.0,
+  "group": "refined_radiance",
+  "ingredient": {
+    "item": "create:refined_radiance"
+  },
+  "result": {
+    "count": 1,
+    "id": "vppintegration:heated_refined_radiance"
+  }
+}
