@@ -173,6 +173,33 @@ def _minimal_valid_pack(root):
         "    }\n"
         "}\n",
         encoding="utf-8")
+
+    # GitHub #67: check_forging_recipes.py requires a full (metal x part-type)
+    # coverage matrix of overgeared:forging recipes under the vppintegration
+    # mod's data dir. Generate exactly that matrix from the check's own
+    # material/part maps so the minimal pack mirrors the real one's shape (one
+    # heated-metal-item -> tool-head recipe per targeted metal x required part).
+    import check_forging_recipes as _cfr  # noqa: E402
+    material_to_heated_item = {
+        mat: item for item, mat in _cfr.KNOWN_KEY_ITEM_TO_MATERIAL.items()
+    }
+    forging_dir = Path(root) / _cfr.FORGING_DIR_REL
+    forging_dir.mkdir(parents=True)
+    for metal in _cfr.TARGETED_METALS:
+        heated_item = material_to_heated_item[metal]
+        for part_type, result_id in _cfr.PART_TYPE_RESULT_IDS.items():
+            recipe = {
+                "type": "overgeared:forging",
+                "category": "TOOL_HEADS",
+                "hammering": 5,
+                "tier": "stone",
+                "pattern": ["X"],
+                "key": {"X": {"item": heated_item}},
+                "result": {"id": result_id, "count": 1},
+            }
+            (forging_dir / f"{metal}_{part_type}.json").write_text(
+                json.dumps(recipe), encoding="utf-8")
+
     return pack
 
 
