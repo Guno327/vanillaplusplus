@@ -262,13 +262,13 @@
       "url": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "local_path": "mods-src/vppintegration/build/libs/vppintegration-1.0.0.jar",
       "hashes": {
-        "sha1": "1eab81afb90b7271f80165a67587522d77197d89",
-        "sha512": "d1e9a8c2e8afbc8fff0b2bde70b055de33048623f0c9717635b7dcd00a171aeed4d672ed7492e505e18dee560addf371e5c44d67431431c0eac4069a286063ca"
+        "sha1": "d250e257d71d8933ebe24f90973f7ad2f0a479bc",
+        "sha512": "27d6280f291d4d8c7e3900654949a59dba05b2e3f4ec9d8172ca14a6077076cf7a5a869c6da8f05bd203c62fa273d80557da385fe6b244dc82faa4850fdcbf07"
       },
-      "filesize": 76575,
+      "filesize": 76521,
       "side": "both",
       "phase": 7,
-      "note": "GitHub #67: hand-rolled Overgeared x Silent Gear quality bridge (mods-src/vppintegration/, see its README.md). Requires both silent-gear and overgeared above at their pinned versions. Ships 6 example forging recipes (copper/iron sword/pickaxe/axe heads) as a first working slice; full material-tier coverage (steel, ATM chain, cold-forging for gemstones) is a follow-up, see mods-src/vppintegration/README.md's 'Extending to the pack's full material ladder'."
+      "note": "GitHub #67: hand-rolled Overgeared x Silent Gear quality bridge (mods-src/vppintegration/, see its README.md). Requires both silent-gear and overgeared above at their pinned versions. Phases 1-3 (#67) extend this to full metal-ladder forging coverage: 7 heated-ingot items + blasting recipes (andesite_alloy/brass/refined_radiance/allthemodium/vibranium/unobtainium/star_alloy), 42 (metal x tool-head-part) overgeared:forging recipes -> Silent Gear heads, and the Paxel combination recipe (3 same-material heads -> silentgear:paxel_head, quality = forge roll x input quality). See mods-src/vppintegration/README.md."
     },
     {
       "slug": "epic-fight",
@@ -1864,8 +1864,8 @@
       "url": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
       "local_path": "mods-src/vppquests/build/libs/vppquests-0.1.0.jar",
       "hashes": {
-        "sha1": "46cb1aab89af3ce3955a26a3a6afda7daf4342a1",
-        "sha512": "3bd507c135c40f17ca33754535e755487a96626083ea8120afb2d7bc9055ef28201b257c1644e0d4c4bea1cc6927444c90b5b871b543f45fed0b9210ffab535c"
+        "sha1": "81a91bca3b8a193ec99256b26a75a5df60421a89",
+        "sha512": "28f0d1444922f49085d1735540dd5da6ded1bea414c9c5397500792327b1bb9c2943bc33e26e2c643631a2bf0ba25096765a4f3d3c13e1928a924fd49c798d19"
       },
       "filesize": 64230,
       "side": "both",

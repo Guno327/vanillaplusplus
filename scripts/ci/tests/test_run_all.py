@@ -150,6 +150,29 @@ def _minimal_valid_pack(root):
         "const ST_SKILL_CATEGORIES = [\n    'cat1',\n]\n"
         "const ST_SKILL_NODE_COUNT_PER_CATEGORY = 1\n",
         encoding="utf-8")
+
+    # GitHub #171: check_smithing_material_mixin.py asserts the forged-head
+    # material-correction mixin matches results by CompoundPartItem (not the
+    # never-matching GearItem interface) and writes MATERIAL_LIST directly,
+    # with no GearData.recalculateGearData no-op. A minimal source file that
+    # satisfies exactly those source-level assertions.
+    mixin_dir = (Path(root) / "mods-src" / "vppintegration" / "src" / "main" / "java"
+                 / "dev" / "vanillaplusplus" / "vppintegration" / "mixin")
+    mixin_dir.mkdir(parents=True)
+    (mixin_dir / "AbstractSmithingAnvilBlockEntityMixin.java").write_text(
+        "package dev.vanillaplusplus.vppintegration.mixin;\n"
+        "import net.minecraft.world.item.ItemStack;\n"
+        "import net.silentchaos512.gear.item.CompoundPartItem;\n"
+        "import net.silentchaos512.gear.setup.SgDataComponents;\n"
+        "import java.util.List;\n"
+        "public abstract class AbstractSmithingAnvilBlockEntityMixin {\n"
+        "    private void correct(ItemStack slotStack) {\n"
+        "        if (slotStack.getItem() instanceof CompoundPartItem) {\n"
+        "            slotStack.set(SgDataComponents.MATERIAL_LIST.get(), List.of());\n"
+        "        }\n"
+        "    }\n"
+        "}\n",
+        encoding="utf-8")
     return pack
 
 
