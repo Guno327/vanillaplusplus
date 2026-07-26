@@ -2,28 +2,40 @@ package dev.vanillaplusplus.vppskills.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.vanillaplusplus.vppskills.client.ClientSkillTreeState;
+import dev.vanillaplusplus.vppskills.data.SkillProgressAttachment;
+import dev.vanillaplusplus.vppskills.network.SkillUnlockRequestPayload;
+import dev.vanillaplusplus.vppskills.reward.AttributeRewardData;
 import dev.vanillaplusplus.vppskills.tree.SkillTreeCategory;
 import dev.vanillaplusplus.vppskills.tree.SkillTreeConnection;
 import dev.vanillaplusplus.vppskills.tree.SkillTreeData;
 import dev.vanillaplusplus.vppskills.tree.SkillTreeNode;
+import dev.vanillaplusplus.vppskills.unlock.SkillUnlockValidator;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Quaternionf;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
- * Phase 1 (#163) proof-of-concept: a pannable + zoomable node-graph canvas
+ * #163's real skill-tree GUI: a pannable + zoomable node-graph canvas
  * rendering the REAL node positions/connectors ported from puffish_skills'
- * generated tree data (see {@code tree.SkillTreeLoader}). This is explicitly
- * NOT the live skill GUI - no XP/points, no click-to-unlock, no server
- * round-trip; it only proves the rendering approach so the owner can
- * evaluate the direction before later phases build the real interactions on
- * top. Opened via {@code ModKeyMappings.OPEN_SKILL_TREE_SCREEN} (default
- * {@code P}).
+ * generated tree data (see {@code tree.SkillTreeLoader}), now (phase 3)
+ * actually interactive - every node is drawn in one of three states via
+ * {@link NodeVisualState} (allocated/available/locked, mirrored from
+ * {@code client.ClientSkillTreeState#progress()}), hovering shows a tooltip
+ * with the node's title + reward summary, clicking an AVAILABLE node sends a
+ * {@link SkillUnlockRequestPayload} to the server (which alone decides
+ * whether it actually succeeds - see {@code server.ServerSkillEvents}), and
+ * an available/spent points HUD readout is drawn in a corner. Opened via
+ * {@code ModKeyMappings.OPEN_SKILL_TREE_SCREEN} (default {@code P}).
  *
  * <p><b>Rendering approach</b> (see {@link #render}): everything in
  * tree-space (nodes' raw {@code x}/{@code y} from puffish_skills' JSON, no
@@ -57,8 +69,11 @@ public final class SkillTreeScreen extends Screen {
 
     private static final int COLOR_NORMAL_EDGE = 0xFF6B6B6B;
     private static final int COLOR_EXCLUSIVE_EDGE = 0xFFB25050;
-    private static final int COLOR_NODE = 0xFF3A6EA5;
-    private static final int COLOR_ROOT_NODE = 0xFFD4AF37;
+    // Fill colors are keyed off NodeVisualState (allocated/available/locked)
+    // rather than root-vs-normal, per #163 phase 3's brief - see NodeVisualState.
+    private static final int COLOR_NODE_ALLOCATED = 0xFF3FA34D;
+    private static final int COLOR_NODE_AVAILABLE = 0xFF3A6EA5;
+    private static final int COLOR_NODE_LOCKED = 0xFF4A4A4A;
     private static final int COLOR_NODE_BORDER = 0xFF10141A;
     private static final int COLOR_NODE_HOVER = 0xFFFFFFFF;
 
@@ -114,6 +129,9 @@ public final class SkillTreeScreen extends Screen {
             return;
         }
 
+        SkillProgressAttachment progress = ClientSkillTreeState.progress();
+        HoveredNode hoveredNode = findHovered(mouseX, mouseY);
+
         int canvasTop = 24;
         int canvasBottom = this.height - 6;
         graphics.enableScissor(0, canvasTop, this.width, canvasBottom);
@@ -121,10 +139,6 @@ public final class SkillTreeScreen extends Screen {
         graphics.pose().pushPose();
         graphics.pose().translate(originScreenX + panX, originScreenY + panY, 0);
         graphics.pose().scale(zoom, zoom, 1.0f);
-
-        SkillTreeNode hovered = null;
-        double hoveredTreeDistSq = Double.MAX_VALUE;
-        double[] mouseTree = screenToTree(mouseX, mouseY);
 
         for (SkillTreeCategory category : categories) {
             Map<String, SkillTreeNode> byId = nodeIndexByCategory.getOrDefault(category.id(), Map.of());
@@ -140,15 +154,9 @@ public final class SkillTreeScreen extends Screen {
             }
 
             for (SkillTreeNode node : category.nodes()) {
-                double dx = node.x() - mouseTree[0];
-                double dy = node.y() - mouseTree[1];
-                double distSq = dx * dx + dy * dy;
-                float halfSize = node.root() ? ROOT_NODE_HALF_SIZE : NODE_HALF_SIZE;
-                if (distSq <= (halfSize * halfSize) && distSq < hoveredTreeDistSq) {
-                    hovered = node;
-                    hoveredTreeDistSq = distSq;
-                }
-                drawNode(graphics, node, node == hovered);
+                boolean isHovered = hoveredNode != null && hoveredNode.node() == node;
+                NodeVisualState state = NodeVisualState.of(node, category, progress);
+                drawNode(graphics, node, state, isHovered);
             }
         }
 
@@ -157,27 +165,123 @@ public final class SkillTreeScreen extends Screen {
 
         graphics.drawCenteredString(font, title, this.width / 2, 8, 0xFFFFFF);
         graphics.drawString(font,
-                "phase 1 preview - drag to pan, scroll to zoom, no interactions yet",
+                "drag to pan, scroll to zoom, click an available node to unlock it",
                 6, this.height - 14, 0x999999, false);
+        graphics.drawString(font,
+                String.format(Locale.ROOT, "Points: %d available / %d spent",
+                        progress.availablePoints(), progress.spentPoints()),
+                6, this.height - 26, 0xFFFFFF, false);
 
-        if (hovered != null) {
-            graphics.renderTooltip(font, Component.literal(hovered.title()), mouseX, mouseY);
+        if (hoveredNode != null) {
+            graphics.renderComponentTooltip(font, buildTooltip(hoveredNode, progress), mouseX, mouseY);
         }
 
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
-    private void drawNode(GuiGraphics graphics, SkillTreeNode node, boolean hovered) {
+    /** Title + reward summary (if any) + current unlock state, per #163 phase 3's hover-tooltip requirement. */
+    private List<Component> buildTooltip(HoveredNode hoveredNode, SkillProgressAttachment progress) {
+        SkillTreeNode node = hoveredNode.node();
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.literal(node.title()));
+        for (AttributeRewardData reward : node.rewards()) {
+            lines.add(formatReward(reward).withStyle(ChatFormatting.GRAY));
+        }
+        NodeVisualState state = NodeVisualState.of(node, hoveredNode.category(), progress);
+        lines.add(switch (state) {
+            case ALLOCATED -> Component.literal("Unlocked").withStyle(ChatFormatting.GREEN);
+            case AVAILABLE -> Component.literal("Click to unlock (" + SkillUnlockValidator.NODE_COST + " point)").withStyle(ChatFormatting.YELLOW);
+            case LOCKED -> Component.literal("Locked").withStyle(ChatFormatting.RED);
+        });
+        return lines;
+    }
+
+    /** {@code {"attribute": "generic.max_health", "value": 0.006, "operation": "multiply_total"}} -> {@code "max health +0.6%"}. */
+    private static MutableComponent formatReward(AttributeRewardData reward) {
+        String magnitude = switch (reward.operation()) {
+            case "multiply_base", "multiply_total" -> String.format(Locale.ROOT, "%+.1f%%", reward.value() * 100.0);
+            default -> String.format(Locale.ROOT, "%+.2f", reward.value());
+        };
+        return Component.literal(shortAttributeName(reward.attributeId()) + " " + magnitude);
+    }
+
+    private static String shortAttributeName(String attributeId) {
+        String path = attributeId.contains(":") ? attributeId.substring(attributeId.indexOf(':') + 1) : attributeId;
+        int dot = path.lastIndexOf('.');
+        String name = dot >= 0 ? path.substring(dot + 1) : path;
+        return name.replace('_', ' ');
+    }
+
+    private void drawNode(GuiGraphics graphics, SkillTreeNode node, NodeVisualState state, boolean hovered) {
         float half = node.root() ? ROOT_NODE_HALF_SIZE : NODE_HALF_SIZE;
         float x = (float) node.x();
         float y = (float) node.y();
-        int fillColor = node.root() ? COLOR_ROOT_NODE : COLOR_NODE;
+        int fillColor = switch (state) {
+            case ALLOCATED -> COLOR_NODE_ALLOCATED;
+            case AVAILABLE -> COLOR_NODE_AVAILABLE;
+            case LOCKED -> COLOR_NODE_LOCKED;
+        };
         graphics.fill((int) (x - half), (int) (y - half), (int) (x + half), (int) (y + half), COLOR_NODE_BORDER);
         float inner = half - 1.5f;
         graphics.fill((int) (x - inner), (int) (y - inner), (int) (x + inner), (int) (y + inner), fillColor);
         if (hovered) {
             graphics.fill((int) (x - inner), (int) (y - inner), (int) (x + inner), (int) (y - inner + 1), COLOR_NODE_HOVER);
         }
+    }
+
+    /** One node under the cursor in tree-space, plus the category that owns it (needed for {@link NodeVisualState#of}). */
+    private record HoveredNode(SkillTreeCategory category, SkillTreeNode node) {
+    }
+
+    /**
+     * Finds the node closest to (screen) {@code mouseX}/{@code mouseY} whose
+     * hit-radius contains the cursor (in tree-space, so it respects the
+     * current pan/zoom) - shared by {@link #render}'s hover highlight/tooltip
+     * and {@link #mouseClicked}'s click-to-unlock, so the two can never
+     * disagree about what's "under the cursor".
+     */
+    private HoveredNode findHovered(double mouseX, double mouseY) {
+        double[] mouseTree = screenToTree(mouseX, mouseY);
+        SkillTreeCategory bestCategory = null;
+        SkillTreeNode bestNode = null;
+        double bestDistSq = Double.MAX_VALUE;
+        for (SkillTreeCategory category : ClientSkillTreeState.get().categoriesSorted()) {
+            for (SkillTreeNode node : category.nodes()) {
+                double dx = node.x() - mouseTree[0];
+                double dy = node.y() - mouseTree[1];
+                double distSq = dx * dx + dy * dy;
+                float halfSize = node.root() ? ROOT_NODE_HALF_SIZE : NODE_HALF_SIZE;
+                if (distSq <= (halfSize * halfSize) && distSq < bestDistSq) {
+                    bestDistSq = distSq;
+                    bestNode = node;
+                    bestCategory = category;
+                }
+            }
+        }
+        return bestNode == null ? null : new HoveredNode(bestCategory, bestNode);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (super.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        if (button != 0) {
+            return false;
+        }
+        HoveredNode hoveredNode = findHovered(mouseX, mouseY);
+        if (hoveredNode == null) {
+            return false;
+        }
+        NodeVisualState state = NodeVisualState.of(hoveredNode.node(), hoveredNode.category(), ClientSkillTreeState.progress());
+        if (state == NodeVisualState.AVAILABLE) {
+            // The server is the sole authority on whether this actually succeeds -
+            // see server.ServerSkillEvents#handleUnlockRequest. This click only ever
+            // sends the request; ClientSkillTreeState's mirror updates once the
+            // server's SkillProgressSyncPayload response arrives.
+            PacketDistributor.sendToServer(new SkillUnlockRequestPayload(hoveredNode.category().id(), hoveredNode.node().id()));
+        }
+        return true;
     }
 
     /**
