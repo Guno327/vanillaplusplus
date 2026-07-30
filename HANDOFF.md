@@ -8,10 +8,37 @@ feature branches + PR only, Conventional Commits, tests-first). Start at
 orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
-**Status**: `v0.3.0` (prerelease) shipped 2026-07-22, superseding `v0.2.1`.
-`pack/VERSION` is `0.3.0`. **This is a breaking cut for both sides** — the
-server's mod set changed, so a v0.3.0 client will not connect to a v0.2.1
-server.
+**Current status (2026-07-30)**: shipped release is **`v0.8.0`**
+(`pack/VERSION` == `0.8.0`); `dev` and `main` are in sync at it and CI is
+green (fast + scheduled boot on `main`, latest L3 GATE: PASS on the last
+promote). No unmerged shipping work is outstanding. The long narrative
+below (starting at the v0.3.0 status paragraph) is an **append-only
+historical log** — accurate for its date, not a description of the current
+build; reconstruct current reality from `git log`, the GitHub releases, and
+open issues/PRs per ORCHESTRATION §3, not from the older paragraphs here.
+
+The entire open backlog is **owner-gated**, so a resuming PM with no new
+owner input should verify CI/green + no orphaned fixes, then enter the §7
+idle-watch loop:
+
+- **`needs-owner`** (awaiting the owner in the issue thread): **#170**
+  (security — prompt-injection surfaced for investigation, no unauthorized
+  content shipped), **#163** (vppskills cutover — draft PR #175, non-shipping,
+  awaiting go-ahead to replace live puffish_skills), **#141** (NC-mod policy
+  ruling: keep `extradelight`/`stellaris` accept-risk vs. remove), **#44**
+  (Modrinth distribution reach + delete stale v0.1.1 draft version).
+- **`verify-in-game`** (awaiting the owner's in-game confirmation; the fix
+  for each is already merged to `main` and shipped): **#166**, **#159**,
+  **#155**, **#154**, **#116**, **#94**, **#91**, **#67**, and **#1**
+  (verify item 11: skill-tree exclusive fork + /respec).
+
+Only open PR is **#175** (draft, `feat/163-vppskills-review`, non-shipping
+review surface for #163; fast checks green).
+
+**Historical — v0.3.0 status (2026-07-22)**: `v0.3.0` (prerelease) shipped,
+superseding `v0.2.1`. `pack/VERSION` was `0.3.0`. **This was a breaking cut
+for both sides** — the server's mod set changed, so a v0.3.0 client will not
+connect to a v0.2.1 server.
 
 What it contains:
 
