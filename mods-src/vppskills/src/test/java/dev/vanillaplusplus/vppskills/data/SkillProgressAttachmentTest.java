@@ -2,7 +2,10 @@ package dev.vanillaplusplus.vppskills.data;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -73,5 +76,63 @@ class SkillProgressAttachmentTest {
         assertTrue(restored.unlockedNodeIds().isEmpty());
         assertEquals(0, restored.availablePoints());
         assertEquals(0, restored.spentPoints());
+    }
+
+    @Test
+    void fullRespecClearsNodesMovesSpentToAvailableAndReturnsClearedIds() {
+        SkillProgressAttachment attachment = new SkillProgressAttachment();
+        attachment.grantPoints(10);
+        attachment.unlock("root", 1);
+        attachment.unlock("mid", 2);
+
+        Set<String> clearedNodeIds = attachment.fullRespec();
+
+        assertEquals(Set.of("root", "mid"), clearedNodeIds);
+        assertTrue(attachment.unlockedNodeIds().isEmpty());
+        assertEquals(10, attachment.availablePoints());
+        assertEquals(0, attachment.spentPoints());
+    }
+
+    @Test
+    void fullRespecOnFreshAttachmentIsANoOp() {
+        SkillProgressAttachment attachment = new SkillProgressAttachment();
+        attachment.grantPoints(3);
+
+        Set<String> clearedNodeIds = attachment.fullRespec();
+
+        assertTrue(clearedNodeIds.isEmpty());
+        assertEquals(3, attachment.availablePoints());
+        assertEquals(0, attachment.spentPoints());
+    }
+
+    @Test
+    void freeRespecAvailableDefaultsToTrueAndConsumeFlipsItOnce() {
+        SkillProgressAttachment attachment = new SkillProgressAttachment();
+
+        assertTrue(attachment.freeRespecAvailable());
+        assertTrue(attachment.consumeFreeRespec());
+        assertFalse(attachment.freeRespecAvailable());
+        assertFalse(attachment.consumeFreeRespec());
+        assertFalse(attachment.freeRespecAvailable());
+    }
+
+    @Test
+    void freeRespecAvailableSurvivesJsonRoundTrip() {
+        SkillProgressAttachment original = new SkillProgressAttachment();
+        original.consumeFreeRespec();
+
+        SkillProgressAttachment restored = SkillProgressAttachment.fromJson(original.toJson());
+
+        assertFalse(restored.freeRespecAvailable());
+    }
+
+    @Test
+    void legacyJsonMissingFreeRespecFieldDecodesToTrue() {
+        // Pre-economy-phase save data has no "freeRespecAvailable" key at all - must decode
+        // to true (existing players haven't used their free respec yet), not fail to decode.
+        SkillProgressAttachment restored = SkillProgressAttachment.fromJson(
+                "{\"unlockedNodes\":[],\"availablePoints\":0,\"spentPoints\":0}");
+
+        assertTrue(restored.freeRespecAvailable());
     }
 }

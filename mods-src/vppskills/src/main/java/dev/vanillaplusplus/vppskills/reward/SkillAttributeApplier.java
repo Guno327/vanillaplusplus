@@ -1,12 +1,16 @@
 package dev.vanillaplusplus.vppskills.reward;
 
 import dev.vanillaplusplus.vppskills.VppSkills;
+import dev.vanillaplusplus.vppskills.server.ServerSkillTreeState;
+import dev.vanillaplusplus.vppskills.tree.SkillTreeCategory;
+import dev.vanillaplusplus.vppskills.tree.SkillTreeNode;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -54,6 +58,31 @@ public final class SkillAttributeApplier {
             AttributeInstance instance = resolveInstance(entity, spec);
             if (instance != null) {
                 instance.removeModifier(spec.modifier().id());
+            }
+        }
+    }
+
+    /**
+     * The full-respec counterpart to {@link #clear}: for every node id in
+     * {@code nodeIds}, looks it up in {@code data.ServerSkillTreeState}
+     * (mirrors how {@code server.ServerSkillEvents#applyNodeRewards} already
+     * finds a node's reward list to APPLY), re-derives the same deterministic
+     * {@code vppskills:node/<nodeId>/<index>} modifier specs via
+     * {@link AttributeOperationTranslator#translate} (see that method's doc
+     * on why those ids are stable/reproducible), and removes them. Node ids
+     * that aren't found in the current tree (e.g. stale save data from a
+     * removed node) or have no reward list are silently skipped - nothing to
+     * clear.
+     */
+    public static void clearAll(LivingEntity entity, Collection<String> nodeIds) {
+        if (nodeIds.isEmpty()) {
+            return;
+        }
+        for (SkillTreeCategory category : ServerSkillTreeState.get().categories().values()) {
+            for (SkillTreeNode node : category.nodes()) {
+                if (nodeIds.contains(node.id()) && !node.rewards().isEmpty()) {
+                    clear(entity, AttributeOperationTranslator.translate(node.id(), node.rewards()));
+                }
             }
         }
     }
