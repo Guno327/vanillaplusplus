@@ -32,6 +32,7 @@ public final class SkillProgressAttachment {
     private final Set<String> unlockedNodes = new HashSet<>();
     private int availablePoints;
     private int spentPoints;
+    private boolean freeRespecAvailable = true;
 
     public boolean isUnlocked(String nodeId) {
         return unlockedNodes.contains(nodeId);
@@ -87,15 +88,69 @@ public final class SkillProgressAttachment {
         }
     }
 
+    /**
+     * Whether this player still has the one free (token-free) respec granted
+     * for the #163 economy cutover - see {@link #consumeFreeRespec()}.
+     * Legacy save data predating this field decodes to {@code true} (see
+     * {@link #CODEC}'s {@code optionalFieldOf}), i.e. existing players are
+     * treated as not having spent it yet.
+     */
+    public boolean freeRespecAvailable() {
+        return freeRespecAvailable;
+    }
+
+    /**
+     * Consumes the free respec token if one is available, flipping
+     * {@link #freeRespecAvailable} to {@code false} either way it was found.
+     *
+     * @return {@code true} if a free respec was available and just consumed;
+     *         {@code false} if the player had already used theirs (caller
+     *         must fall back to a permission-gated {@code force} respec or
+     *         refuse the request - see {@code command.VppSkillsCommand}).
+     */
+    public boolean consumeFreeRespec() {
+        boolean was = freeRespecAvailable;
+        freeRespecAvailable = false;
+        return was;
+    }
+
+    /**
+     * Clears every unlocked node and refunds all spent points back to
+     * {@link #availablePoints} (spent becomes 0) - the full-tree respec
+     * building block behind {@code /vppskills respec}. Does NOT touch
+     * {@link #freeRespecAvailable}; the caller decides whether/how the
+     * respec was authorized (free token vs. an admin {@code force} bypass -
+     * see {@link #consumeFreeRespec()}) before calling this.
+     *
+     * <p>Attribute-modifier removal is a separate concern this method
+     * deliberately knows nothing about (same split {@link #unlock}/
+     * {@link #respec} already have from {@code reward.SkillAttributeApplier})
+     * - the caller must feed the returned node ids into
+     * {@code reward.SkillAttributeApplier#clearAll} itself.
+     *
+     * @return the ids of every node that was unlocked just before this call
+     *         (now cleared), so the caller can remove their attribute
+     *         modifiers.
+     */
+    public Set<String> fullRespec() {
+        Set<String> clearedNodeIds = Set.copyOf(unlockedNodes);
+        unlockedNodes.clear();
+        availablePoints += spentPoints;
+        spentPoints = 0;
+        return clearedNodeIds;
+    }
+
     public static final Codec<SkillProgressAttachment> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.listOf().fieldOf("unlockedNodes").forGetter(a -> List.copyOf(a.unlockedNodes)),
             Codec.INT.fieldOf("availablePoints").forGetter(a -> a.availablePoints),
-            Codec.INT.fieldOf("spentPoints").forGetter(a -> a.spentPoints)
-    ).apply(instance, (unlockedList, available, spent) -> {
+            Codec.INT.fieldOf("spentPoints").forGetter(a -> a.spentPoints),
+            Codec.BOOL.optionalFieldOf("freeRespecAvailable", true).forGetter(a -> a.freeRespecAvailable)
+    ).apply(instance, (unlockedList, available, spent, freeRespec) -> {
         SkillProgressAttachment attachment = new SkillProgressAttachment();
         attachment.unlockedNodes.addAll(unlockedList);
         attachment.availablePoints = available;
         attachment.spentPoints = spent;
+        attachment.freeRespecAvailable = freeRespec;
         return attachment;
     }));
 
