@@ -8,32 +8,43 @@ feature branches + PR only, Conventional Commits, tests-first). Start at
 orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
-**Current status (2026-07-30)**: shipped release is **`v0.8.0`**
-(`pack/VERSION` == `0.8.0`); `dev` and `main` are in sync at it and CI is
-green (fast + scheduled boot on `main`, latest L3 GATE: PASS on the last
-promote). No unmerged shipping work is outstanding. The long narrative
-below (starting at the v0.3.0 status paragraph) is an **append-only
-historical log** — accurate for its date, not a description of the current
+**Current status (2026-08-03)**: shipped release is **`v0.8.0`**
+(`pack/VERSION` == `0.8.0`); `main` is green (fast + scheduled boot; latest
+L3 GATE: PASS on the last promote) and carries all shipping work — **no
+unmerged shipping work is outstanding.** `dev` is **8 non-shipping commits
+ahead of `main`**: the vppskills custom skill-tree mod built through
+**Phase B** (merges `da24691` #175 = phases 1-3 foundation, `cac6576` #180
+= XP economy + one-free-respec). The pack is deliberately **untouched** —
+`puffish_skills` is still the live in-game skill system — so this dev lead
+ships nothing until the #163 Phase-C cutover is approved (see below). CI
+runs on PRs and on `main`, not on `dev` pushes, so these dev merges show no
+dev CI run; each rode in green on its own feature-branch PR before merge.
+The long narrative below (from the v0.3.0 status paragraph) is an
+**append-only historical log** — accurate for its date, not the current
 build; reconstruct current reality from `git log`, the GitHub releases, and
 open issues/PRs per ORCHESTRATION §3, not from the older paragraphs here.
 
 The entire open backlog is **owner-gated**, so a resuming PM with no new
-owner input should verify CI/green + no orphaned fixes, then enter the §7
-idle-watch loop:
+owner input should verify `main`/green + no orphaned fixes, then enter the
+§7 idle-watch loop:
 
 - **`needs-owner`** (awaiting the owner in the issue thread): **#170**
   (security — prompt-injection surfaced for investigation, no unauthorized
-  content shipped), **#163** (vppskills cutover — draft PR #175, non-shipping,
-  awaiting go-ahead to replace live puffish_skills), **#141** (NC-mod policy
-  ruling: keep `extradelight`/`stellaris` accept-risk vs. remove), **#44**
-  (Modrinth distribution reach + delete stale v0.1.1 draft version).
+  content shipped), **#163** (vppskills **Phase-C cutover decision** — mod
+  is built to Phase B on `dev`, non-shipping; awaiting the owner's go-ahead
+  to wire it into the pack and replace live puffish_skills, which is also
+  the pack's earned skill-XP economy across 8 server scripts — see the
+  Phase-C scoping comment), **#44** (Modrinth distribution reach + delete
+  stale v0.1.1 draft version).
 - **`verify-in-game`** (awaiting the owner's in-game confirmation; the fix
   for each is already merged to `main` and shipped): **#166**, **#159**,
-  **#155**, **#154**, **#116**, **#94**, **#91**, **#67**, and **#1**
-  (verify item 11: skill-tree exclusive fork + /respec).
+  **#155**, **#154**, **#116**, **#94**, **#91**, **#67**, **#141** (v0.7.0
+  NC-mod swaps; owner ruled option 3 / accept-risk on 2026-08-02, so its
+  `needs-owner` is cleared — only in-game confirmation remains), and **#1**
+  (verify item 11: skill-tree exclusive fork + /respec; per-node refund is
+  the still-open design item, folded into #163's Phase-C scope).
 
-Only open PR is **#175** (draft, `feat/163-vppskills-review`, non-shipping
-review surface for #163; fast checks green).
+No open PRs (#175 and #180 are merged to `dev`).
 
 **Historical — v0.3.0 status (2026-07-22)**: `v0.3.0` (prerelease) shipped,
 superseding `v0.2.1`. `pack/VERSION` was `0.3.0`. **This was a breaking cut
