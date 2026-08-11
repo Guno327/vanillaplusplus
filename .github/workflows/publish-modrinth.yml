@@ -38,6 +38,14 @@ on:
         description: "Release tag to (re-)publish, e.g. v0.1.1. Defaults to the latest release."
         required: false
 
+# Least-privilege token (#184): publishing happens on MODRINTH's side, via
+# secrets.MODRINTH_TOKEN. The GitHub token here is used only to READ the
+# release being published (`gh release list/view/download`), which is
+# satisfied by contents: read - nothing in this workflow writes back to the
+# repository, its releases, or its Actions.
+permissions:
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
