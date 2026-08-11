@@ -1,0 +1,127 @@
+name: Mod tests (JUnit)
+
+# GitHub issue #183 ("ci: mods-src JUnit suites never run in CI (testing-
+# doctrine gap)"): the four first-party NeoForge mods under mods-src/
+# (vppfixes, vppintegration, vppquests, vppskills) are standalone Gradle
+# projects with JUnit suites (8 test classes total, in vppintegration and
+# vppskills at time of writing) that ci.yml's "CI (fast)" tier NEVER ran -
+# that tier is pure-static Python validators over pack/ only. A PR could
+# break every Java test in the repo and still show green. This workflow
+# closes that gap.
+#
+# SEPARATE from ci.yml on purpose: ci.yml is the intentionally-fast,
+# stdlib-only, no-network tier that runs on every PR regardless of what
+# changed (a docs/pack-only PR shouldn't wait on a Gradle+NeoForge build).
+# This workflow only triggers when mods-src/ (or its own definition, or the
+# discovery script it depends on) actually changes, and pays the NeoForge/
+# Minecraft dependency download cost only then - mitigated further by
+# Gradle dependency caching (gradle/actions/setup-gradle) so that cost is
+# paid once, not on every run.
+#
+# The mod list itself is NOT hardcoded here: the `discover` job runs
+# scripts/ci/discover_mod_gradle_projects.py --json (the same script + logic
+# covered by scripts/ci/tests/test_discover_mod_gradle_projects.py) and
+# feeds its JSON array into the `test` job's matrix via fromJSON(...), so a
+# fifth mod added later is picked up automatically.
+#
+# BOOTSTRAP NOTE: a fresh checkout is missing two things every
+# mods-src/<mod>/.gitignore deliberately excludes - gradle/wrapper/
+# gradle-wrapper.jar (a binary nobody commits) and, for vppfixes/
+# vppintegration only, libs/*.jar (Silent Gear/Silent Lib/Tom's Storage,
+# fetchable only via the already-pinned URL+hash in pack/mods.lock.json).
+# scripts/build_local_mods.py already solves both for the release/boot
+# path (stage_libs/ensure_gradle_wrapper_jar/gradle_env); rather than
+# calling `./gradlew test` directly here and hitting "Could not find or
+# load main class org.gradle.wrapper.GradleWrapperMain", the `test` job
+# below runs scripts/ci/run_mod_tests.py, which imports and reuses that
+# exact same bootstrap logic before invoking gradle.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "mods-src/**"
+      - ".github/workflows/mods-tests.yml"
+      - "scripts/ci/discover_mod_gradle_projects.py"
+  push:
+    branches:
+      - main
+    paths:
+      - "mods-src/**"
+      - ".github/workflows/mods-tests.yml"
+      - "scripts/ci/discover_mod_gradle_projects.py"
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    name: Discover mod Gradle projects
+    runs-on: ubuntu-latest
+    outputs:
+      mods: ${{ steps.discover.outputs.mods }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Discover mods-src/*/gradlew projects
+        id: discover
+        run: |
+          mods=$(python3 scripts/ci/discover_mod_gradle_projects.py --json)
+          echo "mods=$mods" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: JUnit (${{ matrix.mod }})
+    needs: discover
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        mod: ${{ fromJSON(needs.discover.outputs.mods) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21 (temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Gradle (with dependency caching)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run JUnit tests (mods-src/${{ matrix.mod }})
+        # Goes through scripts/ci/run_mod_tests.py rather than calling
+        # `./gradlew test` directly: a fresh checkout has neither
+        # gradle/wrapper/gradle-wrapper.jar nor (for vppfixes/
+        # vppintegration) libs/*.jar - both gitignored - so a bare
+        # `./gradlew test` dies immediately. run_mod_tests.py bootstraps
+        # both via scripts/build_local_mods.py's already-verified logic
+        # (checksum-pinned wrapper jar download, libs.json staging from
+        # the pinned lockfile) before invoking gradle, then propagates
+        # gradle's own exit code. NOT --offline: this must download
+        # NeoForge/Minecraft artifacts on a cold cache; setup-gradle above
+        # caches those across runs so that cost is paid once, not per PR.
+        run: python3 scripts/ci/run_mod_tests.py ${{ matrix.mod }}
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-reports-${{ matrix.mod }}
+          path: |
+            mods-src/${{ matrix.mod }}/build/reports/tests
+            mods-src/${{ matrix.mod }}/build/test-results
+          if-no-files-found: ignore
