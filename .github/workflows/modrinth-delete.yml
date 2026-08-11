@@ -12,6 +12,12 @@ on:
         description: "Modrinth version_number to delete (e.g. 0.5.0)"
         required: true
 
+# Least-privilege token (#184): this workflow talks only to Modrinth's API
+# via secrets.MODRINTH_TOKEN; the only thing it needs from GitHub is the
+# checkout itself. contents: read is therefore the complete requirement.
+permissions:
+  contents: read
+
 jobs:
   delete:
     runs-on: ubuntu-latest

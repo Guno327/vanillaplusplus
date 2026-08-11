@@ -25,6 +25,15 @@ on:
     branches:
       - main
 
+# Least-privilege token (#184): this tier only reads the checkout and runs
+# stdlib Python validators - it never calls the GitHub API or writes to the
+# repo. Declared explicitly rather than inheriting the repository default,
+# which is write-all unless hardened. Safe under `workflow_call` too: a
+# reusable workflow may hold fewer permissions than its caller
+# (mint-release.yml), never more.
+permissions:
+  contents: read
+
 jobs:
   fast-checks:
     name: Fast-tier static checks
