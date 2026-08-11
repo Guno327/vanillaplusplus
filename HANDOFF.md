@@ -8,13 +8,15 @@ feature branches + PR only, Conventional Commits, tests-first). Start at
 orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
-**Current status (2026-08-03)**: shipped release is **`v0.8.0`**
+**Current status (2026-08-11)**: shipped release is **`v0.8.0`**
 (`pack/VERSION` == `0.8.0`); `main` is green (fast + scheduled boot; latest
 L3 GATE: PASS on the last promote) and carries all shipping work — **no
-unmerged shipping work is outstanding.** `dev` is **8 non-shipping commits
-ahead of `main`**: the vppskills custom skill-tree mod built through
-**Phase B** (merges `da24691` #175 = phases 1-3 foundation, `cac6576` #180
-= XP economy + one-free-respec). The pack is deliberately **untouched** —
+unmerged shipping work is outstanding.** `dev` is ahead of `main` by the
+vppskills custom skill-tree mod built through **Phase B** (merges `da24691`
+#175 = phases 1-3 foundation, `cac6576` #180 = XP economy +
+one-free-respec) plus two CI-infrastructure merges landed 2026-08-11
+(`786682c` #185 = #183, `2f7535f` #186 = #184; see the CI section below).
+All of it is **non-shipping**. The pack is deliberately **untouched** —
 `puffish_skills` is still the live in-game skill system — so this dev lead
 ships nothing until the #163 Phase-C cutover is approved (see below). CI
 runs on PRs and on `main`, not on `dev` pushes, so these dev merges show no
@@ -24,13 +26,50 @@ The long narrative below (from the v0.3.0 status paragraph) is an
 build; reconstruct current reality from `git log`, the GitHub releases, and
 open issues/PRs per ORCHESTRATION §3, not from the older paragraphs here.
 
+**CI tiers as of 2026-08-11** (changed — do not assume the older narrative
+below): there are now *two* PR-facing tiers. **CI (fast)** (`ci.yml`) is
+unchanged: stdlib-Python static validators over `pack/`, on every PR.
+**Mod tests (JUnit)** (`mods-tests.yml`, added by #183) runs the JUnit
+suites of every `mods-src/*` Gradle project — previously those suites had
+*never* run in CI, so a PR could break every Java test and still show
+green. It is path-filtered to `mods-src/**` (plus its own definition and
+`scripts/ci/discover_mod_gradle_projects.py`) so docs/pack-only PRs are not
+slowed, and the mod list is discovered, not hardcoded, so a fifth mod is
+picked up automatically. Cost: ~2m40s–4m per mod, four jobs in parallel.
+
+The one non-obvious thing to know before touching it: **do not "simplify"
+it to call `./gradlew` directly.** A fresh checkout has neither
+`gradle/wrapper/gradle-wrapper.jar` (this repo does not vendor the binary
+wrapper) nor `libs/*.jar` for `vppfixes`/`vppintegration` (Modrinth-only
+`compileOnly` deps) — both deliberately gitignored — so a bare `./gradlew`
+dies immediately. `scripts/ci/run_mod_tests.py` bootstraps both by reusing
+`scripts/build_local_mods.py`'s existing checksum-pinned wrapper fetch and
+lockfile-pinned libs staging. Two attempts at #183 hit this; the second one
+shipped only because the bootstrap was reused rather than re-invented.
+Note the `push: branches: [main]` half of that workflow only becomes live
+at the next `dev`→`main` promote.
+
+All five workflows now declare explicit least-privilege `permissions:`
+(#184). `publish-modrinth.yml` and `modrinth-delete.yml` were audited to
+`contents: read` but **not run-verified** — neither has a dry-run path — so
+watch the next release for a 403 on a `gh release` read; the fix would be a
+one-line bump.
+
 The entire open backlog is **owner-gated**, so a resuming PM with no new
 owner input should verify `main`/green + no orphaned fixes, then enter the
 §7 idle-watch loop:
 
 - **`needs-owner`** (awaiting the owner in the issue thread): **#170**
   (security — prompt-injection surfaced for investigation, no unauthorized
-  content shipped), **#163** (vppskills **Phase-C cutover decision** — mod
+  content shipped. A full repo provenance/forensic scan was run 2026-08-11
+  after a PAT exposure and posted to that thread: **no credential
+  exfiltration, no non-agent-origin code, the PAT was never committed to
+  any ref so no history rewrite is needed**, and the #170 injection was
+  re-confirmed never to have reached `main`/`dev`. Two owner decisions
+  remain: disposition of the inert artifact preserved at
+  `/home/ubuntu/wt/67/.scratch/gen/` — that worktree is deliberately kept
+  while the rest were cleaned up — and the still-unresolved root cause of
+  how the forged context was injected), **#163** (vppskills **Phase-C cutover decision** — mod
   is built to Phase B on `dev`, non-shipping; awaiting the owner's go-ahead
   to wire it into the pack and replace live puffish_skills, which is also
   the pack's earned skill-XP economy across 8 server scripts — see the
@@ -44,7 +83,9 @@ owner input should verify `main`/green + no orphaned fixes, then enter the
   (verify item 11: skill-tree exclusive fork + /respec; per-node refund is
   the still-open design item, folded into #163's Phase-C scope).
 
-No open PRs (#175 and #180 are merged to `dev`).
+No open PRs. Local worktree hygiene (2026-08-11): 21 stale agent worktrees
+were removed and 2 pruned; all 102 branches were left intact.
+`/home/ubuntu/wt/67` is deliberately preserved as #170 evidence.
 
 **Historical — v0.3.0 status (2026-07-22)**: `v0.3.0` (prerelease) shipped,
 superseding `v0.2.1`. `pack/VERSION` was `0.3.0`. **This was a breaking cut
