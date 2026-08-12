@@ -9,10 +9,48 @@ orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
 **Current status (2026-08-12)**: shipped release is **`v0.8.0`**
-(`pack/VERSION` == `0.8.0`); `main` is green and **`dev` and `main` are now
-identical** (0 commits apart) after the non-shipping promote `63f4a61`
-(#191, tracked by #190). **No unmerged work is outstanding, shipping or
-otherwise.**
+(`pack/VERSION` == `0.8.0`); `main` is green at **`baada43`** and **`dev`
+and `main` are identical** (0 commits apart). **No unmerged work is
+outstanding, shipping or otherwise.** Everything landed this day was
+non-shipping — `pack/` has not been touched, so the modpack is
+byte-identical to `v0.8.0` and no release was minted.
+
+Landed 2026-08-12, in order: the promote `63f4a61` (#191, tracked by #190),
+then JUnit coverage for the two mods that had none (#194 — `0cc1e4c` #195
+vppquests, `baada43` #196 vppfixes).
+
+**Test coverage (#194) — read this before assuming a green `JUnit (<mod>)`
+job means anything.** #183 gave every `mods-src/*` project a CI job, but two
+of the four mods had **zero tests**, so those jobs passed in ~3 minutes
+without asserting anything — worse than no job, because a green check read
+as coverage. Now: vppquests 0 → **57 tests** (12 classes), vppfixes 0 → **1
+test**. vppquests carries named regression tests for the shipped defects
+**#156** (payload round-trip using a 40,018-char blob — the oversized input
+*is* the test; a small string passes on the broken `writeUtf` code too),
+**#166** (`GamestageBridge`, incl. a throwing resolver swallowed to
+`false`), and **#164 item 5** (`QuestRewardBridge`). The suite was verified
+load-bearing by reverting the #156 fix and watching it fail with
+`EncoderException: String too big (was 40018 characters, max 32767)`.
+
+vppfixes ending at **one** test is correct, not a shortfall — it is a
+bytecode-patch mod. **The hard boundary of this test tier, hit independently
+from two directions: `BuiltInRegistries` is unreachable under plain JUnit**
+(`IllegalArgumentException: Not bootstrapped`; `Bootstrap.bootStrap()` was
+tried and NPEs headless). So any path touching a vanilla registry, plus all
+Mixins, all live-server-bound code (`ServerPlayer`/`ItemStack`/
+`PacketDistributor`/`ServerLifecycleHooks`), and GUI layout code needing a
+live `Font`, are out of scope for this tier. **Do not treat that as a gap to
+"fix" casually** — it would mean building bootstrap infrastructure this repo
+has never had. The one genuinely valuable uncovered area is `QuestScreen`'s
+`ellipsize`/`stripContentWidth`/`maxChapterScroll` (#159/#164 clipping): if
+quest-title clipping regresses, it will still be an owner-in-game find.
+
+Note the repo now uses the **GitHub App identity only** — the PAT-era
+repo-local `user.*` override was removed and `gh`'s revoked personal-account
+token was cleared (#193). **`gh auth status` reporting "not logged into any
+GitHub hosts" is the correct state, not a fault**: pass
+`GH_TOKEN=$(python3 /home/ubuntu/.config/github-app/mint-token.py Guno327)`
+explicitly per invocation. Do not run `gh auth login`.
 
 That promote carried onto `main`: the vppskills custom skill-tree mod
 through **Phase B** (`da24691` #175 = phases 1-3 foundation, `cac6576` #180
