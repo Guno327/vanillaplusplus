@@ -89,6 +89,52 @@ class FingerprintTest(unittest.TestCase):
             after = local_mod_source_hash.fingerprint(mod_dir)
             self.assertEqual(before, after)
 
+    def test_unchanged_by_adding_test_source(self):
+        # GitHub #202: src/test/** is not a jar build input, so adding a
+        # new file there must not move the fingerprint.
+        with tempfile.TemporaryDirectory() as tmp:
+            mod_dir = _mod_tree(tmp)
+            before = local_mod_source_hash.fingerprint(mod_dir)
+            test_file = mod_dir / "src" / "test" / "java" / "FooTest.java"
+            test_file.parent.mkdir(parents=True)
+            test_file.write_text("class FooTest {}\n", encoding="utf-8")
+            after = local_mod_source_hash.fingerprint(mod_dir)
+            self.assertEqual(before, after)
+
+    def test_unchanged_by_editing_existing_test_source(self):
+        # Same as above but editing an existing src/test/** file's content,
+        # not just adding a new one.
+        with tempfile.TemporaryDirectory() as tmp:
+            mod_dir = _mod_tree(tmp, extra_files={
+                "src/test/java/FooTest.java": "class FooTest {}\n",
+            })
+            before = local_mod_source_hash.fingerprint(mod_dir)
+            (mod_dir / "src" / "test" / "java" / "FooTest.java").write_text(
+                "class FooTest { void test() {} }\n", encoding="utf-8")
+            after = local_mod_source_hash.fingerprint(mod_dir)
+            self.assertEqual(before, after)
+
+    def test_changes_when_main_source_added(self):
+        # Counterpart: a new file under src/main/** IS a build input and
+        # must change the fingerprint.
+        with tempfile.TemporaryDirectory() as tmp:
+            mod_dir = _mod_tree(tmp)
+            before = local_mod_source_hash.fingerprint(mod_dir)
+            new_file = mod_dir / "src" / "main" / "java" / "Bar.java"
+            new_file.write_text("class Bar {}\n", encoding="utf-8")
+            after = local_mod_source_hash.fingerprint(mod_dir)
+            self.assertNotEqual(before, after)
+
+    def test_changes_when_main_resources_edited(self):
+        # src/main/resources/** must be included (not just src/main/java/**).
+        with tempfile.TemporaryDirectory() as tmp:
+            mod_dir = _mod_tree(tmp)
+            before = local_mod_source_hash.fingerprint(mod_dir)
+            (mod_dir / "src" / "main" / "resources" / "mod.toml").write_text(
+                "id=somemod\nversion=2\n", encoding="utf-8")
+            after = local_mod_source_hash.fingerprint(mod_dir)
+            self.assertNotEqual(before, after)
+
     def test_rename_across_files_does_not_collide(self):
         # Guards the length-prefixed framing: two different (path, content)
         # layouts that would concatenate to the same bytes under naive
@@ -117,6 +163,24 @@ class SourceFilesTest(unittest.TestCase):
             mod_dir = _mod_tree(tmp, extra_files={"libs.json": "[]"})
             rels = {p.relative_to(mod_dir).as_posix() for p in local_mod_source_hash.source_files(mod_dir)}
             self.assertIn("libs.json", rels)
+
+    def test_src_test_excluded(self):
+        # GitHub #202: src/test/** is not a jar build input.
+        with tempfile.TemporaryDirectory() as tmp:
+            mod_dir = _mod_tree(tmp, extra_files={
+                "src/test/java/FooTest.java": "class FooTest {}\n",
+                "src/test/resources/test.toml": "x=1\n",
+            })
+            rels = {p.relative_to(mod_dir).as_posix() for p in local_mod_source_hash.source_files(mod_dir)}
+            self.assertNotIn("src/test/java/FooTest.java", rels)
+            self.assertNotIn("src/test/resources/test.toml", rels)
+            self.assertTrue(all(not r.startswith("src/test/") for r in rels))
+
+    def test_src_main_resources_included(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            mod_dir = _mod_tree(tmp)
+            rels = {p.relative_to(mod_dir).as_posix() for p in local_mod_source_hash.source_files(mod_dir)}
+            self.assertIn("src/main/resources/mod.toml", rels)
 
 
 if __name__ == "__main__":

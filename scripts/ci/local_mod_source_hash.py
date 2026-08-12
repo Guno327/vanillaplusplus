@@ -10,18 +10,44 @@ every existing CI tier green. This module computes a second, independent
 fingerprint - this time over the *source* rather than the jar - so
 scripts/ci/check_local_mod_sources.py can catch that drift.
 
-What gets hashed, per mod_dir (e.g. mods-src/vppquests/):
-  - everything under mod_dir/src/** (recursively)
+The rule is **jar build inputs only** - what Gradle's `jar` task actually
+packages, not everything that happens to live under mod_dir. What gets
+hashed, per mod_dir (e.g. mods-src/vppquests/):
+  - everything under mod_dir/src/main/** (recursively) - this is the only
+    source set the `jar` task consumes (src/main/java + src/main/resources
+    and any other src/main/<sourceSet> Gradle happens to define).
   - mod_dir/build.gradle, mod_dir/gradle.properties, mod_dir/settings.gradle,
     mod_dir/libs.json - each only if present.
+
+mod_dir/src/test/** (and any other non-"main" source set under src/) is
+deliberately EXCLUDED (GitHub #202): it feeds Gradle's `test` task, never
+the `jar` task, so it is not a build input for the committed jar this
+fingerprint is meant to pin against. Before #202 this hashed all of src/**,
+which meant adding or editing a JUnit test for a local mod - something this
+project's tests-first charter requires - always tripped the drift check in
+check_local_mod_sources.py even though the resulting jar (and its
+hashes.sha1/sha512 pin) would not actually change. That's a real cost paid
+on every test change, unlike the deliberately-asymmetric choice below.
+
+build.gradle stays included even though it also configures the `test` task,
+because it can genuinely change the jar too - dependencies, jarJar/shadow
+relocation, resource processing, manifest attributes, etc. all live there.
+Over-including build.gradle costs an occasional unnecessary re-pin (only
+when a build.gradle edit happens to be test-task-only); over-including
+src/test/** costs one on *every* test change, which is the common case for
+a tests-first project. That asymmetry is why build.gradle stays in but
+src/test/** does not: the false-positive rate from build.gradle is low and
+the file is small/rare to touch, while src/test/** churns constantly and in
+exactly the direction (adding tests) this project wants to encourage.
 
 What's excluded even if it somehow appears under those paths: anything under
 a build/, .gradle/, run/, or libs/ directory component, and anything matched
 by mod_dir/.gitignore (a small, dependency-free glob matcher - this repo has
 no PyYAML/requests/etc. available in the fast CI tier, so no pathspec
 either). None of mods-src/*/'s current .gitignore-excluded paths actually
-live under src/ or the four named top-level files, so this is a belt-and-
-braces guard against future drift, not something the current trees rely on.
+live under src/main/ or the four named top-level files, so this is a belt-
+and-braces guard against future drift, not something the current trees rely
+on.
 
 The digest is over (path, content) pairs, sorted by repo-relative POSIX path
 so it's independent of filesystem iteration order, and length-prefixed so a
@@ -84,9 +110,12 @@ def source_files(mod_dir):
     patterns = _gitignore_patterns(mod_dir)
     candidates = []
 
-    src_dir = mod_dir / "src"
-    if src_dir.is_dir():
-        for p in src_dir.rglob("*"):
+    # Only src/main/** feeds Gradle's `jar` task; src/test/** (and any other
+    # non-"main" source set) feeds `test` only and is not a build input for
+    # the committed jar - see module docstring (GitHub #202).
+    main_src_dir = mod_dir / "src" / "main"
+    if main_src_dir.is_dir():
+        for p in main_src_dir.rglob("*"):
             if p.is_file():
                 candidates.append(p)
 
