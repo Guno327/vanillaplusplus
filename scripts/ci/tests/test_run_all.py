@@ -200,6 +200,29 @@ def _minimal_valid_pack(root):
             (forging_dir / f"{metal}_{part_type}.json").write_text(
                 json.dumps(recipe), encoding="utf-8")
 
+    # GitHub #188: check_workflow_permissions.py requires .github/workflows/
+    # to exist with every workflow declaring an explicit permissions: block
+    # and no under-scoped write ops - a minimal, read-only workflow (no `gh`
+    # write commands) with a top-level `contents: read` satisfies it.
+    workflows_dir = Path(root) / ".github" / "workflows"
+    workflows_dir.mkdir(parents=True)
+    (workflows_dir / "ci.yml").write_text(
+        "name: CI\n"
+        "\n"
+        "on:\n"
+        "  pull_request:\n"
+        "\n"
+        "permissions:\n"
+        "  contents: read\n"
+        "\n"
+        "jobs:\n"
+        "  build:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - name: Checkout\n"
+        "        uses: actions/checkout@v4\n",
+        encoding="utf-8")
+
     return pack
 
 
