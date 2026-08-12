@@ -269,7 +269,7 @@
       "side": "both",
       "phase": 7,
       "note": "GitHub #67: hand-rolled Overgeared x Silent Gear quality bridge (mods-src/vppintegration/, see its README.md). Requires both silent-gear and overgeared above at their pinned versions. Phases 1-3 (#67) extend this to full metal-ladder forging coverage: 7 heated-ingot items + blasting recipes (andesite_alloy/brass/refined_radiance/allthemodium/vibranium/unobtainium/star_alloy), 42 (metal x tool-head-part) overgeared:forging recipes -> Silent Gear heads, and the Paxel combination recipe (3 same-material heads -> silentgear:paxel_head, quality = forge roll x input quality). See mods-src/vppintegration/README.md.",
-      "source_sha256": "0d8207264ba601220b2a2fb220e75f3bfcc8d7e444223caae86fd8947f41e7a8"
+      "source_sha256": "3d206e05ed47d97b1344f491dbc344c42cff6de9b195ba8cb399bac0043a8085"
     },
     {
       "slug": "epic-fight",
@@ -351,7 +351,7 @@
       "side": "both",
       "phase": 7,
       "note": "GitHub #143 fix (v0.5.4, reconciled into v0.6.0): Mixin-only pack-fix mod that deep-copies vanilla COMPONENT/OPTIONAL_COMPONENT (custom-name) SynchedEntityData values at pack time so the Netty IO thread never encodes a concurrently-mutated Component siblings list -> fixes the set_entity_data ConcurrentModificationException that booted clients. Matched by serializer reference. GitHub #165 fix added: TomsStorageMultiChangeTrackerMixin forces com.tom.storagemod.inventory.MultiInventoryAccess$MultiChangeTracker's off-thread list-build path (multithreadProcessing/streamWrappedStacks) onto the calling thread and wraps both in try/catch, so a Storage Terminal never shows an empty item list when a non-thread-safe IItemHandler (e.g. Sophisticated Storage) is on the network, independent of toms_storage's own runMultithreaded config (belt-and-suspenders default also shipped in pack/defaultconfigs/toms_storage-server.toml, but that only seeds new worlds). Built reproducibly from mods-src/vppfixes/ (source:local).",
-      "source_sha256": "96f62d0995c2b190003098e19eae4caf0df2c51ec28e03e75db9f8ae3bc2acd4"
+      "source_sha256": "4b0ac2392248e252b3a3fd70ec78432031ec806ab0f606a1ce45a7c96e185a84"
     },
     {
       "slug": "placebo",
@@ -1873,7 +1873,7 @@
       "side": "both",
       "phase": 26,
       "note": "GitHub #109 Phase C (cutover): wires the hand-rolled vppquests custom questing mod (mods-src/vppquests/, see its README.md and DESIGN.md's '#109' sections) into the pack so it actually loads, following the mods-src/<modid>/ convention #67 established (vppintegration is the other worked example). Both sides required - QuestScreen's GUI and keybind are client-rendered, but QuestRegistry/QuestReloadListener/QuestProgressAttachment/QuestProgressTracker/QuestLegacyMigration are server-authoritative. Ships Phase A (scaffold: data model, data attachment, networking, first-pass list-view GUI) + Phase B (QuestLegacyMigration: one-time identity-mapping carry-forward of a player's already-complete quests out of quests.js's legacy save file) + the deferred half of Phase A (scripts/gen_vppquests_data.py ports the real 62-quest/10-chapter book into pack/kubejs/data/vanillaplusplus/vppquests/{chapter,quest}/**, replacing the 3 placeholder example quests the scaffold originally shipped). DELIBERATE INTERIM STATE (not yet a full cutover - see DESIGN.md's Phase C description, which gates removing the legacy system on Phase B's migration being 'confirmed correct in practice'; no live server has boot-verified that yet in this sandbox): pack/kubejs/server_scripts/quests.js/achievements.js/dailies.js and the advancement-generation code are all left installed and running exactly as before - both quest UIs (this mod's QuestScreen and the old vanilla-advancement GUI) are simultaneously present until an in-game pass confirms the migration is correct, at which point removing the legacy system is the actual Phase C completion. No dependency requirements of its own (a standalone, Modrinth-publishable mod per its own README - zero required deps in its neoforge.mods.toml).",
-      "source_sha256": "d77faa34e594efc07a2d3b787eb2dc1ec287ce88e45f7a56de29cceb537b4d8e"
+      "source_sha256": "cec008c7c6b5d1fdb94484c79716199677f6fd436a14aea353c56cf9495ac9a6"
     }
   ]
 }
