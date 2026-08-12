@@ -44,3 +44,11 @@ server/cmd_fifo
 # PM/agent scratch space — idle-watch baselines, feasibility notes, etc.
 # Never tracked; ephemeral per-session working files.
 .scratch/
+
+# NeoForge/Gradle test runs drop a logs/ dir inside each mod project
+# (mods-src/<mod>/logs/) - build artifacts, never committed.
+mods-src/*/logs/
+
+# Engineers symlink the gitignored pinned JDK into an isolated worktree as
+# `.tools` (a symlink, which the `.tools/` dir pattern above does not match).
+.tools

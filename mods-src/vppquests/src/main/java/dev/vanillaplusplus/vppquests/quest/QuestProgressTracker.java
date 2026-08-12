@@ -180,7 +180,18 @@ public final class QuestProgressTracker {
                 .orElse(false);
     }
 
-    private static boolean dependenciesSatisfied(Quest quest, QuestProgressAttachment progress) {
+    /**
+     * Package-private rather than {@code private} (GitHub #194): the only
+     * change from the original {@code private} visibility is that this pure,
+     * {@code ServerPlayer}-free AND-gate over a quest's declared
+     * {@link Quest#dependencies()} can now be unit-tested directly (see
+     * {@code QuestProgressTrackerDependenciesSatisfiedTest}) rather than only
+     * indirectly through a live-server {@link #evaluate} tick - no behaviour
+     * change, same as {@code vppskills}'s
+     * {@code ServerXpEconomyEvents#pointsForLevelDelta} extraction this
+     * mirrors.
+     */
+    static boolean dependenciesSatisfied(Quest quest, QuestProgressAttachment progress) {
         for (ResourceLocation dep : quest.dependencies()) {
             if (!progress.isComplete(dep)) {
                 return false;
