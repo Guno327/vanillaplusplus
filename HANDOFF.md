@@ -8,10 +8,112 @@ feature branches + PR only, Conventional Commits, tests-first). Start at
 orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
-**Status**: `v0.3.0` (prerelease) shipped 2026-07-22, superseding `v0.2.1`.
-`pack/VERSION` is `0.3.0`. **This is a breaking cut for both sides** — the
-server's mod set changed, so a v0.3.0 client will not connect to a v0.2.1
-server.
+**Current status (2026-08-11)**: shipped release is **`v0.8.0`**
+(`pack/VERSION` == `0.8.0`); `main` is green (fast + scheduled boot; latest
+L3 GATE: PASS on the last promote) and carries all shipping work — **no
+unmerged shipping work is outstanding.** `dev` is ahead of `main` by the
+vppskills custom skill-tree mod built through **Phase B** (merges `da24691`
+#175 = phases 1-3 foundation, `cac6576` #180 = XP economy +
+one-free-respec) plus two CI-infrastructure merges landed 2026-08-11
+(`786682c` #185 = #183, `2f7535f` #186 = #184; see the CI section below).
+All of it is **non-shipping**. The pack is deliberately **untouched** —
+`puffish_skills` is still the live in-game skill system — so this dev lead
+ships nothing until the #163 Phase-C cutover is approved (see below). CI
+runs on PRs and on `main`, not on `dev` pushes, so these dev merges show no
+dev CI run; each rode in green on its own feature-branch PR before merge.
+The long narrative below (from the v0.3.0 status paragraph) is an
+**append-only historical log** — accurate for its date, not the current
+build; reconstruct current reality from `git log`, the GitHub releases, and
+open issues/PRs per ORCHESTRATION §3, not from the older paragraphs here.
+
+**CI tiers as of 2026-08-11** (changed — do not assume the older narrative
+below): there are now *two* PR-facing tiers. **CI (fast)** (`ci.yml`) is
+unchanged: stdlib-Python static validators over `pack/`, on every PR.
+**Mod tests (JUnit)** (`mods-tests.yml`, added by #183) runs the JUnit
+suites of every `mods-src/*` Gradle project — previously those suites had
+*never* run in CI, so a PR could break every Java test and still show
+green. It is path-filtered to `mods-src/**` (plus its own definition and
+`scripts/ci/discover_mod_gradle_projects.py`) so docs/pack-only PRs are not
+slowed, and the mod list is discovered, not hardcoded, so a fifth mod is
+picked up automatically. Cost: ~2m40s–4m per mod, four jobs in parallel.
+
+The one non-obvious thing to know before touching it: **do not "simplify"
+it to call `./gradlew` directly.** A fresh checkout has neither
+`gradle/wrapper/gradle-wrapper.jar` (this repo does not vendor the binary
+wrapper) nor `libs/*.jar` for `vppfixes`/`vppintegration` (Modrinth-only
+`compileOnly` deps) — both deliberately gitignored — so a bare `./gradlew`
+dies immediately. `scripts/ci/run_mod_tests.py` bootstraps both by reusing
+`scripts/build_local_mods.py`'s existing checksum-pinned wrapper fetch and
+lockfile-pinned libs staging. Two attempts at #183 hit this; the second one
+shipped only because the bootstrap was reused rather than re-invented.
+Note the `push: branches: [main]` half of that workflow only becomes live
+at the next `dev`→`main` promote.
+
+All workflows declare explicit least-privilege `permissions:` (#184), and
+as of #188 that is **enforced, not just audited**:
+`scripts/ci/check_workflow_permissions.py` runs in the fast tier on every
+PR and fails if a workflow declares no explicit `permissions:` block, uses
+`write-all`, or performs a `gh` write operation (release/PR/issue writes,
+`gh workflow run`, `gh api -X POST/PATCH/PUT/DELETE`) without the matching
+write scope. It is stdlib-only — no PyYAML in the fast tier — so it uses a
+narrow indentation-based parser that **fails loudly** on anything it can't
+confidently parse rather than passing silently.
+
+The earlier "audited but not run-verified — watch the next release for a
+403" warning on the two Modrinth workflows is **resolved**:
+
+- `publish-modrinth.yml` gained a `dry_run` `workflow_dispatch` input that
+  gates only the `mc-publish` step. Dispatched against `v0.8.0` on
+  2026-08-12 (run `31555513980`): the resolve + `gh release download` steps
+  **succeeded under `contents: read`** and the publish step was skipped —
+  so the audit was correct, no 403 exists, and the whole GitHub-token half
+  is now re-verifiable on demand without shipping a Modrinth version.
+- `modrinth-delete.yml` is now `permissions: {}`. Its `contents: read` was
+  justified as "needed for the checkout itself", but that job has no
+  checkout step and only curls Modrinth's API — the comment described a
+  step that never existed.
+- #188 also found the real hole: `mint-release.yml` had **no top-level
+  `permissions:`**, so its `compute-version` job fell back to the
+  repository default token. It now has a `contents: read` floor; the one
+  write-performing job keeps its own write block, which overrides the floor
+  for that job only.
+
+The entire open backlog is **owner-gated**, so a resuming PM with no new
+owner input should verify `main`/green + no orphaned fixes, then enter the
+§7 idle-watch loop:
+
+- **`needs-owner`** (awaiting the owner in the issue thread): **#170**
+  (security — prompt-injection surfaced for investigation, no unauthorized
+  content shipped. A full repo provenance/forensic scan was run 2026-08-11
+  after a PAT exposure and posted to that thread: **no credential
+  exfiltration, no non-agent-origin code, the PAT was never committed to
+  any ref so no history rewrite is needed**, and the #170 injection was
+  re-confirmed never to have reached `main`/`dev`. Two owner decisions
+  remain: disposition of the inert artifact preserved at
+  `/home/ubuntu/wt/67/.scratch/gen/` — that worktree is deliberately kept
+  while the rest were cleaned up — and the still-unresolved root cause of
+  how the forged context was injected), **#163** (vppskills **Phase-C cutover decision** — mod
+  is built to Phase B on `dev`, non-shipping; awaiting the owner's go-ahead
+  to wire it into the pack and replace live puffish_skills, which is also
+  the pack's earned skill-XP economy across 8 server scripts — see the
+  Phase-C scoping comment), **#44** (Modrinth distribution reach + delete
+  stale v0.1.1 draft version).
+- **`verify-in-game`** (awaiting the owner's in-game confirmation; the fix
+  for each is already merged to `main` and shipped): **#166**, **#159**,
+  **#155**, **#154**, **#116**, **#94**, **#91**, **#67**, **#141** (v0.7.0
+  NC-mod swaps; owner ruled option 3 / accept-risk on 2026-08-02, so its
+  `needs-owner` is cleared — only in-game confirmation remains), and **#1**
+  (verify item 11: skill-tree exclusive fork + /respec; per-node refund is
+  the still-open design item, folded into #163's Phase-C scope).
+
+No open PRs. Local worktree hygiene (2026-08-11): 21 stale agent worktrees
+were removed and 2 pruned; all 102 branches were left intact.
+`/home/ubuntu/wt/67` is deliberately preserved as #170 evidence.
+
+**Historical — v0.3.0 status (2026-07-22)**: `v0.3.0` (prerelease) shipped,
+superseding `v0.2.1`. `pack/VERSION` was `0.3.0`. **This was a breaking cut
+for both sides** — the server's mod set changed, so a v0.3.0 client will not
+connect to a v0.2.1 server.
 
 What it contains:
 

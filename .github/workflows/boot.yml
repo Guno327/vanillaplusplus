@@ -119,6 +119,16 @@ on:
       - synchronize
       - reopened
 
+# Least-privilege token (#184): this tier resolves mods, assembles a server
+# and boots it - all against the checkout and third-party download hosts. It
+# uses no secrets and makes no GitHub API calls, so it needs nothing beyond
+# read access to the code. Declared explicitly rather than inheriting the
+# repository default, which is write-all unless hardened. Safe under
+# `workflow_call`: a reusable workflow may hold fewer permissions than its
+# caller, never more.
+permissions:
+  contents: read
+
 jobs:
   boot-test:
     name: Boot-test the assembled server

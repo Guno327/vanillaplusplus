@@ -40,3 +40,7 @@ server/cache/
 server/patchouli_books/
 server/.sable/
 server/cmd_fifo
+
+# PM/agent scratch space — idle-watch baselines, feasibility notes, etc.
+# Never tracked; ephemeral per-session working files.
+.scratch/

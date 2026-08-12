@@ -12,6 +12,20 @@ on:
         description: "Modrinth version_number to delete (e.g. 0.5.0)"
         required: true
 
+# Least-privilege token (#184, corrected under #188): this workflow talks
+# only to Modrinth's API via secrets.MODRINTH_TOKEN and curl/jq - there is
+# no `actions/checkout` step in the job below (nothing here reads a file
+# out of the repository), so it needs NOTHING from the GitHub token at
+# all. The previous `contents: read` here was wrong: it was justified as
+# "needed for the checkout itself", but no checkout exists in this job -
+# that comment described a step that was never added, not this workflow's
+# actual behavior. Declared as an explicit empty mapping (not omitted)
+# so this still reads as a deliberate, audited grant of nothing, per
+# check_workflow_permissions.py's rule that every workflow must have SOME
+# explicit permissions: declaration rather than falling back to the repo
+# default.
+permissions: {}
+
 jobs:
   delete:
     runs-on: ubuntu-latest

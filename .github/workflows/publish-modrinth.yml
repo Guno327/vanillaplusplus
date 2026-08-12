@@ -37,6 +37,18 @@ on:
       tag:
         description: "Release tag to (re-)publish, e.g. v0.1.1. Defaults to the latest release."
         required: false
+      dry_run:
+        description: "Exercise the GitHub-token half (resolve + download release assets) and skip the Modrinth upload."
+        type: boolean
+        default: false
+
+# Least-privilege token (#184): publishing happens on MODRINTH's side, via
+# secrets.MODRINTH_TOKEN. The GitHub token here is used only to READ the
+# release being published (`gh release list/view/download`), which is
+# satisfied by contents: read - nothing in this workflow writes back to the
+# repository, its releases, or its Actions.
+permissions:
+  contents: read
 
 jobs:
   publish:
@@ -75,6 +87,17 @@ jobs:
           gh release view "${{ steps.release.outputs.tag }}" --repo "$GITHUB_REPOSITORY" --json body -q .body > dist/CHANGELOG.md
 
       - name: Publish to Modrinth
+        # GitHub issue #188: `dry_run` (workflow_dispatch-only input) lets
+        # someone exercise everything ABOVE this step - resolving the
+        # target release and downloading its .mrpack/.zip/changelog via
+        # the GitHub token - without actually pushing a version to
+        # Modrinth. Gated ONLY on this final upload step so the
+        # GitHub-token half is still fully tested. On the normal
+        # `release: published` trigger, `github.event.inputs.dry_run` is
+        # unset (workflow_dispatch inputs don't exist for other event
+        # types), so this condition is true and publishing proceeds
+        # exactly as before.
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         uses: Kir-Antipov/mc-publish@v3
         with:
           modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
