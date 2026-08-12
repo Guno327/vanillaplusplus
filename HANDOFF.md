@@ -49,11 +49,34 @@ shipped only because the bootstrap was reused rather than re-invented.
 Note the `push: branches: [main]` half of that workflow only becomes live
 at the next `dev`→`main` promote.
 
-All five workflows now declare explicit least-privilege `permissions:`
-(#184). `publish-modrinth.yml` and `modrinth-delete.yml` were audited to
-`contents: read` but **not run-verified** — neither has a dry-run path — so
-watch the next release for a 403 on a `gh release` read; the fix would be a
-one-line bump.
+All workflows declare explicit least-privilege `permissions:` (#184), and
+as of #188 that is **enforced, not just audited**:
+`scripts/ci/check_workflow_permissions.py` runs in the fast tier on every
+PR and fails if a workflow declares no explicit `permissions:` block, uses
+`write-all`, or performs a `gh` write operation (release/PR/issue writes,
+`gh workflow run`, `gh api -X POST/PATCH/PUT/DELETE`) without the matching
+write scope. It is stdlib-only — no PyYAML in the fast tier — so it uses a
+narrow indentation-based parser that **fails loudly** on anything it can't
+confidently parse rather than passing silently.
+
+The earlier "audited but not run-verified — watch the next release for a
+403" warning on the two Modrinth workflows is **resolved**:
+
+- `publish-modrinth.yml` gained a `dry_run` `workflow_dispatch` input that
+  gates only the `mc-publish` step. Dispatched against `v0.8.0` on
+  2026-08-12 (run `31555513980`): the resolve + `gh release download` steps
+  **succeeded under `contents: read`** and the publish step was skipped —
+  so the audit was correct, no 403 exists, and the whole GitHub-token half
+  is now re-verifiable on demand without shipping a Modrinth version.
+- `modrinth-delete.yml` is now `permissions: {}`. Its `contents: read` was
+  justified as "needed for the checkout itself", but that job has no
+  checkout step and only curls Modrinth's API — the comment described a
+  step that never existed.
+- #188 also found the real hole: `mint-release.yml` had **no top-level
+  `permissions:`**, so its `compute-version` job fell back to the
+  repository default token. It now has a `contents: read` floor; the one
+  write-performing job keeps its own write block, which overrides the floor
+  for that job only.
 
 The entire open backlog is **owner-gated**, so a resuming PM with no new
 owner input should verify `main`/green + no orphaned fixes, then enter the
