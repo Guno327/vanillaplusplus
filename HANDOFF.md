@@ -9,15 +9,54 @@ orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
 **Current status (2026-08-12)**: shipped release is **`v0.8.0`**
-(`pack/VERSION` == `0.8.0`); `main` is green at **`baada43`** and **`dev`
+(`pack/VERSION` == `0.8.0`); `main` is green at **`e5c288b`** and **`dev`
 and `main` are identical** (0 commits apart). **No unmerged work is
 outstanding, shipping or otherwise.** Everything landed this day was
-non-shipping — `pack/` has not been touched, so the modpack is
-byte-identical to `v0.8.0` and no release was minted.
+non-shipping — the modpack is byte-identical to `v0.8.0` and no release was
+minted. (The one `pack/` touch is three added `source_sha256` metadata
+fields in `pack/mods.lock.json`; no mod jar, mod set, or client artifact
+changed, so no L3 run was owed.)
 
 Landed 2026-08-12, in order: the promote `63f4a61` (#191, tracked by #190),
 then JUnit coverage for the two mods that had none (#194 — `0cc1e4c` #195
-vppquests, `baada43` #196 vppfixes).
+vppquests, `baada43` #196 vppfixes), then the local-mod source pin
+(`e5c288b` #199, closing #198).
+
+**Local-mod source pin (#198/#199) — the drift guard, and the one known
+exception (#200).** The three shipped local mods (`vppquests`, `vppfixes`,
+`vppintegration`) exist as **jars committed to git**, pinned in
+`pack/mods.lock.json` by `hashes.sha1`/`sha512`. Nothing tied a pinned jar
+back to the source it was built from: the JUnit tier compiles from
+*source*, `check_lockfile.py` never opens a jar, and `build_server.py`'s
+`ensure_local_mods_built()` only makes the jar match the *pin*, never the
+source. **A fix could merge to `main`, be covered by a passing named
+regression test, and never reach players.**
+
+Now each local-mod lock entry also carries **`source_sha256`** — a
+deterministic fingerprint over the mod's build inputs
+(`scripts/ci/local_mod_source_hash.py`), written by `resolve_one_local()`
+and verified by `scripts/ci/check_local_mod_sources.py` in the fast tier.
+Editing `mods-src/<modid>/src/**` without re-pinning now **fails CI**,
+naming the mod and the remedy (`python3 scripts/resolve_mods.py`, then
+commit the rebuilt jar *and* the lockfile). It is deliberately **not** a
+rebuild-and-compare-jar-hashes check: the fast tier is stdlib-only with no
+gradle or network.
+
+Read `source_sha256`'s semantic precisely: **"the source has not moved
+since the last pin"** — *not* "this jar was built from this source".
+#199 backfilled the baseline from current source, and for `vppquests` the
+pinned jar was built from **pre-`ef6d1bb`** source, so the backfill blessed
+one pre-existing discrepancy. **#200** documents it: rebuilding on a clean
+`main` with zero source edits changes exactly **one** of 53 jar entries
+(`QuestProgressTracker.class`; identical entry set, order, and zip
+timestamps — the build *is* deterministic), because `ef6d1bb` flipped
+`dependenciesSatisfied` from `private` to package-private for testability
+without re-pinning. **Behaviourally a no-op, no in-game impact.** The fix
+rewrites a jar hash under `pack/`, making it client-affecting and therefore
+owed an **L3 run — and `incus` is not installed in this environment**, so a
+PM cannot self-serve it. Disposition per #200: **fold the re-pin into the
+next `vppquests` change**, which needs a gate anyway and absorbs the delta.
+Do not silently re-pin just to make the check look right.
 
 **Test coverage (#194) — read this before assuming a green `JUnit (<mod>)`
 job means anything.** #183 gave every `mods-src/*` project a CI job, but two
@@ -136,9 +175,11 @@ The earlier "audited but not run-verified — watch the next release for a
   write-performing job keeps its own write block, which overrides the floor
   for that job only.
 
-The entire open backlog is **owner-gated**, so a resuming PM with no new
-owner input should verify `main`/green + no orphaned fixes, then enter the
-§7 idle-watch loop:
+The open backlog is **owner-gated or gate-blocked**, so a resuming PM with
+no new owner input should verify `main`/green + no orphaned fixes, then
+enter the §7 idle-watch loop. The one non-owner-gated item is **#200**
+(vppquests re-pin), and it is blocked on an L3 run this machine cannot
+perform — see above; it is not idle work a PM should pick up:
 
 - **`needs-owner`** (awaiting the owner in the issue thread): **#170**
   (security — prompt-injection surfaced for investigation, no unauthorized
