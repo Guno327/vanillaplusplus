@@ -1,11 +1,15 @@
 package dev.vanillaplusplus.vppskills.command;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import dev.vanillaplusplus.vppskills.VppSkills;
 import dev.vanillaplusplus.vppskills.data.ModAttachments;
 import dev.vanillaplusplus.vppskills.data.SkillProgressAttachment;
 import dev.vanillaplusplus.vppskills.reward.SkillAttributeApplier;
 import dev.vanillaplusplus.vppskills.server.ServerSkillEvents;
+import dev.vanillaplusplus.vppskills.server.ServerSkillTreeState;
+import dev.vanillaplusplus.vppskills.tree.SkillTreeCategory;
+import dev.vanillaplusplus.vppskills.unlock.SkillRefundValidator;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -14,6 +18,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -45,6 +50,18 @@ import java.util.Set;
  * or for repeated testing). Both variants share {@link #performRespec} so
  * the actual mutation (clear nodes/attributes, resync) can never drift
  * between the token-gated and forced paths.
+ *
+ * <p><b>#205 addition: {@code /vppskills refund <nodeId>}.</b> The
+ * per-node counterpart to {@code respec}'s "clear everything" - no
+ * permission gate (any player can refund their own single node) and no
+ * free-token gate either, since a single-node refund already costs the
+ * player the tree-connectivity risk {@link SkillRefundValidator} exists to
+ * police. All the actual legality logic (would this orphan a dependent
+ * node?) lives in {@link SkillRefundValidator#tryRefund} - this handler is
+ * deliberately thin: resolve the node's category, delegate, and on success
+ * clear just that one node's attribute modifiers via {@link
+ * SkillAttributeApplier#clearAll} before resyncing, mirroring how {@link
+ * #performRespec} does the same for every node at once.
  */
 @EventBusSubscriber(modid = VppSkills.MODID)
 public final class VppSkillsCommand {
@@ -91,6 +108,36 @@ public final class VppSkillsCommand {
 
                                             performRespec(player, progress, context.getSource());
                                             return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                                        })))
+                        .then(Commands.literal("refund")
+                                .then(Commands.argument("nodeId", StringArgumentType.word())
+                                        .executes(context -> {
+                                            ServerPlayer player = context.getSource().getPlayerOrException();
+                                            String nodeId = StringArgumentType.getString(context, "nodeId");
+                                            SkillProgressAttachment progress = player.getData(ModAttachments.SKILL_PROGRESS);
+
+                                            Optional<SkillTreeCategory> category = findCategoryOwning(nodeId);
+                                            if (category.isEmpty()) {
+                                                context.getSource().sendFailure(
+                                                        Component.literal("vppskills: unknown skill node '" + nodeId + "'."));
+                                                return 0;
+                                            }
+
+                                            SkillRefundValidator.Result result =
+                                                    SkillRefundValidator.tryRefund(category.get(), nodeId, progress);
+                                            if (result == SkillRefundValidator.Result.OK) {
+                                                SkillAttributeApplier.clearAll(player, Set.of(nodeId));
+                                                ServerSkillEvents.syncToPlayer(player);
+
+                                                context.getSource().sendSuccess(
+                                                        () -> Component.literal("vppskills: refunded '" + nodeId + "' - "
+                                                                + progress.availablePoints() + " skill point(s) now available."),
+                                                        true);
+                                                return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                                            }
+
+                                            context.getSource().sendFailure(Component.literal(refundFailureMessage(nodeId, result)));
+                                            return 0;
                                         }))));
     }
 
@@ -112,6 +159,34 @@ public final class VppSkillsCommand {
                 () -> Component.literal("vppskills: respec complete - cleared " + clearedNodeIds.size()
                         + " node(s), " + progress.availablePoints() + " skill point(s) now available."),
                 true);
+    }
+
+    /**
+     * Finds the {@link SkillTreeCategory} that owns {@code nodeId}, same
+     * "search every loaded category" approach {@link
+     * SkillAttributeApplier#clearAll} already uses - this command takes no
+     * category argument, so it has to resolve one from the node id alone.
+     */
+    private static Optional<SkillTreeCategory> findCategoryOwning(String nodeId) {
+        return ServerSkillTreeState.get().categories().values().stream()
+                .filter(category -> category.nodes().stream().anyMatch(node -> node.id().equals(nodeId)))
+                .findFirst();
+    }
+
+    /**
+     * Player-facing explanation for every non-OK {@link SkillRefundValidator.Result}
+     * - {@code WOULD_ORPHAN} in particular spells out WHY (see {@link
+     * SkillRefundValidator}'s class doc), since "no" alone doesn't tell a
+     * player they need to refund their other nodes first.
+     */
+    private static String refundFailureMessage(String nodeId, SkillRefundValidator.Result result) {
+        return switch (result) {
+            case NODE_NOT_FOUND -> "vppskills: unknown skill node '" + nodeId + "'.";
+            case NOT_UNLOCKED -> "vppskills: '" + nodeId + "' isn't unlocked - nothing to refund.";
+            case WOULD_ORPHAN -> "vppskills: can't refund '" + nodeId
+                    + "' - other unlocked nodes depend on it and would be cut off from the tree. Refund those first.";
+            case OK -> "vppskills: refund of '" + nodeId + "' succeeded."; // unreachable: OK is handled before this is called
+        };
     }
 
     private VppSkillsCommand() {
