@@ -30,6 +30,11 @@ CHECKS = [
     "check_storage_tiers.py",
     "check_mod_dependencies_offline.py",
     "check_smithing_material_mixin.py",
+    # GitHub #188: guards .github/workflows/'s explicit permissions:
+    # blocks (the #184 least-privilege-token pass) against regressing -
+    # a workflow silently losing its permissions: pin, or gaining a
+    # write op without a matching scope, would otherwise go undetected.
+    "check_workflow_permissions.py",
 ]
 
 
