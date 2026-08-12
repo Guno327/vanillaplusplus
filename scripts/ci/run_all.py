@@ -21,6 +21,11 @@ CHECKS = [
     "validate_json.py",
     "validate_snbt.py",
     "check_lockfile.py",
+    # GitHub #198: guards mods-src/<modid>/ source from drifting from the
+    # committed/pinned local-mod jar (check_lockfile.py above never opens a
+    # jar, and the JUnit tier compiles from source directly, so neither
+    # catches an edit that was never rebuilt+re-pinned).
+    "check_local_mod_sources.py",
     "lint_rhino.py",
     "check_vppquests.py",
     "check_forging_recipes.py",

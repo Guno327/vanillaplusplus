@@ -44,6 +44,14 @@ from pathlib import Path
 import build_local_mods
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# local_mod_source_hash.py lives in scripts/ci/, one level below scripts/ -
+# imported here (rather than moved) so scripts/ci/ stays the one place all
+# CI checks live; see check_local_mod_sources.py (GitHub #198) for the
+# consumer of the "source_sha256" field this writes below.
+sys.path.insert(0, str(ROOT / "scripts" / "ci"))
+import local_mod_source_hash  # noqa: E402
+
 MANIFEST = ROOT / "pack" / "manifest.json"
 LOCKFILE = ROOT / "pack" / "mods.lock.json"
 UA = {"User-Agent": "vanilla-plus-plus/0.1 (+github.com/gunnarhovik327)"}
@@ -141,6 +149,12 @@ def resolve_one_local(slug, entry):
             f"(see mods-src/{slug}/README.md \"Build instructions\")"
         )
     data = jar_path.read_bytes()
+    # GitHub #198: pin a fingerprint of the SOURCE this jar was built from,
+    # alongside the jar's own hashes.sha1/sha512 above - nothing previously
+    # tied the pinned jar back to the mods-src/<slug>/ tree it came from, so
+    # editing source without rebuilding+re-pinning passed CI silently.
+    # check_local_mod_sources.py (scripts/ci/) verifies this on every run.
+    source_sha256 = local_mod_source_hash.fingerprint(jar_path.parent.parent.parent)
     return {
         "slug": slug,
         "project_id": entry.get("local_project_id", slug),
@@ -157,6 +171,7 @@ def resolve_one_local(slug, entry):
             "sha1": hashlib.sha1(data).hexdigest(),
             "sha512": hashlib.sha512(data).hexdigest(),
         },
+        "source_sha256": source_sha256,
         "filesize": len(data),
     }
 
