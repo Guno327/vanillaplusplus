@@ -242,6 +242,27 @@ on:
         required: true
         default: true
 
+# Least-privilege token (#184, closed under #188): this is the
+# least-privilege FLOOR for every job in this file that doesn't declare
+# its own permissions:. `compute-version` only checks out the repo and
+# runs scripts/ci/next_version.py (a read-only ref guard + SemVer
+# computation) - contents: read covers it. `fast-tier`/`boot-tier` are
+# reusable-workflow calls (`uses: ./.github/workflows/ci.yml` /
+# `boot.yml`) - each of those files already declares its own top-level
+# `contents: read`, so this floor doesn't loosen or restrict them
+# further. `mint-release` is the one job that actually writes (creates
+# the release, opens the sync PR, dispatches publish-modrinth.yml) and
+# opts UP from this floor via its own job-level `permissions:` block
+# below (contents: write / pull-requests: write / actions: write),
+# which fully overrides - not merges with - this top-level block for
+# that job only. Before this was added, `compute-version` silently fell
+# back to the repository's default token permissions instead of an
+# explicit grant - exactly the #184 failure mode
+# check_workflow_permissions.py (#188) exists to catch; this closes that
+# hole rather than relaxing the check.
+permissions:
+  contents: read
+
 concurrency:
   group: mint-release
   cancel-in-progress: false

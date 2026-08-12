@@ -389,35 +389,40 @@ def check_workflow_permissions(root):
             errors.append(f"{rel}: PARSE FAILURE - {e}")
             continue
 
-        # ---- rule (a): the file must not be left entirely unguarded ----
-        # Strictly, "top-level OR on every job" is the ideal - but this
-        # repo's own mint-release.yml (ground-truthed by reading it, see
-        # its header's "Pipeline shape") is a legitimate counterexample:
-        # it has no top-level permissions:, and only its one job that
-        # actually performs writes (mint-release) declares a permissions:
-        # block; compute-version/fast-tier/boot-tier are pure-read/
-        # reusable-workflow-call jobs that were deliberately left to fall
-        # back rather than hand-annotate four more no-op blocks. Requiring
-        # a declaration on literally every job would flag that file as a
-        # false positive despite it being exactly the least-privilege
-        # shape #184/#188 want. So the rule actually enforced here is: the
-        # FILE must contain at least one explicit permissions: block
-        # somewhere (top-level or on any job) - a file with ZERO
-        # permissions declarations anywhere falls back entirely to the
-        # repository default token (the original #184 failure mode) and
-        # is flagged. Rule (c) below is what actually catches the
-        # dangerous case per-job: any job that performs a write operation
-        # without a sufficient scope in its own effective permissions
-        # (its own permissions: if set, else the top-level block if set,
-        # else "unknown/default" - see _effective_permissions_for_job).
-        any_job_permissions = any(j["permissions"] is not None for j in jobs.values())
-        if not _has_explicit_declaration(top_permissions) and not any_job_permissions:
-            errors.append(
-                f"{rel}: no 'permissions:' block declared anywhere (not top-level, not on "
-                "any job) - the token falls back to the repository default, which is "
-                "write-all unless hardened outside this repo's own YAML; declare an "
-                "explicit permissions: block (top-level or per-job)")
-            continue
+        # ---- rule (a): every job must be covered by an explicit grant ----
+        # Strict form: a workflow passes only if it has a top-level
+        # permissions: block (which covers every job in the file, since a
+        # job without its own block inherits it) OR every single job
+        # declares its own permissions: block. A top-level block that's
+        # missing while even ONE job has no block of its own means that
+        # job silently falls back to the repository default token - the
+        # #184 failure mode this check exists to catch - so that's a
+        # per-job FAIL naming the specific job.
+        #
+        # This used to be relaxed to a file-level "at least one
+        # declaration somewhere" check because this repo's own
+        # mint-release.yml had no top-level block and left three jobs
+        # (compute-version/fast-tier/boot-tier) with no permissions: of
+        # their own - a real, silent fallback, not a false positive. #188
+        # fixed that workflow (added a `contents: read` top-level floor,
+        # with the one write-performing job opting up via its own
+        # job-level block) instead of relaxing this check further, so the
+        # strict rule is achievable and enforced here. Do not re-relax
+        # this without fixing the underlying workflow first - a passing
+        # validator that tolerates a silent-fallback job is worse than a
+        # failing one.
+        if not _has_explicit_declaration(top_permissions):
+            uncovered_jobs = [name for name, job in jobs.items() if job["permissions"] is None]
+            for job_name in uncovered_jobs:
+                errors.append(
+                    f"{rel}: job {job_name!r} has no 'permissions:' block of its own and "
+                    "the file has no top-level 'permissions:' block either - this job's "
+                    "token falls back to the repository default, which is write-all "
+                    "unless hardened outside this repo's own YAML; declare an explicit "
+                    "permissions: block (top-level, covering every job, or on this job "
+                    "specifically)")
+            if uncovered_jobs:
+                continue
 
         # ---- rule (b): write-all is always a FAIL ----
         if top_permissions == "write-all":

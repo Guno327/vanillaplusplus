@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v4
 """)
             errors, _stats = cwp.check_workflow_permissions(Path(tmp))
-            self.assertTrue(any("no 'permissions:' block declared anywhere" in e for e in errors))
+            self.assertTrue(any("'build'" in e and "no 'permissions:' block of its own" in e for e in errors))
 
     # ---- (2) write-all -> FAIL ----
     def test_write_all_top_level_fails(self):
@@ -182,6 +182,111 @@ jobs:
 """)
             errors, _stats = cwp.check_workflow_permissions(Path(tmp))
             self.assertTrue(any("'b'" in e for e in errors))
+
+    # ---- rule (a), strict form (#188 follow-up): a top-level block
+    # covers every job in the file; without one, EVERY job must declare
+    # its own permissions: block or that job is a named FAIL. ----
+    def test_top_level_block_covers_a_job_with_no_block_of_its_own(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _write_workflow(tmp, "top-level-covers.yml", """\
+name: Top level covers
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: noop
+        run: echo hi
+""")
+            errors, _stats = cwp.check_workflow_permissions(Path(tmp))
+            self.assertEqual(errors, [])
+
+    def test_no_top_level_one_job_covered_sibling_uncovered_fails_naming_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _write_workflow(tmp, "partial-coverage.yml", """\
+name: Partial coverage
+
+on:
+  workflow_dispatch:
+
+jobs:
+  covered:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: noop
+        run: echo hi
+  uncovered:
+    runs-on: ubuntu-latest
+    steps:
+      - name: noop
+        run: echo hi
+""")
+            errors, _stats = cwp.check_workflow_permissions(Path(tmp))
+            self.assertTrue(any("'uncovered'" in e and "no 'permissions:' block of its own" in e for e in errors))
+            self.assertFalse(any("'covered'" in e for e in errors))
+
+    def test_no_top_level_but_every_job_has_its_own_block_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            _write_workflow(tmp, "every-job-covered.yml", """\
+name: Every job covered
+
+on:
+  workflow_dispatch:
+
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: noop
+        run: echo hi
+  b:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: noop
+        run: echo hi
+""")
+            errors, _stats = cwp.check_workflow_permissions(Path(tmp))
+            self.assertEqual(errors, [])
+
+    def test_reusable_workflow_call_job_with_no_steps_under_top_level_block_passes(self):
+        # jobs.<id>.uses: (a reusable-workflow call) has no runs-on/steps
+        # of its own - must not crash the run: scanner or the permissions
+        # walk, and is fully covered by a top-level block like any other
+        # job (mirrors mint-release.yml's fast-tier/boot-tier jobs).
+        with tempfile.TemporaryDirectory() as tmp:
+            _write_workflow(tmp, "reusable-call.yml", """\
+name: Reusable call
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: noop
+        run: echo hi
+  reused:
+    needs: build
+    uses: ./.github/workflows/some-other.yml
+""")
+            errors, _stats = cwp.check_workflow_permissions(Path(tmp))
+            self.assertEqual(errors, [])
 
     # ---- other write-op scopes ----
     def test_pr_create_needs_pull_requests_write(self):
