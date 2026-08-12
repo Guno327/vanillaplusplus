@@ -8,23 +8,43 @@ feature branches + PR only, Conventional Commits, tests-first). Start at
 orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
-**Current status (2026-08-11)**: shipped release is **`v0.8.0`**
-(`pack/VERSION` == `0.8.0`); `main` is green (fast + scheduled boot; latest
-L3 GATE: PASS on the last promote) and carries all shipping work — **no
-unmerged shipping work is outstanding.** `dev` is ahead of `main` by the
-vppskills custom skill-tree mod built through **Phase B** (merges `da24691`
-#175 = phases 1-3 foundation, `cac6576` #180 = XP economy +
-one-free-respec) plus two CI-infrastructure merges landed 2026-08-11
-(`786682c` #185 = #183, `2f7535f` #186 = #184; see the CI section below).
-All of it is **non-shipping**. The pack is deliberately **untouched** —
-`puffish_skills` is still the live in-game skill system — so this dev lead
-ships nothing until the #163 Phase-C cutover is approved (see below). CI
-runs on PRs and on `main`, not on `dev` pushes, so these dev merges show no
-dev CI run; each rode in green on its own feature-branch PR before merge.
-The long narrative below (from the v0.3.0 status paragraph) is an
-**append-only historical log** — accurate for its date, not the current
-build; reconstruct current reality from `git log`, the GitHub releases, and
-open issues/PRs per ORCHESTRATION §3, not from the older paragraphs here.
+**Current status (2026-08-12)**: shipped release is **`v0.8.0`**
+(`pack/VERSION` == `0.8.0`); `main` is green and **`dev` and `main` are now
+identical** (0 commits apart) after the non-shipping promote `63f4a61`
+(#191, tracked by #190). **No unmerged work is outstanding, shipping or
+otherwise.**
+
+That promote carried onto `main`: the vppskills custom skill-tree mod
+through **Phase B** (`da24691` #175 = phases 1-3 foundation, `cac6576` #180
+= XP economy + one-free-respec) and the four CI-infrastructure landings of
+2026-08-11/12 (#183 JUnit tier, #184 least-privilege permissions, #188
+permissions enforcement + Modrinth dry-run). **All of it is
+non-shipping**: the promote diff touched only `mods-src/vppskills/**`,
+`scripts/ci/**`, `.github/workflows/**`, `.gitignore`, and this file —
+`pack/`, `server/`, `nix/`, and `flake.nix` were untouched, so the shipped
+modpack is byte-identical and no release was implied or minted.
+`puffish_skills` is still the live in-game skill system; **nothing ships
+until the #163 Phase-C cutover is approved** (see below).
+
+Two consequences of that promote worth knowing:
+
+- **The JUnit tier now actually guards `main`.** `mods-tests.yml`'s
+  `push: branches: [main]` half had been inert since #183 (it only ever ran
+  on PR branches), so `main` was passing by omission. First `push: main`
+  run — `31564071739` on `63f4a61` — is **green** across all four mods.
+- **The L3 gate was deliberately not run for this promote**, and that was
+  correct, not a shortcut: the gate is scoped to *client-affecting* merges
+  to `main` and to `mint-release.yml` dispatches. A mods-src/CI-only diff
+  changes no pack content, no mod set, and no client artifact. `CI (boot)`
+  likewise did not run on the push (path-filtered, no pack change) — also
+  correct behaviour, not a gap. **The gate is unchanged and still
+  mandatory for anything touching `pack/`.**
+
+CI runs on PRs and on `main`, not on `dev` pushes. The long narrative below
+(from the v0.3.0 status paragraph) is an **append-only historical log** —
+accurate for its date, not the current build; reconstruct current reality
+from `git log`, the GitHub releases, and open issues/PRs per ORCHESTRATION
+§3, not from the older paragraphs here.
 
 **CI tiers as of 2026-08-11** (changed — do not assume the older narrative
 below): there are now *two* PR-facing tiers. **CI (fast)** (`ci.yml`) is
