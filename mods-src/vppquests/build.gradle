@@ -58,6 +58,38 @@ repositories {
     mavenCentral()
 }
 
+// #194: unit tests for the pure/seam pieces of vppquests (data model parsing,
+// registry, the GamestageBridge/QuestRewardBridge pack-glue seams, and the
+// network payload codecs). No test infra existed for this mod before this -
+// convention copied verbatim from mods-src/vppskills/build.gradle's #163
+// phase-2 setup. The test sourceSet's classpath is deliberately widened to
+// exactly match sourceSets.main's (rather than relying on whatever
+// "implementation"-derived classpath the java-library plugin would otherwise
+// give "testImplementation") because net.neoforged.moddev attaches the
+// resolved NeoForge/Minecraft jars straight onto the MAIN sourceSet's
+// compile/runtime classpaths, not through a config testImplementation extends
+// by default - tests need the exact same Minecraft/NeoForge classes
+// (ResourceLocation, Codec, etc.) this mod's own main code compiles against.
+sourceSets {
+    test {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+dependencies {
+    // Pinned to the exact JUnit 5.10.2 already present in this environment's
+    // Gradle dependency cache (no version bump of any mod/lockfile dependency
+    // here - this is a brand-new test-only dependency, the mod's own
+    // NeoForge/Minecraft/library pins in gradle.properties are untouched).
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+}
+
+tasks.named("test", Test).configure {
+    useJUnitPlatform()
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
     options.release = 21
