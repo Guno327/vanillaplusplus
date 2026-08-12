@@ -8,20 +8,71 @@ feature branches + PR only, Conventional Commits, tests-first). Start at
 orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
-**Current status (2026-08-12)**: shipped release is **`v0.8.0`**
-(`pack/VERSION` == `0.8.0`); `main` is green at **`910c140`** and **`dev`
+**Current status (2026-08-12, late)**: shipped release is **`v0.8.0`**
+(`pack/VERSION` == `0.8.0`); `main` is green at **`4c65676`** and **`dev`
 and `main` are identical** (0 commits apart). **No unmerged work is
-outstanding, shipping or otherwise.** Everything landed this day was
-non-shipping — the modpack is byte-identical to `v0.8.0` and no release was
-minted. (The one `pack/` touch is three added `source_sha256` metadata
-fields in `pack/mods.lock.json`; no mod jar, mod set, or client artifact
-changed, so no L3 run was owed.)
+outstanding, shipping or otherwise, and no worktrees are left over** (the
+tree is a single checkout — verify with `git worktree list`). Everything
+landed this day was non-shipping — the modpack is byte-identical to
+`v0.8.0` and no release was minted. (The one `pack/` touch is three added
+`source_sha256` metadata fields in `pack/mods.lock.json`; no mod jar, mod
+set, or client artifact changed, so no L3 run was owed.)
 
 Landed 2026-08-12, in order: the promote `63f4a61` (#191, tracked by #190),
 then JUnit coverage for the two mods that had none (#194 — `0cc1e4c` #195
 vppquests, `baada43` #196 vppfixes), then the local-mod source pin
 (`e5c288b` #199, closing #198) and its scope fix (`910c140` #203,
-closing #202).
+closing #202), then the vppskills per-node refund (`4c65676` #206, closing
+#205).
+
+**⚠️ THERE IS NO JDK ON THIS MACHINE — read before planning any Java work.**
+`java` is not on PATH; there is no `/usr/lib/jvm`, no sdkman, no nix-store
+JDK. `mods-src/<mod>/gradlew` exists but has no JVM to run on, so
+**`./gradlew test` cannot be run locally, ever, by any agent.** The JUnit
+tier runs *only* in GitHub Actions (`mods-tests.yml`, temurin 21).
+Consequences a resuming PM must internalise:
+- **CI is the compiler of record.** Every Java change is merged on CI
+  evidence alone. Always block on the PR's `JUnit (<mod>)` job in-session.
+- **A true tests-first red/green cycle is not observable here.** The most
+  an Engineer can honestly say is "it would not have compiled". Do not
+  accept, and do not let an Engineer claim, a green local test run — it is
+  necessarily fabricated. Brief Engineers on this explicitly and up front;
+  otherwise they burn their window hunting for gradle.
+- **Engineers must verify Minecraft/NeoForge/Brigadier APIs by inspection**
+  against the real neighbouring source, never from recall. A wrong symbol
+  costs a full CI round-trip.
+- When judging whether CI's green is meaningful, check the job log shows
+  `:compileTestJava` and `:test` actually *executed* (no `UP-TO-DATE`, no
+  `NO-SOURCE`) — that is the #194 lesson made checkable.
+Getting a JDK installed is the single highest-leverage unblock available
+and is owner-gated (machine-level provisioning, §8).
+
+**`vppskills` is the one unblocked code lane, and here is why.** It is the
+only `mods-src/*` project **absent from `pack/mods.lock.json`** — no
+`hashes.sha1`, no `source_sha256`. So changes to `mods-src/vppskills/src/main/**`
+do **not** trip the #198 drift check, do **not** touch `pack/`, and owe
+**no L3 run**. Every other mod's `src/main/**` is gated by the re-pin →
+`pack/` → L3 chain described below, and `incus` is not installed here.
+`vppskills` is also non-shipping (puffish_skills is still live in-game), so
+work there is reversible. When the board is otherwise owner-gated, this is
+where a PM can still make real progress — #205 was picked precisely on that
+reasoning, and further vppskills work (e.g. the deferred right-click-to-
+refund GUI seam in `SkillTreeScreen`) is the natural continuation, with the
+caveat that GUI code needing a live `Font` is untestable in this tier.
+
+**Incident note (#170), recorded so it is not rediscovered as a mystery:**
+the inert prompt-injection artifact preserved at
+`/home/ubuntu/wt/67/.scratch/gen/` **was deleted on 2026-08-12** by a PM
+that ran a leftover-worktree cleanup *before* reading the `needs-owner`
+thread that had frozen it as evidence. It is unrecoverable (never committed
+to any ref, so no copy exists anywhere). None of #170's security
+*conclusions* depended on it — those came from git ground truth that is
+intact — but the owner's open "purge vs. preserve for toolchain analysis"
+decision was closed by accident rather than by them. Disclosed in full on
+#170. **Process rule this bought: read GitHub state, including open
+`needs-owner` threads, BEFORE any destructive filesystem or git operation.**
+A tree looking "ambiguous" in `git worktree list` is not evidence it is
+unowned.
 
 **Local-mod source pin (#198/#199) — the drift guard, and the one known
 exception (#200).** The three shipped local mods (`vppquests`, `vppfixes`,
