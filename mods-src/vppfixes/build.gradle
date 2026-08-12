@@ -50,7 +50,29 @@ repositories {
     mavenCentral()
 }
 
+// GitHub #194: minimal from-scratch JUnit 5 test sourceSet, matching
+// mods-src/vppskills' established convention. The test sourceSet's classpath
+// is widened to exactly match sourceSets.main's (rather than relying on
+// whatever "implementation"-derived classpath the java-library plugin would
+// otherwise give "testImplementation") because net.neoforged.moddev attaches
+// the resolved NeoForge/Minecraft jars straight onto the MAIN sourceSet's
+// compile/runtime classpaths, not through a config testImplementation extends
+// by default.
+sourceSets {
+    test {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
 dependencies {
+    // Pinned to the exact JUnit 5.10.2 already present in this environment's
+    // Gradle dependency cache (no version bump of any mod/lockfile dependency
+    // here - this is a brand-new test-only dependency, the mod's own
+    // NeoForge/Minecraft/library pins in gradle.properties are untouched).
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+
     // MixinExtras' @ModifyReturnValue/@Redirect/@WrapMethod are used by the mixins below.
     // NeoForge bundles MixinExtras at runtime, but the annotation processor + compile
     // classpath are needed to build. Group id is io.github.llamalad7 (not
@@ -70,6 +92,10 @@ dependencies {
     // Filename matches pack/mods.lock.json's pinned "filename" for modid toms_storage -
     // bump both together, never independently.
     compileOnly files("libs/toms_storage-1.21-${toms_storage_version}.jar")
+}
+
+tasks.named("test", Test).configure {
+    useJUnitPlatform()
 }
 
 tasks.withType(JavaCompile).configureEach {
