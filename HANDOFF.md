@@ -9,7 +9,7 @@ orchestrator-mode + standing-loop model described in older DECISIONS.md
 entries is historical context only.
 
 **Current status (2026-08-12)**: shipped release is **`v0.8.0`**
-(`pack/VERSION` == `0.8.0`); `main` is green at **`e5c288b`** and **`dev`
+(`pack/VERSION` == `0.8.0`); `main` is green at **`910c140`** and **`dev`
 and `main` are identical** (0 commits apart). **No unmerged work is
 outstanding, shipping or otherwise.** Everything landed this day was
 non-shipping — the modpack is byte-identical to `v0.8.0` and no release was
@@ -20,7 +20,8 @@ changed, so no L3 run was owed.)
 Landed 2026-08-12, in order: the promote `63f4a61` (#191, tracked by #190),
 then JUnit coverage for the two mods that had none (#194 — `0cc1e4c` #195
 vppquests, `baada43` #196 vppfixes), then the local-mod source pin
-(`e5c288b` #199, closing #198).
+(`e5c288b` #199, closing #198) and its scope fix (`910c140` #203,
+closing #202).
 
 **Local-mod source pin (#198/#199) — the drift guard, and the one known
 exception (#200).** The three shipped local mods (`vppquests`, `vppfixes`,
@@ -41,6 +42,26 @@ naming the mod and the remedy (`python3 scripts/resolve_mods.py`, then
 commit the rebuilt jar *and* the lockfile). It is deliberately **not** a
 rebuild-and-compare-jar-hashes check: the fast tier is stdlib-only with no
 gradle or network.
+
+**The fingerprint covers `src/main/**` only — not `src/test/**` (#202,
+`910c140`).** As first landed it hashed all of `src/**`, so adding a JUnit
+test to a local mod tripped the drift check even though the jar could not
+change (12 of vppquests' 39 inputs were test files). The printed remedy —
+re-pin the jar — would have turned every test-only PR into a
+`pack/`-touching, L3-owing change, i.e. **it gate-blocked writing tests**,
+backwards for a tests-first charter. `build.gradle` stays included despite
+also configuring the test task, because it *can* change the jar; that
+asymmetry is deliberate and documented in the module docstring.
+
+**Practical consequence for a resuming PM, worth internalising before
+planning:** a change under `mods-src/<modid>/src/test/**` is cheap and
+unblocked, but **any `src/main/**` change now requires a rebuild + re-pin,
+which touches `pack/` and therefore owes an L3 run this machine cannot
+perform.** That is why the `QuestScreen` `ellipsize`/`stripContentWidth`/
+`maxChapterScroll` clipping coverage (#159/#164) named below as the one
+valuable uncovered area is **not** currently pickup-able: the helpers are
+`private` and `Font`-bound, so covering them needs a `src/main/**`
+extraction, not just a new test file.
 
 Read `source_sha256`'s semantic precisely: **"the source has not moved
 since the last pin"** — *not* "this jar was built from this source".
